@@ -20,18 +20,18 @@ class Functions {
      */
     public function month_cze($month) {
         switch ($month) {
-            case '01': return 'leden';
-            case '02': return 'únor';
-            case '03': return 'březen';
-            case '04': return 'duben';
-            case '05': return 'květen';
-            case '06': return 'červan';
-            case '07': return 'červenec';
-            case '08': return 'srpen';
-            case '09': return 'září';
-            case '10': return 'říjen';
-            case '11': return 'listopad';
-            case '12': return 'prosinec';
+            case '01': return 'Leden';
+            case '02': return 'Únor';
+            case '03': return 'Březen';
+            case '04': return 'Duben';
+            case '05': return 'Květen';
+            case '06': return 'Červen';
+            case '07': return 'Červenec';
+            case '08': return 'Srpen';
+            case '09': return 'Září';
+            case '10': return 'Říjen';
+            case '11': return 'Listopad';
+            case '12': return 'Prosinec';
             default: return '';
         }
     }
@@ -44,18 +44,18 @@ class Functions {
      */
     public function month_eng($month) {
         switch ($month) {
-            case '01': return 'january';
-            case '02': return 'february';
-            case '03': return 'march';
-            case '04': return 'april';
-            case '05': return 'may';
-            case '06': return 'june';
-            case '07': return 'july';
-            case '08': return 'august';
-            case '09': return 'september';
-            case '10': return 'october';
-            case '11': return 'november';
-            case '12': return 'december';
+            case '01': return 'January';
+            case '02': return 'February';
+            case '03': return 'March';
+            case '04': return 'April';
+            case '05': return 'May';
+            case '06': return 'June';
+            case '07': return 'July';
+            case '08': return 'August';
+            case '09': return 'September';
+            case '10': return 'October';
+            case '11': return 'November';
+            case '12': return 'December';
             default: return '';
         }
     }
