@@ -111,6 +111,22 @@
     
 var switcher = 0;
 
+	function handleSwitchOperator(isAnd) {
+		$("#frm-homepageSearchForm .tree").fancytree({
+			'selectMode'    :   isAnd ? 2 : 3
+		});
+	}
+
+	$('#frm-homepageSearchForm input[type=radio]').change(function(){
+		handleSwitchOperator($(this).val() == 'AND');
+	});
+
+	{if isset($form['operator']) && $form['operator']->value == 'AND'}
+		$(function() {
+			handleSwitchOperator(true);
+		});
+	{/if}
+
    $('#123x').click(function() {
 
         var fnVisitor;
