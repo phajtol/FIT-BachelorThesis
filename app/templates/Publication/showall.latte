@@ -1,0 +1,182 @@
+
+{block content}
+
+<script>
+
+    function refresh() {
+
+        var id;
+
+        $('.deletePublicationButton').on('click', function () {
+            id = this.id.split('-')[1];
+            var names = $('#snippet--record-' + id + " td");
+            var finalName = names.eq(0).text();
+            $('#DeletePublicationModalBody').html("Are you sure to delete <strong>" + finalName + "</strong> ?");
+        });
+
+        $('#DeletePublicationModalConfirm').on('click', function (event) {
+            $.nette.ajax({
+                url: {link deletePublication!},
+                data: {
+                    publicationId: id
+                }
+            });
+        });
+
+    }
+
+
+    $.nette.ext('name', {
+        complete: function () {
+            refresh();
+        }
+    });
+
+
+</script>
+
+
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Publications</a></li>
+    </ol>
+</div>
+
+<div class="modal fade" id="DeletePublicationModal" tabindex="-1" role="dialog" aria-labelledby="DeletePublicationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="DeletePublicationModalLabel">Delete publication</h4>
+            </div>
+            <div class="modal-body" id="DeletePublicationModalBody">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="DeletePublicationModalConfirm">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{snippet deletePublication}
+    {if $publicationDeleted}
+        <script>
+            $('#DeletePublicationModal').modal('hide');
+        </script>
+    {/if}
+{/snippet}
+
+<div class="row">
+    {snippet publicationShowAll}
+        <div class="row">
+            <div class="col-lg-4">
+                {form searchForm}
+                    <ul class=error n:if="$form->ownErrors">
+                        <li n:foreach="$form->ownErrors as $error">{$error}</li>
+                    </ul>
+                    <div class="input-group">
+                        {input keywords class => "form-control"} 
+                        <span class="input-group-btn">
+                            {input send, class => "btn btn-default"}
+                        </span>
+                    </div>
+                {/form}
+            </div>
+            <div class="col-lg-3">
+            </div>
+            <div class="col-lg-4">
+				{control individualFilter}
+            </div>
+            <div class="col-lg-1">
+                <a class="btn btn-success" n:href="Publication:addnew" role="button" title="Add new Publication"><span class="glyphicon glyphicon-plus"></span></a>
+            </div>
+        </div>
+        <ul class="pagination pagination-sm" style="margin: 20px 0 0 0;">
+                {if $filter == 'none'}
+                    <li class="active"><a n:href="Publication:showall (expand) $params, '', '', '', 'none'">NO FILTER</a></li>
+                    {else}
+                    <li><a n:href="Publication:showall (expand) $params, '', '', '', 'none'">NO FILTER</a></li>
+                    {/if}
+                {foreach $alphabet as $letter}
+                    {if $letter == $filter}
+                        <li class="active"><a n:href="Publication:showall (expand) $params, '', '', '', $letter">{$letter}</a></li>
+                        {else}
+                        <li><a n:href="Publication:showall (expand) $params, '', '', '', $letter">{$letter}</a></li>
+                        {/if}
+                    {/foreach}
+        </ul>
+        {if count($records)}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                {if $sort == 'title' && $order == 'ASC'}
+                                    <a n:href="Publication:showall (expand) $params,'title','DESC'">Title &#9650;</a>
+                                {elseif $sort == 'title' && $order == 'DESC'}
+                                    <a n:href="Publication:showall (expand) $params,'title','ASC'">Title &#9660;</a>
+                                {else}
+                                    <a n:href="Publication:showall (expand) $params,'title','ASC'">Title</a>
+                                {/if}
+                            </th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody n:snippet="publicationShowAllRecords">
+                        {foreach $records as $record}
+                            <tr n:snippet="record-$record->id">
+                                <td>
+                                    <a n:href="Publication:showpub, $record->id">{$record->title}</a>
+                                    {ifset $authorsByPubId[$record->id]}
+                                        <br>
+                                        <span class="authors">{$authorsByPubId[$record->id]|authors}</span>
+                                    {/ifset}
+                                </td>
+                                <td>
+
+                                    <button type="button" id="deletePublicationButton-{$record->id}" class="btn btn-danger btn-xs deletePublicationButton" data-toggle="modal" data-target="#DeletePublicationModal" title="Delete publication">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                    <a class="btn btn-primary btn-xs" n:href="Publication:addnew, $record->id" role="button" title="Edit publication"><span class="glyphicon glyphicon-pencil"></span></a>
+                                        {if in_array($record->id, $recordsMy)}
+                                        <a class="btn btn-warning btn-xs" n:href="unsetFavouritePub!, $record->id" role="button" title="Remove from my publications"><span class="glyphicon glyphicon-star"></span></a>
+                                        {else}
+                                        <a class="btn btn-default btn-xs" n:href="setFavouritePub!, $record->id" role="button" title="Add to my publications"><span class="glyphicon glyphicon-star"></span></a>
+                                        {/if}
+
+
+                                </td>
+                            </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+            </div>
+
+            {control vp}
+        {else}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <p>Nothing found.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {/if}
+    {/snippet}
+</div>
+
+<script>
+    refresh();
+</script>

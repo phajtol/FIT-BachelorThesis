@@ -1,0 +1,118 @@
+<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.editAttributeButton',
+       			'.showPublicationsRelatedToAttributeButton',
+       			'#DeleteAttributeModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deleteAttributeButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeleteAttributeModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+	});
+</script>
+
+
+
+<div class="modal fade" id="DeleteAttributeModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteAttributeModalLabel{$uniqid}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="DeleteAttributeModalLabel{$uniqid}">Delete Attribute</h4>
+            </div>
+            <div class="modal-body" id="DeleteAttributeModalBody{$uniqid}">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <p class="text-danger float-left"><small><strong>Check</strong> whether there are any <strong>associated Publications</strong> with this <strong>Attribute</strong>!</small></p>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="DeleteAttributeModalConfirm{$uniqid}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AddNewAttributeModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="AddNewAttributeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="AddNewAttributeModalLabel{$uniqid}">Add new Attribute</h4>
+            </div>
+            {snippet attributeAddForm}
+                {control attributeAddForm}
+				{if $attributeAdded}
+					<script>
+						$('#AddNewAttributeModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="EditAttributeModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="EditAttributeModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="EditAttributeModalLabel{$uniqid}">Edit Attribute</h4>
+			</div>
+			{snippet attributeEditForm}
+				{control attributeEditForm}
+				{if $attributeEdited}
+					<script>
+						$('#EditAttributeModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="PublicationsRelatedToAttributeModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="PublicationsRelatedToAttributeModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="PublicationsRelatedToAttributeModal{$uniqid}">Associated Publications</h4>
+			</div>
+			<div class="modal-body">
+				{snippet publicationsRelatedToAttribute}
+					{if count($publicationsRelatedToAttribute)}
+						<ul n:foreach="$publicationsRelatedToAttribute as $pub">
+							<li><a target="_blank" href="{plink Publication:showpub, $rel->publication->id}">{$rel->publication->title}</a></li>
+						</ul>
+					{else}
+						There are no associated Publications with this Attribute.
+					{/if}
+				{/snippet}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{snippet deleteAttribute}
+	{if $attributeDeleted}
+		<script>
+			$('#DeleteAttributeModal{$uniqid|noescape}').modal('hide');
+			refresh();
+		</script>
+	{/if}
+{/snippet}
+

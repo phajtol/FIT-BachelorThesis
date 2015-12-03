@@ -1,0 +1,31 @@
+{define searchForm}
+	{form searchForm}
+		<ul class=error n:if="$form->ownErrors">
+			<li n:foreach="$form->ownErrors as $error">{$error}</li>
+		</ul>
+		<div class="input-group">
+			{input keywords class => "form-control"}
+			<span class="input-group-btn">
+				{input send, class => "btn btn-default"}
+			</span>
+		</div>
+	{/form}
+{/define}
+{define nothingFound}
+	<div class="table-responsive">
+		<table class="table">
+			<thead>
+				<tr>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<p>Nothing found.</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+{/define}

@@ -1,0 +1,113 @@
+<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.editCategoryButton',
+       			'.addSubcategoryButton',
+       			'#DeleteCategoryModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deleteCategoryButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeleteCategoryModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+	});
+</script>
+
+
+
+<div class="modal fade" id="DeleteCategoryModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteCategoryModalLabel{$uniqid}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="DeleteCategoryModalLabel{$uniqid}">Delete {$entityName}</h4>
+            </div>
+            <div class="modal-body" id="DeleteCategoryModalBody{$uniqid}">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <p class="text-danger float-left"><small><strong>Check</strong> whether there are any <strong>associated records</strong> with this <strong>{$entityName}</strong>!</small></p>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="DeleteCategoryModalConfirm{$uniqid}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AddNewCategoryModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="AddNewCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="AddNewCategoryModalLabel{$uniqid}">Add new {$entityName}</h4>
+            </div>
+            {snippet categoryAddForm}
+                {control categoryAddForm}
+				{if $categoryAdded}
+					<script>
+						$('#AddNewCategoryModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="EditCategoryModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="EditCategoryModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="EditCategoryModalLabel{$uniqid}">Edit {$entityName}</h4>
+			</div>
+			{snippet categoryEditForm}
+				{control categoryEditForm}
+				{if $categoryEdited}
+					<script>
+						$('#EditCategoryModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="AddSubcategoryModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="AddSubcategoryModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="AddSubcategoryModalLabel{$uniqid}">Add subrecord of {$entityName}</h4>
+			</div>
+			{snippet categoryAddSubForm}
+				{control categoryAddSubForm}
+				{if $subcategoryAdded}
+					<script>
+						$('#AddSubcategoryModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+{snippet deleteCategory}
+	{if $categoryDeleted}
+		<script>
+			$('#DeleteCategoryModal{$uniqid|noescape}').modal('hide');
+		</script>
+	{/if}
+{/snippet}
+
+{block extraModals}{/block}
+

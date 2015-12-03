@@ -1,0 +1,157 @@
+.form-group.required > .control-label:after {
+    content:"*"; color: red;
+}
+
+.required textarea, .required input, .required select { 
+    border: 1px solid #777777; 
+}
+
+span.error {
+    color: #d9534f;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.mintd {
+    max-width: 33px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+span.authors {
+    font-style: italic;
+    color: #808080;
+    padding-left: 1em;
+}
+
+.bs-callout-danger {
+    background-color: #f2dede;
+    border-color: #d9534f;
+}
+
+.bs-callout {
+    margin: 20px;
+    padding: 10px 20px;
+    border-left: 3px solid #d9534f;
+    color: #a94442;
+}
+
+.bs-callout-danger h4 {
+    color: #d9534f;
+}
+.bs-callout h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.bs-callout p:last-child {
+    margin-bottom: 0;
+}
+
+ul.ui-fancytree {
+    border: none;
+}
+
+.tree {
+    display: table;
+    padding: 0;
+}
+
+p.float-left{
+    float:left;
+}
+
+span.label.role-label {
+    margin: 0 5px;
+}
+
+.modal-footer .form-group {
+    padding: 0;
+    margin: 0;
+}
+
+.modal-footer .form-group .col-sm-8 {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    margin-top: -6px;
+}
+
+
+span.label.role-admin {  background-color: #d9534f;  }
+span.label.role-submitter, span.label.role-reader {  background-color: #337ab7;  }
+span.label.role-conference-user, span.label.role-conference-moderator {  background-color: #5cb85c; }
+
+span.label.auth-method-ldap {  background-color: #79babc;  }
+span.label.auth-method-shibboleth {  background-color: #bc9941;  }
+span.label.auth-method-login_pass {  background-color: #606060;  }
+
+#tab-publications .current {
+    background-color: #eeeeee;
+    padding: 1px 20px 15px 20px;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+
+.deadline-alert-row td {
+    background-color: #fff7d5 !important;
+}
+
+.deadline-alert, .deadline-alert td {
+    color: red;
+    font-weight: bold;
+    background-color: #fff7d5 !important;
+}
+
+body.cu-only .PU {
+    display: none !important;
+}
+
+body.pu-only .CU {
+    display: none !important;
+}
+
+.tree.form-control {
+    width: auto;
+}
+
+.inline-block, .inline-block>div {
+    display: inline-block;
+}
+
+
+/* merged */
+
+.required > .form-group >.control-label:after {
+    content:"*"; color: red;
+}
+
+.modal-lg {
+    min-width: 1340px !important;
+    width: 94%;
+}
+
+.actionConferenceYears {
+    width: 100px;
+}
+
+.dateConferenceYears {
+    width: 90px;
+}
+
+.bg-primary, .bg-success, .bg-danger {
+    padding: 15px;
+}
+
+.breadcrumb > .active > .active {
+    color: #777;
+}
+
+.popover {
+    min-width: 400px;
+}

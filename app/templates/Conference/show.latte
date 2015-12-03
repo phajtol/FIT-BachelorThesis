@@ -1,0 +1,302 @@
+{block content}
+{if $conferenceYear}
+
+				{define #conferenceYearInfo}
+					{*{if (isset($value) && $value) || (isset($key) && isset($conferenceYear->$key) && $conferenceYear->$key) }*}
+						<div class="form-group">
+							<label class="col-sm-3 control-label">{$caption}</label>
+							<div class="col-sm-9">
+								{if isset($value) && $value}
+									<p class="form-control-static">{if !isset($noescape)}{$value}{else}{$value|noescape}{/if}</p>
+								{elseif isset($key) && isset($conferenceYear->$key) && $conferenceYear->$key}
+									<p class="form-control-static">{$conferenceYear->$key}</p>
+								{else}
+									<p class="form-control-static">-</p>
+								{/if}
+							</div>
+						</div>
+					{*{/if}*}
+				{/define}
+
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li><a n:href="Conference:showall" class="breadcrumb-conferences">Conferences</a></li>
+        <li class="active">Conference year detail</li>
+    </ol>
+</div>
+
+<div class="row">
+
+
+    <ul id="pub-detail-tab" class="nav nav-tabs">
+        <li class="active"><a href="#tab-detail" data-toggle="tab">Conference year detail</a></li>
+        <li class=""><a href="#tab-other-years" data-toggle="tab">Other years of conference</a></li>
+        <li class=""><a href="#tab-publications" data-toggle="tab" n:if="$PU">Publications in all years</a></li>
+        <li class=""><a href="#tab-workshops" data-toggle="tab">Associated workshops</a></li>
+    </ul>
+
+	<div class="tab-content">
+		<div class="tab-pane fade active in" id="tab-detail">
+			{snippet conferenceYearDetail}
+				{dump $deadlineNotificationThreshold}
+				{var $deadlineNotify = $conferenceYear->deadline && $conferenceYear->deadline > $now && $conferenceYear->deadline < $deadlineNotificationThreshold}
+				{var $notificationNotify = $conferenceYear->notification && $conferenceYear->notification > $now && $conferenceYear->notification < $deadlineNotificationThreshold}
+				{var $finalversionNotify = $conferenceYear->finalversion && $conferenceYear->finalversion > $now && $conferenceYear->finalversion < $deadlineNotificationThreshold}
+				<div>
+					<h3 n:class="col-sm-9, control-label, $deadlineNotify || $notificationNotify || $finalversionNotify ? 'deadline-alert'">{$conferenceYear->name}</h3>
+					<div class="col-sm-3">
+						<p class="form-control-static" n:if="$user->isAllowed('ConferenceAdmin:showall')">
+							<strong>Conference year management:</strong><br>
+							{control crud-controls-$conferenceYear->id}
+							<span>&nbsp;&nbsp;&nbsp;</span>
+							{control crudOthers-addButton}
+						</p>
+					</div>
+				</div>
+				<hr>
+				<br>
+				<form class="form-horizontal" style="clear: left">
+
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						Name
+					</label>
+					<div class="col-sm-6">
+						<p class="form-control-static">
+							{$conferenceYear->name}
+						</p>
+					</div>
+					<div class="col-sm-3">
+						<p class="form-control-static" n:if="$user->isAllowed('ConferenceAdmin:showall')">
+							<strong>Whole conference management:</strong><br>
+							{control conferenceCrud-controls-$conferenceYear->conference_id}
+						</p>
+					</div>
+				</div>
+
+				{if $CU && $parentConferenceYear}
+					{capture $value}<a n:href="Conference:show $parentConferenceYear->id" target="_blank">{$parentConferenceYear->name}{if $parentConferenceYear->w_year} ({$parentConferenceYear->w_year}){/if}</a>{/capture}
+					{include #conferenceYearInfo, caption => 'Workshop at', noescape => 'true'}
+					{?unset($value)}
+				{/if}
+
+				{include #conferenceYearInfo, key => 'abbreviation', caption => 'Abbreviation'}
+
+				{include #conferenceYearInfo, key => 'w_year', caption => 'Year'}
+
+				{capture $value}{$conferenceYear->w_from|ldate}{/capture}
+				{include #conferenceYearInfo, caption => 'From'}
+				{?unset($value)}
+
+				{capture $value}{$conferenceYear->w_to|ldate}{/capture}
+				{include #conferenceYearInfo, caption => 'To'}
+				{?unset($value)}
+
+				{if $CU}
+					{dump $deadlineNotify}
+					{capture $value}{$conferenceYear->deadline|ldate}{/capture}
+					<div n:class="$deadlineNotify ? deadline-alert">
+						{include #conferenceYearInfo, caption => 'Deadline'}
+					</div>
+					{?unset($value)}
+
+					{capture $value}{$conferenceYear->notification|ldate}{/capture}
+					<div n:class="$notificationNotify ? deadline-alert">
+						{include #conferenceYearInfo, caption => 'Notification date'}
+					</div>
+					{?unset($value)}
+
+					{capture $value}{$conferenceYear->finalversion|ldate}{/capture}
+					<div n:class="$finalversionNotify ? deadline-alert">
+						{include #conferenceYearInfo, caption => 'Final version date'}
+					</div>
+					{?unset($value)}
+				{/if}
+
+				{include #conferenceYearInfo, key => 'location', caption => 'Location'}
+
+				{capture $value}{if $conferenceYear->web}<a href="{$conferenceYear->web}" target="_blank">{$conferenceYear->web}</a>{else}-{/if}{/capture}
+				{include #conferenceYearInfo, caption => 'Web', noescape => 'true'}
+				{?unset($value)}
+
+				{include #conferenceYearInfo, key => 'description', caption => 'Description'}
+
+				{if $CU}
+					{* ACM Categories *}
+					{capture $value}
+						{if empty($acmCategories)}
+							-
+						{else}
+							{foreach $acmCategories as $acmCategory}{$acmCategory->name}{if !$iterator->last}, {/if}{/foreach}
+						{/if}
+					{/capture}
+					{include #conferenceYearInfo, caption => 'ACM categories'}
+					{?unset($value)}
+
+					{* conference categories *}
+					{capture $value}
+						{if empty($conferenceCategories)}
+							-
+						{else}
+							{foreach $conferenceCategories as $conferenceCategory}{$conferenceCategory->name}{if !$iterator->last}, {/if}{/foreach}
+						{/if}
+					{/capture}
+					{include #conferenceYearInfo, caption => 'Conference categories'}
+					{?unset($value)}
+
+					{* indexes *}
+					{capture $value}
+						{if empty($conferenceYearIsIndexed)}
+							-
+						{else}
+							{foreach $conferenceYearIsIndexed as $documentIndex}{$documentIndex->name}{if !$iterator->last}, {/if}{/foreach}
+						{/if}
+					{/capture}
+					{include #conferenceYearInfo, caption => 'Is indexed at'}
+					{?unset($value)}
+				{/if}
+
+				{if $PU && 1==0}
+					{if $publisher}
+						<div class="form-group">
+							<h2 class="col-sm-3 control-label"><small>Publisher</small></h2>
+						</div>
+						{capture $value}{$publisher->name}{/capture}
+							{include #conferenceYearInfo, caption => 'Name'}
+						{?unset($value)}
+						{capture $value}{$publisher->address}{/capture}
+							{include #conferenceYearInfo, caption => 'Address'}
+						{?unset($value)}
+					{/if}
+
+					{include #conferenceYearInfo, key => 'issn', caption => 'ISSN'}
+					{include #conferenceYearInfo, key => 'isbn', caption => 'ISBN'}
+					{include #conferenceYearInfo, key => 'doi', caption => 'DOI'}
+				{/if}
+
+
+				</form>
+			{/snippet}
+		</div>
+		<div class="tab-pane fade" id="tab-other-years">
+			{snippet otherConferenceYears}
+				<div class="table-responsive">
+					{if !count($otherConferenceYears)}
+						<br>
+						<div class="alert alert-warning">There are no other conference years of this conference.</div>
+					{else}
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>{control sortingOthers, "name", "Name"}</th>
+									<th>{control sortingOthers, "abbreviation", "Abbr."}</th>
+									<th>{control sortingOthers, "w_year", "Year"}</th>
+									<th>{control sortingOthers, "w_from", "From"}</th>
+									<th>{control sortingOthers, "w_to", "To"}</th>
+									<th>{control sortingOthers, "location", "Location"}</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody n:snippet="conferenceYearShowAllRecords">
+								{foreach $otherConferenceYears as $record}
+									<tr n:snippet="conferenceYearRow$record->id">
+										<td><a n:href="Conference:show $record->id">{$record->name}</a></td>
+										<td>{$record->abbreviation}</td>
+										<td>{$record->w_year}</td>
+										<td>{$record->w_from|ldate}</td>
+										<td>{$record->w_to|ldate}</td>
+										<td>{$record->location}</td>
+										<td>
+											{control crudOthers-controls-$record->id}
+										</td>
+									</tr>
+								{/foreach}
+							</tbody>
+						</table>
+					{/if}
+				</div>
+			{/snippet}
+		</div>
+		<div class="tab-pane fade" id="tab-publications" n:if="$PU">
+			{var $hasPubs = false}
+
+			{foreach $associatedPublicationsByConferenceYear as $conferenceYearWithPublications}
+				{if count($conferenceYearWithPublications['publications'])}
+					{var $hasPubs = true}
+					<div n:class="$conferenceYearWithPublications['current'] ? 'current'">
+						<h3>{$conferenceYearWithPublications['name']}{ifset $conferenceYearWithPublications['w_year']} ({$conferenceYearWithPublications['w_year']}){/ifset}</h3>
+						<ul>
+							{foreach $conferenceYearWithPublications['publications'] as $publication}
+								<li>
+									<a n:href="Publication:showpub $publication->id">{$publication->title}</a>
+									{if count($authorsOfPublications[$publication->id])}
+										<br>
+										<small><em>
+											{foreach $authorsOfPublications[$publication->id] as $author}
+												{$author->name} {$author->surname}{if !$iterator->last}, {/if}
+											{/foreach}
+										</em></small>
+									{/if}
+								</li>
+							{/foreach}
+						</ul>
+					</div>
+					{if $conferenceYearWithPublications['current']}
+						<hr>
+					{/if}
+				{/if}
+			{/foreach}
+
+			{if !$hasPubs}
+				<br>
+				<div class="alert alert-warning">There are no associated publications with any year this conference</div>
+			{/if}
+
+		</div>
+		<div class="tab-pane fade" id="tab-workshops">
+			<div class="table-responsive">
+				{if !count($associatedWorkshops)}
+					<br>
+					<div class="alert alert-warning">There are no workshops associated to this conference.</div>
+				{else}
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Abbr.</th>
+								<th>Year</th>
+								<th>From</th>
+								<th>To</th>
+								<th>Location</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody n:snippet="workshopsShowAllRecords">
+							{foreach $associatedWorkshops as $record}
+								<tr>
+									<td><a n:href="Conference:show $record->id">{$record->name}</a></td>
+									<td>{$record->abbreviation}</td>
+									<td>{$record->w_year}</td>
+									<td>{$record->w_from|ldate}</td>
+									<td>{$record->w_to|ldate}</td>
+									<td>{$record->location}</td>
+									<td>
+										{control crud-controls-$record->id}
+									</td>
+								</tr>
+							{/foreach}
+						</tbody>
+					</table>
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
+
+{control crud}
+{control crudOthers}
+{control conferenceCrud}
+
+{/if}
+{/block}

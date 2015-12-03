@@ -1,0 +1,585 @@
+
+<script>
+
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.editConferenceYearButton',
+       			'.conferenceYearRelatedPublicationsButton',
+       			'.showWorkshopsButton',
+       			'.detachWorkshopButton',
+       			'#DeleteConferenceYearModalConfirm',
+       			'.toggleArchivedButton'
+		], function(k, v){
+
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+		$(document).on('click', '.deleteConferenceYearButton' + uqs, function() {
+			var signal_url = $(this).data('signal-url');
+			$('#DeleteConferenceYearModalConfirm' + uqs).data('signal-url', signal_url);
+		});
+
+		$(document).on('change', '.conferenceYearAddForm' + uqs + ' [name=publisher_id]', function(event) {
+			$.nette.ajax({
+				url: {link showPublisherInfoA!},
+				data: {
+					{$control->getParameterId('publisherId')}	:	$(this).val()
+				}
+			});
+		});
+
+		$(document).on('change', '.conferenceYearEditForm' + uqs + ' [name=publisher_id]', function(event) {
+			$.nette.ajax({
+				url: {link showPublisherInfoE!},
+				data: {
+					{$control->getParameterId('publisherId')}	:	$(this).val()
+				}
+			});
+		});
+
+		// typeahead
+		$('#attachWorkshopInput' + uqs).typeahead(
+			{
+		  		hint: true,
+				highlight: true,
+				minLength: 1
+		  	},
+		  	{
+				source:		function(query, tahCallback) {
+					$.nette.ajax({
+						url: {link findConferenceYearsForTypeAhead!},
+						data: {
+							{$control->getParameterId('query')}			:	query,
+							{$control->getParameterId('conferenceYearId')}	:	$('#attachWorkshopInput' + uqs).data('conferenceYearId')
+						}
+					}).done(function (records) {
+						var tahData = [];
+						for(i in records) {
+							var r = records[i];
+							if(r.id != $('#attachWorkshopInput' + uqs).data('conferenceYearId'))
+								tahData.push(r);
+						}
+						tahCallback(tahData);
+					});
+				},
+				templates: {
+					suggestion: function(item){
+						var mainEl = $('<p></p>');
+						$('<strong></strong>').text(item.name).appendTo(mainEl);
+						$('<br>').appendTo(mainEl);
+						$('<small></small>')
+							.text( 'Year ' + item.year + (item.location ? ' - ' + item.location : '')).appendTo(mainEl);
+						return mainEl;
+					}
+				}
+			}
+		).bind('typeahead:selected', function(evt, item){
+			$.nette.ajax({
+				url: {link attachWorkshop!},
+				data: {
+					{$control->getParameterId('id')}	:	item.id,
+					{$control->getParameterId('conferenceYearId')}	:	$('#attachWorkshopInput' + uqs).data('conferenceYearId')
+				}
+			});
+		}).bind('typeahead:closed', function(){
+			$('#attachWorkshopInput' + uqs).val('');
+		});
+
+	});
+</script>
+
+{define #stdFormElement}
+{if (isset($itemName) && $itemName && isset($form) && isset($form[$itemName])) }
+	<div n:class="$form[$itemName]->required ? required, form-group">
+		{label $itemName, class => "col-sm-2 control-label" /}
+		<div class="col-sm-8">
+			{input $itemName, class => "form-control"}  <span class=error n:ifcontent>{$form[$itemName]->error}</span>
+		</div>
+	</div>
+{/if}
+{/define}
+
+{ifset $addAllowed}
+<div class="modal fade" id="AddNewConferenceYearModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="AddNewConferenceYearModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="AddNewConferenceYearModalLabel">Add new Year of Conference</h4>
+			</div>
+			{snippet conferenceYearAddForm}
+				{form conferenceYearAddForm, class => "ajax form-horizontal conferenceYearAddForm conferenceYearAddForm{$uniqid}", role => "form"}
+				<div class="modal-body">
+
+					<div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+						<h4>Fill form correctly!</h4>
+						<ul class=error n:if="$form->hasErrors()">
+							<li n:foreach="$form->errors as $error">{$error}</li>
+						</ul>
+					</div>
+
+					{include #stdFormElement, itemName => "name"}
+
+					{include #stdFormElement, itemName => "abbreviation"}
+
+
+					{ifset $form['w_year']}
+						<div class="form-group">
+							{label w_year, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								{input w_year, class => "form-control year"} <span class=error n:ifcontent>{$form['w_year']->error}</span>
+							</div>
+						</div>
+					{/ifset}
+
+					{ifset $form['w_from']}
+						<div class="form-group">
+							{label w_from, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input w_from, class => "form-control"} <span class=error n:ifcontent>{$form['w_from']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{ifset $form['w_to']}
+						<div class="form-group">
+							{label w_to, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input w_to, class => "form-control"} <span class=error n:ifcontent>{$form['w_to']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{ifset $form['deadline']}
+						<div class="form-group">
+							{label deadline, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input deadline, class => "form-control"} <span class=error n:ifcontent>{$form['deadline']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{ifset $form['notification']}
+						<div class="form-group">
+							{label notification, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input notification, class => "form-control"} <span class=error n:ifcontent>{$form['notification']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{ifset $form['finalversion']}
+						<div class="form-group">
+							{label finalversion, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input finalversion, class => "form-control"} <span class=error n:ifcontent>{$form['finalversion']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{include #stdFormElement, itemName => "location"}
+
+					{include #stdFormElement, itemName => "web"}
+
+					{include #stdFormElement, itemName => "isbn"}
+
+					{include #stdFormElement, itemName => "issn"}
+
+					{include #stdFormElement, itemName => "doi"}
+
+					{include #stdFormElement, itemName => "description"}
+
+					{ifset $form['publisher_id']}
+						<div class="form-group">
+							{label publisher_id, class => "col-sm-2 control-label" /}
+							<div class="col-sm-6">
+								{snippet conferenceYearAddForm-publisher_id}
+									{var $_form = $conferenceYearAddForm}
+									{input publisher_id, class => "form-control"}
+								{/snippet}
+							</div>
+
+							{snippet publisherInfo-addnew}
+								<div class="col-sm-4">
+									{if empty($selectedPublisherIdA)}
+										{control publisherA-addButton}
+									{else}
+										{control publisherA-addButton}&nbsp;
+										{control publisherA-controls-$selectedPublisherIdA}
+									{/if}
+								</div>
+
+								{if !empty($selectedPublisherInfoA) && $selectedPublisherInfoA}
+									<div class="form-group">
+										<label class="col-sm-2 control-label">Address</label>
+										<div class="col-sm-10">
+											<p class="form-control-static">{$selectedPublisherInfoA['address']}</p>
+										</div>
+									</div>
+								{/if}
+							{/snippet}
+						</div>
+					{/ifset}
+
+					{ifset $form['document_indexes']}
+						<div class="form-group">
+							{label document_indexes, class => "col-sm-2 control-label" /}
+							<div class="col-sm-8">
+								{input document_indexes, class => "form-control select-multiple"} <span class=error n:ifcontent>{$form['document_indexes']->error}</span>
+							</div>
+						</div>
+					{/ifset}
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					{input send, class => "btn btn-success"}
+				</div>
+				{/form}
+				{if $conferenceYearAdded}
+					<script>
+						$('#AddNewConferenceYearModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+{/ifset}
+
+{ifset $editAllowed}
+<div class="modal fade" id="EditConferenceYearModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="EditConferenceYearModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="EditConferenceYearModalLabel">Edit Year of Conference</h4>
+			</div>
+			{snippet conferenceYearEditForm}
+				{form conferenceYearEditForm, class => "ajax form-horizontal conferenceYearEditForm conferenceYearEditForm{$uniqid}", role => "form"}
+				 <div class="modal-body">
+
+					 <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+						<h4>Fill form correctly!</h4>
+						<ul class=error n:if="$form->hasErrors()">
+							<li n:foreach="$form->errors as $error">{$error}</li>
+						</ul>
+					</div>
+
+					{include #stdFormElement, itemName => "name"}
+
+					{include #stdFormElement, itemName => "abbreviation"}
+
+					{ifset $form['w_year']}
+						<div class="form-group">
+							{label w_year, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								{input w_year, class => "form-control year"} <span class=error n:ifcontent>{$form['w_year']->error}</span>
+							</div>
+						</div>
+					{/ifset}
+
+
+					{ifset $form['w_from']}
+						<div class="form-group">
+							{label w_from, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input w_from, class => "form-control"} <span class=error n:ifcontent>{$form['w_from']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{ifset $form['w_to']}
+						<div class="form-group">
+							{label w_to, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input w_to, class => "form-control"} <span class=error n:ifcontent>{$form['w_to']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{ifset $form['deadline']}
+						<div class="form-group">
+							{label deadline, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input deadline, class => "form-control"} <span class=error n:ifcontent>{$form['deadline']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{ifset $form['notification']}
+						<div class="form-group">
+							{label notification, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input notification, class => "form-control"} <span class=error n:ifcontent>{$form['notification']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{ifset $form['finalversion']}
+						<div class="form-group">
+							{label finalversion, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								<div class="input-group date">
+									{input finalversion, class => "form-control"} <span class=error n:ifcontent>{$form['finalversion']->error}</span>
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+					{/ifset}
+
+					{include #stdFormElement, itemName => "location"}
+
+					{include #stdFormElement, itemName => "web"}
+
+					{include #stdFormElement, itemName => "isbn"}
+
+					{include #stdFormElement, itemName => "issn"}
+
+					{include #stdFormElement, itemName => "doi"}
+
+					{include #stdFormElement, itemName => "description"}
+
+					{ifset $form['publisher_id']}
+						<div class="form-group">
+							{label publisher_id, class => "col-sm-2 control-label" /}
+							<div class="col-sm-6">
+								{snippet conferenceYearEditForm-publisher_id}
+									{var $_form = $conferenceYearEditForm}
+									{input publisher_id, class => "form-control"}
+								{/snippet}
+							</div>
+
+							{snippet publisherInfo-edit}
+								<div class="col-sm-4">
+									{if empty($selectedPublisherIdE)}
+										{control publisherE-addButton}
+									{else}
+										{control publisherE-controls-$selectedPublisherIdE}
+										&nbsp;
+										{control publisherE-addButton}
+									{/if}
+								</div>
+
+								{if !empty($selectedPublisherInfoE) && $selectedPublisherInfoE}
+									<div class="form-group">
+										<label class="col-sm-2 control-label">Address</label>
+										<div class="col-sm-10">
+											<p class="form-control-static">{$selectedPublisherInfoE['address']}</p>
+										</div>
+									</div>
+								{/if}
+							{/snippet}
+
+						</div>
+					{/ifset}
+
+					{ifset $form['document_indexes']}
+						<div class="form-group">
+							{label document_indexes, class => "col-sm-2 control-label" /}
+							<div class="col-sm-8">
+								{input document_indexes, class => "form-control select-multiple"} <span class=error n:ifcontent>{$form['document_indexes']->error}</span>
+							</div>
+						</div>
+					{/ifset}
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					{input send, class => "btn btn-primary"}
+				</div>
+				{/form}
+				{if $conferenceYearEdited}
+					<script>
+						$('#EditConferenceYearModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+{/ifset}
+
+{ifset $deleteAllowed}
+<div class="modal fade" id="DeleteConferenceYearModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteConferenceYearModalLabel" aria-hidden="true">
+	 <div class="modal-dialog">
+		 <div class="modal-content">
+			 <div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				 <h4 class="modal-title" id="DeleteConferenceYearModalLabel">Delete Year of Conference</h4>
+			 </div>
+			 <div class="modal-body" id="DeleteConferenceYearModalBody{$uniqid}">
+				 Are you sure to delete?
+			 </div>
+			 <div class="modal-footer">
+				 <p class="text-danger float-left"><small><strong>Check</strong> whether there are any <strong>associted Publications</strong> with this <strong>Year of Conference</strong>!</small></p>
+				 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				 <button type="button" class="btn btn-danger" id="DeleteConferenceYearModalConfirm{$uniqid}">Delete</button>
+			 </div>
+		 </div>
+	 </div>
+ </div>
+{/ifset}
+
+{snippet deleteConferenceYear}
+ {if $conferenceYearDeleted}
+	 <script>
+		 $('#DeleteConferenceYearModal{$uniqid|noescape}').modal('hide');
+	 </script>
+ {/if}
+{/snippet}
+
+{ifset $showRelatedPublicationsAllowed}
+<div class="modal fade" id="PublicationsRelatedToYearOfConferenceModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="ConferenceYearRelatedModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="ConferenceYearRelatedModalLabel">Associated Publications</h4>
+			</div>
+			<div class="modal-body">
+				{snippet relatedPublications}
+					{if count($relatedPublications)}
+					<ul n:foreach="$relatedPublications as $rel">
+						<li><a target="_blank" href="{plink Publication:showpub, $rel->id}">{$rel->title}</a></li>
+					</ul>
+					{else}
+						There are no associated Publications with this Year of Conference.
+					{/if}
+				{/snippet}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{/ifset}
+
+
+{ifset $showWorkshopsAllowed}
+<div class="modal fade" id="WorkshopsRelatedToYearOfConferenceModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="WorkshopsRelatedToYearOfConferenceModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="WorkshopsRelatedToYearOfConferenceModalLabel{$uniqid}">Associated Workshops</h4>
+			</div>
+			<div class="modal-body">
+				{ifset $manageWorkshopsAllowed}
+					<div class="row">
+						<div class="form-group">
+							<label for="attachWorkshopInput{$uniqid}" class="col-lg-3 col-md-3 col-sm-3 control-label">
+								Attach an existing workshop:
+								&nbsp;&nbsp;&nbsp;<a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" title="Help" data-content="You can add a workshop to the conference year there. Type the name of the workshop and then choose desired workshop from the type-ahead frame. It will be attached to the current conference year."><strong> ? </strong></a>
+							</label>
+							<div class="col-lg-9 col-md-9 col-sm-9">
+								<input type="text" class="form-control full-width" id="attachWorkshopInput{$uniqid}" name="attachWorkshopInput{$uniqid}" autocomplete="off">
+							</div>
+						</div>
+					</div>
+					<br>
+				{/ifset}
+				<div class="row">
+					<div class="table-responsive col-lg-12">
+					{snippet relatedWorkshops}
+						{ifset $conferenceYearId}
+							<script>
+								$('#attachWorkshopInput' + {$uniqid}).data('conferenceYearId', {$conferenceYearId});
+							</script>
+						{/ifset}
+
+						{if count($relatedWorkshops)}
+							<table class="table table-striped">
+
+
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Abbr.</th>
+										<th>Year</th>
+										<th>From</th>
+										<th>To</th>
+										<th>Location</th>
+										{ifset $manageWorkshopsAllowed}
+											<th>Actions</th>
+										{/ifset}
+									</tr>
+								</thead>
+								<tbody>
+									{foreach $relatedWorkshops as $workshop}
+										<tr>
+											<td><a target="_blank" href="{plink Conference:show, $workshop->id}">{$workshop->name}</a></td>
+											<td>{$workshop->abbreviation}</td>
+											<td>{$workshop->w_year}</td>
+											<td>{$workshop->w_from|ldate}</td>
+											<td>{$workshop->w_to|ldate}</td>
+											<td>{$workshop->location}</td>
+											{ifset $manageWorkshopsAllowed}
+											<td>
+												<button type="button" data-signal-url="{link detachWorkshop! $workshop->id, $conferenceYearId}" class="btn btn-danger btn-xs detachWorkshopButton detachWorkshopButton{$uniqid}" title="Detach workshop">
+													<span class="glyphicon glyphicon-remove"></span>
+												</button>
+											</td>
+											{/ifset}
+										</tr>
+									{/foreach}
+								</tbody>
+							</table>
+						{else}
+							<div class="alert alert-info">
+								There are no associated Workshops with this Year of Conference.
+							</div>
+						{/if}
+					{/snippet}
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{/ifset}
+
+{ifset $addAllowed}
+	{control publisherA}
+{/ifset}
+{ifset $editAllowed}
+	{control publisherE}
+{/ifset}

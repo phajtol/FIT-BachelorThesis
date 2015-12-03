@@ -1,0 +1,57 @@
+{block content}
+
+	<div class="row">
+		<ol class="breadcrumb">
+			<li><a n:href="Homepage:">Home</a></li>
+			<li><a href="#" class="breadcrumb-admin">Administration</a></li>
+			<li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">All Document Index Databases</a></li>
+		</ol>
+	</div>
+
+	{control crud}
+
+	<div class="row">
+		<div class="row">
+			<div class="col-lg-11">
+			</div>
+			<div class="col-lg-1">
+				{control crud-addButton}
+			</div>
+		</div>
+
+		{snippet showAll}
+			{if count($records)}
+				<div class="table-responsive">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>
+									Name
+								</th>
+								<th>
+									Web
+								</th>
+								<th>
+									Action
+								</th>
+							</tr>
+						</thead>
+						<tbody n:snippet="showAllRecords">
+							{foreach $records as $record}
+								<tr n:snippet="row$record->id">
+									<td>{$record->name}</td>
+									<td>{$record->web}</td>
+									<td>
+										{control crud-controls-$record->id}
+									</td>
+								</tr>
+							{/foreach}
+						</tbody>
+					</table>
+				</div>
+			{else}
+				{include nothingFound}
+			{/if}
+		{/snippet}
+	</div>
+{/block}

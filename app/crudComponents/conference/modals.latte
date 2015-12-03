@@ -1,0 +1,371 @@
+<script>
+
+    var uqs = {$uniqid};	// uniqid suffix
+
+    $(function(){
+
+       	$.each([
+       			'.editConferenceButton',
+       			'.showPublicationsRelatedToConferenceButton',
+       			'.showConferenceYearsButton',
+       			'.toggleArchivedButton',
+       			'.mergeConferencesButton',
+       			'#DeleteConferenceModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deleteConferenceButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeleteConferenceModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+    });
+
+    {if $addFormAcmCategoriesElementId}
+        // acm categories
+        $(function() {
+            onArrive('#' + {$addFormAcmCategoriesElementId}, function(){
+                replaceInputWithFancytree($(this), $('#' + {$uniqid} + '-acmCategoryListA'));
+            });
+            onArrive('#' + {$editFormAcmCategoriesElementId}, function(){
+                replaceInputWithFancytree($(this), $('#' + {$uniqid} + '-acmCategoryListE'));
+            });
+        });
+    {/if}
+
+    {if $addFormConferenceCategoriesElementId}
+        // conference categories
+        $(function() {
+            onArrive('#' + {$addFormConferenceCategoriesElementId}, function(){
+                replaceInputWithFancytree($(this), $('#' + {$uniqid} + '-conferenceCategoryListA'));
+            });
+            onArrive('#' + {$editFormConferenceCategoriesElementId}, function(){
+                replaceInputWithFancytree($(this), $('#' + {$uniqid} + '-conferenceCategoryListE'));
+            });
+        });
+    {/if}
+
+</script>
+
+<div class="modal fade" id="AddNewConferenceModal{$uniqid|noescape}" tabindex="-1" role="dialog" aria-labelledby="AddNewConferenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="AddNewConferenceModalLabel">Add Conference</h4>
+            </div>
+            {snippet conferenceAddForm}
+				{control conferenceAddForm}
+                {if $conferenceAdded}
+                    <script>
+                        $('#AddNewConferenceModal{$uniqid|noescape}').modal('hide');
+                    </script>
+                {/if}
+                {if $addFormConferenceCategoriesElementId}
+                    <div id="{$uniqid}-conferenceCategoryListA" class="hidden">
+                        {control conferenceCategoryListA}
+                    </div>
+                {/if}
+                {if $addFormAcmCategoriesElementId}
+                    <div id="{$uniqid}-acmCategoryListA" class="hidden">
+                        {control acmCategoryListA}
+                    </div>
+                {/if}
+            {/snippet}
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="EditConferenceModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="EditConferenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="EditConferenceModalLabel{$uniqid}">Edit Conference</h4>
+            </div>
+            {snippet conferenceEditForm}
+                <div id="{$uniqid}-conferenceCategoryListE" class="hidden" n:if="$editFormConferenceCategoriesElementId">
+                    {control conferenceCategoryListE}
+                </div>
+                <div id="{$uniqid}-acmCategoryListE" class="hidden" n:if="$editFormAcmCategoriesElementId">
+                    {control acmCategoryListE}
+                </div>
+                {control conferenceEditForm}
+				{if $conferenceEdited}
+					<script>
+						$('#EditConferenceModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+            {/snippet}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="DeleteConferenceModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteConferenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="DeleteConferenceModalLabel{$uniqid}">Delete Conference</h4>
+            </div>
+            <div class="modal-body" id="DeleteConferenceModalBody{$uniqid}">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <p class="text-danger float-left"><small><strong>Check</strong> whether there are any <strong>associated Publications</strong> with this <strong>Conference</strong>!</small></p>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="DeleteConferenceModalConfirm{$uniqid}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{snippet deleteConference}
+    {if $conferenceDeleted}
+        <script>
+            $('#DeleteConferenceModal{$uniqid|noescape}').modal('hide');
+        </script>
+    {/if}
+{/snippet}
+
+<div class="modal fade" id="PublicationsRelatedToConferenceModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="PublicationsRelatedToConferenceModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="PublicationsRelatedToConferenceModalLabel{$uniqid}">Associated Publications</h4>
+			</div>
+			<div class="modal-body">
+				{snippet publicationsRelatedToConference}
+					{if count($publicationsRelatedToConference)}
+						{foreach $publicationsRelatedToConference as $rel}
+						<h5><strong>{$rel['name']} ({$rel['w_year']})</strong></h5>
+							<ul n:foreach="$rel['publication'] as $r">
+								<li><a target="_blank" href="{plink Publication:showpub, $r['id']}">{$r['title']}</a></li>
+							</ul>
+						{/foreach}
+					{else}
+						There are no associated Publications with this Conference.
+					{/if}
+				{/snippet}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="ConferenceYearsOfConferenceModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="ConferenceYearsOfConferenceModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog modal-lg large">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="ConferenceYearsOfConferenceModalLabel{$uniqid}">Years of Conference</h4>
+			</div>
+			<div class="modal-body">
+				{snippet conferenceYears}
+				    {if $conferenceId}
+                        <div class="row">
+                            <div class="col-lg-3">
+                            </div>
+                            <div class="col-lg-6">
+                                {if $CU && $PU}
+                                    {control cPToggle}
+                                {/if}
+                            </div>
+                            <div class="col-lg-2">
+                            </div>
+                            <div class="col-lg-1">
+                                {control conferenceYear-$conferenceId-addButton}
+                            </div>
+                            <div class="table-responsive col-lg-12">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>{control cYSorting, "name", "Name"}</th>
+                                            <th>{control cYSorting, "abbreviation", "Abbr."}</th>
+                                            <th>{control cYSorting, "w_year", "Year"}</th>
+                                            <th>{control cYSorting, "w_from", "From"}</th>
+                                            <th>{control cYSorting, "w_to", "To"}</th>
+                                            <th n:if="$CU" class="CU">{control cYSorting, "deadline", "Deadline"}</th>
+                                            <th n:if="$CU" class="CU">{control cYSorting, "notification", "Notification"}</th>
+                                            <th n:if="$CU" class="CU">{control cYSorting, "finalversion", "Final version"}</th>
+                                            <th>{control cYSorting, "location", "Location"}</th>
+                                            <th n:if="$PU" class="PU">{control cYSorting, "isbn", "ISBN"}</th>
+                                            <th n:if="$PU" class="PU">{control cYSorting, "issn", "ISSN"}</th>
+                                            <th n:if="$PU" class="PU">{control cYSorting, "doi", "DOI"}</th>
+                                            <th n:if="$PU" class="PU">{control cYSorting, "publisher_id", "Publisher"}</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody n:snippet="conferenceYearsShowAllRecords">
+                                        {foreach $conferenceYears as $conferenceYear}
+                                            <tr id="trconferenceyear-{$conferenceYear->id}">
+                                                <td><a href="{plink Conference:show $conferenceYear->id}">{$conferenceYear->name}</a></td>
+                                                <td>{$conferenceYear->abbreviation}</td>
+                                                <td>{$conferenceYear->w_year}</td>
+                                                <td>{$conferenceYear->w_from|ldate}</td>
+                                                <td>{$conferenceYear->w_to|ldate}</td>
+                                                <td n:if="$CU" class="CU">{$conferenceYear->deadline|ldate}</td>
+                                                <td n:if="$CU" class="CU">{$conferenceYear->notification|ldate}</td>
+                                                <td n:if="$CU" class="CU">{$conferenceYear->finalversion|ldate}</td>
+                                                <td>{$conferenceYear->location}</td>
+                                                <td n:if="$PU" class="PU">{$conferenceYear->isbn}</td>
+                                                <td n:if="$PU" class="PU">{$conferenceYear->issn}</td>
+                                                <td n:if="$PU" class="PU">{$conferenceYear->doi}</td>
+                                                {*<td>{$conferenceYear->description}</td>*}
+                                                <td n:if="$PU" class="PU">
+                                                    {if $conferenceYear->publisher_id}
+                                                        {$conferenceYear->ref('publisher')->name}
+                                                        {if $conferenceYear->ref('publisher')->address}
+                                                            <br>
+                                                            <small>
+                                                                {$conferenceYear->ref('publisher')->address}
+                                                            </small>
+                                                        {/if}
+                                                    {/if}
+                                                </td>
+                                                <td class="nowrap">
+                                                    {control conferenceYear-$conferenceId-controls-$conferenceYear->id}
+                                                </td>
+                                            </tr>
+                                        {/foreach}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {/if}
+                {/snippet}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{ifset $mergeConferencesAllowed}
+<div class="modal fade" id="MergeConferencesModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="MergeConferencesModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+		    {snippet mergeConferencesForm}
+		        {form mergeConferencesForm, class => "ajax form-horizontal mergeConferencesForm mergeConferencesForm{$uniqid}", role => "form"}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="MergeConferencesModalLabel{$uniqid}">Merge the conference with another one</h4>
+                    </div>
+                    <div class="modal-body">
+						<div class="form-group">
+							{label target_conference_name, class => "col-sm-2 control-label" /}
+							<div class="col-sm-9">
+								{input target_conference_name, class => "form-control", id => "tahConference{$uniqid}"} <span class=error n:ifcontent>{$form['target_conference_id']->error}</span>
+							</div>
+							<div class="col-sm-1">
+							    <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" title="Help" data-content="Type the conference name to search the target conference. Then select the target conference."><strong> ? </strong></a>
+							</div>
+						</div>
+                    </div>
+                    <div class="modal-footer">
+                        <p class="text-danger float-left"><small>This conference will be merged with the selected one. All conference years of this conference will be moved to the selected one. Also categories will be transferred.</small></p>
+                        {input source_conference_id}
+                        {input target_conference_id}
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        {input send, class => "btn btn-danger"}
+                    </div>
+                {/form}
+                <script>
+                    $(function(){
+                		// typeahead
+                		var $tah = $('#tahConference' + uqs);
+                		var $tcid = $tah.closest('form').find('input[name=target_conference_id]');
+
+                		$tah.typeahead(
+                			{
+                		  		hint: true,
+                				highlight: true,
+                				minLength: 1
+                		  	},
+                		  	{
+                				source:		function(query, tahCallback) {
+                					$.nette.ajax({
+                						url: {link findConferencesForTypeAhead!},
+                						data: {
+                							{$control->getParameterId('query')}			:	query
+                						}
+                					}).done(function (records) {
+                						var tahData = [];
+                						for(i in records) {
+                							var r = records[i];
+                							if(r.id != $tah.closest('form').find('input[name=source_conference_id]').val())
+                								tahData.push(r);
+                						}
+                						tahCallback(tahData);
+                					});
+                				},
+                				templates: {
+                					suggestion: function(item){
+                						var mainEl = $('<p></p>');
+                						$('<strong></strong>').text(item.name).appendTo(mainEl);
+                						$('<br>').appendTo(mainEl);
+                						$('<small></small>')
+                							.text( 'Abbr. ' + item.abbreviation).appendTo(mainEl);
+                						return mainEl;
+                					}
+                				}
+                			}
+                		).bind('typeahead:selected', function(evt, item){
+                            $tah.val(item.name);
+                            $tcid.val(item.id);
+                		}).bind('typeahead:closed', function(){
+                            if($tcid.val() == '') $tah.val('');
+                        }).bind('typeagead:open', function(){
+                            $tcid.val('');
+                        });
+
+                        $tah.blur(function(){
+                            if($tcid.val() == '') $tah.val('');
+                        });
+                        $tah.focus(function(){
+                           $tcid.val('');
+                           $tah.val('');
+                        });
+                    });
+                </script>
+            {/snippet}
+		</div>
+	</div>
+</div>
+{snippet conferencesMerged}
+	<script>
+		$('#MergeConferencesModal{$uniqid|noescape}').modal('hide');
+	</script>
+{/snippet}
+{/ifset}
+
+
+{snippet conferenceYearsBase}
+    {if $conferenceId}
+        {control conferenceYear-$conferenceId}
+    {/if}
+{/snippet}
+
+
+{if $addFormAcmCategoriesElementId}
+    {control acmCategoryListA-crud}
+{/if}
+{if $editFormAcmCategoriesElementId}
+    {control acmCategoryListE-crud}
+{/if}
+
+{if $addFormConferenceCategoriesElementId}
+    {control conferenceCategoryListA-crud}
+{/if}
+{if $editFormConferenceCategoriesElementId}
+    {control conferenceCategoryListE-crud}
+{/if}

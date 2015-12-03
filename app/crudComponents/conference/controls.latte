@@ -1,0 +1,36 @@
+{snippet controls}
+	{ifset $deleteAllowed}
+		<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteConferenceButton deleteConferenceButton{$uniqid}" data-toggle="modal" data-target="#DeleteConferenceModal{$uniqid}" title="Delete conference">
+			<span class="glyphicon glyphicon-remove"></span>
+		</button>
+	{/ifset}
+	{ifset $editAllowed}
+		<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editConferenceButton editConferenceButton{$uniqid}" data-toggle="modal" data-target="#EditConferenceModal{$uniqid}" title="Edit conference">
+			<span class="glyphicon glyphicon-pencil"></span>
+		</button>
+	{/ifset}
+	{ifset $showRelatedPublicationsAllowed}
+		<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default btn-xs showPublicationsRelatedToConferenceButton showPublicationsRelatedToConferenceButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToConferenceModal{$uniqid}" title="Associated Publications">
+			<span class="glyphicon glyphicon-link"></span>
+		</button>
+	{/ifset}
+	{ifset $showConferenceYearsAllowed}
+		<button type="button" data-signal-url="{$showConferenceYearsLink}" class="btn btn-default btn-xs showConferenceYearsButton showConferenceYearsButton{$uniqid}" data-toggle="modal" data-target="#ConferenceYearsOfConferenceModal{$uniqid}" title="Show years of conference">
+			<strong>...</strong>
+		</button>
+	{/ifset}
+	{ifset $mergeConferencesAllowed}
+		<button type="button" data-signal-url="{$mergeConferencesLink}" class="btn btn-default btn-xs mergeConferencesButton mergeConferencesButton{$uniqid}" data-toggle="modal" data-target="#MergeConferencesModal{$uniqid}" title="Merge the conference with another one">
+			<span class="icon-merge"></span>
+		</button>
+	{/ifset}
+	{ifset $archivedStateChangeAllowed}
+		<button type="button" data-signal-url="{$setConferenceStateLink}" class="btn btn-{$conferenceState == 'dead' ? 'danger' : ($conferenceState == 'alive' ? 'default' : 'warning')} btn-xs toggleArchivedButton toggleArchivedButton{$uniqid}" title="Mark conference as {$nextConferenceState}">
+			{if $nextConferenceState == 'alive'}
+				<span class="glyphicon glyphicon-tree-deciduous"></span>
+			{elseif $nextConferenceState == 'dead'}
+				<span class="glyphicon glyphicon-thumbs-down"></span>
+			{/if}
+		</button>
+	{/ifset}
+{/snippet}

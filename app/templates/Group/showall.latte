@@ -1,0 +1,115 @@
+
+{block content}
+
+{control crud}
+
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Groups</a></li>
+    </ol>
+</div>
+
+
+                                        <div class="row">
+                                            {snippet groupShowAll}
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        {form searchForm}
+                                                            <ul class=error n:if="$form->ownErrors">
+                                                                <li n:foreach="$form->ownErrors as $error">{$error}</li>
+                                                            </ul>
+                                                            <div class="input-group">
+                                                                {input keywords class => "form-control"} 
+                                                                <span class="input-group-btn">
+                                                                    {input send, class => "btn btn-default"}
+                                                                </span>
+                                                            </div>
+                                                        {/form}
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {control individualFilter}
+                                                    </div>
+                                                    <div class="col-lg-1">
+                                                        {control crud-addButton}
+                                                    </div>
+                                                </div>
+                                                <ul class="pagination pagination-sm" style="margin: 20px 0 0 0;">
+                                                    {if $filter == 'none'}
+                                                        <li class="active"><a n:href="Group:showall (expand) $params, '', '', '', 'none'">NO FILTER</a></li>
+                                                        {else}
+                                                        <li><a n:href="Group:showall (expand) $params, '', '', '', 'none'">NO FILTER</a></li>
+                                                        {/if}
+                                                    {foreach $alphabet as $letter}
+                                                        {if $letter == $filter}
+                                                            <li class="active"><a n:href="Group:showall (expand) $params, '', '', '', $letter">{$letter}</a></li>
+                                                            {else}
+                                                            <li><a n:href="Group:showall (expand) $params, '', '', '', $letter">{$letter}</a></li>
+                                                            {/if}
+                                                        {/foreach}
+                                                </ul>
+                                                {if count($records)}
+                                                    <div class="table-responsive">
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>
+                                                                        {if $sort == 'name' && $order == 'ASC'}
+                                                                            <a n:href="Group:showall (expand) $params,'name','DESC'">Name &#9650;</a>
+                                                                        {elseif $sort == 'name' && $order == 'DESC'}
+                                                                            <a n:href="Group:showall (expand) $params,'name','ASC'">Name &#9660;</a>
+                                                                        {else}
+                                                                            <a n:href="Group:showall (expand) $params,'name','ASC'">Name</a>
+                                                                        {/if}
+                                                                    </th>
+                                                                    <th>Action</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody n:snippet="groupShowAllRecords">
+                                                                {foreach $records as $record}
+                                                                    <tr n:snippet="record-$record->id">
+                                                                        <td>{$record->name}</td>
+                                                                        <td>
+
+                                                                            {control crud-controls-$record->id}
+
+                                                                                {if in_array($record->id, $recordsMy)}
+                                                                                <a class="btn btn-warning btn-xs" n:href="unsetFavouriteGroup!, $record->id" role="button" title="Remove from my groups"><span class="glyphicon glyphicon-star"></span></a>
+                                                                                {else}
+                                                                                <a class="btn btn-default btn-xs" n:href="setFavouriteGroup!, $record->id" role="button" title="Add to my groups"><span class="glyphicon glyphicon-star"></span></a>
+                                                                                {/if}
+
+                                                                        </td>
+                                                                    </tr>
+                                                                {/foreach}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                    {control vp}
+                                                {else}
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>
+                                                                        <p>Nothing found.</p>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                {/if}
+                                            {/snippet}
+                                        </div>
+
+                                        <script>
+                                            refresh();
+                                        </script>

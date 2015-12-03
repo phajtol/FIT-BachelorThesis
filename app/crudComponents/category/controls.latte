@@ -1,0 +1,10 @@
+<button type="button" data-signal-url="{$addSubLink}" class="btn btn-warning btn-xs addSubcategoryButton addSubcategoryButton{$uniqid}" data-toggle="modal" data-target="#AddSubcategoryModal{$uniqid}" title="Add subcategory for {$entityName}">
+	<span class="glyphicon glyphicon-plus-sign"></span>
+</button>
+<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteCategoryButton deleteCategoryButton{$uniqid}" data-toggle="modal" data-target="#DeleteCategoryModal{$uniqid}" title="Delete {$entityName}">
+	<span class="glyphicon glyphicon-remove"></span>
+</button>
+<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editCategoryButton editCategoryButton{$uniqid}" data-toggle="modal" data-target="#EditCategoryModal{$uniqid}" title="Edit {$entityName}">
+	<span class="glyphicon glyphicon-pencil"></span>
+</button>
+{block extraControls}{/block}

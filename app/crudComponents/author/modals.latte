@@ -1,0 +1,118 @@
+<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.editAuthorButton',
+       			'.showPublicationsRelatedToAuthorButton',
+       			'#DeleteAuthorModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deleteAuthorButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeleteAuthorModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+	});
+</script>
+
+
+
+<div class="modal fade" id="DeleteAuthorModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteAuthorModalLabel{$uniqid}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="DeleteAuthorModalLabel{$uniqid}">Delete Author</h4>
+            </div>
+            <div class="modal-body" id="DeleteAuthorModalBody{$uniqid}">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <p class="text-danger float-left"><small><strong>Check</strong> whether there are any <strong>associated Publications</strong> with this <strong>Author</strong>!</small></p>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="DeleteAuthorModalConfirm{$uniqid}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AddNewAuthorModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="AddNewAuthorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="AddNewAuthorModalLabel{$uniqid}">Add new Author</h4>
+            </div>
+            {snippet authorAddForm}
+                {control authorAddForm}
+				{if $authorAdded}
+					<script>
+						$('#AddNewAuthorModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="EditAuthorModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="EditAuthorModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="EditAuthorModalLabel{$uniqid}">Edit Author</h4>
+			</div>
+			{snippet authorEditForm}
+				{control authorEditForm}
+				{if $authorEdited}
+					<script>
+						$('#EditAuthorModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="PublicationsRelatedToAuthorModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="PublicationsRelatedToAuthorModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="PublicationsRelatedToAuthorModal{$uniqid}">Associated Publications</h4>
+			</div>
+			<div class="modal-body">
+				{snippet publicationsRelatedToAuthor}
+					{if count($publicationsRelatedToAuthor)}
+						<ul n:foreach="$publicationsRelatedToAuthor as $rel">
+							<li><a target="_blank" href="{plink Publication:showpub, $rel->publication->id}">{$rel->publication->title}</a></li>
+						</ul>
+					{else}
+						There are no associated Publications with this Author.
+					{/if}
+				{/snippet}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{snippet deleteAuthor}
+	{if $authorDeleted}
+		<script>
+			$('#DeleteAuthorModal{$uniqid|noescape}').modal('hide');
+			refresh();
+		</script>
+	{/if}
+{/snippet}
+

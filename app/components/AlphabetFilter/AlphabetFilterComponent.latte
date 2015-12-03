@@ -1,0 +1,8 @@
+{snippet filter}
+	<ul class="pagination pagination-sm" style="margin: 20px 0 0 0;">
+		<li n:class="!$filter ? active"><a n:href="filter! ''" n:class="$ajaxRequest ? ajax">NO FILTER</a></li>
+		{foreach $filters as $l}
+			<li n:class="$l == $filter ? active"><a n:class="$ajaxRequest ? ajax" href="{link filter! $l}">{$l}</a></li>
+		{/foreach}
+	</ul>
+{/snippet}

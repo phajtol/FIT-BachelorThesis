@@ -1,0 +1,159 @@
+
+
+<script>
+
+    $(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.editPublisherButton',
+       			'.relatedPublisherButton',
+       			'#DeletePublisherModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deletePublisherButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeletePublisherModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+    });
+
+</script>
+
+
+<div class="modal fade" id="AddNewPublisherModal{$uniqid|noescape}" tabindex="-1" role="dialog" aria-labelledby="AddNewPublisherModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="AddNewPublisherModalLabel">Add Publisher</h4>
+            </div>
+            {snippet publisherAddForm}
+                {form publisherAddForm, class => "ajax form-horizontal", role => "form"}
+                 <div class="modal-body">
+
+                     <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                        <h4>Fill form correctly!</h4>
+                        <ul class=error n:if="$form->hasErrors()">
+                            <li n:foreach="$form->errors as $error">{$error}</li>
+                        </ul>
+                    </div>
+
+                    <div class="form-group required">
+                      {label name, class => "col-sm-2 control-label" /}
+                      <div class="col-sm-8">
+                        {input name, class => "form-control"} <span class=error n:ifcontent>{$form['name']->error}</span>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      {label address, class => "col-sm-2 control-label" /}
+                      <div class="col-sm-8">
+                        {input address, class => "form-control"} <span class=error n:ifcontent>{$form['address']->error}</span>
+                      </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    {input send, class => "btn btn-success"}
+                </div>
+                {/form}
+
+                {if $publisherAdded}
+                    <script>
+                        $('#AddNewPublisherModal{$uniqid|noescape}').modal('hide');
+                    </script>
+                {/if}
+            {/snippet}
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="EditPublisherModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="EditPublisherModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="EditPublisherModalLabel{$uniqid}">Edit Publisher</h4>
+            </div>
+            {snippet publisherEditForm}
+                {control publisherEditForm}
+            {if $publisherEdited}
+                <script>
+                    $('#EditPublisherModal{$uniqid|noescape}').modal('hide');
+                </script>
+            {/if}
+            {/snippet}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="DeletePublisherModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeletePublisherModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="DeletePublisherModalLabel{$uniqid}">Delete Publisher</h4>
+            </div>
+            <div class="modal-body" id="DeletePublisherModalBody{$uniqid}">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <p class="text-danger float-left"><small><strong>Check</strong> whether there are any <strong>associated Publications</strong> with this <strong>Publisher</strong>!</small></p>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="DeletePublisherModalConfirm{$uniqid}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="PublisherRelatedModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="PublisherRelatedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="PublisherRelatedModalLabel{$uniqid}">Associated Publications and Years of Conference</h4>
+            </div>
+            <div class="modal-body">
+                {snippet publisherRelated}
+                    {if count($publisherRelated_publication) && count($publisherRelated_conference_year)}
+                        {if count($publisherRelated_publication)}
+                            <h5><strong>Publications</strong></h5>
+                            <ul n:foreach="$publisherRelated_publication as $rel">
+                                <li><a target="_blank" href="{plink Publication:showpub, $rel->id}">{$rel->title}</a></li>
+                            </ul>
+                        {/if}
+                        {if count($publisherRelated_conference_year)}
+                            <h5><strong>Years of Conference</strong></h5>
+                            <ul n:foreach="$publisherRelated_conference_year as $rel">
+                                <li><a target="_blank" href="{plink Conference:show, $rel->id}">{$rel->name}{ifset $rel->w_year} ({$rel->w_year}){/ifset}</a></li>
+                            </ul>
+                        {/if}
+                    {else}
+                        There are no associated Publications and Years of Conference with this Publisher.
+                    {/if}
+                {/snippet}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{snippet deletePublisher}
+    {if $publisherDeleted}
+        <script>
+            $('#DeletePublisherModal{$uniqid|noescape}').modal('hide');
+        </script>
+    {/if}
+{/snippet}

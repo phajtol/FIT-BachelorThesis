@@ -1,0 +1,25 @@
+<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteUserButton deleteUserButton{$uniqid}" data-toggle="modal" data-target="#DeleteUserModal{$uniqid}" title="Delete user">
+	<span class="glyphicon glyphicon-remove"></span>
+</button>
+<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editUserButton editUserButton{$uniqid}" data-toggle="modal" data-target="#EditUserModal{$uniqid}" title="Edit user">
+	<span class="glyphicon glyphicon-pencil"></span>
+</button>
+<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default btn-xs showPublicationsRelatedToUserButton showPublicationsRelatedToUserButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToUserModal{$uniqid}" title="Associated Publications">
+	<span class="glyphicon glyphicon-link"></span>
+</button>
+
+{*
+
+todo
+
+nevest specialni login, vse vazat k nicknamu (tedy do tab. s auth_ldap se nebude v admin vubec zasaovat, bude ro)
+
+- tedy flagy budou pouze indikovat jake autorizacni metody ma uzivatel aktivni.
+
+
+- moznost zvolit zpusob autentikace (pri auth+pw se smaze auth_ldap, a vytvori se novy auth_login_passw + odesle se retrieve, obracene platit totez)
+
+prepsat autentizaci:
+- pokud lokalni ucet neexistuje, nebo neni platne heslo -> zkus ldap
+
+*}

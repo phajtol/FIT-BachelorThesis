@@ -1,0 +1,193 @@
+{block content}
+
+<script>
+
+    function refresh() {
+
+
+        $('#editGeneralSettingsButton').on('click', function (event) {
+            $.nette.ajax({
+                url: {link editGeneralSettings!},
+            });
+        });
+
+    }
+
+
+    $.nette.ext('name', {
+        complete: function () {
+            refresh();
+        }
+    });
+
+
+</script>
+
+
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">General settings</a></li>
+    </ol>
+</div>
+
+<div class="row">
+
+    <ul id="settings-detail-tab" class="nav nav-tabs">
+        <li class="active"><a href="#detail" data-toggle="tab">General Settings</a></li>
+    </ul>
+
+
+
+
+
+    <div class="col-md-12" id="main-content-123" class="grey" style="padding-top: 30px;">
+        <div id="user-detail-tab-content" class="tab-content">
+            <div class="tab-pane fade active in" id="settings">
+
+                {snippet settingsShowSettings}
+                    <form class="form-horizontal" role="form">
+
+                        <div class="form-group">
+                            <h1 class="col-sm-3 control-label">General Settings</h1>
+                        </div>
+                        <hr>
+
+                        {if $generalSettings->pagination}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Items per page</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">{$generalSettings->pagination}</p>
+                                </div>
+                            </div>
+                        {/if}
+
+                        {if $generalSettings->spring_token}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Spring token</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">{$generalSettings->spring_token}</p>
+                                </div>
+                            </div>
+                        {/if}
+
+                        {if $generalSettings->deadline_notification_advance}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Deadline notification advance</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">{$generalSettings->deadline_notification_advance} days</p>
+                                </div>
+                            </div>
+                        {/if}
+
+                        <div class="form-group">
+                            <h2 class="col-sm-3 control-label"><small>Actions</small></h2>
+                            <div class="col-sm-9">
+                                <p class="form-control-static">
+
+                                    <button type="button" id="editGeneralSettingsButton" class="btn btn-primary" data-toggle="modal" data-target="#EditGeneralSettingsModal" title="Edit Settings Settings">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                    </button>
+
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                {/snippet}
+
+                <div class="modal fade" id="EditGeneralSettingsModal" tabindex="-1" role="dialog" aria-labelledby="EditGeneralSettingsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="EditGeneralSettingsModalLabel">Edit Settings Settings</h4>
+                            </div>
+                            {snippet publicationEditGeneralSettingsForm}
+                                {form publicationEditGeneralSettingsForm, class => "ajax form-horizontal", role => "form"}
+                                    <div class="modal-body">
+
+                                        <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                                            <h4>Fill form correctly!</h4>
+                                            <ul class=error n:if="$form->hasErrors()">
+                                                <li n:foreach="$form->errors as $error">{$error}</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="form-group required">
+                                            {label pagination, class => "col-sm-4 control-label" /}
+                                            <div class="col-sm-6">
+                                                {input pagination, class => "form-control"} 
+                                                <span class=error n:ifcontent>{$form['pagination']->error}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group required">
+                                            {label spring_token, class => "col-sm-4 control-label" /}
+                                            <div class="col-sm-6">
+                                                {input spring_token, class => "form-control"} 
+                                                <span class=error n:ifcontent>{$form['spring_token']->error}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group required">
+                                            {label deadline_notification_advance, class => "col-sm-4 control-label" /}
+                                            <div class="col-sm-6">
+                                                {input deadline_notification_advance, class => "form-control"}
+                                                <span class=error n:ifcontent>{$form['deadline_notification_advance']->error}</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        {input send, class => "btn btn-primary"}
+                                    </div>
+                                {/form}
+                                <script>
+                                    refresh();
+                                </script>
+                                {if $generalSettingsEdited}
+                                    <script>
+                                        $('#EditGeneralSettingsModal').modal('hide');
+                                    </script>
+                                {/if}
+                            {/snippet}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    $('#settings-detail-tab a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+        window.location.hash = $(this).attr("href");
+
+        if ($(this).attr("href") == '#publications') {
+            $("#main-content-123").removeClass("grey");
+        } else {
+            $("#main-content-123").addClass("grey");
+        }
+    });
+
+
+    $('#settings-detail-tab a[href="#settings"]').tab('show') // Select tab by name
+    $("#main-content-123").removeClass("grey");
+
+    refresh();
+
+</script>
+
+<style>
+    .grey{
+        background-color:#f8f8f8; 
+    }   
+</style>
+
+
+

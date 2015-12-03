@@ -1,0 +1,157 @@
+<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.editCuGroupButton',
+       			'.showUsersRelatedToCuGroupButton',
+       			'#DeleteCuGroupModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deleteCuGroupButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeleteCuGroupModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+		// conference categories
+		$(function() {
+			onArrive('#' + {$addFormConferenceCategoriesElementId}, function(){
+				//replaceInputWithTreeSelect($(this), $('#' + {$uniqid} + '-conferenceCategoryListA'));
+				replaceInputWithFancytree($(this), $('#' + {$uniqid} + '-conferenceCategoryListA'));
+			});
+			onArrive('#' + {$editFormConferenceCategoriesElementId}, function(){
+				//replaceInputWithTreeSelect($(this), $('#' + {$uniqid} + '-conferenceCategoryListE'));
+				replaceInputWithFancytree($(this), $('#' + {$uniqid} + '-conferenceCategoryListE'));
+			});
+		});
+
+
+	});
+</script>
+
+
+
+<div class="modal fade" id="DeleteCuGroupModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteCuGroupModalLabel{$uniqid}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="DeleteCuGroupModalLabel{$uniqid}">Delete conference user group</h4>
+            </div>
+            <div class="modal-body" id="DeleteCuGroupModalBody{$uniqid}">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <p class="text-danger float-left"><small><strong>Check</strong> whether there are any <strong>associated users</strong> with this <strong>conference user group</strong>!</small></p>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="DeleteCuGroupModalConfirm{$uniqid}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AddNewCuGroupModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="AddNewCuGroupModalLabel{$uniqid}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="AddNewCuGroupModalLabel{$uniqid}">Add new conference user group</h4>
+            </div>
+            {snippet cuGroupAddForm}
+                {control cuGroupAddForm}
+				{if $cuGroupAdded}
+					<script>
+						$('#AddNewCuGroupModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+				<div id="{$uniqid}-conferenceCategoryListA" class="hidden">
+                    {control conferenceCategoryListA}
+                </div>
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="EditCuGroupModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="EditCuGroupModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="EditCuGroupModalLabel{$uniqid}">Edit conference user group</h4>
+			</div>
+			{snippet cuGroupEditForm}
+				{control cuGroupEditForm}
+				{if $cuGroupEdited}
+					<script>
+						$('#EditCuGroupModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+				<div id="{$uniqid}-conferenceCategoryListE" class="hidden">
+                    {control conferenceCategoryListE}
+                </div>
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="UsersRelatedToCuGroupModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="UsersRelatedToCuGroupModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="UsersRelatedToCuGroupModal{$uniqid}">Associated users</h4>
+			</div>
+			<div class="modal-body">
+				{snippet usersRelatedToCuGroup}
+					{if count($usersRelatedToCuGroup)}
+						<table>
+							<thead>
+								<tr>
+									<th>Nickname</th>
+									<th>Name</th>
+									<th>Surname</th>
+									<th>Email</th>
+								</tr>
+							</thead>
+							<tbody>
+								{foreach $usersRelatedToCuGroup as $user}
+									<tr>
+										<td>{$user->nickname}</td>
+										<td>{$user->name}</td>
+										<td>{$user->surname}</td>
+										<td>{$user->email}</td>
+									</tr>
+								{/foreach}
+							</tbody>
+						</table>
+					{else}
+						There are no associated users with this conference user group.
+					{/if}
+				{/snippet}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{snippet deleteCuGroup}
+	{if $cuGroupDeleted}
+		<script>
+			$('#DeleteCuGroupModal{$uniqid|noescape}').modal('hide');
+			refresh();
+		</script>
+	{/if}
+{/snippet}
+
+
+{control conferenceCategoryListA-crud}
+{control conferenceCategoryListE-crud}

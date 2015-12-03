@@ -1,0 +1,31 @@
+<span n:snippet="controls">
+	{ifset $deleteAllowed}
+		<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteConferenceYearButton deleteConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#DeleteConferenceYearModal{$uniqid}" title="Delete conference year">
+			<span class="glyphicon glyphicon-remove"></span>
+		</button>
+	{/ifset}
+	{ifset $editAllowed}
+		<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editConferenceYearButton editConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#EditConferenceYearModal{$uniqid}" title="Edit conference year">
+			<span class="glyphicon glyphicon-pencil"></span>
+		</button>
+	{/ifset}
+	{ifset $showRelatedPublicationsAllowed}
+		<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default btn-xs conferenceYearRelatedPublicationsButton conferenceYearRelatedPublicationsButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToYearOfConferenceModal{$uniqid}" title="Associated Publications">
+			<span class="glyphicon glyphicon-link"></span>
+		</button>
+	{/ifset}
+	{ifset $showWorkshopsAllowed}
+		<button type="button" data-signal-url="{$showWorkshopsLink}" class="btn btn-default btn-xs showWorkshopsButton showWorkshopsButton{$uniqid}"  data-toggle="modal" data-target="#WorkshopsRelatedToYearOfConferenceModal{$uniqid}" title="Show workshops">
+			<strong>W</strong>
+		</button>
+	{/ifset}
+	{ifset $archivedStateChangeAllowed}
+		<button type="button" data-signal-url="{$setConferenceYearStateLink}" class="btn btn-{$nextConferenceYearState == 'archived' ? 'default' : 'warning'} btn-xs toggleArchivedButton toggleArchivedButton{$uniqid}" title="Mark conference year as {$nextConferenceYearState}">
+			{if $nextConferenceYearState == 'alive'}
+				<span class="glyphicon glyphicon-tree-deciduous"></span>
+			{elseif $nextConferenceYearState == 'archived'}
+				<span class="glyphicon glyphicon-eye-close"></span>
+			{/if}
+		</button>
+	{/ifset}
+</span>

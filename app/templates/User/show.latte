@@ -1,0 +1,430 @@
+{block content}
+
+<script>
+
+    function refresh() {
+
+        var id;
+
+        $('#editUserSettingsButton').on('click', function(event) {
+            $.nette.ajax({
+                url: {link editUserSettings!},
+                data: {
+                    userSettingsId: {$userSettings->id}
+                }
+            });
+        });
+
+        $('#relatedUserButton').on('click', function(event) {
+            $.nette.ajax({
+                url: {link showUserRelated!},
+                data: {
+                    userId: {$submitter->id}
+                }
+            });
+        });
+
+
+    }
+
+
+    $.nette.ext('name', {
+        complete: function() {
+            refresh();
+        }
+    });
+
+
+</script>
+
+
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">User detail</a></li>
+    </ol>
+</div>
+
+<div class="row">
+
+    <ul id="user-detail-tab" class="nav nav-tabs">
+        <li class="active"><a href="#detail" data-toggle="tab">User Detail</a></li>
+        <li class="" n:if="$PU"><a href="#annotations" data-toggle="tab">My Annotations</a></li>
+        <li class=""><a href="#settings" data-toggle="tab">User Settings</a></li>
+    </ul>
+
+    <div class="col-md-12" id="main-content-123" class="grey" style="padding-top: 30px;">
+        <div id="user-detail-tab-content" class="tab-content">
+            <div class="tab-pane fade active in" id="detail">
+
+                {snippet userShowAllRecords}
+                    <form class="form-horizontal" role="form">
+
+                        <div class="form-group">
+                            <h1 class="col-sm-3 control-label">User Detail</h1>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <h2 class="col-sm-3 control-label"><small>User</small></h2>
+                        </div>
+
+                        {if $submitter->nickname}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Login</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">{$submitter->nickname}</p>
+                                </div>
+                            </div>
+                        {/if}
+
+                        {if $submitter->name}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Name</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">{$submitter->name}</p>
+                                </div>
+                            </div>
+                        {/if}
+
+                        {if $submitter->surname}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Surname</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">{$submitter->surname}</p>
+                                </div>
+                            </div>
+                        {/if}
+
+                        {if $submitter->email}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">E-mail</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">{$submitter->email}</p>
+                                </div>
+                            </div>
+                        {/if}
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Rights</label>
+                            <div class="col-sm-9">
+                                <ul class="form-control-static">
+                                    {foreach $submitter->related('user_role') as $role}
+                                        <li>
+                                            {$role->role|translateRole}
+                                        </li>
+                                    {/foreach}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group">
+                            <h2 class="col-sm-3 control-label"><small>Actions</small></h2>
+                            <div class="col-sm-9">
+                                <p class="form-control-static">
+
+                                    <button type="button" id="changePasswordButton" class="btn btn-primary" data-toggle="modal" data-target="#ChangePasswordModal" title="Change Password">
+                                        <span class="glyphicon glyphicon-lock"></span>
+                                    </button>
+
+                                    {if $user->isInRole('admin') || $user->isInRole('submitter')}
+                                        <button type="button" id="relatedUserButton" class="btn btn-default" data-toggle="modal" data-target="#UserRelatedModal" title="Associated Publications">
+                                            <span class="glyphicon glyphicon-link"></span>
+                                        </button>
+                                    {/if}
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                {/snippet}
+
+
+                {if userPasswordChangeFormEnabled}
+                    <div class="modal fade" id="ChangePasswordModal" tabindex="-1" role="dialog" aria-labelledby="ChangePasswordModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title" id="ChangePasswordModalLabel">Change Password</h4>
+                                </div>
+                                {snippet userPasswordChangeForm}
+                                    {form userPasswordChangeForm, class => "ajax form-horizontal", role => "form"}
+                                        <div class="modal-body">
+
+                                            <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                                                <h4>Fill form correctly!</h4>
+                                                <ul class=error n:if="$form->hasErrors()">
+                                                    <li n:foreach="$form->errors as $error">{$error}</li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="form-group required">
+                                                {label pass_old, class => "col-sm-2 control-label" /}
+                                                <div class="col-sm-8">
+                                                    {input pass_old, class => "form-control"}
+                                                    <span class=error n:ifcontent>{$form['pass_old']->error}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group required">
+                                                {label pass, class => "col-sm-2 control-label" /}
+                                                <div class="col-sm-8">
+                                                    {input pass, class => "form-control"}
+                                                    <span class=error n:ifcontent>{$form['pass']->error}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group required">
+                                                {label pass_repetition, class => "col-sm-2 control-label" /}
+                                                <div class="col-sm-8">
+                                                    {input pass_repetition, class => "form-control"}
+                                                    <span class=error n:ifcontent>{$form['pass_repetition']->error}</span>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            {input send, class => "btn btn-primary"}
+                                        </div>
+                                    {/form}
+                                    <script>
+                                        refresh();
+                                    </script>
+                                    {if $passwordChanged}
+                                        <script>
+                                            $('#ChangePasswordModal').modal('hide');
+                                        </script>
+                                    {/if}
+                                {/snippet}
+                            </div>
+                        </div>
+                    </div>
+                {/if}
+
+                <div class="modal fade" id="UserRelatedModal" tabindex="-1" role="dialog" aria-labelledby="UserRelatedModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="UserRelatedModalLabel">Associated Publications</h4>
+                            </div>
+                            <div class="modal-body">
+                                {snippet userRelated}
+                                    {if count($userRelated)}
+                                    <ul n:foreach="$userRelated as $rel">
+                                        <li><a n:href="Publication:showpub, $rel->id">{$rel->title}</a></li>
+                                    </ul>
+                                    {else}
+                                    There are no associated Publications with this User.
+                                    {/if}
+                                {/snippet}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+                <div class="modal fade" id="EditUserSettingsModal" tabindex="-1" role="dialog" aria-labelledby="EditUserSettingsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="EditUserSettingsModalLabel">Edit User Settings</h4>
+                            </div>
+                            {snippet publicationEditUserSettingsForm}
+                                {form publicationEditUserSettingsForm, class => "ajax form-horizontal", role => "form"}
+                                    <div class="modal-body">
+
+                                        <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                                            <h4>Fill form correctly!</h4>
+                                            <ul class=error n:if="$form->hasErrors()">
+                                                <li n:foreach="$form->errors as $error">{$error}</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="form-group required">
+                                            {label pagination, class => "col-sm-4 control-label" /}
+                                            <div class="col-sm-6">
+                                                {input pagination, class => "form-control"}
+                                                <span class=error n:ifcontent>{$form['pagination']->error}</span>
+                                            </div>
+                                        </div>
+
+                                        {ifset $form['deadline_notification_advance']}
+                                            <div class="form-group required">
+                                                {label deadline_notification_advance, class => "col-sm-4 control-label" /}
+                                                <div class="col-sm-6">
+                                                    {input deadline_notification_advance, class => "form-control"}
+                                                    <span class=error n:ifcontent>{$form['deadline_notification_advance']->error}</span>
+                                                </div>
+                                            </div>
+                                        {/ifset}
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        {input send, class => "btn btn-primary"}
+                                    </div>
+                                {/form}
+                                <script>
+                                    refresh();
+                                </script>
+                                {if $userSettingsEdited}
+                                    <script>
+                                        $('#EditUserSettingsModal').modal('hide');
+                                    </script>
+                                {/if}
+                            {/snippet}
+                        </div>
+                    </div>
+                </div>
+
+
+               
+
+            <div class="tab-pane fade" id="annotations" n:if="$PU">
+
+                                    <form class="form-horizontal" role="form">
+                                        <div class="form-group">
+                                            <h1 class="col-sm-3 control-label">Annotations</h1>
+                                        </div>
+
+                                        {snippet publicationAnnotationData}
+                                            {foreach $annotations as $annotation}
+                                                <hr>
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label">{$annotation->submitter->name} {$annotation->submitter->surname}
+                                                        <br>
+                                                        {if $annotation->global_scope == 1}
+                                                            <span class="glyphicon glyphicon-globe"></span> Global
+                                                        {else}
+                                                            <span class="glyphicon glyphicon-lock"></span> Private
+                                                        {/if}
+                                                        <br>
+                                                        {if $annotation->date}
+                                                            {$annotation->date|ldate}
+                                                        {/if}
+                                                    </label>
+                                                    <div class="col-sm-9">
+                                                        <p class="form-control-static"><a n:href="Publication:showpub $annotation->publication->id">{$annotation->publication->title}</a></p>
+                                                        <p id="annotation-{$annotation->id}" class="form-control-static">{$annotation->text}</p>
+                                                        <p class="form-control-static">
+                                                            {control annotationCrud-controls-$annotation->id}
+                                                        </p>
+                                                    </div>
+                                                    <hr>
+                                                </div>
+                                            {/foreach}
+                                        {/snippet}
+                                    </form>
+
+                                    {control annotationCrud}
+
+            </div>
+
+
+            <div class="tab-pane fade" id="settings">
+
+                {snippet userShowSettings}
+                    <form class="form-horizontal" role="form">
+
+                        <div class="form-group">
+                            <h1 class="col-sm-3 control-label">User Settings</h1>
+                        </div>
+                        <hr>
+                        
+                        {if $userSettings->pagination}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Items per page</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">{$userSettings->pagination}</p>
+                                </div>
+                            </div>
+                        {/if}
+
+                        {if $userSettings->deadline_notification_advance && $CU}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Deadline notification advance</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">{$userSettings->deadline_notification_advance} days</p>
+                                </div>
+                            </div>
+                        {/if}
+
+                        <hr>
+
+                        <div class="form-group">
+                            <h2 class="col-sm-3 control-label"><small>Actions</small></h2>
+                            <div class="col-sm-9">
+                                <p class="form-control-static">
+
+                                    <button type="button" id="editUserSettingsButton" class="btn btn-primary" data-toggle="modal" data-target="#EditUserSettingsModal" title="Edit User Settings">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                    </button>
+
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                {/snippet}
+
+
+            </div>
+                                
+                                
+                                
+                            </div>
+                            
+                           
+
+                        </div>
+                    </div>
+
+                    <script>
+
+                        $('#user-detail-tab a').click(function(e) {
+                            e.preventDefault();
+                            $(this).tab('show');
+                            window.location.hash = $(this).attr("href");
+                            
+                             if ($(this).attr("href") == '#publications') {
+                                $("#main-content-123").removeClass("grey");
+                             } else {
+                                $("#main-content-123").addClass("grey");
+                             }
+                        });
+
+
+                        var hash = window.location.hash.replace('#', '');
+                        
+                        if (hash == 'annotations') {
+                            $('#user-detail-tab a[href="#annotations"]').tab('show') // Select tab by name
+                            $("#main-content-123").addClass("grey");
+                        } else if (hash == 'detail') {
+                            $('#user-detail-tab a[href="#detail"]').tab('show') // Select tab by name
+                            $("#main-content-123").addClass("grey");
+                        } else if (hash == 'publications') {
+                            $('#user-detail-tab a[href="#publications"]').tab('show') // Select tab by name
+                            $("#main-content-123").removeClass("grey");
+                        } else if (hash == 'settings') {
+                            $('#user-detail-tab a[href="#settings"]').tab('show') // Select tab by name
+                            $("#main-content-123").removeClass("grey");
+                        }
+
+                        refresh();
+
+                    </script>
+                    
+                    <style>
+                        .grey{
+                           background-color:#f8f8f8; 
+                        }   
+                    </style>
+

@@ -1,0 +1,57 @@
+{extends $baseTemplateFilename}
+{block extraModals}
+
+	<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.showConferencesRelatedToCategoryButton'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+	});
+	</script>
+
+	<div class="modal fade" id="ConferencesRelatedToCategoryModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="ConferencesRelatedToCategoryModalLabel{$uniqid}" aria-hidden="true">
+    	<div class="modal-dialog modal-lg">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    				<h4 class="modal-title" id="ConferencesRelatedToCategoryModal{$uniqid}">Associated Conferences</h4>
+    			</div>
+    			<div class="modal-body">
+    				{snippet conferencesRelatedToCategory}
+						{if count($conferencesRelatedToCategory)}
+							{foreach $conferencesRelatedToCategory as $rel}
+								<h5><strong>{$rel['categories']['name']}</strong></h5>
+								<table>
+									<thead><tr><th></th></tr></thead>
+									<tbody>
+										<tr n:foreach="$rel['conference_has_acm_category'] as $r">
+											{* <li><a href="{plink Conference:show, $r->conference->id}">{$r->conference->title}</a></li> *}
+											{* todo uncomment later *}
+											<td><a href="#">{$r->conference->name}</a></td>
+											{* <td>{control conferenceCrud-controls-$r->conference->id}</td> *}
+										</tr>
+									</tbody>
+								</table>
+							{/foreach}
+						{else}
+							There are no associated Conferences with this ACM category.
+						{/if}
+    				{/snippet}
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+{/block}

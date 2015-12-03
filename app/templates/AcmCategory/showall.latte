@@ -1,0 +1,19 @@
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li><a href="#" class="breadcrumb-admin">Administration</a></li>
+        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">All ACM Categories</a></li>
+    </ol>
+</div>
+{block content}
+    <div class="row">
+        <div class="col-md-12" style="background-color:#f8f8f8; padding-top: 30px; padding-bottom: 30px;">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-10">
+                {control acmCategoryList}
+                {control acmCategoryList-crud}
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+    </div>
+{/block}

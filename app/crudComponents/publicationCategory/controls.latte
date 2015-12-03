@@ -1,0 +1,6 @@
+{extends $baseTemplateFilename}
+{block extraControls}
+	<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default btn-xs showPublicationsRelatedToCategoryButton showPublicationsRelatedToCategoryButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToCategoryModal{$uniqid}" title="Associated Publications">
+    	<span class="glyphicon glyphicon-link"></span>
+    </button>
+{/block}

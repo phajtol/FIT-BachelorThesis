@@ -1,0 +1,82 @@
+{var $robots = noindex}
+
+{block content}
+
+{block head}
+<link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/signin.css">
+{/block}
+
+
+<div class="modal fade" id="AddNewUserPasswordResetModal" tabindex="-1" role="dialog" aria-labelledby="AddNewUserPasswordResetModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="AddNewUserPasswordResetModalLabel">Forgotten Password</h4>
+            </div>
+            {snippet publicationAddNewUserPasswordResetRequestForm}
+                {form publicationAddNewUserPasswordResetRequestForm, class => "ajax form-horizontal", role => "form"}
+                    <div class="modal-body">
+
+                        <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                            <h4>Fill form correctly!</h4>
+                            <ul class=error n:if="$form->hasErrors()">
+                                <li n:foreach="$form->errors as $error">{$error}</li>
+                            </ul>
+                        </div>
+
+                        <div class="form-group required">
+                            {label email, class => "col-sm-3 control-label" /}
+                            <div class="col-sm-8">
+                                {input email, class => "form-control"} <span class=error n:ifcontent>{$form['email']->error}</span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        {input send, class => "btn btn-primary"}
+                    </div>
+                {/form}
+                {if $resetLinkSent}
+                    <script>
+                        $('#AddNewUserPasswordResetModal').modal('hide');
+                    </script>
+                {/if}
+            {/snippet}
+        </div>
+    </div>
+</div>
+
+                {snippet signInForm}
+                    {form signInForm, class => "form-signin"}
+                        <h2 class="form-signin-heading">Please sign in</h2>
+
+                        {*
+                        <div class="alert alert-danger fade in" n:if="$form->hasErrors()">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            <strong>Fill form correctly!</strong>
+                            <ul class="errors" n:if="$form->hasErrors()">
+                                <li n:foreach="$form->errors as $error">{$error}</li>
+                            </ul>
+                        </div>
+                        *}
+
+                        <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                            <h4>Fill form correctly!</h4>
+                            <ul class=error n:if="$form->hasErrors()">
+                                <li n:foreach="$form->errors as $error">{$error}</li>
+                            </ul>
+                        </div>
+
+                        {input username, class => "form-control", placeholder => "Login", required, autofocus => true} <span class=error n:ifcontent>{$form['username']->error}</span>
+                        {input password, class => "form-control", placeholder => "Password", required} <span class=error n:ifcontent>{$form['password']->error}</span>
+                            {label remember, class => "checkbox"} {input remember} {/label}
+                            <button type="button" id="forgottenPasswordButton" class="btn btn-default btn-xs" data-toggle="modal" data-target="#AddNewUserPasswordResetModal" title="Forgotten Password">
+                                <span class="glyphicon glyphicon-lock"> Forgotten Password</span>
+                            </button>
+                            <br /><br />
+                            {input send, class => "btn btn-lg btn-primary btn-block"}
+                            <a href="{plink Sign:shibboleth}" class="btn btn-lg btn-primary btn-block">Sign in using SSO</a>
+                    {/form}
+                {/snippet}

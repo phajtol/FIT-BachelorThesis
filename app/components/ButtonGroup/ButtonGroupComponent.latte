@@ -1,0 +1,23 @@
+{snippet buttons}
+	<div class="btn-group">
+		{foreach $buttons as $buttonName => $button}
+			{if isset($button['items'])}	{* it's a button group *}
+				<div class="btn-group" role="group">
+					<button type="button" class="dropdown-toggle btn{ifset $button['type']} btn-{$button['type']}{/ifset}{if $button['isCurrent']} active{/if}" data-toggle="dropdown" aria-expanded="false">
+						{ifset $button['icon']}<span class="glyphicon glyphicon-{$button['icon']}"></span> {/ifset}{$button['caption']}
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+						{foreach $button['items'] as $subbuttonName => $subbutton}
+							<li n:class="$subbutton['isCurrent'] ? 'active'">
+								 <a n:href="click! $subbuttonName" n:class="$ajaxRequest ? ajax">{ifset $subbutton['icon']}<span class="glyphicon glyphicon-{$subbutton['icon']}"></span> {/ifset}{$subbutton['caption']}</a>
+							</li>
+						{/foreach}
+					</ul>
+                </div>
+			{else}
+				<a class="btn{ifset $button['type']} btn-{$button['type']}{/ifset}{if $button['isCurrent']} active{/if}{if $ajaxRequest} ajax{/if}" n:href="click! $buttonName" role="button">{ifset $button['icon']}<span class="glyphicon glyphicon-{$button['icon']}"></span> {/ifset}{$button['caption']}</a>
+			{/if}
+		{/foreach}
+	</div>
+{/snippet}

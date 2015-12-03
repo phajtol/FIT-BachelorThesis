@@ -1,0 +1,210 @@
+{extends ../@layout.latte}
+
+{block content}
+
+    {block #searchBreadcrumbs}{/block}
+
+{*
+<div style="padding-top: 50px" class="row">
+    {$gp->getPublicWWWAddress()}
+</div>
+*}
+
+<div class="row">
+
+    <div class="col-md-4"></div>
+
+    {form homepageSearchForm, class => "form-horizontal", role => "form"}
+        
+    <div class="col-md-4">
+        <ul id="pub-detail-tab" class="nav nav-tabs">
+            <li class="active"><a href="#fulltext" data-toggle="tab">Fulltext search</a></li>
+            <li class=""><a href="#authors" data-toggle="tab">Authors/Publication search</a></li>
+        </ul>
+        <br />
+        <div id="pub-detail-tab-content" class="tab-content">
+            <div class="tab-pane fade active in" id="fulltext">
+                {* <div class="form-group">
+                    {input keywords, class => "form-control", placeholder => "Fulltext search", type => "search", autofocus => true}
+                </div> *}
+            </div>
+            <div class="tab-pane fade" id="authors">
+                {* <div class="form-group">
+                    {input keywords, class => "form-control", placeholder => "Authors/Publication search", type => "search", autofocus => true}
+                </div> *}
+            </div>
+        </div>
+        <div class="form-group">
+                    {input keywords, class => "form-control", placeholder => "Type keywords", type => "search", autocomplete => "off", autofocus => true, data-provide => "typeahead"}
+                </div> 
+                <div class="form-group" style="display:none; visibility:hidden;">
+                {input searchtype}
+                {input advanced}
+                </div>
+                
+
+        <div class="form-group">
+            {label mypubs}
+                {input mypubs:} {$form['mypubs']->caption}
+            {/label}
+        </div>
+       
+        <button type="button" class="btn btn-default btn-xs btn-block" id="advancedButton" data-toggle="collapse" data-target="#collapseOne">
+  Enable/Disable advanced search &nbsp;&nbsp;&nbsp;<span id="advancedIcon" class="glyphicon glyphicon-chevron-down"></span>
+</button>
+  <div class="panel panel-default" style="border: none;">
+    <div id="collapseOne" class="panel-collapse collapse in">
+      <div class="panel-body">
+
+        <div class="form-group">
+        <div class="btn-group">
+            {foreach $form['operator']->items as $key => $label}
+                {if $key == "OR"}
+                    {label operator:$key, style => "font-weight: normal;"}
+                       {input operator:$key}&nbsp;{$label}
+                    {/label}
+                        &nbsp;
+                {else}
+                    {label operator:$key, style => "font-weight: normal;"}
+                       {input operator:$key}&nbsp;{$label}
+                    {/label}
+                {/if}
+        {/foreach}
+            </div>
+            <div class="col-sm-1"></div>
+             &nbsp;
+              &nbsp;
+               &nbsp;
+                &nbsp;
+                 &nbsp;
+            <button type="button" class="btn btn-default btn-xs" id="123x">
+                <span class="glyphicon glyphicon-check"></span> Select/Deselect all
+            </button>
+        </div>
+            
+        <div class="form-group advanced">
+           {control publicationCategoryList}
+           <div style="margin-top: -40px">
+                {input categories}
+           </div>
+        </div>
+        </div>
+    </div>
+  </div>
+        <div class="form-group">
+            {input send, class => "btn btn-primary btn-lg btn-block"}
+        </div>
+          </div>
+    {/form}
+
+
+    <div class="col-md-4"></div>
+
+</div>
+
+{block #searchResults}
+{/block}
+
+<div id="event_result" style="margin-top:2em; text-align:center;">&nbsp;</div>
+
+<script>
+    
+var switcher = 0;
+
+   $('#123x').click(function() {
+
+        var fnVisitor;
+
+        if(switcher == 0){
+            fnVisitor = function(node) {
+                node.setSelected(false);
+            };
+            switcher = 1;
+        } else {
+            fnVisitor = function(node){
+                node.setSelected(true);
+            }
+            switcher = 0;
+        }
+
+        $("#frm-homepageSearchForm .tree").fancytree("getTree").visit(fnVisitor);
+   });
+
+
+$(function(){
+    replaceInputWithFancytree($('#frm-homepageSearchForm [name=categories]'), $('#categoryTree' + 'publicationCategoryList'));
+});
+         
+$('.collapse').collapse();
+
+$('#collapseOne').on('show.bs.collapse', function () {
+    $('#advancedIcon').removeClass("glyphicon-chevron-down");
+    $('#advancedIcon').addClass("glyphicon-chevron-up");
+    $("#frm-homepageSearchForm-advanced").prop("checked", true);
+});
+
+$('#collapseOne').on('hide.bs.collapse', function () {
+    $('#advancedIcon').removeClass("glyphicon-chevron-up");
+    $('#advancedIcon').addClass("glyphicon-chevron-down");
+    $("#frm-homepageSearchForm-advanced").prop("checked", false);
+});
+
+    var fnTahCreate = function() {
+        $('#frm-homepageSearchForm-keywords').typeahead(
+            {
+                hint: true,
+                highlight: true,
+                minLength: 1
+            },
+            {
+                name: 'publicationsAndAuthors',
+                source: substringMatcher(publicationsAndAuthors),
+                templates: {
+                    suggestion: function(item){
+                        var mainEl = $('<p></p>');
+                        mainEl.text(item);
+                        return mainEl;
+                    }
+                }
+            }
+        ).bind('typeahead:selected', function(evt, item){
+            $('#frm-homepageSearchForm-keywords').val(item);
+            $('#frm-homepageSearchForm-keywords').closest('form').submit();
+        });
+    }
+
+    var fnTahDestroy = function(){
+        $('#frm-homepageSearchForm-keywords').typeahead('destroy');
+    }
+
+
+    $('#pub-detail-tab a').click(function(e) {
+        e.preventDefault();
+        $(this).tab('show');
+        if ($(this).attr("href") == '#fulltext') {
+           $("#frm-homepageSearchForm [name=searchtype]").val('fulltext');
+           fnTahDestroy();
+        } else if ($(this).attr("href") == '#authors') {
+           $("#frm-homepageSearchForm [name=searchtype]").val('authors');
+           fnTahCreate();
+        }
+     });
+     
+
+     $(function(){
+         if ($("#frm-homepageSearchForm [name=searchtype][checked]").val() == 'fulltext') {
+            $('#pub-detail-tab a[href="#fulltext"]').tab('show');
+         } else if ($("#frm-homepageSearchForm [name=searchtype][checked]").val() == 'authors') {
+            fnTahCreate();
+            $('#pub-detail-tab a[href="#authors"]').tab('show');
+         }
+      });
+     
+     if ($("#frm-homepageSearchForm-advanced").prop('checked')) {
+        $('#collapseOne').collapse('show');   
+     }
+     
+     var publicationsAndAuthors = JSON.parse({$dataAutocomplete});
+
+</script>
+

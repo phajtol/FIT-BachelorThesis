@@ -1,0 +1,72 @@
+{block content}
+
+	<div class="row">
+		<ol class="breadcrumb">
+			<li><a n:href="Homepage:">Home</a></li>
+			<li><a href="#" class="breadcrumb-admin">Administration</a></li>
+			<li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">All Journals</a></li>
+		</ol>
+	</div>
+
+	{control crud}
+
+	<div class="row">
+		<div class="row">
+			<div class="col-lg-4">
+				{include searchForm}
+			</div>
+			<div class="col-lg-7">
+			</div>
+			<div class="col-lg-1">
+				{control crud-addButton}
+			</div>
+		</div>
+
+		{control alphabetFilter}
+
+		{snippet journalShowAll}
+			{if count($records)}
+				<div class="table-responsive">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>
+									{control sorting, "name", "Name"}
+								</th>
+								<th>
+									{control sorting, "abbreviation", "Abbr."}
+								</th>
+								<th>
+									{control sorting, "issn", "ISSN"}
+								</th>
+								<th>
+									{control sorting, "doi", "DOI"}
+								</th>
+								<th>
+									Action
+								</th>
+							</tr>
+						</thead>
+						<tbody n:snippet="journalShowAllRecords">
+							{foreach $records as $record}
+								<tr n:snippet="journalRow$record->id">
+									<td>{$record->name}</td>
+									<td>{$record->abbreviation}</td>
+									<td>{$record->issn}</td>
+									<td>{$record->doi}</td>
+									<td>
+										{control crud-controls-$record->id}
+									</td>
+								</tr>
+							{/foreach}
+						</tbody>
+					</table>
+				</div>
+
+				{control vp}
+			{else}
+				{include nothingFound}
+			{/if}
+		{/snippet}
+	</div>
+{/block}

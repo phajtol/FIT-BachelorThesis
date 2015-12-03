@@ -1,0 +1,131 @@
+<script>
+    $(function(){
+
+		var uqs = {$uniqid};
+
+        var dataTree = [
+			{foreach $categoryTree as $ctg}
+				{ id: {$uniqid}+{$ctg['id']}, parentid: {if !$ctg['parent_id']} - 1{else} {$uniqid} + {$ctg['parent_id']}{/if}, text: {$ctg['name']}, value: {$ctg['id']} },
+			{/foreach}
+		];
+
+		// prepare the data
+	  	var source =
+		{
+			datatype: "json",
+			datafields: [
+				{ name: 'id' },
+				{ name: 'parentid' },
+				{ name: 'text' },
+				{ name: 'value' }
+			],
+			id: 'id',
+			localdata: dataTree
+		};
+
+		// create data adapter.
+		var dataAdapter = new $.jqx.dataAdapter(source);
+
+		// perform Data Binding.
+		dataAdapter.dataBind();
+
+
+		// get the tree items. The first parameter is the item's id. The second parameter is the parent item's id. The 'items' parameter represents
+		// the sub items collection name. Each jqxTree item has a 'label' property, but in the JSON data, we have a 'text' field. The last parameter
+		// specifies the mapping between the 'text' and 'label' fields.
+		var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }]);
+
+
+		var ctgLoadFn = function(el){
+
+
+
+			$(el).jqxTree({ source: records, allowDrag: false, allowDrop: false, checkboxes: {$isSelectable ? 'true' : 'false' |noescape}, hasThreeStates: {$hasThreeStates ? 'true' : 'false' |noescape}, height: {$height}, width: {$width},
+
+				dragEnd: function (item, dropItem, args, dropPosition, tree) {
+					// if (item.level == dropItem.level && item.parentId == dropItem.parentId) return false;	// if the item's parent has not been changed -> prevent dropping
+				}
+
+			 });
+
+			 $(el).on('expand', function (event) {
+				   $(el).jqxTree('prepareItem', 'ahoy');
+			 });
+
+			setTimeout(function(){ $(el).jqxTree('refresh'); }, 50);	// bug with checkboxes
+		};
+
+		ctgLoadFn($('#categoryTree'+uqs + ' .tree'));
+
+		$(document).on('select', '#categoryTree'+uqs + ' .tree', function(){
+			var selectedItem = $(this).jqxTree('selectedItem');
+
+			var itemId;
+			if(selectedItem){
+			 	itemId = selectedItem.value;
+			} else {
+				itemId = 0;
+			}
+
+			$.nette.ajax({
+				url: {link itemSelected!},
+				data: {
+					{$control->getParameterId('id')}	:	itemId
+				}
+			});
+		});
+
+
+	});
+</script>
+
+
+<div class="form-group">
+	{*<label for="jqxTree" class="col-sm-2 control-label"></label>*}
+	<div class="col-sm-8">
+		<div id="categoryTree{$uniqid}"><div class="tree form-control"></div></div>
+	</div>
+</div>
+
+<div class="form-group">
+	<div class="col-sm-offset-0 col-sm-8" style="margin-top: 10px;">
+		{snippet categoryControls}
+			{if $hasControls}
+				{control crud-addButton}
+				{if $categoryId}
+					{control crud-controls-$categoryId}&nbsp;
+				{/if}
+			{/if}
+		{/snippet}
+	</div>
+</div>
+
+
+{snippet categoryDeleted}
+	{if $categoryDeleted}
+		<script>
+			$('#categoryTree{$uniqid|noescape} .tree').jqxTree('removeItem', $('#' + {$uniqid} + {$categoryDeleted['id']})[0], true);
+		</script>
+	{/if}
+{/snippet}
+{snippet categoryEdited}
+	{if $categoryEdited}
+		<script>
+			$('#categoryTree{$uniqid|noescape} .tree').jqxTree('updateItem', $('#' + {$uniqid} + {$categoryEdited['id']})[0], { label: {$categoryEdited['name']} });
+		</script>
+	{/if}
+{/snippet}
+{snippet categoryAdded}
+	{if $categoryAdded}
+		<script>
+			$('#categoryTree{$uniqid|noescape} .tree').jqxTree('addTo', { label: {$categoryAdded['name']}, id: {$uniqid} + {$categoryAdded['id']}, value: {$categoryAdded['id']} }, null, true);
+		</script>
+	{/if}
+{/snippet}
+{snippet subcategoryAdded}
+	{if $subcategoryAdded}
+		<script>
+			$('#categoryTree{$uniqid|noescape} .tree').jqxTree('addTo', { label: {$subcategoryAdded['name']} , id: {$uniqid} + {$subcategoryAdded['id']}, value: {$subcategoryAdded['id']} }, $('#' + {$uniqid} + {$subcategoryAdded['parent_id']})[0], true);
+		</script>
+	{/if}
+{/snippet}

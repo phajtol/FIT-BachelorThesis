@@ -1,0 +1,4 @@
+150 conferences have been created.
+550 conference years have been created (its conference has been newly created).
+166 conference years have been associated with an existing conference.
+33 conference years have been merged with the existing ones.

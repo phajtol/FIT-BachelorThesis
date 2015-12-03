@@ -1,0 +1,38 @@
+{var $robots = noindex}
+
+{block content}
+	{if $passwordResetFormEnabled}
+                    {form passwordResetForm, class => "form-reset"}
+                        <h2 class="form-signin-heading">Please choose a new password</h2>
+
+                        <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                            <h4>Fill form correctly!</h4>
+                            <ul class=error n:if="$form->hasErrors()">
+                                <li n:foreach="$form->errors as $error">{$error}</li>
+                            </ul>
+                        </div>
+
+						<div n:foreach="$form->controls as $input">
+							{if $input->name != 'send'}
+							{if !empty($input->label)}
+                                <div n:class="$input->required ? required, form-group">
+                                    {label $input, class => "col-sm-4 control-label" /}
+                                    <div class="col-sm-8">
+                                        {input $input, class => "form-control"} <span class="error" n:ifcontent>{$input->error}</span>
+                                    </div>
+                                </div>
+                            {else}
+                                {input $input}
+                            {/if}
+                            {/if}
+						</div>
+
+                        {input send, class => "btn btn-primary btn-lg"}
+                    {/form}
+	{/if}
+{/block}
+
+{block head}
+<link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/signin.css">
+{/block}
+

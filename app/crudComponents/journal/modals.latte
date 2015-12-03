@@ -1,0 +1,118 @@
+<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.editJournalButton',
+       			'.showPublicationsRelatedToJournalButton',
+       			'#DeleteJournalModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deleteJournalButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeleteJournalModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+	});
+</script>
+
+
+
+<div class="modal fade" id="DeleteJournalModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteJournalModalLabel{$uniqid}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="DeleteJournalModalLabel{$uniqid}">Delete Journal</h4>
+            </div>
+            <div class="modal-body" id="DeleteJournalModalBody{$uniqid}">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <p class="text-danger float-left"><small><strong>Check</strong> whether there are any <strong>associated Publications</strong> with this <strong>Journal</strong>!</small></p>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="DeleteJournalModalConfirm{$uniqid}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AddNewJournalModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="AddNewJournalModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="AddNewJournalModalLabel{$uniqid}">Add new Journal</h4>
+            </div>
+            {snippet journalAddForm}
+                {control journalAddForm}
+				{if $journalAdded}
+					<script>
+						$('#AddNewJournalModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="EditJournalModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="EditJournalModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="EditJournalModalLabel{$uniqid}">Edit Journal</h4>
+			</div>
+			{snippet journalEditForm}
+				{control journalEditForm}
+				{if $journalEdited}
+					<script>
+						$('#EditJournalModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="PublicationsRelatedToJournalModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="PublicationsRelatedToJournalModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="PublicationsRelatedToJournalModal{$uniqid}">Associated Publications</h4>
+			</div>
+			<div class="modal-body">
+				{snippet publicationsRelatedToJournal}
+					{if count($publicationsRelatedToJournal)}
+						<ul n:foreach="$publicationsRelatedToJournal as $pub">
+							<li><a target="_blank" href="{plink Publication:showpub, $pub->id}">{$pub->title}</a></li>
+						</ul>
+					{else}
+						There are no associated Publications with this Journal.
+					{/if}
+				{/snippet}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{snippet deleteJournal}
+	{if $journalDeleted}
+		<script>
+			$('#DeleteJournalModal{$uniqid|noescape}').modal('hide');
+			refresh();
+		</script>
+	{/if}
+{/snippet}
+

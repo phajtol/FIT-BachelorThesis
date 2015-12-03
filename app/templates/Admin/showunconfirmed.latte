@@ -1,0 +1,100 @@
+
+{block content}
+
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li><a href="#">Administration</a></li>
+        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Waiting for check</a></li>
+    </ol>
+</div>
+
+<div class="row">
+    {if count($records)}
+        {snippet publicationShowAll}
+
+            <div class="row">
+                <div class="col-lg-4">
+                    {form searchForm}
+                        <ul class=error n:if="$form->ownErrors">
+                            <li n:foreach="$form->ownErrors as $error">{$error}</li>
+                        </ul>
+                        <div class="input-group">
+                            {input keywords class => "form-control"} 
+                            <span class="input-group-btn">
+                                {input send, class => "btn btn-default"}
+                            </span>
+                        </div>
+                    {/form}
+                </div>
+                <div class="col-lg-5">
+                </div>
+                <div class="col-lg-2">
+                    <button type="button" class="btn btn-default" id="confirmPublication">
+                        <span class="glyphicon glyphicon-check"></span> Select/Deselect all
+                    </button>
+                </div>
+                <div class="col-lg-1">
+                    <a class="btn btn-success" n:href="Publication:addnew" role="button" title="Add new Publication"><span class="glyphicon glyphicon-plus"></span></a>
+                </div>
+            </div>
+
+            {form adminShowUnconfirmedForm}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Confirm?</th>
+                            </tr>
+                        </thead>
+                        <tbody n:snippet="publicationShowAllRecords">
+                            {var $_form = $presenter['adminShowUnconfirmedForm']}
+                            {foreach $records as $record}
+                                <tr>
+                                    <td><a n:href="Publication:showpub, $record->id">{$record->title}</a></td>
+                                    <td>
+                                        {input confirm_$record->id}
+                                    </td>
+                                </tr>
+                            {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-lg-11">
+                    </div>
+                    <div class="col-lg-1">
+                        {input send} 
+                    </div>
+                </div>
+
+            {/form}
+            {control vp}
+        {/snippet}
+
+    {else}
+        <p>Nothing found.</p>
+
+    {/if}
+</div>
+
+<script>
+
+    var switcher = 0;
+    $('#confirmPublication').on('click', function(event) {
+
+        if (switcher == 0) {
+            $("input:checkbox").each(function() {
+                $(this).prop('checked', true);
+            });
+            switcher = 1;
+        } else {
+            $("input:checkbox").each(function() {
+                $(this).prop('checked', false);
+            });
+            switcher = 0;
+        }
+    });
+
+</script>

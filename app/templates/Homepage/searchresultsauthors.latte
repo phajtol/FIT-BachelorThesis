@@ -1,0 +1,86 @@
+{extends default.latte}
+
+{block #searchBreadcrumbs}
+	<div class="row">
+		<ol class="breadcrumb">
+			<li><a n:href="Homepage:">Home</a></li>
+			<li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Search Results</a></li>
+		</ol>
+	</div>
+{/block}
+
+{block #searchResults}
+    {if count($results)}
+   <div class="row">
+       <div class="col-md-12">
+     &nbsp;Order by: {if $sort == 'title' || $sort == ""}
+        <a n:href="this (expand) $params, sort => title" style="font-weight: bold;">Title</a>
+    {else}
+        <a n:href="this (expand) $params, sort => title">Title</a>
+    {/if} |
+
+    {if $sort == 'date'}
+        <a n:href="this (expand) $params, sort => date" style="font-weight: bold;">Year</a>
+    {else}
+        <a n:href="this (expand) $params, sort => date">Year</a>
+    {/if}
+    </div>
+</div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr n:foreach="$results as $result">
+                    <td>
+            <h4>
+                <a n:href="Publication:showpub, $result['id']">{!$result['title']}</a>
+                <span class="text-muted"> ({$result['pub_type']}) </span>
+            </h4>
+            <p><strong>Authors:</strong>
+                {!$result['authors']}
+            </p>
+            <p class="text-success"><strong>Categories:</strong>
+                        {foreach $result['categories'] as $category}
+                            {$category->categories->name}{sep}, {/sep}
+                        {/foreach}
+            </p>
+            </td>
+                    {*<td><a n:href="Publication:showpub, $result->id">{$result->title}</a><br />
+                        authors
+                        <br /> category
+                    </td>*}
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+{control vp}
+
+{else}
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <p>Nothing found.</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+{/if}
+
+
+{/block}

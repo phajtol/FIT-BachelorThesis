@@ -1,0 +1,1296 @@
+{block scripts}
+    {include #parent}
+
+    <script src="{$basePath}/js/PublicationAddnew.js"></script>
+{/block}
+
+{block content}
+
+{control publicationCategoryList-crud}
+{control publisherCrud}
+{control journalCrud}
+{control attributeCrud}
+{control groupCrud}
+{control authorCrud}
+{control conferenceCrud}
+{snippet conferenceYearCrud}
+    {if $selectedConferenceId}
+        {control conferenceYearCrud}
+    {/if}
+{/snippet}
+
+
+
+<script>
+
+    $(function(){
+
+         $('body').on('change', '#frm-publicationAddNewForm-publisher_id', function(event) {
+            $.nette.ajax({
+                url: {link showPublisherInfo!},
+                data: {
+                    publisherId: $(this).val(),
+                }
+            });
+        });
+
+         $('body').on('change', '#frm-publicationAddNewForm-journal_id', function(event) {
+            $.nette.ajax({
+                url: {link showJournalInfo!},
+                data: {
+                    journalId: $(this).val(),
+                }
+            });
+        });
+
+         $('body').on('change', '#frm-publicationAddNewForm-conference', function(event) {
+            $.nette.ajax({
+                url: {link showConferenceInfo!},
+                data: {
+                    conferenceId: $(this).val(),
+                }
+            });
+        });
+
+         $('body').on('change', '#frm-publicationAddNewForm-conference_year_id', function(event) {
+            $.nette.ajax({
+                url: {link showConferenceYearInfo!},
+                data: {
+                    conferenceYearId: $(this).val(),
+                }
+            });
+        });
+
+        onArrive('.author-controls button', function(){
+            $('<br><br>').insertAfter($(this).removeClass('btn-xs'));
+        });
+
+    });
+
+    function authorUnselectFn(){
+        $.nette.ajax({
+            url: {link selectAuthor!},
+            data: {
+                authorId: 0
+            }
+        });
+    }
+
+</script>
+
+<script>
+    var id2;
+    var id3;
+
+
+    function ajaxStartShowSpinner(){
+           $("body").css({
+            opacity: 0.3
+            });
+            $("#ajax-spinner").show();
+    }
+
+    function ajaxStopHideSpinner(){
+
+             $('body').css({
+                opacity: 1
+            });
+
+            $("#ajax-spinner").hide().css({
+                position: "fixed",
+                left: "50%",
+                top: "50%"
+            });
+
+    }
+
+
+
+
+    $(function(){
+        $('body').on('submit', '#frm-uploadFileForm', function () {
+                    $('#frm-uploadFileForm-folderId').val($('#frm-publicationAddNewForm-folderId').val());
+        });
+
+
+       $('body').on('click', '#fetchSpringerDataButton', function(event) {
+            $.nette.ajax({
+                url: {link fetchFromSpringer!},
+                data: {
+                    idSpringer:  $('#frm-publicationSpringerForm-id_springer').val(),
+                    typeSpringer: $("input[name=type_springer]:checked").val()
+                }
+            });
+        });
+    });
+
+
+    $(function(){
+
+        $('.deleteFileButton').on('click', function () {
+            id2 = this.id.split('-')[1];
+            $('#DeleteFileModalBody').html("Are you sure to delete <strong>" + $('#deleteFileLabel-' + id2).text() + "</strong> ?");
+        });
+
+         $('#DeleteFileModalConfirm').on('click', function(event) {
+            $.nette.ajax({
+                url: {link deleteFile!},
+                data: {
+                    fileId: id2
+                }
+            });
+        });
+
+    });
+
+
+    $(document).ready(function () {
+
+        var data1 = [
+    {foreach $authors as $key => $value}
+        { label: {$value}, value: {$key} },
+    {/foreach}
+        ];
+                // prepare the data
+                var source =
+        {
+        datatype: "json",
+                datafields: [
+                { name: 'label' },
+                { name: 'value' }
+                ],
+                id: 'value',
+                localdata: data1
+        };
+                var dataAdapter = new $.jqx.dataAdapter(source);
+
+                $('#jqxButtonUp').on('click', function () {
+        var item = $("#listBoxB").jqxListBox('getSelectedItem');
+                if (item && item.index != 0){
+        var index = item.index - 1;
+                $("#listBoxB").jqxListBox('insertAt', { label: item.label, value: item.value}, index);
+                $("#listBoxB").jqxListBox('removeAt', item.index);
+                $("#listBoxB").jqxListBox('selectIndex', index);
+        }
+        });
+                $('#jqxButtonDown').on('click', function () {
+        var items = $("#listBoxB").jqxListBox('getItems');
+                var item = $("#listBoxB").jqxListBox('getSelectedItem');
+                if (item && item.index != (items.length - 1)){
+        var index = item.index + 2;
+                $("#listBoxB").jqxListBox('insertAt', { label: item.label, value: item.value}, index);
+                $("#listBoxB").jqxListBox('removeAt', item.index);
+                $("#listBoxB").jqxListBox('selectIndex', (index - 1));
+        }
+        });
+                $('#jqxButtonSelect').on('click', function () {
+        var item = $("#listBoxA").jqxListBox('getSelectedItems');
+        if(item[0] && item[0].selected){
+                $("#listBoxB").jqxListBox('addItem', { label: item[0].label, value: item[0].value});
+                $("#listBoxA").jqxListBox('removeItem', item[0]);
+                authorUnselectFn();
+            }
+        });
+                $('#jqxButtonDeselect').on('click', function () {
+        var item = $("#listBoxB").jqxListBox('getSelectedItems');
+        if(item[0]){
+                $("#listBoxA").jqxListBox('addItem', { label: item[0].label, value: item[0].value});
+                $("#listBoxB").jqxListBox('removeItem', item[0]);
+            }
+        });
+
+
+             $('#listBoxB').on('select', function (event) {
+                  var item = $("#listBoxA").jqxListBox('getSelectedItems');
+                  if(item[0]){
+                   $("#listBoxA").jqxListBox('unselectIndex', item[0].index );
+                    }
+                });
+
+                 $('#listBoxA').on('select', function (event) {
+                  var item = $("#listBoxB").jqxListBox('getSelectedItems');
+                  if(item[0]){
+                   $("#listBoxB").jqxListBox('unselectIndex', item[0].index );
+                    }
+                    $.nette.ajax({
+                        url: {link selectAuthor!},
+                        data: {
+                            authorId: event.args.item.value || 0
+                        }
+                    });
+
+                });
+
+                $('#listBoxA').on('unselect', function (event) {
+                    authorUnselectFn();
+                });
+
+
+
+                var data2 = [
+                ];
+                // Create a jqxListBox
+                $("#listBoxA").jqxListBox({
+                    displayMember: "label", valueMember: "value",
+                allowDrop: true,
+                allowDrag: true,
+                source: dataAdapter,
+                width: 300,
+                height: 300,
+                filterable: true
+        });
+                $("#listBoxB").jqxListBox({
+                allowDrop: true,
+                allowDrag: true,
+                source: data2,
+                width: 300,
+                height: 300
+        });
+
+        $('#listBoxB').on('drop', function(){
+            authorUnselectFn();
+        });
+
+
+        $('#listBoxA').on('select', function(event) {
+            checkValue($("#listBoxA").jqxListBox('getSelectedItem'), $('#jqxButtonSelect'));
+            checkValue($("#listBoxB").jqxListBox('getSelectedItem'), $('#jqxButtonDeselect'));
+            checkValue($("#listBoxB").jqxListBox('getSelectedItem'), $('#jqxButtonUp'));
+            checkValue($("#listBoxB").jqxListBox('getSelectedItem'), $('#jqxButtonDown'));
+        });
+
+
+        var fnXXX = function(event) {
+                                checkValue($("#listBoxA").jqxListBox('getSelectedItem'), $('#jqxButtonSelect'));
+                                checkValue($("#listBoxB").jqxListBox('getSelectedItem'), $('#jqxButtonDeselect'));
+                                checkValue($("#listBoxB").jqxListBox('getSelectedItem'), $('#jqxButtonUp'));
+                                checkValue($("#listBoxB").jqxListBox('getSelectedItem'), $('#jqxButtonDown'));
+                            };
+
+        $('#listBoxB').on('select', fnXXX);
+        fnXXX();
+
+
+
+          // CATEGORIES
+
+
+
+         // GROUPS
+
+          var dataGroup = [
+    {foreach $groupTree as $grp}
+        { id: {$grp->id}, text: {$grp->name}, value: {$grp->id} },
+    {/foreach}
+        ];
+
+
+           // prepare the data
+                var sourceGroup =
+                {
+                    datatype: "json",
+                    datafields: [
+                        { name: 'id' },
+                        { name: 'text' },
+                        { name: 'value' }
+                    ],
+                    id: 'id',
+                    localdata: dataGroup
+                };
+                // create data adapter.
+                var dataAdapterGroup = new $.jqx.dataAdapter(sourceGroup);
+                // perform Data Binding.
+                dataAdapterGroup.dataBind();
+                // get the tree items. The first parameter is the item's id. The second parameter is the parent item's id. The 'items' parameter represents
+                // the sub items collection name. Each jqxTree item has a 'label' property, but in the JSON data, we have a 'text' field. The last parameter
+                // specifies the mapping between the 'text' and 'label' fields.
+                var recordsGroups = dataAdapterGroup.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label'}]);
+
+                $('#jqxGroup').jqxTree({ source: recordsGroups,  hasThreeStates: true, checkboxes: true, allowDrag: false, allowDrop: false, height: '400px', width: '330px'});
+
+                         $('#jqxGroup').on('select',function (event) {
+                            var item = $('#jqxGroup').jqxTree('getItem', event.args.element);
+                            $.nette.ajax({
+                                url: {link selectGroup!},
+                                data: {
+                                    groupId: item.id
+                                }
+                            });
+
+                        });
+
+
+
+        // GROUPS Update
+        {foreach $selectedGroups as $grp}
+            $("#jqxGroup").jqxTree('checkItem',  $("li#{!$grp['group_id']}")[0], true);
+        {/foreach}
+
+
+        // AUTHORS Update
+
+        {foreach $selectedAuthors as $key => $value}
+                $("#listBoxB").jqxListBox('addItem', { label: {$value}, value: {$key} });
+                $("#listBoxA").jqxListBox('removeItem', {$key});
+        {/foreach}
+
+
+        // GROUPS
+
+        $('#frm-publicationAddNewForm').on('submit', function() {
+
+            var str = "";
+            var items = $('#jqxGroup').jqxTree('getCheckedItems');
+
+            for (var i = 0; i < items.length; i++) {
+               var item = items[i];
+
+
+               if (i == items.length - 1) {
+               str += item.id;
+                    } else {
+                str += item.id + " ";
+                }
+            }
+
+            $('#frm-publicationAddNewForm [name=group]').val(str);
+
+        });
+
+        // AUTHORS
+
+       $('#frm-publicationAddNewForm').on('submit', function () {
+
+           var log = "";
+            var items = $("#listBoxB").jqxListBox('getItems');
+
+           for (var i = 0; i < items.length; i++) {
+               log += items[i].value;
+               if (i < items.length - 1) log += ' ';
+           }
+
+            $('#frm-publicationAddNewForm-authors').val(log);
+
+       });
+
+
+
+
+        $.nette.ext('name', {
+            success: function () {
+               // ajaxStopHideSpinner();
+            },
+
+            error: function () {
+                    // ajaxStopHideSpinner();
+            }
+        });
+
+
+    });
+</script>
+
+
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li><a n:href="Publication:showall">Publications</a></li>
+        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">{$title}</a></li>
+    </ol>
+</div>
+                            {snippet groupAdded}
+                                {if $groupAdded}
+                                    <script>
+                                        var selectedItem = $('#jqxGroup').jqxTree('selectedItem');
+                                            $('#jqxGroup').jqxTree('addTo', { label: {$groupAdded->name}, id: {$groupAdded->id} }, null, true);
+                                            $("#jqxGroup").jqxTree('checkItem',  $("li#{$groupAdded->id}")[0], true);
+
+                                    </script>
+                                {/if}
+                            {/snippet}
+
+                            {snippet groupEdited}
+                                {if $groupEdited}
+                                    <script>
+                                        var selectedItem = $('#jqxGroup').jqxTree('getItem', $('#jqxGroup li#' + {$groupEdited->id})[0]);
+                                        $('#jqxGroup').jqxTree('updateItem', selectedItem, { label: {$groupEdited->name} });
+                                    </script>
+                                {/if}
+                            {/snippet}
+
+                            {snippet groupDeleted}
+                                {if $groupDeleted}
+                                    <script>
+                                        var selectedItem = $('#jqxGroup').jqxTree('getItem', $('#jqxGroup li#' + {$groupDeleted->id})[0]);
+                                        if (selectedItem != null) {
+                                            $('#jqxGroup').jqxTree('removeItem', selectedItem.element, true);
+                                        }
+                                    </script>
+                                {/if}
+                            {/snippet}
+
+                            {snippet authorEdited}
+                                {if $authorEdited}
+                                    <script>
+                                        $("#listBoxA").jqxListBox('updateItem', { label: {$authorEdited|authorName}, value: {$authorEdited->id} }, {$authorEdited->id});
+                                    </script>
+                                {/if}
+                            {/snippet}
+
+                            {snippet authorDeleted}
+                                {if $authorDeleted}
+                                    <script>
+                                        $("#listBoxA").jqxListBox('removeItem', {$authorDeleted->id});
+                                        authorUnselectFn();
+                                    </script>
+                                {/if}
+                            {/snippet}
+
+                            {snippet authorAdded}
+                                {if $authorAdded}
+                                    <script>
+                                        $("#listBoxB").jqxListBox('addItem', { label: {$authorAdded|authorName}, value: {$authorAdded->id} });
+                                    </script>
+                                {/if}
+                            {/snippet}
+
+
+                <div class="modal fade" id="DeleteFileModal" tabindex="-1" role="dialog" aria-labelledby="DeleteFileModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="DeleteFileModalLabel">Delete File</h4>
+                            </div>
+                            <div class="modal-body" id="DeleteFileModalBody">
+                                Are you sure to delete?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-danger" id="DeleteFileModalConfirm">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                              <div class="modal fade" id="ImportModal" tabindex="-1" role="dialog" aria-labelledby="ImportModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="ImportModalLabel">Import Definition</h4>
+                            </div>
+                            {snippet publicationImportForm}
+                                    {form publicationImportForm, class => "form-horizontal", role => "form"}
+                                     <div class="modal-body">
+                                       
+                                         <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                                            <h4>Fill form correctly!</h4>
+                                            <ul class=error n:if="$form->hasErrors()">
+                                                <li n:foreach="$form->errors as $error">{$error}</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="form-group required">
+                                          {label definition, class => "col-sm-2 control-label" /}
+                                          <div class="col-sm-8">
+                                            {input definition, class => "form-control"} <span class=error n:ifcontent>{$form['definition']->error}</span>
+                                          </div>
+                                        </div>
+                                          
+                                        <div class="form-group required">
+                                          {label type, class => "col-sm-2 control-label" /}
+                                          <div class="col-sm-8">
+                                            {input type, class => "form-control"} <span class=error n:ifcontent>{$form['type']->error}</span>
+                                          </div>
+                                        </div>
+                                       
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        {input send, class => "btn btn-success"}
+                                    </div>
+                                    {/form}
+                                {/snippet}
+                        </div>
+                    </div>
+                </div>
+                        
+                <div class="modal fade" id="SpringerModal" tabindex="-1" role="dialog" aria-labelledby="SpringerModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="SpringerModalLabel">Fetch data from Springer</h4>
+                            </div>
+                            {snippet publicationSpringerForm}
+                                {form publicationSpringerForm, class => "form-horizontal", role => "form"}
+                                     <div class="modal-body">
+                                         <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                                            <h4>Fill form correctly!</h4>
+                                            <ul class=error n:if="$form->hasErrors()">
+                                                <li n:foreach="$form->errors as $error">{$error}</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="form-group required">
+                                          {label id_springer, class => "col-sm-2 control-label" /}
+                                          <div class="col-sm-8">
+                                            {input id_springer, class => "form-control"} <span class=error n:ifcontent>{$form['id_springer']->error}</span>
+                                          </div>
+                                           <div class="col-sm-2">
+
+                                            </div>
+
+                                        </div>
+                                          
+                                        <div class="form-group required">
+                                          {label type_springer, class => "col-sm-2 control-label" /}
+                                          <div class="col-sm-8">
+                                            {input type_springer, class => "form-control"} <span class=error n:ifcontent>{$form['type_springer']->error}</span>
+                                          </div>
+                                        </div>
+                                     
+                                          
+                                    {snippet publicationSpringerForm-data}
+                                    {var $_form = $presenter['publicationSpringerForm']}
+                                    
+                                    <div class="form-group required">
+                                    {label data_springer, class => "col-sm-2 control-label" /}
+                                    <div class="col-sm-8">
+                                        {input data_springer, class => form-control} <span class=error n:ifcontent>{$_form['data_springer']->error}</span>
+                                    </div>
+                                    </div>
+                                    {ifset $springerMessage}
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Status</label>
+                                        <div class="col-sm-8">
+                                            <p class="bg-{$springerMessage['status']}">{$springerMessage['message']}</p>
+                                        </div>
+                                    </div>
+                                    {/ifset}
+                                    
+                                    
+                                    {/snippet}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        <button id="fetchSpringerDataButton" type="button" class="btn btn-default">Fetch data</button>
+                                        {input send, class => "btn btn-success"}
+                                    </div>
+                                {/form}
+                            {/snippet}
+                        </div>
+                    </div>
+                </div>
+                        
+                        
+
+
+    <div class="row">
+        
+          <div class="col-md-12" style="background-color:#f8f8f8; padding-top: 30px;">
+        
+            {form publicationAddNewForm, class => "form-horizontal", role => "form"}
+                
+    
+                <div class="bs-callout bs-callout-danger" n:if="$form->hasErrors()">
+                    <h4>Fill form correctly!</h4>
+                    <ul class=error n:if="$form->hasErrors()">
+                        <li n:foreach="$form->errors as $error">{$error}</li>
+                    </ul>
+                </div>
+
+               
+                 {if !$id}      
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-6">
+                       <button type="button" id="importButton" class="btn btn-success" data-toggle="modal" data-target="#ImportModal" title="Import Definition">
+                            <span class="glyphicon glyphicon-import"></span> Import Definition
+                        </button>
+                         <button type="button" id="fetchButton" class="btn btn-success" data-toggle="modal" data-target="#SpringerModal" title="Fetch data from Springer">
+                            <span class="glyphicon glyphicon-cloud-download"></span> Fetch data from Springer
+                        </button>
+                    </div>
+                </div>
+                {/if}
+                
+                {if isset($definition)}
+                    <div class="form-group">
+                    <label class="col-sm-2 control-label">Imported definition</label>
+                    <div class="col-sm-8">
+                        <p class="bg-success">{!$definition}</p>
+                    </div>
+                    </div>
+                {/if}
+                
+                  {if isset($springer)}
+                    <div class="form-group">
+                    <label class="col-sm-2 control-label">Imported data from springer</label>
+                    <div class="col-sm-8">
+                        <p class="bg-success">
+                            {foreach $springer as $id => $value}
+                                {$id} => {dump $value}
+                            {/foreach}
+                        </p>
+                    </div>
+                    </div>
+                {/if}
+                
+                <div class="form-group required">
+                    {label pub_type, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input pub_type, class => "form-control"} <span class=error n:ifcontent>{$form['pub_type']->error}</span>
+                    </div>
+                     <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['pub_type']}"><strong> ? </strong></a>
+                </div>
+                   
+                <div class="form-group required">
+                    {label title, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input title, class => "form-control"} <span class=error n:ifcontent>{$form['title']->error}</span>
+                    </div>
+                </div>
+                 
+                <div id="addnew-authors1" class="form-group hidden">
+                    <div class="col-sm-offset-2 col-sm-12">
+                        <div class="col-sm-offset-1 col-sm-4">
+                           <label for="jqxWidget" class="control-label">All authors</label>
+                        </div>
+                        <div class="col-sm-5">
+                           <label for="jqxWidget" class="control-label">Selected authors</label>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div id="addnew-authors2" class="form-group hidden">
+                    <label for="jqxWidget" class="col-sm-2 control-label">Authors</label>
+                    <div class="col-sm-10" id='jqxWidget'>
+                        <div style="float: left;" id="listBoxA">
+                        </div>
+                        <div style="margin-left: 20px; float: left;">
+                            <button type="button" id="jqxButtonSelect" class="btn btn-default" title="Select">
+                                <span class="glyphicon glyphicon-arrow-right"></span>
+                            </button>
+                            <br /><br />
+                            <button type="button" id="jqxButtonDeselect" class="btn btn-default" title="Deselect">
+                                <span class="glyphicon glyphicon-arrow-left"></span>
+                            </button>
+                            <br /><br />
+
+                            <div class="author-controls">
+                                {snippet authorControls}
+                                    {control authorCrud-addButton}
+                                    {if $selectedAuthorId}
+                                        {control authorCrud-controls-$selectedAuthorId}
+                                    {/if}
+                                {/snippet}
+                            </div>
+
+                        </div>
+                        <div style="margin-left: 20px; float: left;" id="listBoxB">
+                        </div>
+                        <div style="margin-left: 20px; float: left;">
+                            <button type="button" id="jqxButtonUp" class="btn btn-default" title="Move up">
+                                <span class="glyphicon glyphicon-arrow-up"></span>
+                            </button>
+                            <br />
+                            <br />
+                            <button type="button" id="jqxButtonDown" class="btn btn-default"  title="Move down">
+                                <span class="glyphicon glyphicon-arrow-down"></span>
+                            </button>
+                            <br />
+                            <br />
+                            <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['authors']}"><strong> ? </strong></a>
+                        </div>
+                    </div>
+                </div>
+                <div id="addnew-authors3" class="form-group hidden">
+                    <div class="col-sm-3">
+                        {input authors, class => "form-control hidden"}
+                        <span class=error n:ifcontent>{$form['authors']->error}</span>
+                    </div>
+                </div>
+
+
+                <div id="addnew-conference" class="form-group hidden">
+                    {snippet publicationAddNewForm-conference}
+                        {var $_form = $presenter['publicationAddNewForm']}
+                        {label conference, class => "col-sm-2 control-label" /}
+                        <div class="col-sm-6">
+                            {input conference, class => form-control} <span class=error n:ifcontent>{$_form['conference']->error}</span>
+                        </div>
+                    {/snippet}
+                    <div class="col-sm-4" n:snippet="conferenceControls">
+                        {control conferenceCrud-addButton}
+                        {if $selectedConferenceId}
+                            &nbsp;
+                            <div class="inline-block">
+                                {control conferenceCrud-controls-$selectedConferenceId}
+                            </div>
+                        {/if}
+                    </div>
+                </div>
+
+
+
+                {snippet conferenceInfo, class => hidden}
+                    {if $conferenceInfo}
+                        {if $conferenceInfo['name']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Name</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="conferenceYearNameId">{$conferenceInfo['name']}</p>
+                            </div>
+                        </div>
+                            {/if}
+                        {if $conferenceInfo['abbreviation']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Abbreviation</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceInfo['abbreviation']}</p>
+                            </div>
+                        </div>
+                            {/if}
+                            {if $conferenceInfo['first_year']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">First year</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceInfo['first_year']}</p>
+                            </div>
+                        </div>
+                            {/if}
+                            {if $conferenceInfo['description']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Description</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceInfo['description']}</p>
+                            </div>
+                        </div>
+                             {/if}
+                    {/if}
+                {/snippet}
+                
+
+
+
+
+                <div id="addnew-conferenceYear" class="form-group hidden">
+                    {snippet publicationAddNewForm-conference_year_id}
+                        {var $_form = $presenter['publicationAddNewForm']}
+                        {label conference_year_id, class => "col-sm-2 control-label" /}
+                        <div class="col-sm-6">
+                            {input conference_year_id, class => form-control} <span class=error n:ifcontent>{$_form['conference_year_id']->error}</span>
+                        </div>
+                        {if $conferenceInfo}
+                            <div class="col-sm-4">
+                                {* {control $presenter['conferenceYearCrud'][$conferenceInfo['id']]['addButton']}*}
+                                {control conferenceYearCrud-addButton}
+                                <div n:class="inline-block" n:snippet="conferenceYearControls">
+                                    &nbsp;
+                                    {if $selectedConferenceYearId}
+                                        {control conferenceYearCrud-controls-$selectedConferenceYearId}
+                                    {/if}
+                                </div>
+                            </div>
+                        {/if}
+                    {/snippet}
+                </div>
+
+                {snippet conferenceYearInfo, class => hidden}
+                    {if $conferenceYearInfo}
+                        {if $conferenceYearInfo['name']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Name</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearInfo['name']}</p>
+                            </div>
+                        </div>
+                        {/if}  
+                        {if $conferenceYearInfo['w_year']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Year</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearInfo['w_year']}</p>
+                            </div>
+                        </div>
+                        {/if}    
+                        {if $conferenceYearInfo['w_from']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">From</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearInfo['w_from']|date:'%Y-%m-%d'}</p>
+                            </div>
+                        </div>
+                            {/if} 
+                            {if $conferenceYearInfo['w_to']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">To</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearInfo['w_to']|date:'%Y-%m-%d'}</p>
+                            </div>
+                        </div>
+                            {/if} 
+                            {if $conferenceYearInfo['location']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Location</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearInfo['location']}</p>
+                            </div>
+                        </div>
+                            {/if} 
+                            {if $conferenceYearInfo['isbn']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">ISBN</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearInfo['isbn']}</p>
+                            </div>
+                        </div>
+                            {/if} 
+                            {if $conferenceYearInfo['issn']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">ISSN</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearInfo['issn']}</p>
+                            </div>
+                        </div>
+                            {/if} 
+                            {if $conferenceYearInfo['doi']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">DOI</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearInfo['doi']}</p>
+                            </div>
+                        </div>
+                            {/if} 
+                            {if $conferenceYearInfo['description']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Description</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearInfo['description']}</p>
+                            </div>
+                        </div>
+                            {/if}
+                            
+                        {if isset($conferenceYearPublisherInfo) && $conferenceYearPublisherInfo}
+                            {if $conferenceYearPublisherInfo['name']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Publisher name</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearPublisherInfo['name']}</p>
+                            </div>
+                        </div>
+                            {/if}
+                             {if $conferenceYearPublisherInfo['address']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Publisher address</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$conferenceYearPublisherInfo['address']}</p>
+                            </div>
+                        </div>
+                          {/if}  
+                        {/if}
+                    {/if}
+                {/snippet}
+
+
+                <div class="form-group">
+                    {label abstract, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input abstract, class => "form-control"} <span class=error n:ifcontent>{$form['abstract']->error}</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="jqxTree" class="col-sm-2 control-label">Categories</label>
+
+                    <div class="col-sm-4">
+                        {input categories, class => "form-control", id => "publicationCategoriesInput"}
+
+
+                        {control publicationCategoryList}
+
+                        <script>
+                            $(function() {
+                                var inputEl = $('#publicationCategoriesInput');
+                                var treeEl = $('#publicationCategoriesInput').parent().find('.tree').parent();
+
+                                replaceInputWithFancytree(inputEl, treeEl);
+
+                                onArrive('#snippet-publicationCategoryList-categoryControls .btn-xs', function(el) { $(this).removeClass('btn-xs'); } );
+
+                                $('#snippet-publicationCategoryList-categoryControls').css('display', 'inline-block').prependTo('#categoryControls');
+                            });
+                        </script>
+                    </div>
+                    <div class="col-sm-4" id="categoryControls">
+                        <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['categories']}"><strong> ? </strong></a>
+                    </div>
+                </div>
+
+ 
+
+                
+                <div class="form-group">
+                    <label for="jqxGroup" class="col-sm-2 control-label">Groups</label>
+                    <div class="col-sm-4"><div  id="jqxGroup" class="form-control"></div></div>
+                    <div class="col-sm-3" n:snippet="groupControls">
+                        {control groupCrud-addButton}
+                        {if $selectedGroupId}
+                            {control groupCrud-controls-$selectedGroupId}
+                        {/if}
+                    </div>
+                </div>
+ 
+
+                <div id="addnew-publisher" class="hidden">
+                   <div class="form-group">
+                        {label publisher_id, class => "col-sm-2 control-label" /}
+                        <div class="col-sm-7">
+                            {snippet publicationAddNewForm-publisher_id}
+                                {var $_form = $presenter['publicationAddNewForm']}
+                                {input publisher_id, class => "form-control"} <span class=error n:ifcontent>{$_form['publisher_id']->error}</span>
+                            {/snippet}
+                        </div>
+                        <div class="col-sm-3" n:snippet="publisherControls">
+                            {control publisherCrud-addButton}
+                            {if $selectedPublisherId}
+                                &nbsp;
+                                {control publisherCrud-controls-$selectedPublisherId}
+                            {/if}
+                        </div>
+                    </div>
+                    {snippet publisherInfo}
+                        {if $publisherInfo}
+                            {if $publisherInfo['name']}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Publisher name</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static">{$publisherInfo['name']}</p>
+                                </div>
+                            </div>
+                            {/if}
+                            {if $publisherInfo['address']}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Publisher address</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static">{$publisherInfo['address']}</p>
+                                </div>
+                            </div>
+                            {/if}
+                        {/if}
+                    {/snippet}
+
+                    
+                </div>
+
+                <div id="addnew-journal" class="form-group hidden">
+                    {label journal_id, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-7">
+                        {snippet publicationAddNewForm-journal_id}
+                             {var $_form = $presenter['publicationAddNewForm']}
+                             {input journal_id, class => "form-control"} <span class=error n:ifcontent>{$_form['journal_id']->error}</span>
+                        {/snippet}
+                    </div>
+                    <div class="col-sm-3" n:snippet="journalControls">
+                        {control journalCrud-addButton}
+                        {if $selectedJournalId}
+                            &nbsp;
+                            {control journalCrud-controls-$selectedJournalId}
+                        {/if}
+                    </div>
+                </div>
+                {snippet journalInfo}
+                    {if $journalInfo}
+                        {if $journalInfo['name']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Journal Name</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$journalInfo['name']}</p>
+                            </div>
+                        </div>
+                         {/if}   
+                         {if $journalInfo['abbreviation']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Journal Abbreviation</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$journalInfo['abbreviation']}</p>
+                            </div>
+                        </div>
+                         {/if} 
+                         {if $journalInfo['issn']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Journal ISSN</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$journalInfo['issn']}</p>
+                            </div>
+                        </div>
+                         {/if} 
+                         {if $journalInfo['doi']}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Journal DOI</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">{$journalInfo['doi']}</p>
+                            </div>
+                        </div>
+                         {/if} 
+                    {/if}
+                {/snippet}
+                
+                
+                <div id="addnew-isbn" class="form-group hidden">
+                    {label isbn, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input isbn, class => "form-control"} <span class=error n:ifcontent>{$form['isbn']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-doi" class="form-group">
+                    {label doi, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input doi, class => "form-control"} <span class=error n:ifcontent>{$form['doi']->error}</span>
+                    </div>
+                </div>    
+                    
+                <div id="addnew-howpublished" class="form-group hidden">
+                    {label howpublished, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input howpublished, class => "form-control"} <span class=error n:ifcontent>{$form['howpublished']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-issue_date" class="form-group hidden">
+                    {label issue_date, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input issue_date, class => "form-control month"} <span class=error n:ifcontent>{$form['issue_date']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-organization" class="form-group hidden">
+                    {label organization, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input organization, class => "form-control"} <span class=error n:ifcontent>{$form['organization']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-volume" class="form-group hidden">
+                    {label volume, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input volume, class => "form-control"} <span class=error n:ifcontent>{$form['volume']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-number" class="form-group hidden">
+                    {label number, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input number, class => "form-control"} <span class=error n:ifcontent>{$form['number']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-chapter" class="form-group hidden">
+                    {label chapter, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input chapter, class => "form-control"} <span class=error n:ifcontent>{$form['chapter']->error}</span>
+                    </div>
+                </div>
+                
+                 <div id="addnew-pages" class="form-group hidden">
+                    {label pages, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input pages, class => "form-control"} <span class=error n:ifcontent>{$form['pages']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-editor" class="form-group hidden">
+                    {label editor, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input editor, class => "form-control"} <span class=error n:ifcontent>{$form['editor']->error}</span>
+                    </div>
+                </div>
+                
+                  <div id="addnew-edition" class="form-group hidden">
+                    {label edition, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input edition, class => "form-control"} <span class=error n:ifcontent>{$form['edition']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-booktitle" class="form-group hidden">
+                    {label booktitle, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input booktitle, class => "form-control"} <span class=error n:ifcontent>{$form['booktitle']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-school" class="form-group hidden">
+                    {label school, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input school, class => "form-control"} <span class=error n:ifcontent>{$form['school']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-institution" class="form-group hidden">
+                    {label institution, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input institution, class => "form-control"} <span class=error n:ifcontent>{$form['institution']->error}</span>
+                    </div>
+                </div>
+                
+                 <div id="addnew-type_of_report" class="form-group hidden">
+                    {label type_of_report, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input type_of_report, class => "form-control"} <span class=error n:ifcontent>{$form['type_of_report']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-url" class="form-group hidden">
+                    {label url, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input url, class => "form-control"} <span class=error n:ifcontent>{$form['url']->error}</span>
+                    </div>
+                </div>
+                
+                
+                 <div id="addnew-address" class="form-group hidden">
+                    {label address, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input address, class => "form-control"} <span class=error n:ifcontent>{$form['address']->error}</span>
+                    </div>
+                </div>
+                
+                <div id="addnew-note" class="form-group hidden">
+                    {label note, class => "col-sm-2 control-label" /}   
+                    <div class="col-sm-8">
+                        {input note, class => "form-control"} <span class=error n:ifcontent>{$form['note']->error}</span>
+                    </div>
+                </div>
+
+                
+                <div id="addnew-attributes" class="form-group attributes">
+                            <label class="col-sm-2 control-label">Further attributes</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">
+                                    {control attributeCrud-addButton}
+                                    <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['attributes']}"><strong> ? </strong></a>
+                                </p>
+                            </div>
+                </div>
+                
+                <div n:snippet="attributeShowAllRecords">
+                    {var $form = $presenter['publicationAddNewForm']}
+                    {foreach $attributes as $attrib}
+                                 <div id="addnew-attributes_{$attrib->id}" class="form-group attributes">
+                                     {label attributes_$attrib->id, class => "col-sm-2 control-label" /}   
+                                    <div class="col-sm-7">
+                                        {input attributes_$attrib->id, class => "form-control"} <span class=error n:ifcontent>{$form['attributes_'.$attrib->id]->error}</span>
+                                    </div>
+                                     <div class="col-sm-3">
+
+                                        {control attributeCrud-controls-$attrib->id}
+                                     </div>
+                                </div>
+                    {/foreach}
+                     </div>
+                        
+                {snippet files}
+                    {foreach $files as $key => $file}
+                        <div class="form-group">
+                            <label id="deleteFileLabel-{$key}" class="col-sm-2 control-label">{$file['name']}</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-static">
+                                    <a class="btn btn-default" target="_blank" href="{$basePath}{$dirPathTemplate}{$publication['id']}/{$file['name']}" role="button"><span class="glyphicon glyphicon-download"></span></a>
+                                    <button type="button" id="deleteFileButton-{$key}" class="btn btn-danger deleteFileButton" data-toggle="modal" data-target="#DeleteFileModal" title="Delete file">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    {/foreach}
+                {/snippet}
+
+                {snippet deleteFile}
+                    {if $fileDeleted}
+                    <script>
+                        $('#DeleteFileModal').modal('hide');
+                    </script>
+                    {/if}
+                {/snippet}
+
+                
+
+    {snippet form}
+        <div class="form-group">
+                            <label id="psdsdsd" class="col-sm-2 control-label">Upload files</label>
+                            <div class="col-sm-7">
+                                <p class="form-control-static">
+                               
+    {var $_form = $presenter['publicationAddNewForm']}
+		{ifset $values}
+			<h2>Recieved data</h2>
+			{? $fields = array("upload"); }
+			{foreach $fields AS $field}
+			<b>{=count($values[$field])}</b> recieved files through <b>{$field}</b> field.
+			<table>
+				<tr>
+					<th>
+						File name
+					</th>
+					<th>
+						File size
+					</th>
+					<th>
+						Mime-type
+					</th>
+					<th>
+						Path
+					</th>
+				</tr>
+				{foreach $values[$field] AS $file}
+				<tr>
+					<th style="text-align: center;">
+						{$file->name}
+					</th>
+					<td style="text-align: center;">
+						{$file->size|bytes}
+					</td>
+					<td>
+						{$file->contentType}
+					</td>
+					<td>
+						<i style="font-size: 60%;">{$file->temporaryFile}</i>
+					</td>
+				</tr>
+				{/foreach}
+			</table>
+			{/foreach}
+			<form class="ajax" action="{link redrawForm!}" style="padding-top: 10px;">
+				<input type="submit" name="tlacitko" value="Back to form">
+			</form>
+		{else}
+			{input upload} <span class=error n:ifcontent>{$_form['upload']->error}</span>
+		{/ifset}
+             </p>
+                            </div>
+                    <div class="col-sm-3">
+                        <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['upload']}"><strong> ? </strong></a>
+                    </div>     
+                </div>
+	{/snippet}
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-4">
+                        {input cancel, class => "btn btn-lg btn-default btn-block"}
+                    </div>
+                    <div class="col-sm-4">
+                        {if !$id} 
+                        {input send, class => "btn btn-lg btn-success btn-block"}
+                    {else}
+                        {input send, class => "btn btn-lg btn-primary btn-block"}
+                    {/if}
+                    </div>
+                </div>
+
+            {/form}
+                 </div>
+                </div>

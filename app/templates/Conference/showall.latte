@@ -1,0 +1,184 @@
+{block content}
+
+	<div class="row">
+		<ol class="breadcrumb">
+			<li><a n:href="Homepage:">Home</a></li>
+			<li><a href="#" class="breadcrumb-conferences">Conferences</a></li>
+			<li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">All Conferences</a></li>
+		</ol>
+	</div>
+
+	<script>
+		$(function(){
+			replaceInputWithFancytree($('#' + {$conferenceCategoriesInputId}), $('#' + {$uniqid} + '-confCatList'));
+			replaceInputWithFancytree($('#' + {$acmCategoriesInputId}), $('#' + {$uniqid} + '-acmCatList'));
+
+			$('#extraFiltersButton').click(function(){
+				$("#extraFilters").slideToggle(0, function(){
+					$(this).find('.tree').each(function(){ $(this).jqxTree('refresh'); });
+				});
+				$(this).toggleClass('active');
+			});
+		});
+	</script>
+
+	{control crudList}
+
+	{snippet showAddCY}
+		{ifset $newConferenceId}
+			{control particularCYCrud-$newConferenceId}
+			<script>
+				$(function(){
+					setTimeout(function() {
+						$('#AddNewConferenceYearModal' + {$control['particularCYCrud'][$newConferenceId]->uniqueId}).modal('show');
+					}, 500);
+				});
+			</script>
+		{/ifset}
+	{/snippet}
+
+	{control conferenceCrud}
+
+	<div class="row">
+		<div class="row">
+			<div class="col-lg-4">
+				{form searchForm}
+					<ul class=error n:if="$form->ownErrors">
+						<li n:foreach="$form->ownErrors as $error">{$error}</li>
+					</ul>
+					<div class="input-group">
+						{input keywords class => "form-control"}
+						<span class="input-group-btn">
+							{input send, class => "btn btn-default", placeholder => "type keywords here"}
+						</span>
+					</div>
+				{/form}
+			</div>
+			<div class="col-lg-2">
+				<a href="#" id="extraFiltersButton" n:class="btn, $extraSearchApplied ? 'active btn-warning' : 'btn-default'">Other filters <b class="caret"></b></a>
+			</div>
+			<div class="col-lg-3">
+				{control conferenceIndividualFilter}
+			</div>
+			<div class="col-lg-3">
+				{control conferenceYearStateFilter}
+			</div>
+		</div>
+		<div id="extraFilters" n:class="row" {if !$extraSearchApplied}style="display: none"{/if}>
+			{snippet searchExtrasForm}
+				{form searchExtrasForm, class => "form-vertical", role => "form"}
+
+					<div class="form-group required">
+						<div class="col-sm-3">
+							{label acm_categories, class => "col-sm-8 control-label" /}
+							{input acm_categories, class => "form-control"} <span class=error n:ifcontent>{$form['acm_categories']->error}</span>
+					  	</div>
+					</div>
+					<div class="form-group required">
+						<div class="col-sm-3">
+							{label conference_categories, class => "col-sm-10 control-label" /}
+							{input conference_categories, class => "form-control"} <span class=error n:ifcontent>{$form['conference_categories']->error}</span>
+						</div>
+					</div>
+					<div class="form-group col-sm-3">
+						<br><br><br><br><br>
+						{input submit, class => "btn btn-lg btn-success"}
+					</div>
+
+					<div id="{$uniqid}-acmCatList">
+						{control acmCategoryList}
+					</div>
+					<div id="{$uniqid}-confCatList">
+						{control conferenceCategoryList}
+					</div>
+
+				{/form}
+			{/snippet}
+		</div>
+
+		<div class="row">
+			<div class="col-lg-11">
+				{control alphabetFilter}
+			</div>
+			<div class="col-lg-1">
+				<div style="margin-top: 17px" n:if="$control['conferenceCrud']->isActionAllowed('add')">
+					{control conferenceCrud-addButton}
+				</div>
+			</div>
+		</div>
+
+		{snippet conferenceYearsShowAll}
+			{if count($records)}
+				<div class="table-responsive">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th></th>
+								<th>
+									{control sorting, "name", "Name"}
+								</th>
+								<th>
+									{control sorting, "abbreviation", "Abbr."}
+								</th>
+								<th>
+									{control sorting, "w_year", "Year"}
+								</th>
+								<th n:if="$CU">
+									{control sorting, "deadline", "Deadline"}
+								</th>
+								<th n:if="$CU">
+									{control sorting, "notification", "Notification"}
+								</th>
+								<th n:if="$CU">
+									{control sorting, "finalversion", "Final version"}
+								</th>
+								<th>
+									{control sorting, "location", "Location"}
+								</th>
+								<th>
+									{control sorting, "w_from_to", "Date"}
+								</th>
+								<th>
+									Action
+								</th>
+							</tr>
+						</thead>
+						<tbody n:snippet="conferenceYearShowAllRecords">
+							{foreach $records as $record}
+								{var $deadlineNotify = $record->deadline && $record->deadline > $now && $record->deadline < $deadlineNotificationThreshold}
+								{var $notificationNotify = $record->notification && $record->notification > $now && $record->notification < $deadlineNotificationThreshold}
+								{var $finalversionNotify = $record->finalversion && $record->finalversion > $now && $record->finalversion < $deadlineNotificationThreshold}
+
+
+								<tr n:snippet="conferenceYearRow$record->id" n:class="$deadlineNotify || $notificationNotify || $finalversionNotify ? 'deadline-alert-row'">
+									<td class="mintd">
+										<a n:if="$record->web" href="{$record->web}" class="btn btn-xs btn-default" target="_blank"><span class="glyphicon glyphicon-globe"></span></a>
+									</td>
+									<td><a n:href="Conference:show $record->id">{$record->name}</a></td>
+									<td>{$record->abbreviation}</td>
+									<td>{$record->w_year}</td>
+									<td n:if="$CU" n:class="$deadlineNotify ? 'deadline-alert'">{$record->deadline|ldate}</td>
+									<td n:if="$CU" n:class="$notificationNotify ? 'deadline-alert'">{$record->notification|ldate}</td>
+									<td n:if="$CU" n:class="$finalversionNotify ? 'deadline-alert'">{$record->finalversion|ldate}</td>
+									<td>{$record->location}</td>
+									<td class="nowrap">
+										{$record->w_from|ldaterange, $record->w_to}
+									</td>
+									<td class="nowrap">
+									 	{control crudList-controls-$record->id}
+									 	{control favouriteToggle-$record->conference_id}
+									</td>
+								</tr>
+							{/foreach}
+						</tbody>
+					</table>
+				</div>
+
+				{control vp}
+			{else}
+				{include nothingFound}
+			{/if}
+		{/snippet}
+	</div>
+
+{/block}

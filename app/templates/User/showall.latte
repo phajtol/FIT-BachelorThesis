@@ -1,0 +1,90 @@
+{block content}
+
+	<div class="row">
+		<ol class="breadcrumb">
+			<li><a n:href="Homepage:">Home</a></li>
+			<li><a href="#" class="breadcrumb-admin">Administration</a></li>
+        	<li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">All Users</a></li>
+		</ol>
+	</div>
+
+	{control crud}
+
+	<div class="row">
+		<div class="row">
+			<div class="col-lg-4">
+				{include searchForm}
+			</div>
+			<div class="col-lg-7">
+			</div>
+			<div class="col-lg-1">
+				{control crud-addButton}
+			</div>
+		</div>
+
+		{control alphabetFilter}
+
+		{snippet userShowAll}
+			{if count($records)}
+				<div class="table-responsive">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>
+									{control sorting, "surname", "Surname"}
+								</th>
+								<th>
+									{control sorting, "name", "Name"}
+								</th>
+								<th>
+									{control sorting, "email", "Email"}
+								</th>
+								<th>
+									{control sorting, "nickname", "Nickname (login)"}
+								</th>
+								<th>
+									Auth type
+								</th>
+								<th>
+									Levels
+								</th>
+								<th>
+									Actions
+								</th>
+							</tr>
+						</thead>
+						<tbody n:snippet="userShowAllRecords">
+							{foreach $records as $record}
+								<tr n:snippet="userRow$record->id">
+									<td>{$record->surname}</td>
+									<td>{$record->name}</td>
+									<td>{$record->email}</td>
+									<td>{$record->nickname}</td>
+									<td>
+										<span class="label auth-method-label auth-method-{$userAuthTypes[$record->id]}">
+											{$userAuthTypes[$record->id]|translateAuthMethod}
+										</span>
+									</td>
+									<td>
+										{foreach $record->related('user_role') as $role}
+											<span class="label role-label role-{$role->role}">
+												{$role->role|translateRole}
+											</span>
+										{/foreach}
+									</td>
+									<td>
+										{control crud-controls-$record->id}
+									</td>
+								</tr>
+							{/foreach}
+						</tbody>
+					</table>
+				</div>
+
+				{control vp}
+			{else}
+				{include nothingFound}
+			{/if}
+		{/snippet}
+	</div>
+{/block}

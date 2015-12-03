@@ -1,0 +1,94 @@
+<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.editButton',
+       			'#DeleteModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deleteButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeleteModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+	});
+</script>
+
+
+{ifset $deleteAllowed}
+	<div class="modal fade" id="DeleteModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel{$uniqid}" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="DeleteModalLabel{$uniqid}">Delete document index</h4>
+				</div>
+				<div class="modal-body" id="DeleteModalBody{$uniqid}">
+					Are you sure to delete?
+				</div>
+				<div class="modal-footer">
+					<p class="text-danger float-left"><small><strong>Check</strong> whether there are any <strong>associated conference years</strong> with this <strong>document index</strong>!</small></p>
+					<br><br />
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" id="DeleteModalConfirm{$uniqid}">Delete</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{snippet deleteEntity}
+		{if $entityDeleted}
+			<script>
+				$('#DeleteModal{$uniqid|noescape}').modal('hide');
+			</script>
+		{/if}
+	{/snippet}
+{/ifset}
+
+{ifset $addAllowed}
+	<div class="modal fade" id="AddNewModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="AddNewModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="AddNewModalLabel{$uniqid}">Add new document index</h4>
+				</div>
+				{snippet addForm}
+					{control addForm}
+					{if $entityAdded}
+						<script>
+							$('#AddNewModal{$uniqid|noescape}').modal('hide');
+						</script>
+					{/if}
+				{/snippet}
+			</div>
+		</div>
+	</div>
+{/ifset}
+
+{ifset $editAllowed}
+<div class="modal fade" id="EditModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="EditModalLabel{$uniqid}" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="EditModalLabel{$uniqid}">Edit document index</h4>
+			</div>
+			{snippet editForm}
+				{control editForm}
+				{if $entityEdited}
+					<script>
+						$('#EditModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+{/ifset}

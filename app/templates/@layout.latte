@@ -1,0 +1,268 @@
+{**
+ * My Application layout template.
+ *
+ * @param string   $basePath web base path
+ * @param string   $robots   tell robots how to index the content of a page (optional)
+ * @param array    $flashes  flash messages
+*}
+{define searchForm}
+	{form searchForm}
+		<ul class=error n:if="$form->ownErrors">
+			<li n:foreach="$form->ownErrors as $error">{$error}</li>
+		</ul>
+		<div class="input-group">
+			{input keywords class => "form-control"}
+			<span class="input-group-btn">
+				{input send, class => "btn btn-default"}
+			</span>
+		</div>
+	{/form}
+{/define}
+{define nothingFound}
+	<div class="table-responsive">
+		<table class="table">
+			<thead>
+				<tr>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<p>Nothing found.</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+{/define}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <meta name="description" content="">
+        <meta name="robots" content="{$robots}" n:ifset="$robots">
+
+        <title>{block title|striptags|upper}Webová databáze {if $PU}publikací{/if}{if $CU}{if $PU} & {/if}konferencí{/if}{/block}</title>
+
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/screen.css">
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/bootstrap.css">
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/navbar-fixed-top.css">
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/jquery-ui.css">
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/typeahead.css">
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/whhg.css">
+
+
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/jqwidgets/styles/jqx.base.css" />
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/jqwidgets/styles/jqx.bootstrap.css" />
+
+
+	    <link href="{$basePath}/fancytree/skin-win7/ui.fancytree.min.css" rel="stylesheet" type="text/css">
+
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/main.css">
+
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/bootstrap-datetimepicker.css">
+        <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/bs-multiselect/css/bootstrap-multiselect.css">
+
+
+
+
+        <link rel="shortcut icon" href="{$basePath}/favicon.ico">
+        {block head}{/block}
+
+        {block scripts}
+        {* <script src="{$basePath}/js/jquery.js"></script> *}
+        <script src="{$basePath}/js/jquery-1.11.1.min.js"></script>
+       
+        <script type="text/JavaScript" src="{$basePath}/js/jquery.livequery.min.js"></script>
+        <script src="{$basePath}/js/netteForms.js"></script>
+        {* <script src="{$basePath}/js/jquery.nette.js"></script> *}
+        <script src="{$basePath}/js/nette.ajax.js"></script>
+
+
+        <script src="{$basePath}/js/jquery-ui.js"></script>
+        <script src="{$basePath}/js/bootstrap.js"></script>
+        {*<script src="{$basePath}/js/bootstrap3-typeahead.js"></script>*}
+        <script src="{$basePath}/js/typeahead.bundle.js"></script>
+        <script src="{$basePath}/bs-multiselect/js/bootstrap-multiselect.js"></script>
+
+        <!-- datetime picker includes -->
+        <script src="{$basePath}/js/moment-with-locales.min.js"></script>
+        <script src="{$basePath}/js/bootstrap-datetimepicker.min.js"></script>
+        <script src="{$basePath}/js/arrive.js"></script>
+        <script src="{$basePath}/fancytree/jquery.fancytree-all.min.js" type="text/javascript"></script>
+
+
+        <script src="{$basePath}/js/helpers.js"></script>
+        <script src="{$basePath}/js/main.js"></script>
+
+
+        <script type="text/JavaScript" src="{$basePath}/MultipleFileUpload/MFUFallbackController.js"></script>
+        {!=MultipleFileUpload\MultipleFileUpload::getHead()}
+
+
+        <script src="{$basePath}/jqwidgets/jqxcore.js"></script>
+        <script src="{$basePath}/jqwidgets/jqxdata.js"></script> 
+        <script src="{$basePath}/jqwidgets/jqxbuttons.js"></script>
+        <script src="{$basePath}/jqwidgets/jqxscrollbar.js"></script>
+        <script src="{$basePath}/jqwidgets/jqxpanel.js"></script>
+        <script src="{$basePath}/jqwidgets/jqxlistbox.js"></script>
+        <script src="{$basePath}/jqwidgets/jqxdragdrop.js"></script>
+        <script src="{$basePath}/jqwidgets/jqxtree.js"></script>
+        <script src="{$basePath}/jqwidgets/jqxcheckbox.js"></script>
+
+
+        {/block}
+
+    </head>
+
+    <body>
+
+        {* conference and publication parts switching *}
+        {snippet CPToggleHandler}{ifset $CPToggleState}
+            <script>
+                $('body').removeClass('cu-only').removeClass('pu-only');
+                {if $CPToggleState == 'c'}$('body').addClass('cu-only'){/if}
+                {if $CPToggleState == 'p'}$('body').addClass('pu-only'){/if}
+            </script>
+        {/ifset}{/snippet}
+
+
+        <script> document.documentElement.className += ' js'</script>
+
+        {if $user->isLoggedIn()}
+            <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" n:href="Homepage:default">Webová databáze {if $PU}publikací{/if}{if $CU}{if $PU} & {/if}konferencí{/if}</a>
+                    </div>
+
+                    <div class="navbar-collapse collapse">
+                            {if $CU}
+                               <ul class="nav navbar-nav">
+                                    {*
+                                    <li class="dropdown {ifCurrent Conference:* }active{/ifCurrent}">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Conferences <b class="caret"></b></a>
+                                        <ul class="dropdown-menu">
+                                            <li class="{ifCurrent Conference:showall}active{/ifCurrent}"><a n:href="Conference:showall">All Conferences</a></li>
+                                        </ul>
+                                    </li>
+                                    *}
+                                    <li class="{ifCurrent Conference:showall }active{/ifCurrent}">
+                                        <a n:href="Conference:showall">Conferences</a>
+                                    </li>
+                                </ul>
+                            {/if}
+
+                            {if $user->isInRole('admin') || $user->isInRole('submitter')}
+                                {* Publication dropdown *}
+                                <ul class="nav navbar-nav">
+                                    <li class="{ifCurrent Publication:*}active{/ifCurrent}">
+                                        <a n:href="Publication:showall">Publications</a>
+                                    </li>
+                                </ul>
+                            {elseif $PU}
+                                {* Publication single *}
+                                <ul class="nav navbar-nav">
+                                    <li class="{ifCurrent Homepage:*}active{/ifCurrent}">
+                                        <a n:href="Homepage:default">Publications</a>
+                                    </li>
+                                </ul>
+                            {/if}
+
+                            {* Publication groups *}
+                            <ul class="nav navbar-nav" n:if="$user->isInRole('admin') || $user->isInRole('submitter')">
+                                <li class="{ifCurrent Group:showall}active{/ifCurrent}"><a n:href="Group:showall">Groups</a></li>
+                            </ul>
+
+                            <ul class="nav navbar-nav" n:if="$user->isInRole('admin') || $user->isInRole('submitter') || $user->isInRole('conference-moderator')">
+                                <li class="dropdown 
+                                    {ifCurrent Admin:showunconfirmed}active{/ifCurrent}
+                                    {ifCurrent Author:showall}active{/ifCurrent}
+                                    {ifCurrent Journal:showall}active{/ifCurrent}
+                                    {ifCurrent Publisher:showall}active{/ifCurrent}
+                                    {ifCurrent ConferenceAdmin:showall}active{/ifCurrent}
+                                    {ifCurrent User:showall}active{/ifCurrent}
+                                    {ifCurrent PublicationCategory:showall}active{/ifCurrent}
+                                    {ifCurrent AcmCategory:showall}active{/ifCurrent}
+                                    {ifCurrent ConferenceCategory:showall}active{/ifCurrent}
+                                    {ifCurrent CuGroup:showall}active{/ifCurrent}
+                                    {ifCurrent DocumentIndex:showall}active{/ifCurrent}
+                                    {ifCurrent Attribute:showall}active{/ifCurrent}
+                                    {ifCurrent Format:showall}active{/ifCurrent}
+                                    ">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administration{if $user->isInRole('admin')} <span class="badge">{$numberOfUnconfirmed}</span>{/if}<b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li n:if="$CU && $PU" class="dropdown-header">Publication management</li>
+                                        {if $user->isInRole('admin')}
+                                            <li class="{ifCurrent Admin:showunconfirmed}active{/ifCurrent}"><a n:href="Admin:showunconfirmed">Waiting for check <span class="badge">{$numberOfUnconfirmed}</span><span class="badge">{*$numberOfUnconfirmed*}</span></a></li>
+                                        {/if}
+                                        <li n:if="$user->isAllowed('Author:showall')" class="{ifCurrent Author:showall}active{/ifCurrent}"><a n:href="Author:showall">All Authors</a></li>
+                                        <li n:if="$user->isAllowed('Journal:showall')" class="{ifCurrent Journal:showall}active{/ifCurrent}"><a n:href="Journal:showall">All Journals</a></li>
+                                        <li n:if="$user->isAllowed('Publisher:showall')" class="{ifCurrent Publisher:showall}active{/ifCurrent}"><a n:href="Publisher:showall">All Publishers</a></li>
+                                        <li n:if="$user->isAllowed('PublicationCategory:showall')" class="{ifCurrent PublicationCategory:showall}active{/ifCurrent}"><a n:href="PublicationCategory:showall">All Publication Categories</a></li>
+                                        <li n:if="$user->isAllowed('Attribute:showall')" class="{ifCurrent Attribute:showall}active{/ifCurrent}"><a n:href="Attribute:showall">All Attributes</a></li>
+                                        <li n:if="$user->isAllowed('Format:showall')" class="{ifCurrent Format:showall}active{/ifCurrent}"><a n:href="Format:showall">All Citation Formats</a></li>
+                                        <li n:if="$CU && $PU" class="divider"></li>
+                                        <li n:if="$CU && $PU" class="dropdown-header">Conference management</li>
+                                        <li n:if="$user->isAllowed('AcmCategory:showall')" class="{ifCurrent AcmCategory:showall}active{/ifCurrent}"><a n:href="AcmCategory:showall">All ACM Categories</a></li>
+                                        <li n:if="$user->isAllowed('ConferenceCategory:showall')" class="{ifCurrent ConferenceCategory:showall}active{/ifCurrent}"><a n:href="ConferenceCategory:showall">All Conference Categories</a></li>
+                                        <li n:if="$user->isAllowed('CuGroup:showall')" class="{ifCurrent CuGroup:showall}active{/ifCurrent}"><a n:href="CuGroup:showall">All Conference User Groups</a></li>
+                                        <li n:if="$user->isAllowed('DocumentIndex:showall')" class="{ifCurrent DocumentIndex:showall}active{/ifCurrent}"><a n:href="DocumentIndex:showall">All Document Index Databases</a></li>
+                                        <li n:if="$CU && $PU" class="divider"></li>
+                                        <li n:if="$CU && $PU" class="dropdown-header">Common management</li>
+                                        <li n:if="$user->isAllowed('ConferenceAdmin:showall')" class="{ifCurrent ConferenceAdmin:showall}active{/ifCurrent}"><a n:href="ConferenceAdmin:showall">All Conferences</a></li>
+                                        <li n:if="$user->isAllowed('User:showall')" class="{ifCurrent User:showall}active{/ifCurrent}"><a n:href="User:showall">All Users</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="{ifCurrent User:show}active{/ifCurrent}"><a n:href="User:show" ><span class="glyphicon glyphicon-user"></span> {$user->getIdentity()->nickname}</a></li>
+                            {if $user->isAllowed('Admin:settings')}
+                                <li class="{ifCurrent Admin:settings}active{/ifCurrent}"><a n:href="Admin:settings" ><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+                            {/if}
+                            <li><a n:href="Sign:out"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        {/if}
+
+
+        <div class="container">
+            <div class="row">
+                {snippet flashMessages}
+                    <script>
+                        $("#snippet--flashMessages").show();
+                        $("#snippet--flashMessages").delay(10000).hide(500);
+                    </script>
+                    {* <button type="button" class="close" data-dismiss="alert">×</button> *}
+                    <div n:foreach="$flashes as $flash" class="alert {$flash->type} fade in">{$flash->message}</div>
+                {/snippet}
+            </div>
+        </div>
+
+
+
+        <div class="container">
+            {include #content}
+        </div>
+
+        <script>
+             $('.navbar-collapse').collapse('hide');
+        </script>
+
+    </body>
+</html>

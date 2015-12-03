@@ -1,0 +1,49 @@
+{extends $baseTemplateFilename}
+{block extraModals}
+
+	<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.showPublicationsRelatedToCategoryButton'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+	});
+	</script>
+	
+	<div class="modal fade" id="PublicationsRelatedToCategoryModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="PublicationsRelatedToCategoryModalLabel{$uniqid}" aria-hidden="true">
+    	<div class="modal-dialog modal-lg">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    				<h4 class="modal-title" id="PublicationsRelatedToCategoryModal{$uniqid}">Associated Publications</h4>
+    			</div>
+    			<div class="modal-body">
+    				{snippet publicationsRelatedToCategory}
+						{if count($publicationsRelatedToCategory)}
+							{foreach $publicationsRelatedToCategory as $rel}
+								<h5><strong>{$rel['categories']['name']}</strong></h5>
+								<ul n:foreach="$rel['categories_has_publication'] as $r">
+									<li><a target="_blank" href="{plink Publication:showpub, $r->publication->id}">{$r->publication->title}</a></li>
+								</ul>
+							{/foreach}
+						{else}
+							There are no associated Publications with this Category.
+						{/if}
+    				{/snippet}
+    			</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+{/block}

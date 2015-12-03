@@ -1,0 +1,162 @@
+#
+# SECURITY WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+#
+# If you don't protect this directory from direct web access, anybody will be able to see your passwords.
+# http://nette.org/security-warning
+#
+
+
+php:
+	date.timezone: Europe/Prague
+	# zlib.output_compression: yes
+
+nette:
+	application:
+		errorPresenter: Error
+		mapping:
+			*: App\*Module\Presenters\*Presenter
+
+	session:
+		autoStart: true
+#		expiration: 14 days
+
+
+di:
+	accessors: true
+
+parameters:
+	MultipleFileUploader:
+		databasePath: %tempDir%/up.sqlite3
+		# uploadsTempDir
+
+services:
+
+	- App\Helpers\SortingControlFactory
+	- App\RouterFactory
+
+	nette.authorizator: App\Model\Acl
+	latte.templateFactory:
+		class: App\Services\CustomTemplateFactory
+		setup:
+			- setRoleTranslator(@nette.authorizator)
+			- setAuthMethodTranslator(@BaseAuthenticator)
+
+	router: @App\RouterFactory::createRouter
+
+
+
+	- HomepageSearchForm
+
+	App\Model\ShibbolethParams: App\Model\ShibbolethParams(%shibboleth%)
+	Annotation: App\Model\Annotation
+	AttribStorage: App\Model\AttribStorage
+	Attributes: App\Model\Attributes
+	Attribute: App\Model\Attribute
+	AcmCategory: App\Model\AcmCategory
+	Author: App\Model\Author
+	AuthorHasPublication: App\Model\AuthorHasPublication
+	AuthLoginPasswordModel: App\Model\AuthLoginPassword
+	AuthLdapModel: App\Model\AuthLdap
+	AuthShibbolethModel: App\Model\AuthShibboleth
+	Categories: App\Model\Categories
+	CategoriesHasPublication: App\Model\CategoriesHasPublication
+	Conference: App\Model\Conference
+	ConferenceYear: App\Model\ConferenceYear
+	ConferenceYearIsIndexed: App\Model\ConferenceYearIsIndexed
+	ConferenceHasAcmCategory: App\Model\ConferenceHasAcmCategory
+	ConferenceHasCategory: App\Model\ConferenceHasCategory
+	ConferenceCategory: App\Model\ConferenceCategory
+	CuGroup: App\Model\CuGroup
+	CuGroupHasConferenceCategory: App\Model\CuGroupHasConferenceCategory
+	Database: App\Model\Database #smazat
+	Documents: App\Model\Documents
+	DocumentIndex: App\Model\DocumentIndex
+	DocxConversion: App\Helpers\DocxConversion #wtf
+	Files: App\Model\Files
+	GeneralSettings: App\Model\GeneralSettings
+	GroupHasPublication: App\Model\GroupHasPublication
+	Group: App\Model\Group
+	Help: App\Model\Help
+	Format: App\Model\Format
+	Journal: App\Model\Journal
+	Passwords: App\Model\Passwords
+	Publication: App\Model\Publication
+	Publisher: App\Model\Publisher
+	Retrieve: App\Model\Retrieve
+	Springer: App\Model\Springer
+	Submitter: App\Model\Submitter
+	SubmitterHasGroup: App\Model\SubmitterHasGroup
+	SubmitterHasPublication: App\Model\SubmitterHasPublication
+	SubmitterHasCuGroup: App\Model\SubmitterHasCuGroup
+	SubmitterFavouriteConference: App\Model\SubmitterFavouriteConference
+	UserSettings: App\Model\UserSettings
+	UserRole: App\Model\UserRole
+
+
+	# global
+	GlobalParams: App\Model\GlobalParams(%global%)
+
+	# other services
+	mail.mailer:
+		class: App\Testing\DummyMailer
+
+	PasswordResetter:
+		class: App\Services\PasswordResetter(%global.adminEmailAddress%, %global.siteUrl%, %mailing.fromAddress%)
+
+	# authenticators
+	LdapCallbacks:
+		class: App\Helpers\CustomLdapCallbacks(@AuthLdapModel, %ldap.loginTemplate%)
+
+	LdapAuthenticator:
+		autowired: no
+		class: foglcz\LDAP\Authenticator(%ldap%, "", "", App\Helpers\CustomLdapManager(%ldap%, %ldap.loginTemplate%))
+		setup:
+			- addSuccessHandler("userinfo", @LdapCallbacks::getUserInfoCallback())
+
+	ShibbolethAuthenticator: App\Services\Authenticators\ShibbolethAuthenticator
+
+	BaseAuthenticator:
+		class: App\Services\Authenticators\BaseAuthenticator(App\Services\Authenticators\LoginPassAuthenticator())
+		setup:
+			- setupLdap(@LdapAuthenticator)
+
+	LoginPassAuthenticator: App\Services\Authenticators\LoginPassAuthenticator
+
+	# other
+	UserStorage: Nette\Http\UserStorage
+
+	security.user:
+		class: Nette\Security\User(@UserStorage, @BaseAuthenticator, @nette.authorizator)
+
+	- App\Services\IdentityInitializer
+
+	#factories
+	- App\Factories\IConferenceCrudFactory
+	- App\Factories\IAcmCategoryListFactory
+	- App\Factories\IConferenceCategoryListFactory
+	- App\Factories\ICuGroupCrudFactory
+	- App\Factories\IUserCrudFactory
+	- App\Factories\IConferenceYearCrudFactory
+	- App\Factories\IDocumentIndexCrudFactory
+	- App\Factories\IFavouriteConferenceToggleFactory
+	- App\Factories\IPublicationCategoryListFactory
+	- App\Factories\IAnnotationCrudFactory
+	- App\Factories\IJournalCrudFactory
+	- App\Factories\IPublisherCrudFactory
+	- App\Factories\IAttributeCrudFactory
+	- App\Factories\IGroupCrudFactory
+	- App\Factories\IAuthorCrudFactory
+	- App\Factories\IFormatCrudFactory
+
+
+	# garbage
+
+	#LdapAuthenticator:
+	#	class: foglcz\LDAP\Authenticator(%ldap%, "", "", App\Helpers\CustomLdapManager(%ldap%, %ldap.loginTemplate%))
+
+
+	#ExtendedAuthenticator:
+	#	class: foglcz\LDAP\Authenticator(%ldap%, "") # Third parameter optional, used if you have different e-mail domains than the AD domain.
+	#	setup:
+	#		- setUsernameGenerator(app\model\TemplateLDAPUsernameGeneratorCallbackFactory::createGenerator(%ldap.usernameTemplate%))
+	#		- addSuccessHandler('id', [@UserManager, 'getAuthId'])
