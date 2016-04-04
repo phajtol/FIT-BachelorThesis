@@ -12,7 +12,11 @@ class AdminPresenter extends SecuredPresenter {
     /** @var Nette\Database\Context */
     private $database;
 
-    public function __construct(Nette\Database\Context $database) {
+	/** @var  Model\Publication */
+	protected $publicationModel;
+
+
+	public function __construct(Nette\Database\Context $database) {
         $this->database = $database;
     }
 
@@ -126,5 +130,69 @@ class AdminPresenter extends SecuredPresenter {
             $this->redrawControl('flashMessages');
         }
     }
+
+
+    public function drawPublicationUnconfirmed() {
+
+        Debugger::fireLog('drawPublicationUnconfirmed');
+        $params = $this->getHttpRequest()->getQuery();
+
+        if (!isset($params['sort'])) {
+            $params['sort'] = 'title';
+        }
+
+        if (!isset($params['order'])) {
+            $params['order'] = 'ASC';
+        }
+
+        if (!isset($this->template->records)) {
+            Debugger::fireLog('--bbbbb');
+            if (isset($params['keywords'])) {
+                $this->records = $this->publicationModel->findAllUnconfirmedByKw($params);
+            } else {
+                $this->records = $this->publicationModel->findAllUnconfirmed($params);
+            }
+
+            $this->setupRecordsPaginator();
+
+            $this->template->records = $this->records;
+            $this->data = $params;
+
+            if (isset($params['sort'])) {
+                $this->template->sort = $params['sort'];
+            } else {
+                $this->template->sort = null;
+            }
+
+            if (isset($params['order'])) {
+                $this->template->order = $params['order'];
+            } else {
+                $this->template->order = null;
+            }
+
+            if (isset($params['keywords'])) {
+                $keywords = $params['keywords'];
+            }
+
+            $params = array();
+
+            if (isset($keywords)) {
+                $params['keywords'] = $keywords;
+            }
+
+            $this->template->params = $params;
+        }
+
+        $this->redrawControl('publicationShowAll');
+    }
+
+	/**
+	 * @param Model\Publication $publicationModel
+	 */
+	public function injectPublicationModel(Model\Publication $publicationModel) {
+		$this->publicationModel = $publicationModel;
+	}
+
+
 
 }
