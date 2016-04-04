@@ -130,6 +130,12 @@
                             <tr n:snippet="record-$record->id">
                                 <td>
                                     <a n:href="Publication:showpub, $record->id">{$record->title}</a>
+                                    <span class="text-muted">
+                                    {if $record->issue_date}
+                                        {var $issueDate = new \DateTime($record->issue_date)}
+                                        ({$issueDate|date, 'm/Y'})
+                                    {/if}
+                                    </span>
                                     {ifset $authorsByPubId[$record->id]}
                                         <br>
                                         <span class="authors">{$authorsByPubId[$record->id]|authors}</span>

@@ -459,7 +459,7 @@ class Publication extends Base {
     public function getSelectQueryOR($limit) {
         $selectQuery = "";
         if ($limit) {
-            $selectQuery = "SELECT DISTINCT p.id, p.title, d.content, p.pub_type ";
+            $selectQuery = "SELECT DISTINCT p.id, p.title, d.content, p.pub_type, p.issue_date ";
         } else {
             $selectQuery = "SELECT COUNT(DISTINCT p.id) AS length ";
         }
@@ -469,7 +469,7 @@ class Publication extends Base {
     public function getSelectQueryAND($limit) {
         $selectQuery = "";
         if ($limit) {
-            $selectQuery = "SELECT p.id, p.title, d.content, p.pub_type ";
+            $selectQuery = "SELECT p.id, p.title, d.content, p.pub_type, p.issue_date ";
         } else {
             $selectQuery = "SELECT COUNT(p.id) AS length ";
         }
@@ -918,7 +918,7 @@ class Publication extends Base {
     public function getSelectQuery_Author_OR($limit) {
         $selectQuery = "";
         if ($limit) {
-            $selectQuery = "SELECT DISTINCT p.id, p.pub_type, p.title, p.submitter_id ";
+            $selectQuery = "SELECT DISTINCT p.id, p.pub_type, p.title, p.submitter_id, p.issue_date ";
         } else {
             $selectQuery = "SELECT COUNT(DISTINCT p.id) AS length ";
         }

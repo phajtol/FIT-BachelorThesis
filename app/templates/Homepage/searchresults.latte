@@ -44,7 +44,7 @@
                 <tr n:foreach="$results as $result">
                     <td>
             <h4><a n:href="Publication:showpub, $result['id']">{!$result['title']}</a>
-                <span class="text-muted"> ({$result['pub_type']}) </span>
+                <span class="text-muted"> ({$result['pub_type']}{if $result['issue_date']}, {$result['issue_date']|date, 'm/Y'}{/if}) </span>
             </h4>
             <p><strong>Authors:</strong>
          {foreach $result['authors'] as $author}
