@@ -60,7 +60,7 @@ class PublicationFormRules {
 
         $requiredTypes = array(
             'book',
-            'article',
+            // 'article',
             'inproceedings',
             'proceedings',
             'incollection',

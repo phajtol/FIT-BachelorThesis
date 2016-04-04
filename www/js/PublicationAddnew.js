@@ -119,7 +119,7 @@ function showSome(type) {
 			$('#addnew-authors3').removeClass("hidden");
 			$('#addnew-journal').removeClass("hidden").addClass("required");
 			$('#snippet--publicationJournalInfo').removeClass("hidden");
-			$('#addnew-issue_date').removeClass("hidden").addClass("required");
+			$('#addnew-issue_date').removeClass("hidden"); //.addClass("required");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			break;

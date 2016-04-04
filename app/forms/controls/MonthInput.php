@@ -11,6 +11,8 @@ namespace App\Forms\Controls;
 
 class MonthInput extends \Nette\Forms\Controls\TextInput {
 
+	// month OR only year implementation - see https://github.com/Eonasdan/bootstrap-datetimepicker/pull/666
+
 	public function __construct($label = NULL) {
 		parent::__construct($label, null);
 
@@ -35,4 +37,5 @@ class MonthInput extends \Nette\Forms\Controls\TextInput {
 		}
 		return $this;
 	}
+
 }
