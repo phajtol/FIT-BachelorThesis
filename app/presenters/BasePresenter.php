@@ -62,10 +62,6 @@ class BasePresenter extends BasePresenterOld {
 	protected function startup() {
 		parent::startup();
 
-		\MultipleFileUpload\MultipleFileUpload::setQueuesModel(
-
-		);
-
 		$this->template->records = null;
 		$this->isConferencePartVisible = $this->user->isLoggedIn() ? $this->user->isAllowed('CU') : false;
 		$this->isPublicationPartVisible = $this->user->isLoggedIn() ? $this->user->isAllowed('PU') : false;
