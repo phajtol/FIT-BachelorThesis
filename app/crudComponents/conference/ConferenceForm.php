@@ -20,14 +20,20 @@ class ConferenceForm extends BaseForm implements \App\Forms\IMixtureForm {
 			->addRule($this::MAX_LENGTH, 'Name is way too long', 300)
 			->setRequired('Name is required.');
 
-		$this->addText('abbreviation', 'Abbreviation')->addRule($this::MAX_LENGTH, 'Abbreviation is way too long', 50);
+		$this->addText('abbreviation', 'Abbreviation')
+                        ->setRequired("Abbreviation is required.")
+                        ->addRule($this::MAX_LENGTH, 'Abbreviation is way too long', 50);
+                
 		$this->addYear('first_year', 'First year');
 		$this->addTextArea('description', 'Description', 6, 8)
+                        ->setRequired(false)
 			->addRule($this::MAX_LENGTH, 'Description is way too long', 1000);
 
 		$this->addText('acm_categories', 'ACM Categories')
+                        ->setRequired(false)
 			->addRule(\PublicationFormRules::CATEGORIES, "Invalid category list");
 		$this->addText('conference_categories', 'Conference custom categories')
+                        ->setRequired(false)
 			->addRule(\PublicationFormRules::CATEGORIES, "Invalid category list");
 
 		$this->addCloseButton('cancel', 'Cancel');
@@ -39,6 +45,7 @@ class ConferenceForm extends BaseForm implements \App\Forms\IMixtureForm {
 		$newRenderer = new \App\Helpers\CombinedFormRenderer();
 		$newRenderer->addRenderer($this->getRenderer());
 
+                $this->setLabelsSize(3);
 	}
 
 	public function removeConferencePart() {
