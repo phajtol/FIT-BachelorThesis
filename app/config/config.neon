@@ -97,9 +97,6 @@ services:
 	GlobalParams: App\Model\GlobalParams(%global%)
 
 	# other services
-	mail.mailer:
-		class: App\Testing\DummyMailer
-
 	PasswordResetter:
 		class: App\Services\PasswordResetter(%global.adminEmailAddress%, %global.siteUrl%, %mailing.fromAddress%)
 
