@@ -39,7 +39,6 @@
 	<div class="tab-content">
 		<div class="tab-pane fade active in" id="tab-detail">
 			{snippet conferenceYearDetail}
-				{dump $deadlineNotificationThreshold}
 				{var $deadlineNotify = $conferenceYear->deadline && $conferenceYear->deadline > $now && $conferenceYear->deadline < $deadlineNotificationThreshold}
 				{var $notificationNotify = $conferenceYear->notification && $conferenceYear->notification > $now && $conferenceYear->notification < $deadlineNotificationThreshold}
 				{var $finalversionNotify = $conferenceYear->finalversion && $conferenceYear->finalversion > $now && $conferenceYear->finalversion < $deadlineNotificationThreshold}
@@ -94,7 +93,6 @@
 				{?unset($value)}
 
 				{if $CU}
-					{dump $deadlineNotify}
 					{capture $value}{$conferenceYear->deadline|ldate}{/capture}
 					<div n:class="$deadlineNotify ? deadline-alert">
 						{include #conferenceYearInfo, caption => 'Deadline'}
