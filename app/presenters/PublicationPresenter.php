@@ -976,11 +976,13 @@ class PublicationPresenter extends SecuredPresenter {
 
 
             if ($form->values->id) {
-                $document = $this->documentsModel->find($form->values->id)->toArray();
-                $document['title'] = $form->values->title;
-                $document['content'] .= $this->fulltext;
-
-                $this->documentsModel->find($form->values->id)->update($document);
+                $document = $this->documentsModel->find($form->values->id);
+            }
+            if (!empty($document)) {
+                        $doc_a = $document->toArray();
+                        $doc_a['title'] = $form->values->title;
+                        $doc_a['content'] .= $this->fulltext;
+                        $this->documentsModel->find($form->values->id)->update($doc_a);
             } else {
                 $this->documentsModel->insert(array(
                     'publication_id' => $record->id,
