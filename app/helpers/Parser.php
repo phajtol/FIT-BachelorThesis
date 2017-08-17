@@ -14,18 +14,16 @@ class Parser extends Nette\Object {
     public $pub_type; //type of publication as an result of parse
     public $fields = array(); //array(bibtex_field_name => bibtex_field_value) a result of parse
     public $fns;
-    public $presenter;
 
     /**
      * Construct
      *
      * @param string $text text to be parsed
      */
-    public function __construct($text, $presenter) {
+    public function __construct($text) {
         $this->fns = new Functions();
         $this->lexan = new Lexan($text);
         $this->read_step();
-        $this->presenter = $presenter;
     }
 
     /**
@@ -214,7 +212,6 @@ class Parser extends Nette\Object {
 
 
             default:
-                // $this->presenter->error("Line #$this->line_number: Unexpected token " . $this->elem->symbol . " " . $this->elem->sattribute . ". Expected KEYWORD.");
                 echo ("Line #$this->line_number: Unexpected token " . $this->elem->symbol . " " . $this->elem->sattribute . ". Expected KEYWORD.");
         }
     }

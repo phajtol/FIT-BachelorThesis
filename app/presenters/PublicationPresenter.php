@@ -375,7 +375,7 @@ class PublicationPresenter extends SecuredPresenter {
             $definition = preg_replace('/\r+/', '', $formValues['definition']);
             $definition = preg_replace('/\n+/', '', $definition);
 
-            $parser = new Helpers\BibTexParser($definition, $this);
+            $parser = new Helpers\BibTexParser($definition);
             $pub_type = $fields = $authors = null;
             $parser->parse($pub_type, $fields, $authors);
             //save the result
@@ -384,13 +384,13 @@ class PublicationPresenter extends SecuredPresenter {
             $bibtex = Helpers\Bibtex::create($pub_type);
             $report = $bibtex->validate($fields);
         } elseif ($formValues['type'] == "endnote") {
-            $parser = new Helpers\EndNoteRefWorksParser($formValues['definition'], 'endnote', $this);
+            $parser = new Helpers\EndNoteRefWorksParser($formValues['definition'], 'endnote');
             $parser->readLines();
             $fields = $parser->getFields();
             $pub_type = isset($fields['pub_type']) ? $fields['pub_type'] : 'misc';
             $authors = isset($fields['authors']) ? $fields['authors'] : array();
         } elseif ($formValues['type'] == "refworks") {
-            $parser = new Helpers\EndNoteRefWorksParser($formValues['definition'], 'refworks', $this);
+            $parser = new Helpers\EndNoteRefWorksParser($formValues['definition'], 'refworks');
             $parser->readLines();
             $fields = $parser->getFields();
             $pub_type = isset($fields['pub_type']) ? $fields['pub_type'] : 'misc';

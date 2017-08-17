@@ -338,7 +338,7 @@ class PublicationFormRules {
 
         if ($parent['publicationImportForm']['type']->value == 'bibtex') {
 
-            $parser = new Helpers\BibTexParser($item->value, $parent);
+            $parser = new Helpers\BibTexParser($item->value);
             if ($parser->is_error()) {
                 $parent['publicationAddNewForm']->addError('Problems with structure of an imported definition');
                 return false;

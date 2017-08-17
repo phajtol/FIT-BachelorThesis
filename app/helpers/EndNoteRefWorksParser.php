@@ -6,7 +6,6 @@ use Nette;
 
 class EndNoteRefWorksParser extends Nette\Object {
 
-  public $presenter;
   public $inputText;
   public $defType;
   public $parsedItems;
@@ -17,10 +16,9 @@ class EndNoteRefWorksParser extends Nette\Object {
    *
    * @param string $text text to be parsed
    */
-  public function __construct($inputText, $defType, $presenter) {
+  public function __construct($inputText, $defType) {
     $this->inputText = $inputText;
     $this->defType = $defType;
-    $this->presenter = $presenter;
     $this->parsedItems = array();
     $this->lastItem = '';
   }
