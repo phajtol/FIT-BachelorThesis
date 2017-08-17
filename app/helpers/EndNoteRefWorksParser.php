@@ -454,6 +454,10 @@ class EndNoteRefWorksParser extends Nette\Object {
 
   public function parseAuthors($name) {
     $name = trim($name);
+    $parts = explode(",", $name);
+    if (count($parts) == 2) {
+        $name = trim($parts[1].' '.$parts[0]);
+    }
     $name = str_replace(",", " ", $name);
     $name = preg_replace('/\s\s+/', ' ', $name);
     $name = explode(" ", $name);
