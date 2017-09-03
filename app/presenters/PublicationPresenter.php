@@ -378,9 +378,6 @@ class PublicationPresenter extends SecuredPresenter {
             $parser = new Helpers\BibTexParser($definition);
             $pub_type = $fields = $authors = null;
             $parser->parse($pub_type, $fields, $authors);
-            //save the result
-            $neco = array('pub_type' => $pub_type, 'fields' => $fields, 'authors' => $authors);
-
             $bibtex = Helpers\Bibtex::create($pub_type);
             $report = $bibtex->validate($fields);
         } elseif ($formValues['type'] == "endnote") {
