@@ -39,3 +39,11 @@ It is CRITICAL that file `app/config/config.neon` & whole `app`, `log`
 and `temp` directory are NOT accessible directly via a web browser! If you
 don't protect this directory from direct web access, anybody will be able to see
 your sensitive data. See [security warning](http://nette.org/security-warning).
+
+
+Testing
+-------
+
+To run tests, use:
+
+$ vendor/bin/tester -c tests/php.ini tests
