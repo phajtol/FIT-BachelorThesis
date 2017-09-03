@@ -131,9 +131,8 @@
                                 <td>
                                     <a n:href="Publication:showpub, $record->id">{$record->title}</a>
                                     <span class="text-muted">
-                                    {if $record->issue_date}
-                                        {var $issueDate = new \DateTime($record->issue_date)}
-                                        ({$issueDate|date, 'm/Y'})
+                                    {if $record->issue_year}
+                                        {if $record->issue_month}{$record->issue_month}/{/if}{$record->issue_year}
                                     {/if}
                                     </span>
                                     {ifset $authorsByPubId[$record->id]}

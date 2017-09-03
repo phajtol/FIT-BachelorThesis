@@ -108,11 +108,13 @@ class HomepagePresenter extends SecuredPresenter {
     $search_results = array();
 
     foreach ($preResults as $row) {
-      $id = $row[0];
-      $title = $row[1];
-      $fulltext = stripslashes($row[2]);
-      $pub_type = $row[3];
-      $issue_date = $row[4] ? new \DateTime($row[4]) : null;
+      $id = $row['id'];
+      $title = $row['title'];
+      $fulltext = stripslashes($row['content']);
+      $pub_type = $row['pub_type'];
+      $issue_year = $row['issue_year'];
+      $issue_month = $row['issue_month'];
+
       $keywords_arr = explode(" ", str_replace('\"', '', $keywords));
       $title_higligthed = $this->highlight_str(htmlspecialchars($title), $keywords_arr);
       $passages_highlighted = '';
@@ -159,7 +161,8 @@ class HomepagePresenter extends SecuredPresenter {
           'authors' => $authors,
           'passages' => $passages_highlighted,
           'pub_type' => $pub_type,
-          'issue_date'  => $issue_date,
+          'issue_year'  => $issue_year,
+          'issue_month'  => $issue_month,
           'categories' => $categories,
           'annotation' => $annotationTag);
     }
@@ -204,11 +207,12 @@ class HomepagePresenter extends SecuredPresenter {
     $search_results = array();
 
     foreach ($preResults as $row) {
-      $id = $row[0];
-      $title = $row[1];
-      $fulltext = stripslashes($row[2]);
-      $pub_type = $row[3];
-      $issue_date = $row[4] ? new \DateTime($row[4]) : null;
+      $id = $row['id'];
+      $title = $row['title'];
+      $fulltext = stripslashes($row['content']);
+      $pub_type = $row['pub_type'];
+      $issue_year = $row['issue_year'];
+      $issue_month = $row['issue_month'];
       $keywords_arr = explode(" ", str_replace('\"', '', $keywords));
       $title_higligthed = $this->highlight_str(htmlspecialchars($title), $keywords_arr);
       $passages_highlighted = '';
@@ -255,7 +259,8 @@ class HomepagePresenter extends SecuredPresenter {
           'authors' => $authors,
           'passages' => $passages_highlighted,
           'pub_type' => $pub_type,
-          'issue_date'  =>  $issue_date,
+          'issue_year'  =>  $issue_year,
+          'issue_month'  =>  $issue_month,
           'categories' => $categories,
           'annotation' => $annotationTag);
     }
@@ -309,8 +314,9 @@ class HomepagePresenter extends SecuredPresenter {
     foreach ($preResults as $row) {
       $id = htmlspecialchars($row['id']);
       $title = htmlspecialchars($row['title']);
-      $issue_date = $row['issue_date'] ? new \DateTime($row['issue_date']) : null;
-
+      $issue_year = $row['issue_year'];
+      $issue_month = $row['issue_month'];
+      
       $authorsString = "";
       $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
@@ -329,7 +335,8 @@ class HomepagePresenter extends SecuredPresenter {
           'title' => $title,
           'authors' => $authorsString,
           'pub_type' => $pub_type,
-          'issue_date'  =>  $issue_date,
+          'issue_year'  =>  $issue_year,
+          'issue_month'  =>  $issue_month,
           'categories' => $categories,
           'annotation' => $annotationTag);
     }
@@ -384,8 +391,9 @@ class HomepagePresenter extends SecuredPresenter {
     foreach ($preResults as $row) {
       $id = htmlspecialchars($row['id']);
       $title = htmlspecialchars($row['title']);
-      $issue_date = $row['issue_date'] ? new \DateTime($row['issue_date']) : null;
-
+      $issue_year = $row['issue_year'];
+      $issue_month = $row['issue_month'];
+      
       $authorsString = "";
       $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
@@ -404,7 +412,8 @@ class HomepagePresenter extends SecuredPresenter {
           'title' => $title,
           'authors' => $authorsString,
           'pub_type' => $pub_type,
-          'issue_date'  =>  $issue_date,
+          'issue_year'  =>  $issue_year,
+          'issue_month'  =>  $issue_month,
           'categories' => $categories,
           'annotation' => $annotationTag);
     }
@@ -495,8 +504,9 @@ class HomepagePresenter extends SecuredPresenter {
     foreach ($preResults as $row) {
       $id = htmlspecialchars($row['id']);
       $title = htmlspecialchars($row['title']);
-      $issue_date = $row['issue_date'] ? new \DateTime($row['issue_date']) : null;
-
+      $issue_year = $row['issue_year'];
+      $issue_month = $row['issue_month'];
+      
       $authorsString = "";
       $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
@@ -513,7 +523,8 @@ class HomepagePresenter extends SecuredPresenter {
           'title' => $title,
           'authors' => $authorsString,
           'pub_type' => $pub_type,
-          'issue_date'  =>  $issue_date,
+          'issue_year'  =>  $issue_year,
+          'issue_month'  =>  $issue_month,
           'categories' => $categories,
           'annotation' => $annotationTag);
     }
@@ -538,8 +549,8 @@ class HomepagePresenter extends SecuredPresenter {
     foreach ($preResults as $row) {
       $id = htmlspecialchars($row['id']);
       $title = htmlspecialchars($row['title']);
-      $issue_date = $row['issue_date'] ? new \DateTime($row['issue_date']) : null;
-      // $abstract = htmlspecialchars($row['abstract']);
+      $issue_year = $row['issue_year'];
+      $issue_month = $row['issue_month'];
 
       $authorsString = "";
       $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
@@ -559,7 +570,8 @@ class HomepagePresenter extends SecuredPresenter {
           'title' => $title,
           'authors' => $authorsString,
           'pub_type' => $pub_type,
-          'issue_date'  =>  $issue_date,
+          'issue_year'  =>  $issue_year,
+          'issue_month'  =>  $issue_month,
           'categories' => $categories,
           'annotation' => $annotationTag);
     }
@@ -592,8 +604,9 @@ class HomepagePresenter extends SecuredPresenter {
     foreach ($preResults as $row) {
       $id = htmlspecialchars($row['id']);
       $title = htmlspecialchars($row['title']);
-      $issue_date = $row['issue_date'] ? new \DateTime($row['issue_date']) : null;
-
+      $issue_year = $row['issue_year'];
+      $issue_month = $row['issue_month'];
+      
       $authorsString = "";
       $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
@@ -611,7 +624,8 @@ class HomepagePresenter extends SecuredPresenter {
           'title' => $title,
           'authors' => $authorsString,
           'pub_type' => $pub_type,
-          'issue_date'  =>  $issue_date,
+          'issue_year'  =>  $issue_year,
+          'issue_month'  =>  $issue_month,
           'categories' => $categories,
           'annotation' => $annotationTag);
     }
@@ -636,8 +650,9 @@ class HomepagePresenter extends SecuredPresenter {
     foreach ($preResults as $row) {
       $id = htmlspecialchars($row['id']);
       $title = htmlspecialchars($row['title']);
-      $issue_date = $row['issue_date'] ? new \DateTime($row['issue_date']) : null;
-
+      $issue_year = $row['issue_year'];
+      $issue_month = $row['issue_month'];
+      
       $authorsString = "";
       $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
@@ -654,7 +669,8 @@ class HomepagePresenter extends SecuredPresenter {
           'title' => $title,
           'authors' => $authorsString,
           'pub_type' => $pub_type,
-          'issue_date'  =>  $issue_date,
+          'issue_year'  =>  $issue_year,
+          'issue_month'  =>  $issue_month,
           'categories' => $categories,
           'annotation' => $annotationTag);
     }

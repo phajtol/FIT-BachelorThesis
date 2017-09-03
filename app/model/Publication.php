@@ -149,8 +149,8 @@ class Publication extends Base {
 
             $conferenceYearPublisher = $this->database->table('publisher')->get($conferenceYear['publisher_id']);
         } else {
-            $publication['year'] = substr($publication['issue_date'], 0, 4) == '0000' ? '' : substr($publication['issue_date'], 0, 4);
-            $publication['month'] = substr($publication['issue_date'], 5, 2) == '00' ? '' : substr($publication['issue_date'], 5, 2);
+            $publication['year'] = $publication['issue_year'];
+            $publication['month'] = $publication['issue_month'];
 
             $publication['month_eng'] = $functions->month_eng($publication['month']);
             $publication['month_cze'] = $functions->month_cze($publication['month']);
@@ -459,7 +459,7 @@ class Publication extends Base {
     public function getSelectQueryOR($limit) {
         $selectQuery = "";
         if ($limit) {
-            $selectQuery = "SELECT DISTINCT p.id, p.title, d.content, p.pub_type, p.issue_date ";
+            $selectQuery = "SELECT DISTINCT p.id, p.title, d.content, p.pub_type, p.issue_year, p.issue_month ";
         } else {
             $selectQuery = "SELECT COUNT(DISTINCT p.id) AS length ";
         }
@@ -469,7 +469,7 @@ class Publication extends Base {
     public function getSelectQueryAND($limit) {
         $selectQuery = "";
         if ($limit) {
-            $selectQuery = "SELECT p.id, p.title, d.content, p.pub_type, p.issue_date ";
+            $selectQuery = "SELECT p.id, p.title, d.content, p.pub_type, p.issue_year, p.issue_month ";
         } else {
             $selectQuery = "SELECT COUNT(p.id) AS length ";
         }
@@ -502,7 +502,7 @@ class Publication extends Base {
                 $order_clause = " ORDER BY p.title ASC ";
                 break;
             case "date":
-                $order_clause = " ORDER BY p.issue_date DESC, p.title ASC ";
+                $order_clause = " ORDER BY p.issue_year DESC, p.issue_month DESC, p.title ASC ";
                 break;
             default:
                 $order_clause = " ORDER BY 5 * MATCH(d.title) AGAINST (?) + MATCH(d.content) AGAINST (?) DESC ";
@@ -918,7 +918,7 @@ class Publication extends Base {
     public function getSelectQuery_Author_OR($limit) {
         $selectQuery = "";
         if ($limit) {
-            $selectQuery = "SELECT DISTINCT p.id, p.pub_type, p.title, p.submitter_id, p.issue_date ";
+            $selectQuery = "SELECT DISTINCT p.id, p.pub_type, p.title, p.submitter_id, p.issue_year, p.issue_month ";
         } else {
             $selectQuery = "SELECT COUNT(DISTINCT p.id) AS length ";
         }
@@ -933,7 +933,7 @@ class Publication extends Base {
 
         switch ($sort) {
             case "date":
-                $order_clause = " ORDER BY p.issue_date DESC, p.title ASC ";
+                $order_clause = " ORDER BY p.issue_year DESC, p.issue_month DESC, p.title ASC ";
                 break;
             default:
                 $order_clause = " ORDER BY p.title ASC ";
@@ -976,7 +976,6 @@ class Publication extends Base {
           conference_year_id => NULL
           isbn => ""
           howpublished => ""
-          issue_date => ""
           organization => ""
           url => ""
           note => ""
@@ -1045,7 +1044,6 @@ class Publication extends Base {
       $formValues['conference_year_id'] = NULL;
       $formValues['isbn'] = NULL;
       $formValues['howpublished'] = NULL;
-      $formValues['issue_date'] = NULL;
       $formValues['organization'] = NULL;
      */
 

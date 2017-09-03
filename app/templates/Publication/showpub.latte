@@ -219,14 +219,24 @@
                         </div>
                     {/if}
 
-                    {if $publication->issue_date}
+                    {if $publication->issue_year}
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Year and month of publication</label>
+                            <label class="col-sm-3 control-label">Year of publication</label>
                             <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->issue_date|date:'%m/%Y'}</p>
+                                <p class="form-control-static">{$publication->issue_year}</p>
                             </div>
                         </div>
                     {/if}
+
+                    {if $publication->issue_month}
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Month of publication</label>
+                            <div class="col-sm-9">
+                                <p class="form-control-static">{$publication->issue_month}</p>
+                            </div>
+                        </div>
+                    {/if}
+
 
                     {if $publication->organization}
                         <div class="form-group">

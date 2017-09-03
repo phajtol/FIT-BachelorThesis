@@ -97,7 +97,13 @@ class EndNote extends Nette\Object {
     $this->definition .= isset($this->pub['title']) && $this->pub['title'] ? "%T " . $this->pub['title'] . $this->newLine : '';
     $this->definition .= isset($this->pub['booktitle']) && $this->pub['booktitle'] ? "%B " . $this->pub['booktitle'] . $this->newLine : '';
     $this->definition .= isset($this->pub['year']) && $this->pub['year'] ? "%D " . $this->pub['year'] . $this->newLine : '';
-    $this->definition .= isset($this->pub['issue_date']) && $this->pub['issue_date'] && $this->pub['issue_date'] != "0000-00-00" ? "%8 " . $this->pub['issue_date'] . $this->newLine : '';
+    if (!empty($this->pub['issue_year'])) {
+        $this->definition .= "%8 " . $this->pub['issue_year'];
+        if (!empty($this->pub['issue_month'])) {
+            $this->definition .= "-".str_pad($this->pub['issue_month'],2,'0',STR_PAD_LEFT);
+        }
+        $this->definition .= $this->newLine;
+    }
     $this->definition .= isset($this->pub['editor']) && $this->pub['editor'] ? "%E " . $this->pub['editor'] . $this->newLine : '';
     $this->definition .= isset($this->pub['publisher']) && $this->pub['publisher'] ? "%I " . $this->pub['publisher'] . $this->newLine : '';
     $this->definition .= isset($this->pub['journal']) && $this->pub['journal'] ? "%J " . $this->pub['journal'] . $this->newLine : '';

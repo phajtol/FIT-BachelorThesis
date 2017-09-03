@@ -10,12 +10,9 @@ class PublicationFormRules {
 
     const JOURNAL_REQUIRED = 'PublicationFormRules::validateJournal_IsRequired';
 
-    const ISSUE_DATE_REQUIRED = 'PublicationFormRules::validateIssueDate_IsRequired';
     const AUTHOR_REQUIRED = 'PublicationFormRules::validateAuthor_IsRequired';
     const AUTHOR_OPTIONAL = 'PublicationFormRules::validateAuthor_IsOptional';
     const AUTHOR_SET_DEFAULT_VALUES = 'PublicationFormRules::validateAuthor_SetDefaultValues';
-
-
 
     const EDITOR_OPTIONAL = 'PublicationFormRules::validateEditor_IsOptional';
     const CHAPTER_OPTIONAL = 'PublicationFormRules::validateChapter_IsOptional';
@@ -46,28 +43,6 @@ class PublicationFormRules {
 
         $requiredTypes = array(
             'article',
-        );
-
-        if (in_array($form['pub_type']->value, $requiredTypes) && !$item->value) {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    public static function validateIssueDate_IsRequired($item, $form) {
-
-        $requiredTypes = array(
-            'book',
-            // 'article',
-            'inproceedings',
-            'proceedings',
-            'incollection',
-            'inbook',
-            'techreport',
-            'mastersthesis',
-            'phdthesis',
         );
 
         if (in_array($form['pub_type']->value, $requiredTypes) && !$item->value) {

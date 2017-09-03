@@ -547,33 +547,29 @@ class PublicationPresenter extends SecuredPresenter {
             $this->publication['organization'] = $fields['organization'];
         }
 
-        if (isset($fields['issue_date'])) {
-            $this->publication['issue_date'] = $fields['issue_date'];
-        }
-
         if (isset($fields['type_of_report'])) {
             $this->publication['type_of_report'] = $fields['type_of_report'];
         }
 
-        // asi poresit issue_date u conference, a formatu endnote, refworks...
-
         if (isset($fields['year'])) {
+            $this->publication['issue_year'] = $fields['year'];
             if (isset($fields['month'])) {
                 if (!is_numeric($fields['month'])) {
-                    $issue_date = $fields['year'] . '-' . $this->functions->strmonth2nummonth($fields['month']) . '-01';
+                    $month = $this->functions->strmonth2nummonth($fields['month']);
                 } else {
-                    if (strlen($fields['month']) == 1) {
-                        $issue_date = $fields['year'] . '-' . '0' . $fields['month'] . '-01';
-                    } elseif (strlen($fields['month']) == 2) {
-                        $issue_date = $fields['year'] . '-' . $fields['month'] . '-01';
-                    } else {
-                        $issue_date = $fields['year'] . '-' . substr($fields['month'], 0, 2) . '-01';
-                    }
+                    $month = $fields['month'];
                 }
-            } else {
-                $issue_date = $fields['year'] . '-01-01';
+            } elseif (!empty($fields['issue_date'])) {
+                try {
+                    $date = new \DateTime($fields['issue_date']);
+                    $month = $date->format("m");
+                } catch (\Exception $e) {
+                    $month = null;
+                }
             }
-            $this->publication['issue_date'] = $issue_date;
+            if (intval($month)>0 && intval($month)<=12) {
+                $this->publication['issue_month'] = intval($month);
+            }
         }
 
         if (isset($fields['location'])) {
@@ -884,10 +880,6 @@ class PublicationPresenter extends SecuredPresenter {
             unset($formValues['conference']);
             unset($formValues['upload']);
             unset($formValues['id']);
-
-            if (!$formValues['issue_date']) {
-                $formValues['issue_date'] = NULL;
-            }
 
             $formValues['submitter_id'] = $this->user->id;
 

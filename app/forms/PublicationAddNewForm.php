@@ -50,7 +50,9 @@ class PublicationAddNewForm extends BaseForm {
         $this->addText('isbn', 'ISBN')->addCondition($this::FILLED)->addRule(PublicationFormRules::ISBN_VALID_FORM, "ISBN is not in correct form.", $parent);
         $this->addText('doi', 'DOI')->addRule($this::MAX_LENGTH, 'DOI is way too long', 100);
         $this->addText('howpublished', 'Howpublished')->addRule($this::MAX_LENGTH, 'Howpublished is way too long', 200);
-        $this->addMonth('issue_date', 'Year and month of publication'); //->addRule(PublicationFormRules::ISSUE_DATE_REQUIRED, "Year and month of publication is required.", $this)->addCondition($this::FILLED);
+        $this->addSelect('issue_year', 'Year of publication', array_combine(range(date("Y"), 1900), range(date("Y"),1900)))->setPrompt(' ------- ');
+        $this->addSelect('issue_month', 'Month of publication', array_combine(range(1, 12), range(1,12)))->setPrompt(' ------- ');
+        $this['issue_year']->addConditionOn($this['issue_month'], $this::FILLED)->addRule($this::FILLED,"Year of publication year is required if Month of publication is not empty.");
         $this->addText('organization', 'Organization')->addRule($this::MAX_LENGTH, 'Organization is way too long', 200);
         $this->addText('url', 'URL')->addRule($this::MAX_LENGTH, 'URL is way too long', 500)->addCondition($this::FILLED)->addRule($this::URL, 'URL is not in correct form.');
 

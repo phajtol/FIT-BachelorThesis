@@ -96,8 +96,13 @@ class RefWorks extends Nette\Object {
     $this->definition .= isset($this->pub['title']) && $this->pub['title'] ? "T1 " . $this->pub['title'] . $this->newLine : '';
     $this->definition .= isset($this->pub['booktitle']) && $this->pub['booktitle'] ? "T2 " . $this->pub['booktitle'] . $this->newLine : '';
     $this->definition .= isset($this->pub['year']) && $this->pub['year'] ? "YR " . $this->pub['year'] . $this->newLine : '';
-    $this->definition .= isset($this->pub['issue_date']) && $this->pub['issue_date'] && $this->pub['issue_date'] != "0000-00-00" ? "FD " . $this->pub['issue_date'] . $this->newLine : '';
-    $this->definition .= isset($this->pub['editor']) && $this->pub['editor'] ? "A2 " . $this->pub['editor'] . $this->newLine : '';
+    if (!empty($this->pub['issue_year'])) {
+        $this->definition .= "FD " . $this->pub['issue_year'];
+        if (!empty($this->pub['issue_month'])) {
+            $this->definition .= "-".str_pad($this->pub['issue_month'],2,'0',STR_PAD_LEFT);
+        }
+        $this->definition .= $this->newLine;
+    }    $this->definition .= isset($this->pub['editor']) && $this->pub['editor'] ? "A2 " . $this->pub['editor'] . $this->newLine : '';
     $this->definition .= isset($this->pub['publisher']) && $this->pub['publisher'] ? "PB " . $this->pub['publisher'] . $this->newLine : '';
     $this->definition .= isset($this->pub['journal']) && $this->pub['journal'] ? "T2 " . $this->pub['journal'] . $this->newLine : '';
     $this->definition .= isset($this->pub['number']) && $this->pub['number'] ? "AN " . $this->pub['number'] . $this->newLine : '';

@@ -39,7 +39,7 @@
                     <td>
             <h4>
                 <a n:href="Publication:showpub, $result['id']">{!$result['title']}</a>
-                <span class="text-muted"> ({$result['pub_type']}{if $result['issue_date']}, {$result['issue_date']|date, 'm/Y'}{/if}) </span>
+                <span class="text-muted"> ({$result['pub_type']}{if $result['issue_year']}, {if $result['issue_month']}{$result['issue_month']}/{/if}{$result['issue_year']}{/if})</span>
             </h4>
             <p><strong>Authors:</strong>
                 {!$result['authors']}
