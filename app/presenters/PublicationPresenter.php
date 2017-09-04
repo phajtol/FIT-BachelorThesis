@@ -1657,12 +1657,18 @@ class PublicationPresenter extends SecuredPresenter {
         $this->drawAllowed = false;
 
         $this->selectedConferenceYearId = $conferenceYearId;
-
+        
+        $conferenceYearInfo =  $this->conferenceYearModel->find($conferenceYearId);
+        
+        $this['publicationAddNewForm']['issue_year']->setValue($conferenceYearInfo['w_year']);
+        $this['publicationAddNewForm']['issue_month']->setValue(null);
+        
         if (!$this->isAjax()) {
             $this->redirect('this');
         } else {
             $this->redrawControl('conferenceYearInfo');
             $this->redrawControl('conferenceYearControls');
+            $this->redrawControl('issueDate');
         }
     }
 
