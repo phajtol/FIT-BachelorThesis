@@ -1,0 +1,31 @@
+nette:
+	database:
+		dsn: 'mysql:host=localhost;dbname='
+		user: 
+		password: 
+		options:
+			lazy: yes
+
+parameters:			
+	global:
+		siteUrl: https://ddd.fit.cvut.cz/PubConf/
+		adminEmailAddress: ''
+
+	mailing:
+		fromAddress: ''
+
+	ldap:
+		hostname: 'ldap.fit.cvut.cz'  # your LDAP server ip
+		port: 636				   # your LDAP server port (if different than default)
+		baseDn: 'uid=%s,ou=People,o=fit.cvut.cz' # your LDAP base DN search - usually change this to your domain.tld
+		loadGroups: false
+		security: 'SSL'
+		loginTemplate: 'uid=%s,ou=People,o=fit.cvut.cz'
+
+	shibboleth:
+		defaultRoles: ['conference-user', 'reader']
+		groupRoles:
+			student-FIT: ['conference-user', 'reader']
+			employee: ['conference-moderator', 'submitter']
+			# externiste: []
+			# absolventi: []
