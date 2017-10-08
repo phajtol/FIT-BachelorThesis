@@ -10,7 +10,7 @@ class SubmitterHasPublication extends Base {
      */
     protected $tableName = 'submitter_has_publication';
 
-    public function findAllMyByKwFilter($params, $userId) {
+    public function findAllStarredByKwFilter($params, $userId) {
         $records = $this->database->table('submitter_has_publication')->where("submitter_has_publication.submitter_id", $userId);
         if (isset($params['keywords'])) {
             $records = $records->where("publication.title LIKE ?", "%" . $params['keywords'] . "%");

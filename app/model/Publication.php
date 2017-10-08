@@ -243,7 +243,7 @@ class Publication extends Base {
     }
 
     /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_OR_my_publication($keywords, $categories, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery($limit, $sort);
         $selectQuery = $this->getSelectQueryOR($limit);
@@ -304,7 +304,7 @@ class Publication extends Base {
     }
 
     /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_AND_my_publication($keywords, $categories, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $userId, $limit = null, $offset = null) {
 
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery($limit, $sort);
@@ -368,7 +368,7 @@ class Publication extends Base {
     }
 
     /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_advanced_my_publication($keywords, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $userId, $limit = null, $offset = null) {
 
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery($limit, $sort);
@@ -423,7 +423,7 @@ class Publication extends Base {
     }
 
     /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_my_publication($keywords, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_FullText_starred_publication($keywords, $sort, $userId, $limit = null, $offset = null) {
 
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery($limit, $sort);
@@ -546,7 +546,7 @@ class Publication extends Base {
     }
 
     /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_Authors_OR_my_publication($keywords, $keywordsString, $categories, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
@@ -615,7 +615,7 @@ class Publication extends Base {
         return $result;
     }
 
-    public function getAllPubs_Authors_AND_my_publication($keywords, $keywordsString, $categories, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
@@ -686,7 +686,7 @@ class Publication extends Base {
         return $result;
     }
 
-    public function getAllPubs_Authors_advanced_my_publication($keywords, $keywordsString, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
@@ -750,7 +750,7 @@ class Publication extends Base {
         return $result;
     }
 
-    public function getAllPubs_Authors_my_publication($keywords, $keywordsString, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
@@ -822,7 +822,7 @@ class Publication extends Base {
     }
 
     /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_no_params_my_publication($categories, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_no_params_starred_publication($categories, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
@@ -843,7 +843,7 @@ class Publication extends Base {
     }
 
     /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_Categories_OR_my_publication($categories, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_Categories_OR_starred_publication($categories, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
@@ -888,7 +888,7 @@ class Publication extends Base {
         return $result;
     }
 
-    public function getAllPubs_Categories_AND_my_publication($categories, $sort, $userId, $limit = null, $offset = null) {
+    public function getAllPubs_Categories_AND_starred_publication($categories, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);

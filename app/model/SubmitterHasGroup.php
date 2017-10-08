@@ -10,7 +10,7 @@ class SubmitterHasGroup extends Base {
      */
     protected $tableName = 'submitter_has_group';
 
-    public function findAllMyByKwFilter($params, $userId) {
+    public function findAllStarredByKwFilter($params, $userId) {
         $records = $this->database->table('submitter_has_group')->where("submitter_has_group.submitter_id", $userId);
         if (isset($params['keywords'])) {
             $records = $records->where("group.name LIKE ? ", "%" . $params['keywords'] . "%");

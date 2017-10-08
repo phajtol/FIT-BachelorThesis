@@ -560,9 +560,9 @@
 
                                 <a class="btn btn-primary" n:href="Publication:addnew, $publication->id" role="button" title="Edit Publication"><span class="glyphicon glyphicon-pencil"></span></a>
                                     {if $favourite}
-                                    <a class="btn btn-warning" n:href="unsetFavouritePub!, $publication->id" role="button" title="Remove from My Publications"><span class="glyphicon glyphicon-star"></span></a>
+                                    <a class="btn btn-warning" n:href="unsetFavouritePub!, $publication->id" role="button" title="Remove from starred Publications"><span class="glyphicon glyphicon-star"></span></a>
                                     {else}
-                                    <a class="btn btn-default" n:href="setFavouritePub!, $publication->id" role="button" title="Add to My Publications"><span class="glyphicon glyphicon-star"></span></a>
+                                    <a class="btn btn-default" n:href="setFavouritePub!, $publication->id" role="button" title="Add to starred Publications"><span class="glyphicon glyphicon-star"></span></a>
                                     {/if}
 
                                 {if $user->isInRole('admin') && $publication->confirmed == 1}

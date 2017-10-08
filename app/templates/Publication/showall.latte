@@ -146,10 +146,10 @@
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </button>
                                     <a class="btn btn-primary btn-xs" n:href="Publication:addnew, $record->id" role="button" title="Edit publication"><span class="glyphicon glyphicon-pencil"></span></a>
-                                        {if in_array($record->id, $recordsMy)}
-                                        <a class="btn btn-warning btn-xs" n:href="unsetFavouritePub!, $record->id" role="button" title="Remove from my publications"><span class="glyphicon glyphicon-star"></span></a>
+                                        {if in_array($record->id, $recordsStarred)}
+                                        <a class="btn btn-warning btn-xs" n:href="unsetFavouritePub!, $record->id" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                         {else}
-                                        <a class="btn btn-default btn-xs" n:href="setFavouritePub!, $record->id" role="button" title="Add to my publications"><span class="glyphicon glyphicon-star"></span></a>
+                                        <a class="btn btn-default btn-xs" n:href="setFavouritePub!, $record->id" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                         {/if}
 
 

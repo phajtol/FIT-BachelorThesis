@@ -118,8 +118,8 @@ class ConferencePresenter extends SecuredPresenter {
 			'all'     =>  array(
 				'caption'   =>  'All'
 			),
-			'my'      =>  array(
-				'caption'   =>  'My',
+			'starred'      =>  array(
+				'caption'   =>  'Starred',
 				'icon'      =>  'star'
 			),
 			'suggested'      =>  array(
@@ -177,7 +177,7 @@ class ConferencePresenter extends SecuredPresenter {
 			}
 
 			switch($conferenceIndividualFilter->getActiveButtonName()) {
-				case 'my':
+				case 'starred':
 					$this->records->where('conference:submitter_favourite_conference.submitter_id = ?', $this->getUser()->id);
 					break;
 				case 'suggested':

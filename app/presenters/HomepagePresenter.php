@@ -70,7 +70,7 @@ class HomepagePresenter extends SecuredPresenter {
     return $vt;
   }
 
-  public function display_search_results_document($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort) {
+  public function display_search_results_document($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
@@ -169,19 +169,19 @@ class HomepagePresenter extends SecuredPresenter {
     return $search_results;
   }
 
-  public function display_search_results_document_my_publications($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort) {
+  public function display_search_results_document_starred_publications($keywords, $categories, $operator, $searchtype, $staredpubs, $advanced, $sort) {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_OR_my_publication($keywords, $categories, $sort, $this->user->id);
+        $itemCount = $this->context->Publication->getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $this->user->id);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_AND_my_publication($keywords, $categories, $sort, $this->user->id);
+        $itemCount = $this->context->Publication->getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $this->user->id);
       }
     } else {
       if ($advanced) {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_advanced_my_publication($keywords, $sort, $this->user->id);
+        $itemCount = $this->context->Publication->getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $this->user->id);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_my_publication($keywords, $sort, $this->user->id);
+        $itemCount = $this->context->Publication->getAllPubs_FullText_starred_publication($keywords, $sort, $this->user->id);
       }
     }
 
@@ -192,15 +192,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $preResults = $this->context->Publication->getAllPubs_FullText_OR_my_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->context->Publication->getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_FullText_AND_my_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->context->Publication->getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       }
     } else {
       if ($advanced) {
-        $preResults = $this->context->Publication->getAllPubs_FullText_advanced_my_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->context->Publication->getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_FullText_my_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->context->Publication->getAllPubs_FullText_starred_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       }
     }
 
@@ -267,7 +267,7 @@ class HomepagePresenter extends SecuredPresenter {
     return $search_results;
   }
 
-  public function display_search_results_author($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort) {
+  public function display_search_results_author($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
     $keywords = trim($keywords);
     $keywordsString = preg_replace('/\s{2,}/', ' ', $keywords); //remove additional spaces
@@ -344,7 +344,7 @@ class HomepagePresenter extends SecuredPresenter {
     return $search_results;
   }
 
-  public function display_search_results_author_my_publications($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort) {
+  public function display_search_results_author_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
     $keywords = trim($keywords);
     $keywordsString = preg_replace('/\s{2,}/', ' ', $keywords); //remove additional spaces
@@ -353,15 +353,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_OR_my_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
+        $itemCount = $this->context->Publication->getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_AND_my_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
+        $itemCount = $this->context->Publication->getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
       }
     } else {
       if ($advanced) {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_advanced_my_publication($keywords, $keywordsString, $sort, $this->user->id);
+        $itemCount = $this->context->Publication->getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $this->user->id);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_my_publication($keywords, $keywordsString, $sort, $this->user->id);
+        $itemCount = $this->context->Publication->getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $this->user->id);
       }
     }
 
@@ -373,15 +373,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $preResults = $this->context->Publication->getAllPubs_Authors_OR_my_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->context->Publication->getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_Authors_AND_my_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->context->Publication->getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       }
     } else {
       if ($advanced) {
-        $preResults = $this->context->Publication->getAllPubs_Authors_advanced_my_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->context->Publication->getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_Authors_my_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->context->Publication->getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       }
     }
 
@@ -421,7 +421,7 @@ class HomepagePresenter extends SecuredPresenter {
     return $search_results;
   }
 
-  public function actionSearchResults($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort) {
+  public function actionSearchResults($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
     $params = $this->context->httpRequest->getQuery();
 
@@ -433,30 +433,30 @@ class HomepagePresenter extends SecuredPresenter {
       $keywords = $this->remove_diac($keywords);
     }
 
-    if ($mypubs) {
+    if ($starredpubs) {
       if ($searchtype == "fulltext" && $keywords) {
-        $search_results = $this->display_search_results_document_my_publications($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort);
+        $search_results = $this->display_search_results_document_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
       } elseif ($searchtype == "authors" && $keywords) {
-        $search_results = $this->display_search_results_author_my_publications($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort);
+        $search_results = $this->display_search_results_author_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
         $this->setView('searchresultsauthors');
       } elseif ($categories && !$keywords) {
-        $search_results = $this->display_search_results_categories_my_publications($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort);
+        $search_results = $this->display_search_results_categories_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
         $this->setView('searchresultsauthors');
       } else {
-        $search_results = $this->display_search_results_my_publications($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort);
+        $search_results = $this->display_search_results_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
         $this->setView('searchresultsauthors');
       }
     } else {
       if ($searchtype == "fulltext" && $keywords) {
-        $search_results = $this->display_search_results_document($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort);
+        $search_results = $this->display_search_results_document($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
       } elseif ($searchtype == "authors" && $keywords) {
-        $search_results = $this->display_search_results_author($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort);
+        $search_results = $this->display_search_results_author($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
         $this->setView('searchresultsauthors');
       } elseif ($categories && !$keywords) {
-        $search_results = $this->display_search_results_categories($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort);
+        $search_results = $this->display_search_results_categories($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
         $this->setView('searchresultsauthors');
       } else {
-        $search_results = $this->display_search_results($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort);
+        $search_results = $this->display_search_results($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
         $this->setView('searchresultsauthors');
       }
     }
@@ -479,7 +479,7 @@ class HomepagePresenter extends SecuredPresenter {
     $this->template->dataAutocomplete = json_encode($dataAutocomplete);
   }
 
-  private function display_search_results_categories($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort) {
+  private function display_search_results_categories($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
     if ($operator == 'OR') {
       $itemCount = $this->context->Publication->getAllPubs_Categories_OR($categories, $sort);
@@ -532,7 +532,7 @@ class HomepagePresenter extends SecuredPresenter {
     return $search_results;
   }
 
-  private function display_search_results($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort) {
+  private function display_search_results($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
     $itemCount = $this->context->Publication->getAllPubs_no_params($categories, $sort);
 
@@ -579,12 +579,12 @@ class HomepagePresenter extends SecuredPresenter {
     return $search_results;
   }
 
-  private function display_search_results_categories_my_publications($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort) {
+  private function display_search_results_categories_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
     if ($operator == 'OR') {
-      $itemCount = $this->context->Publication->getAllPubs_Categories_OR_my_publication($categories, $sort, $this->user->id);
+      $itemCount = $this->context->Publication->getAllPubs_Categories_OR_starred_publication($categories, $sort, $this->user->id);
     } else {
-      $itemCount = $this->context->Publication->getAllPubs_Categories_AND_my_publication($categories, $sort, $this->user->id);
+      $itemCount = $this->context->Publication->getAllPubs_Categories_AND_starred_publication($categories, $sort, $this->user->id);
     }
 
     $this->vp = new \VisualPaginator($this, 'vp');
@@ -593,9 +593,9 @@ class HomepagePresenter extends SecuredPresenter {
     $paginator->itemCount = $itemCount['length'];
 
     if ($operator == 'OR') {
-      $preResults = $this->context->Publication->getAllPubs_Categories_OR_my_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+      $preResults = $this->context->Publication->getAllPubs_Categories_OR_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
     } else {
-      $preResults = $this->context->Publication->getAllPubs_Categories_AND_my_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+      $preResults = $this->context->Publication->getAllPubs_Categories_AND_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
     }
 
     $search_results = array();
@@ -633,16 +633,16 @@ class HomepagePresenter extends SecuredPresenter {
     return $search_results;
   }
 
-  private function display_search_results_my_publications($keywords, $categories, $operator, $searchtype, $mypubs, $advanced, $sort) {
+  private function display_search_results_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
-    $itemCount = $this->context->Publication->getAllPubs_no_params_my_publication($categories, $sort, $this->user->id);
+    $itemCount = $this->context->Publication->getAllPubs_no_params_starred_publication($categories, $sort, $this->user->id);
 
     $this->vp = new \VisualPaginator($this, 'vp');
     $paginator = $this->vp->getPaginator();
     $paginator->itemsPerPage = $this->itemsPerPageDB;
     $paginator->itemCount = $itemCount['length'];
 
-    $preResults = $this->context->Publication->getAllPubs_no_params_my_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+    $preResults = $this->context->Publication->getAllPubs_no_params_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
 
     $search_results = array();
 

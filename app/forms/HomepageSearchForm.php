@@ -17,7 +17,7 @@ class HomepageSearchForm extends Nette\Object {
         $form->addRadioList('operator', 'Search operator', array('OR' => 'OR', 'AND' => 'AND'))->setDefaultValue('OR');
         $form->addText('categories');
         $form->addRadioList('searchtype', 'Search type', array('fulltext' => 'Fulltext search', 'authors' => 'Authors / Publication search'))->setDefaultValue('fulltext');
-        $form->addCheckbox('mypubs', 'Search only in my publications');
+        $form->addCheckbox('starredpubs', 'Search only in starred publications');
         $form->addCheckbox('advanced', 'Enable advanced search')->setDefaultValue(FALSE);
         $form->addSubmit('send', 'Search');
 

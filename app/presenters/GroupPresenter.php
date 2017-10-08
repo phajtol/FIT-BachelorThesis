@@ -63,7 +63,7 @@ class GroupPresenter extends SecuredPresenter {
         $this->drawAllowed = true;
     }
 
-    public function drawGroups($my) {
+    public function drawGroups($starred) {
         if ($this->drawAllowed) {
             $params = $this->context->httpRequest->getQuery();
             $alphabet = range('A', 'Z');
@@ -88,12 +88,12 @@ class GroupPresenter extends SecuredPresenter {
                 Debugger::fireLog('--aaaaaaaaaa');
 
                 $this->records = $this->context->Group->findAllByKw($params);
-                if($my) $this->records->where(':submitter_has_group.submitter_id = ?', $this->user->id);
-                $this->template->recordsMy = array();
+                if($starred) $this->records->where(':submitter_has_group.submitter_id = ?', $this->user->id);
+                $this->template->recordsStarred = array();
 
-                $recordsMyTemp = $this->context->SubmitterHasGroup->findAllBy(array('submitter_has_group.submitter_id' => $this->user->id));
-                foreach ($recordsMyTemp as $record) {
-                    $this->template->recordsMy[] = $record->group_id;
+                $recordsStarredTemp = $this->context->SubmitterHasGroup->findAllBy(array('submitter_has_group.submitter_id' => $this->user->id));
+                foreach ($recordsStarredTemp as $record) {
+                    $this->template->recordsStarred[] = $record->group_id;
                 }
 
 
@@ -151,7 +151,7 @@ class GroupPresenter extends SecuredPresenter {
 
     public function renderShowAll() {
         if ($this->drawAllowed) {
-            $this->drawGroups($this['individualFilter']->getActiveButtonName() == 'my');
+            $this->drawGroups($this['individualFilter']->getActiveButtonName() == 'starred');
         }
     }
 
@@ -202,8 +202,8 @@ class GroupPresenter extends SecuredPresenter {
                 'caption'   =>  'All groups',
                 'icon'      =>  'list'
             ),
-            'my'      =>  array(
-                'caption'   =>  'My groups',
+            'starred'      =>  array(
+                'caption'   =>  'Starred groups',
                 'icon'      =>  'star'
             ),
         ], 'all');

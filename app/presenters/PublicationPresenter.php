@@ -1099,11 +1099,11 @@ class PublicationPresenter extends SecuredPresenter {
 
     public function renderShowAll() {
         if ($this->drawAllowed) {
-            $this->drawPublications($this['individualFilter']->getActiveButtonName() == 'my');
+            $this->drawPublications($this['individualFilter']->getActiveButtonName() == 'starred');
         }
     }
 
-    public function drawPublications($my = false) {
+    public function drawPublications($starred = false) {
         Debugger::fireLog('drawPublications');
         $params = $this->getHttpRequest()->getQuery();
         $alphabet = range('A', 'Z');
@@ -1127,13 +1127,13 @@ class PublicationPresenter extends SecuredPresenter {
         if (!isset($this->template->records)) {
             $this->records = $this->publicationModel->findAllByKw($params);
 
-            if($my) $this->records->where(':submitter_has_publication.submitter_id = ?', $this->user->id);
+            if($starred) $this->records->where(':submitter_has_publication.submitter_id = ?', $this->user->id);
 
-            $recordsMyTemp = $this->submitterHasPublicationModel->findAllBy(array('submitter_id' => $this->user->id));
-            $this->template->recordsMy = array();
+            $recordsStarredTemp = $this->submitterHasPublicationModel->findAllBy(array('submitter_id' => $this->user->id));
+            $this->template->recordsStarred = array();
 
-            foreach ($recordsMyTemp as $record) {
-                $this->template->recordsMy[] = $record->publication_id;
+            foreach ($recordsStarredTemp as $record) {
+                $this->template->recordsStarred[] = $record->publication_id;
             }
 
             $this->setupRecordsPaginator();
@@ -1804,8 +1804,8 @@ class PublicationPresenter extends SecuredPresenter {
                 'caption'   =>  'All publications',
                 'icon'      =>  'list'
             ),
-            'my'      =>  array(
-                'caption'   =>  'My publications',
+            'starred'      =>  array(
+                'caption'   =>  'Starred publications',
                 'icon'      =>  'star'
             ),
         ], 'all');
