@@ -1661,7 +1661,7 @@ class PublicationPresenter extends SecuredPresenter {
         $conferenceYearInfo =  $this->conferenceYearModel->find($conferenceYearId);
         
         $this['publicationAddNewForm']['issue_year']->setValue($conferenceYearInfo['w_year']);
-        $this['publicationAddNewForm']['issue_month']->setValue(null);
+        $this['publicationAddNewForm']['issue_month']->setValue($conferenceYearInfo['w_from']->format("n"));
         
         if (!$this->isAjax()) {
             $this->redirect('this');
