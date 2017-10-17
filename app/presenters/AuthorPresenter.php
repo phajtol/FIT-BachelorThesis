@@ -17,7 +17,7 @@ class AuthorPresenter extends SecuredPresenter {
 
     public function createComponentCrud(){
         $c = new \App\CrudComponents\Author\AuthorCrud(
-            $this->user, $this->context->Author, $this->context->AuthorHasPublication,
+            $this->user,$this->submitterModel, $this->context->Author, $this->context->AuthorHasPublication,
             $this, 'crud'
         );
 
@@ -73,6 +73,7 @@ class AuthorPresenter extends SecuredPresenter {
             'name' => 'name',
             'middlename' => 'middlename',
             'surname' => 'surname',
+            'user' => 'user.surname'
         ),  'surname', \NasExt\Controls\SortingControl::ASC);
 
         return $control;

@@ -12,8 +12,8 @@ namespace App\CrudComponents\Author;
 class AuthorAddForm extends AuthorForm {
 
 
-	public function __construct(\App\Model\Author $authorModel, \Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
-		parent::__construct($parent, $name);
+	public function __construct(\App\Model\Submitter $submitterModel,\App\Model\Author $authorModel, \Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+		parent::__construct($submitterModel,$parent, $name);
 
 		$this['surname']->addRule(function($name, $form) use ($authorModel) {
 			if($authorModel->findOneByName($form['name']->value, $form['middlename']->value, $form['surname']->value)){

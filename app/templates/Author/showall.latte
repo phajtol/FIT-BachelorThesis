@@ -34,10 +34,13 @@
 									{control sorting, "surname", "Surname"}
 								</th>
 								<th>
+									{control sorting, "middlename", "Middle name"}
+								</th>
+								<th>
 									{control sorting, "name", "Name"}
 								</th>
 								<th>
-									{control sorting, "middlename", "Middle name"}
+									{control sorting, "user", "User"}
 								</th>
 								<th>
 									Action
@@ -50,6 +53,7 @@
 									<td>{$record->surname}</td>
 									<td>{$record->middlename}</td>
 									<td>{$record->name}</td>
+									<td>{if $record->user}{$record->user->surname} {$record->user->name} ({$record->user->nickname}){/if}</td>
 									<td>
 										{control crud-controls-$record->id}
 									</td>

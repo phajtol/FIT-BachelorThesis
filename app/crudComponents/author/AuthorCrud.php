@@ -23,10 +23,12 @@ class AuthorCrud extends BaseCrudComponent {
 	/** @var \App\Model\AuthorHasPublication */
 	protected $authorHasPublicationModel;
 
+	/** @var \App\Model\Submitter */
+	protected $submitterModel;
 
 	public function __construct(
 
-		\Nette\Security\User $loggedUser, \App\Model\Author $authorModel, \App\Model\AuthorHasPublication $authorHasPublicationModel,
+		\Nette\Security\User $loggedUser, \App\Model\Submitter $submitterModel, \App\Model\Author $authorModel, \App\Model\AuthorHasPublication $authorHasPublicationModel,
 		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
 	) {
 		parent::__construct($parent, $name);
@@ -38,6 +40,7 @@ class AuthorCrud extends BaseCrudComponent {
 			'publicationsRelatedToAuthor' => array()
 		));
 
+		$this->submitterModel = $submitterModel;
 		$this->authorModel = $authorModel;
 		$this->loggedUser = $loggedUser;
 		$this->authorHasPublicationModel = $authorHasPublicationModel;
@@ -48,7 +51,7 @@ class AuthorCrud extends BaseCrudComponent {
 	}
 
 	public function createComponentAuthorAddForm($name){
-		$form = new AuthorAddForm($this->authorModel, $this, $name);
+		$form = new AuthorAddForm($this->submitterModel,$this->authorModel, $this, $name);
 		$form->onError[] = function(){
 			$this->redrawControl('authorAddForm');
 		};
@@ -56,7 +59,7 @@ class AuthorCrud extends BaseCrudComponent {
 	}
 
 	public function createComponentAuthorEditForm($name){
-		$form = new AuthorEditForm($this, $name);
+		$form = new AuthorEditForm($this->submitterModel,$this, $name);
 		$form->onError[] = function(){
 			$this->redrawControl('authorEditForm');
 		};

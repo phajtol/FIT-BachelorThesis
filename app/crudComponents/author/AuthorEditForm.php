@@ -10,8 +10,8 @@ namespace App\CrudComponents\Author;
 
 
 class AuthorEditForm  extends AuthorForm {
-	public function __construct(\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
-		parent::__construct($parent, $name);
+	public function __construct(\App\Model\Submitter $submitterModel,\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+		parent::__construct($submitterModel,$parent, $name);
 
 		$this->addHidden('id');
 	}
