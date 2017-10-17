@@ -108,11 +108,6 @@
 
 
     $(function(){
-        $('body').on('submit', '#frm-uploadFileForm', function () {
-                    $('#frm-uploadFileForm-folderId').val($('#frm-publicationAddNewForm-folderId').val());
-        });
-
-
        $('body').on('click', '#fetchSpringerDataButton', function(event) {
             $.nette.ajax({
                 url: {link fetchFromSpringer!},
