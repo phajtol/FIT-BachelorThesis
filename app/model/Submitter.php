@@ -120,4 +120,12 @@ class Submitter extends Base {
         return $nickname . $suffix;
     }
 
+    public function getPairs() {
+        $all = $this->database->fetchAll("SELECT * FROM submitter order by surname,name;");
+        $arr = array();
+        foreach ($all as $one) {
+            $arr[$one->id] = $one->surname." ".$one->name." (".$one->nickname.")";
+        }
+        return $arr;
+    }
 }
