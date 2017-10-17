@@ -25,9 +25,6 @@ di:
 	accessors: true
 
 parameters:
-	MultipleFileUploader:
-		databasePath: %tempDir%/up.sqlite3
-		# uploadsTempDir
 
 services:
 

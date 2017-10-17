@@ -67,7 +67,7 @@ class PublicationAddNewForm extends BaseForm {
         }
 
         $this->addTextArea('note', 'Note', 6, 8)->addRule(PublicationFormRules::NOTE_REQUIRED, "Note is required.", $this);
-        $this->addMultipleFileUpload("upload", "Attachments");
+        $this->addMultiUpload("upload", "Attachments");
         $this->addHidden('id');
 
         $this->addSubmit('cancel', 'Cancel')->setValidationScope(NULL)->onClick[] = function () use ($parent) {
