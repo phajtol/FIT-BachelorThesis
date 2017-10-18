@@ -128,6 +128,10 @@ class Publication extends Base {
         } else {
             $annotations = $this->database->table('annotation')->where('publication_id', $publicationCopy->id)->where("submitter_id = ? OR global_scope = ?", $userId, 1)->order("id ASC");
         }
+        $references = $this->database->table('reference')->where(array('publication_id' => $publicationCopy->id))->order("id ASC");
+        $citations = $this->database->table('reference')->where(array('reference_id' => $publicationCopy->id))->order("id ASC");
+
+        
         $favourite = $this->database->table('submitter_has_publication')->where(array('submitter_id' => $userId, 'publication_id' => $publicationCopy->id))->fetch();
         $conferenceYearOriginal = $this->database->table('conference_year')->get($publicationCopy->conference_year_id);
         $conferenceYearPublisher = '';
@@ -183,6 +187,8 @@ class Publication extends Base {
             'publisher' => $publisher,
             'favourite' => $favourite,
             'annotations' => $annotations,
+            'references' => $references,
+            'citations' => $citations,
             'conferenceYear' => $conferenceYearOriginal,
             'conferenceYearPublisher' => $conferenceYearPublisher,
             'files' => $files->prepareFiles($publicationCopy->id),
@@ -1269,6 +1275,19 @@ class Publication extends Base {
         $formValues['organization'] = NULL;
 
         return $formValues;
+    }
+    
+    public function getPairs() {
+        $params = [];
+        $params['sort'] = 'title';
+        $params['order'] = 'ASC';
+
+        $all = $this->findAllByKw($params);
+        $arr = array();
+        foreach ($all as $one) {
+            $arr[$one->id] = $one->title;
+        }
+        return $arr;
     }
 
 }
