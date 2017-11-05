@@ -68,12 +68,6 @@ class PublicationPresenter extends SecuredPresenter {
     protected $annotationModel;
 
     /**
-     * @var Model\Reference
-     * @autowire
-     */
-    protected $referenceModel;
-    
-    /**
      * @var Model\AttribStorage
      * @autowire
      */
@@ -146,9 +140,6 @@ class PublicationPresenter extends SecuredPresenter {
 
     /** @var  \App\Factories\IAuthorCrudFactory */
     protected $authorCrudFactory;
-
-    /** @var  \App\Factories\IReferenceCrudFactory */
-    protected $referenceCrudFactory;
 
     /** @var  \App\Factories\IPublicationCategoryListFactory */
     protected $publicationCategoryListFactory;
@@ -292,13 +283,6 @@ class PublicationPresenter extends SecuredPresenter {
     public function injectAuthorCrudFactory(\App\Factories\IAuthorCrudFactory $authorCrudFactory) {
         $this->authorCrudFactory = $authorCrudFactory;
     }
-
-    /**
-     * @param \App\Factories\IReferenceCrudFactory $referenceCrudFactory
-     */
-    public function injectReferenceCrudFactory(\App\Factories\IReferenceCrudFactory $referenceCrudFactory) {
-        $this->referenceCrudFactory = $referenceCrudFactory;
-    }
     
     /**
      * @param \App\Factories\IPublicationCategoryListFactory $publicationCategoryListFactory
@@ -357,23 +341,6 @@ class PublicationPresenter extends SecuredPresenter {
         return $form;
     }
 
-    protected function createComponentReferenceCrud($name) {
-        $c = $this->referenceCrudFactory->create($this->publicationId);
-        if(!$this->publicationId) $c->disallowAction('add');
-        $cbFn = function(){
-            $references = $this->referenceModel->findAllBy(array('publication_id' => $this->publication->id))->order("id ASC");
-
-            $this->template->references = $references;
-
-            $this->successFlashMessage('Operation has been completed successfully.');
-            $this->redrawControl('publicationReferencesData');
-        };
-        $c->onAdd[] = $cbFn;
-        $c->onDelete[] = $cbFn;
-        $c->onEdit[] = $cbFn;
-        return $c;
-    }
-    
     protected function createComponentAnnotationCrud(){
         $c = $this->annotationCrudFactory->create($this->publicationId);
         if(!$this->publicationId) $c->disallowAction('add');
@@ -599,8 +566,6 @@ class PublicationPresenter extends SecuredPresenter {
                 } catch (\Exception $e) {
                     $month = null;
                 }
-            } else {
-                $month = null;
             }
             if (intval($month)>0 && intval($month)<=12) {
                 $this->publication['issue_month'] = intval($month);
@@ -1280,8 +1245,6 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->publisher = $data['publisher'];
         $this->template->favourite = $data['favourite'];
         $this->template->annotations = $data['annotations'];
-        $this->template->references = $data['references'];
-        $this->template->citations = $data['citations'];
         $this->template->conferenceYear = $data['conferenceYear'];
         $this->template->conferenceYearPublisher = $data['conferenceYearPublisher'];
         $this->template->files = $data['files'];
