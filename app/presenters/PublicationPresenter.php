@@ -566,6 +566,8 @@ class PublicationPresenter extends SecuredPresenter {
                 } catch (\Exception $e) {
                     $month = null;
                 }
+            } else {
+                $month = null;
             }
             if (intval($month)>0 && intval($month)<=12) {
                 $this->publication['issue_month'] = intval($month);
