@@ -14,8 +14,7 @@
     <ul id="pub-detail-tab" class="nav nav-tabs">
         <li class="active"><a href="#detail" data-toggle="tab">Publication Detail</a></li>
         <li class=""><a href="#annotations" data-toggle="tab">Annotations</a></li>
-        <li class=""><a href="#definitions" data-toggle="tab">Definitions</a></li>
-        <li class=""><a href="#citations" data-toggle="tab">Citations</a></li>
+        <li class=""><a href="#exports" data-toggle="tab">Exports</a></li>
     </ul>
 
     <div class="col-md-12" style="background-color:#f8f8f8; padding-top: 30px;">
@@ -642,15 +641,32 @@
 
                                                     </div>
 
-                                                    <div class="tab-pane fade" id="definitions">
+                                                    <div class="tab-pane fade" id="exports">
 
                                                         <form class="form-horizontal" role="form">
 
                                                             <div class="form-group">
-                                                                <h1 class="col-sm-3 control-label">Definitions</h1>
+                                                                <h1 class="col-sm-3 control-label">Exports</h1>
                                                             </div>
+                                                            
+                                                            {foreach $formats as $d}
+                                                                <hr>
+                                                                <div class="form-group">
+                                                                <h2 class="col-sm-3 control-label"><small>{$d->name}</small></h2>
+                                                                <div class="col-sm-9">
+                                                                    <p class="form-control-static">
+                                                                        {!$d->content|template}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            {/foreach}
+                                                            {* <hr>
+                                                            {include 'csn_iso_690.latte'}
                                                             <hr>
-
+                                                            {include 'apa.latte'}
+                                                            <hr>
+                                                            {include 'ieee.latte'} *}
+                                                            <hr>
                                                             <div class="form-group">
                                                                 <h2 class="col-sm-3 control-label"><small>Bibtex</small></h2>
                                                                 <div class="col-sm-9">
@@ -678,37 +694,7 @@
 
                                                     </div>
 
-                                                    <div class="tab-pane fade" id="citations">
-
-                                                        <form class="form-horizontal" role="form">
-
-                                                            <div class="form-group">
-                                                                <h1 class="col-sm-3 control-label">Citations</h1>
-                                                            </div>
-                                                            
-                                                            {foreach $formats as $d}
-                                                                <hr>
-                                                                <div class="form-group">
-                                                                <h2 class="col-sm-3 control-label"><small>{$d->name}</small></h2>
-                                                                <div class="col-sm-9">
-                                                                    <p class="form-control-static">
-                                                                        {!$d->content|template}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                            {/foreach}
-                                                            {* <hr>
-                                                            {include 'csn_iso_690.latte'}
-                                                            <hr>
-                                                            {include 'apa.latte'}
-                                                            <hr>
-                                                            {include 'ieee.latte'} *}
-
-                                                        </form>
-
-                                                    </div>
                                                 </div>
-
                                             </div>
                                         </div>
 
@@ -727,13 +713,9 @@
                                                 $('#pub-detail-tab a[href="#annotations"]').tab('show') // Select tab by name            
                                             } else if (hash == 'detail') {
                                                 $('#pub-detail-tab a[href="#detail"]').tab('show') // Select tab by name
-                                            } else if (hash == 'definitions') {
-                                                $('#pub-detail-tab a[href="#definitions"]').tab('show') // Select tab by name
-                                            } else if (hash == 'citations') {
-                                                $('#pub-detail-tab a[href="#citations"]').tab('show') // Select tab by name
+                                            } else if (hash == 'exports') {
+                                                $('#pub-detail-tab a[href="#exports"]').tab('show') // Select tab by name
                                             }
-
-                                            refresh();
 
                                         </script>
 
