@@ -15,6 +15,8 @@
         <li class="active"><a href="#detail" data-toggle="tab">Publication Detail</a></li>
         <li class=""><a href="#annotations" data-toggle="tab">Annotations</a></li>
         <li class=""><a href="#exports" data-toggle="tab">Exports</a></li>
+        <li class=""><a href="#references" data-toggle="tab">References</a></li>
+        <li class=""><a href="#citations" data-toggle="tab">Citations</a></li>
     </ul>
 
     <div class="col-md-12" style="background-color:#f8f8f8; padding-top: 30px;">
@@ -558,11 +560,11 @@
                                 </button>
 
                                 <a class="btn btn-primary" n:href="Publication:addnew, $publication->id" role="button" title="Edit Publication"><span class="glyphicon glyphicon-pencil"></span></a>
-                                    {if $favourite}
+                                {if $favourite}
                                     <a class="btn btn-warning" n:href="unsetFavouritePub!, $publication->id" role="button" title="Remove from starred Publications"><span class="glyphicon glyphicon-star"></span></a>
-                                    {else}
+                                {else}
                                     <a class="btn btn-default" n:href="setFavouritePub!, $publication->id" role="button" title="Add to starred Publications"><span class="glyphicon glyphicon-star"></span></a>
-                                    {/if}
+                                {/if}
 
                                 {if $user->isInRole('admin') && $publication->confirmed == 1}
                                     <a class="btn btn-success" n:href="setUnConfirmed!, $publication->id" role="button" title="Mark as Unchecked Publication"><span class="glyphicon glyphicon-check"></span></a>
@@ -596,128 +598,269 @@
             </div>
 
             <div class="tab-pane fade" id="annotations">
+                {control annotationCrud}
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <h1 class="col-sm-3 control-label">Annotations</h1>
+                        <div class="col-sm-8"></div>
+                        <div class="col-sm-1">
+                            <p class="form-control-static">
+                                {control annotationCrud-addButton}
+                            </p>
+                        </div>
+                    </div>
 
-                        {control annotationCrud}
-                                                        <form class="form-horizontal" role="form">
-                                                            <div class="form-group">
-                                                                <h1 class="col-sm-3 control-label">Annotations</h1>
-                                                                <div class="col-sm-8"></div>
-                                                                <div class="col-sm-1">
-                                                                    <p class="form-control-static">
-                                                                        {control annotationCrud-addButton}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
+                    {snippet publicationAnnotationData}
+                        {foreach $annotations as $annotation}
+                            <hr>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">{$annotation->submitter->name} {$annotation->submitter->surname}
+                                    <br>
+                                    {if $annotation->global_scope == 1}
+                                        <span class="glyphicon glyphicon-globe"></span> Global
+                                    {else}
+                                        <span class="glyphicon glyphicon-lock"></span> Private
+                                    {/if}
+                                    <br>
+                                    {if $annotation->date}
+                                        {$annotation->date|ldate}
+                                    {/if}
+                                </label>
+                                <div class="col-sm-9">
+                                    <p id="annotation-{$annotation->id}" class="form-control-static">{$annotation->text}</p>
+                                    <p class="form-control-static">
+                                        {if $user->isInRole('admin') || $user->id == $annotation->submitter_id}
+                                            {control annotationCrud-controls-$annotation->id}
+                                        {/if}
+                                    </p>  
+                                </div>
+                                <hr>
+                            </div>
+                        {/foreach}
+                    {/snippet}
+                </form>
 
-                                                            {snippet publicationAnnotationData}
-                                                                {foreach $annotations as $annotation}
-                                                                    <hr>
-                                                                    <div class="form-group">
-                                                                        <label class="col-sm-3 control-label">{$annotation->submitter->name} {$annotation->submitter->surname}
-                                                                            <br>
-                                                                            {if $annotation->global_scope == 1}
-                                                                                <span class="glyphicon glyphicon-globe"></span> Global
-                                                                            {else}
-                                                                                <span class="glyphicon glyphicon-lock"></span> Private
-                                                                            {/if}
-                                                                            <br>
-                                                                            {if $annotation->date}
-                                                                                {$annotation->date|ldate}
-                                                                            {/if}
-                                                                        </label>
-                                                                        <div class="col-sm-9">
-                                                                            <p id="annotation-{$annotation->id}" class="form-control-static">{$annotation->text}</p>
-                                                                            <p class="form-control-static">
-                                                                                {if $user->isInRole('admin') || $user->id == $annotation->submitter_id}
-                                                                                    {control annotationCrud-controls-$annotation->id}
-                                                                                {/if}
-                                                                            </p>  
-                                                                        </div>
-                                                                        <hr>
-                                                                    </div>
-                                                                {/foreach}
-                                                            {/snippet}
-                                                        </form>
+            </div>
 
-                                                    </div>
+            <div class="tab-pane fade" id="exports">
 
-                                                    <div class="tab-pane fade" id="exports">
+                <form class="form-horizontal" role="form">
 
-                                                        <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <h1 class="col-sm-3 control-label">Exports</h1>
+                    </div>
 
-                                                            <div class="form-group">
-                                                                <h1 class="col-sm-3 control-label">Exports</h1>
-                                                            </div>
-                                                            
-                                                            {foreach $formats as $d}
-                                                                <hr>
-                                                                <div class="form-group">
-                                                                <h2 class="col-sm-3 control-label"><small>{$d->name}</small></h2>
-                                                                <div class="col-sm-9">
-                                                                    <p class="form-control-static">
-                                                                        {!$d->content|template}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                            {/foreach}
-                                                            {* <hr>
-                                                            {include 'csn_iso_690.latte'}
-                                                            <hr>
-                                                            {include 'apa.latte'}
-                                                            <hr>
-                                                            {include 'ieee.latte'} *}
-                                                            <hr>
-                                                            <div class="form-group">
-                                                                <h2 class="col-sm-3 control-label"><small>Bibtex</small></h2>
-                                                                <div class="col-sm-9">
-                                                                    <p class="form-control-static">  {$bibtexDefinition|noescape}</p>
-                                                                </div>
-                                                            </div>
-                                                            <hr>
+                    {foreach $formats as $d}
+                        <hr>
+                        <div class="form-group">
+                        <h2 class="col-sm-3 control-label"><small>{$d->name}</small></h2>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">
+                                {!$d->content|template}
+                            </p>
+                        </div>
+                    </div>
+                    {/foreach}
+                    {* <hr>
+                    {include 'csn_iso_690.latte'}
+                    <hr>
+                    {include 'apa.latte'}
+                    <hr>
+                    {include 'ieee.latte'} *}
+                    <hr>
+                    <div class="form-group">
+                        <h2 class="col-sm-3 control-label"><small>Bibtex</small></h2>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">  {$bibtexDefinition|noescape}</p>
+                        </div>
+                    </div>
+                    <hr>
 
-                                                            <div class="form-group">
-                                                                <h2 class="col-sm-3 control-label"><small>EndNote</small></h2>
-                                                                <div class="col-sm-9">
-                                                                    <p class="form-control-static">  {$endnoteDefinition|noescape}</p>
-                                                                </div>
-                                                            </div>
-                                                            <hr>
+                    <div class="form-group">
+                        <h2 class="col-sm-3 control-label"><small>EndNote</small></h2>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">  {$endnoteDefinition|noescape}</p>
+                        </div>
+                    </div>
+                    <hr>
 
-                                                            <div class="form-group">
-                                                                <h2 class="col-sm-3 control-label"><small>RefWorks</small></h2>
-                                                                <div class="col-sm-9">
-                                                                    <p class="form-control-static">  {$refworksDefinition|noescape}</p>
-                                                                </div>
-                                                            </div>
+                    <div class="form-group">
+                        <h2 class="col-sm-3 control-label"><small>RefWorks</small></h2>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">  {$refworksDefinition|noescape}</p>
+                        </div>
+                    </div>
 
-                                                        </form>
+                </form>
 
-                                                    </div>
+            </div>
 
-                                                </div>
-                                            </div>
-                                        </div>
+            <div class="tab-pane fade" id="references">
+                {control referenceCrud}
 
-                                        <script>
+                <form class="form-horizontal" role="form">
 
-                                            $('#pub-detail-tab a').click(function(e) {
-                                                e.preventDefault();
-                                                $(this).tab('show');
-                                                window.location.hash = $(this).attr("href");
-                                            });
+                    <div class="form-group">
+                        <h1 class="col-sm-3 control-label">References</h1>
+                        <div class="col-sm-8"></div>
+                        <div class="col-sm-1">
+                            <p class="form-control-static">
+                                {control referenceCrud-addButton}
+                            </p>
+                        </div>
+                    </div>
+                    {if count($references)}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody n:snippet="referencesShowAllRecords">
+                                    {foreach $references as $record}
+                                        <tr n:snippet="record-$record->id">
+                                            <td>
+                                                <a n:href="Publication:showpub, $record->reference->id">{$record->reference->title}</a>
+                                                <span class="text-muted">
+                                                {if $record->reference->issue_year}
+                                                    {if $record->reference->issue_month}{$record->reference->issue_month}/{/if}{$record->reference->issue_year}
+                                                {/if}
+                                                </span>
+                                            {ifset $authorsByPubId[$record->reference->id]}
+                                                <br>
+                                                <span class="authors">{$authorsByPubId[$record->reference->id]|authors}</span>
+                                            {/ifset}
+                                            </td>
+                                            <td>
+                                                {if in_array($record->reference->id, $recordsStarred)}
+                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $record->reference->id" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                                {else}
+                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $record->reference->id" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                                {/if}
+                                            </td>
+                                        </tr>
+                                    {/foreach}
+                                </tbody>
+                            </table>
+                        </div>
+                    {else}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <p>Nothing found.</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    {/if}
+                </form>
+
+            </div>
+
+            <div class="tab-pane fade" id="citations">
+
+                <form class="form-horizontal" role="form">
+
+                    <div class="form-group">
+                        <h1 class="col-sm-3 control-label">Citations</h1>
+                    </div>
+                    {if count($citations)}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody n:snippet="citationsShowAllRecords">
+                                    {foreach $citations as $record}
+                                        <tr n:snippet="record-$record->id">
+                                            <td>
+                                                <a n:href="Publication:showpub, $record->publication->id">{$record->publication->title}</a>
+                                                <span class="text-muted">
+                                                {if $record->publication->issue_year}
+                                                    {if $record->publication->issue_month}{$record->publication->issue_month}/{/if}{$record->publication->issue_year}
+                                                {/if}
+                                                </span>
+                                            {ifset $authorsByPubId[$record->publication->id]}
+                                                <br>
+                                                <span class="authors">{$authorsByPubId[$record->publication->id]|authors}</span>
+                                            {/ifset}
+                                            </td>
+                                            <td>
+                                                {if in_array($record->publication->id, $recordsStarred)}
+                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $record->publication->id" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                                {else}
+                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $record->publication->id" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                                {/if}
+                                            </td>
+                                        </tr>
+                                    {/foreach}
+                                </tbody>
+                            </table>
+                        </div>
+                    {else}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <p>Nothing found.</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    {/if}
+
+                </form>
+
+            </div>
 
 
-                                            var hash = window.location.hash.replace('#', '');
+        </div>
+    </div>
+</div>
 
-                                            if (hash == 'annotations') {
-                                                $('#pub-detail-tab a[href="#annotations"]').tab('show') // Select tab by name            
-                                            } else if (hash == 'detail') {
-                                                $('#pub-detail-tab a[href="#detail"]').tab('show') // Select tab by name
-                                            } else if (hash == 'exports') {
-                                                $('#pub-detail-tab a[href="#exports"]').tab('show') // Select tab by name
-                                            }
+<script>
 
-                                        </script>
+    $('#pub-detail-tab a').click(function(e) {
+        e.preventDefault();
+        $(this).tab('show');
+        window.location.hash = $(this).attr("href");
+    });
+
+
+    var hash = window.location.hash.replace('#', '');
+
+    if (hash == 'annotations') {
+        $('#pub-detail-tab a[href="#annotations"]').tab('show') // Select tab by name            
+    } else if (hash == 'detail') {
+        $('#pub-detail-tab a[href="#detail"]').tab('show') // Select tab by name
+    } else if (hash == 'exports') {
+        $('#pub-detail-tab a[href="#exports"]').tab('show') // Select tab by name
+    } else if (hash == 'references') {
+        $('#pub-detail-tab a[href="#references"]').tab('show') // Select tab by name
+    } else if (hash == 'citations') {
+        $('#pub-detail-tab a[href="#citations"]').tab('show') // Select tab by name
+    }
+</script>
 
 
 

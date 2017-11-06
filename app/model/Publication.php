@@ -1289,5 +1289,16 @@ class Publication extends Base {
         }
         return $arr;
     }
+    public function getPairsForReference($publication_id) {
+        $publications = $this->database->table('publication')
+                ->where('id != ?',$publication_id)
+                ->where("id NOT", $this->database->table("reference")->select('reference_id')->where("publication_id=?",$publication_id))
+                ->order("title");
+        $arr = array();
+        foreach ($publications as $one) {
+            $arr[$one->id] = $one->title;
+        }
+        return $arr;
+    }
 
 }

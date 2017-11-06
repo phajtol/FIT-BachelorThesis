@@ -68,6 +68,12 @@ class PublicationPresenter extends SecuredPresenter {
     protected $annotationModel;
 
     /**
+     * @var Model\Reference
+     * @autowire
+     */
+    protected $referenceModel;
+    
+    /**
      * @var Model\AttribStorage
      * @autowire
      */
@@ -140,6 +146,9 @@ class PublicationPresenter extends SecuredPresenter {
 
     /** @var  \App\Factories\IAuthorCrudFactory */
     protected $authorCrudFactory;
+
+    /** @var  \App\Factories\IReferenceCrudFactory */
+    protected $referenceCrudFactory;
 
     /** @var  \App\Factories\IPublicationCategoryListFactory */
     protected $publicationCategoryListFactory;
@@ -283,6 +292,13 @@ class PublicationPresenter extends SecuredPresenter {
     public function injectAuthorCrudFactory(\App\Factories\IAuthorCrudFactory $authorCrudFactory) {
         $this->authorCrudFactory = $authorCrudFactory;
     }
+
+    /**
+     * @param \App\Factories\IReferenceCrudFactory $referenceCrudFactory
+     */
+    public function injectReferenceCrudFactory(\App\Factories\IReferenceCrudFactory $referenceCrudFactory) {
+        $this->referenceCrudFactory = $referenceCrudFactory;
+    }
     
     /**
      * @param \App\Factories\IPublicationCategoryListFactory $publicationCategoryListFactory
@@ -326,7 +342,15 @@ class PublicationPresenter extends SecuredPresenter {
             'unpublished' => 'Unpublished (an unpublished article, book, thesis, etc.)'
         );
     }
+    public function beforeRender() {
+        parent::beforeRender();
+        $recordsStarredTemp = $this->submitterHasPublicationModel->findAllBy(array('submitter_id' => $this->user->id));
+        $this->template->recordsStarred = array();
 
+        foreach ($recordsStarredTemp as $record) {
+            $this->template->recordsStarred[] = $record->publication_id;
+        }
+    }
     public function actionDefault() {
         
     }
@@ -341,6 +365,23 @@ class PublicationPresenter extends SecuredPresenter {
         return $form;
     }
 
+    protected function createComponentReferenceCrud($name) {
+        $c = $this->referenceCrudFactory->create($this->publicationId);
+        if(!$this->publicationId) $c->disallowAction('add');
+        $cbFn = function(){
+            $references = $this->referenceModel->findAllBy(array('publication_id' => $this->publication->id))->order("id ASC");
+
+            $this->template->references = $references;
+
+            $this->successFlashMessage('Operation has been completed successfully.');
+            $this->redrawControl('publicationReferencesData');
+        };
+        $c->onAdd[] = $cbFn;
+        $c->onDelete[] = $cbFn;
+        $c->onEdit[] = $cbFn;
+        return $c;
+    }
+    
     protected function createComponentAnnotationCrud(){
         $c = $this->annotationCrudFactory->create($this->publicationId);
         if(!$this->publicationId) $c->disallowAction('add');
@@ -1129,13 +1170,8 @@ class PublicationPresenter extends SecuredPresenter {
         if (!isset($this->template->records)) {
             $this->records = $this->publicationModel->findAllByKw($params);
 
-            if($starred) $this->records->where(':submitter_has_publication.submitter_id = ?', $this->user->id);
-
-            $recordsStarredTemp = $this->submitterHasPublicationModel->findAllBy(array('submitter_id' => $this->user->id));
-            $this->template->recordsStarred = array();
-
-            foreach ($recordsStarredTemp as $record) {
-                $this->template->recordsStarred[] = $record->publication_id;
+            if($starred) {
+                $this->records->where(':submitter_has_publication.submitter_id = ?', $this->user->id);
             }
 
             $this->setupRecordsPaginator();
@@ -1204,9 +1240,6 @@ class PublicationPresenter extends SecuredPresenter {
     }
 
     public function actionShowPub($id) {
-
-        Debugger::fireLog('actionShowPub');
-
         $this->publication = $this->publicationModel->find($id);
 
         if (!$this->publication) {
@@ -1247,6 +1280,8 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->publisher = $data['publisher'];
         $this->template->favourite = $data['favourite'];
         $this->template->annotations = $data['annotations'];
+        $this->template->references = $data['references'];
+        $this->template->citations = $data['citations'];
         $this->template->conferenceYear = $data['conferenceYear'];
         $this->template->conferenceYearPublisher = $data['conferenceYearPublisher'];
         $this->template->files = $data['files'];
@@ -1257,6 +1292,26 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->pubCit['author_array'] = $data['pubCit_author_array'];
         $this->template->pubCit['author'] = $data['pubCit_author'];
         $this->template->types = $this->types;
+        $this->template->referenceDeleted = false;
+        
+        $authorsByPubId = array();
+        foreach($this->template->references as $rec) {
+            /** @var $rec Nette\Database\Table\ActiveRow */
+            foreach($rec->reference->related('author_has_publication')->order('priority ASC') as $authHasPub) {
+                $author = $authHasPub->ref('author');
+                if(!isset($authorsByPubId[$rec->reference->id])) $authorsByPubId[$rec->reference->id] = [];
+                $authorsByPubId[$rec->reference->id][] = $author;
+            }
+        }
+        foreach($this->template->citations as $rec) {
+            /** @var $rec Nette\Database\Table\ActiveRow */
+            foreach($rec->publication->related('author_has_publication')->order('priority ASC') as $authHasPub) {
+                $author = $authHasPub->ref('author');
+                if(!isset($authorsByPubId[$rec->publication->id])) $authorsByPubId[$rec->publication->id] = [];
+                $authorsByPubId[$rec->publication->id][] = $author;
+            }
+        }
+        $this->template->authorsByPubId = $authorsByPubId;
     }
 
     public function renderShowPub() {
@@ -1325,38 +1380,60 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('flashMessages');
         }
     }
+    
+    public function handleDeleteReference($referenceId) {
+         $this->drawAllowed = true;
 
-    public function handleSetFavouritePub($id) {
+        $reference = $this->referenceModel->find($referenceId);
 
-        Debugger::fireLog('handleSetFavouritePub(' . $id . ')');
+        if (!$reference) {
+            $this->error('Reference not found');
+        }
+        
+        $this->referenceModel->delete($referenceId);
+
+        $this->template->referenceDeleted = true;
+
+        if (!$this->presenter->isAjax()) {
+            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
+            $this->presenter->redirect('Publication:showall');
+        } else {
+            $this->redrawControl('deleteReference');
+            $this->redrawControl('referenceShowAllRecords');
+        }
+        
+    }
+
+    public function handleSetFavouritePub($favorite_id) {
+
+        Debugger::fireLog('handleSetFavouritePub(' . $favorite_id . ')');
 
         $this->submitterHasPublicationModel->insert(array(
-            'publication_id' => $id,
+            'publication_id' => $favorite_id,
             'submitter_id' => $this->user->id
         ));
 
-        $this->flashMessage('Operation has been completed successfully.', 'alert-success');
 
         if (!$this->presenter->isAjax()) {
+            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
             $this->presenter->redirect('this');
         } else {
             $this->redrawControl();
         }
     }
 
-    public function handleUnsetFavouritePub($id) {
+    public function handleUnsetFavouritePub($favorite_id) {
 
         $record = $this->submitterHasPublicationModel->findOneBy(array(
-            'publication_id' => $id,
+            'publication_id' => $favorite_id,
             'submitter_id' => $this->user->id));
 
         if ($record) {
             $record->delete();
         }
 
-        $this->flashMessage('Operation has been completed successfully.', 'alert-success');
-
         if (!$this->presenter->isAjax()) {
+            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
             $this->presenter->redirect('this');
         } else {
             $this->redrawControl();

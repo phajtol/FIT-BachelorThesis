@@ -1,0 +1,72 @@
+<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'#DeleteModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deleteButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeleteModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+	});
+</script>
+
+
+
+<div class="modal fade" id="DeleteModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel{$uniqid}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="DeleteModalLabel{$uniqid}">Delete Reference</h4>
+            </div>
+            <div class="modal-body" id="DeleteModalBody{$uniqid}">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="DeleteModalConfirm{$uniqid}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AddNewReferenceModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="AddNewReferenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="AddNewReferenceModalLabel{$uniqid}">Add new Reference</h4>
+            </div>
+            {snippet addForm}
+                {control addForm}
+				{if !empty($entityAdded)}
+					<script>
+						$('#AddNewReferenceModal{$uniqid|noescape}').modal('hide');
+					</script>
+				{/if}
+			{/snippet}
+		</div>
+	</div>
+</div>
+
+
+{snippet deleteEntity}
+	{if !empty($entityDeleted)}
+		<script>
+			$('#DeleteModal{$uniqid|noescape}').modal('hide');
+			refresh();
+		</script>
+	{/if}
+{/snippet}
+

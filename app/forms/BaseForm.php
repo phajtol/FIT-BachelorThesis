@@ -180,7 +180,7 @@ class BaseForm extends \Nette\Application\UI\Form {
 		$renderer->wrappers['control']['.button'] = 'div';
 		$renderer->wrappers['checkbox']['container'] = 'div class="checkbox"';
 		// make form and controls compatible with Twitter Bootstrap
-		$this->getElementPrototype()->class('form-horizontal ajax');
+		$this->getElementPrototype()->class('form-horizontal');
 
 		foreach ($this->getControls() as $control) {
 

@@ -126,6 +126,7 @@ services:
 	- App\Services\IdentityInitializer
 
 	#factories
+	- App\Factories\IReferenceCrudFactory
 	- App\Factories\IConferenceCrudFactory
 	- App\Factories\IAcmCategoryListFactory
 	- App\Factories\IConferenceCategoryListFactory
