@@ -3,10 +3,10 @@
  *
  * @copyright Copyright (c) 2009, 2010 Jan Marek
  * @copyright Copyright (c) 2009, 2010 David Grudl
- * @copyright Copyright (c) 2012 Vojtěch Dobeš
+ * @copyright Copyright (c) 2012-2014 Vojtěch Dobeš
  * @license MIT
  *
- * @version 1.2.2
+ * @version 2.3.0
  */
 
 (function(window, $, undefined) {
@@ -148,12 +148,15 @@ var nette = function () {
 	/**
 	 * Executes AJAX request. Attaches listeners and events.
 	 *
-	 * @param  {object} settings
+	 * @param  {object|string} settings or URL
 	 * @param  {Element|null} ussually Anchor or Form
 	 * @param  {event|null} event causing the request
 	 * @return {jqXHR|null}
 	 */
 	this.ajax = function (settings, ui, e) {
+		if ($.type(settings) === 'string') {
+			settings = {url: settings};
+		}
 		if (!settings.nette && ui && e) {
 			var $el = $(ui), xhr, originalBeforeSend;
 			var analyze = settings.nette = {
@@ -173,7 +176,7 @@ var nette = function () {
 			}
 
 			if (!settings.url) {
-				settings.url = analyze.form ? analyze.form.attr('action') : ui.href;
+				settings.url = analyze.form ? analyze.form.attr('action') || window.location.pathname + window.location.search : ui.href;
 			}
 			if (!settings.type) {
 				settings.type = analyze.form ? analyze.form.attr('method') : 'get';
@@ -277,11 +280,7 @@ $.nette.ext('validation', {
 		else var analyze = settings.nette;
 		var e = analyze.e;
 
-		var validate = $.extend({
-			keys: true,
-			url: true,
-			form: true
-		}, settings.validate || (function () {
+		var validate = $.extend(this.defaults, settings.validate || (function () {
 			if (!analyze.el.is('[data-ajax-validate]')) return;
 			var attr = analyze.el.data('ajaxValidate');
 			if (attr === false) return {
@@ -312,9 +311,18 @@ $.nette.ext('validation', {
 			} else if (explicitNoAjax) return false;
 		}
 
-		if (validate.form && analyze.form && !((analyze.isSubmit || analyze.isImage) && analyze.el.attr('formnovalidate') !== undefined)) {
-			var ie = this.ie();
-			if (analyze.form.get(0).onsubmit && analyze.form.get(0).onsubmit((typeof ie !== 'undefined' && ie < 9) ? undefined : e) === false) {
+		if (validate.form && analyze.form) {
+			if (analyze.isSubmit || analyze.isImage) {
+				analyze.form.get(0)["nette-submittedBy"] = analyze.el.get(0);
+			}
+			var notValid;
+			if ((typeof Nette.version === 'undefined' || Nette.version == '2.3')) { // Nette 2.3 and older
+				var ie = this.ie();
+				notValid = (analyze.form.get(0).onsubmit && analyze.form.get(0).onsubmit((typeof ie !== 'undefined' && ie < 9) ? undefined : e) === false);
+			} else { // Nette 2.4 and up
+				notValid = ((analyze.form.get(0).onsubmit ? analyze.form.triggerHandler('submit') : Nette.validateForm(analyze.form.get(0))) === false)
+			}
+			if (notValid) {
 				e.stopImmediatePropagation();
 				e.preventDefault();
 				return false;
@@ -323,7 +331,15 @@ $.nette.ext('validation', {
 
 		if (validate.url) {
 			// thx to @vrana
-			if (/:|^#/.test(analyze.form ? settings.url : analyze.el.attr('href'))) return false;
+			var urlToValidate = analyze.form ? settings.url : analyze.el.attr('href');
+			// Check if URL is absolute
+			if (/(?:^[a-z][a-z0-9+.-]*:|\/\/)/.test(urlToValidate)) {
+				// Parse absolute URL
+				var parsedUrl = new URL(urlToValidate);
+				if (/:|^#/.test(parsedUrl['pathname'] + parsedUrl['search'] + parsedUrl['hash'])) return false;
+			} else {
+				if (/:|^#/.test(urlToValidate)) return false;
+			}
 		}
 
 		if (!passEvent) {
@@ -334,6 +350,11 @@ $.nette.ext('validation', {
 		return true;
 	}
 }, {
+	defaults: {
+		keys: true,
+		url: true,
+		form: true
+	},
 	explicitNoAjax: false,
 	ie: function (undefined) { // http://james.padolsey.com/javascript/detect-ie-in-js-using-conditional-comments/
 		var v = 3;
@@ -363,28 +384,47 @@ $.nette.ext('forms', {
 		if (!analyze || !analyze.form) return;
 		var e = analyze.e;
 		var originalData = settings.data || {};
-		var formData = {};
+		var data = {};
 
 		if (analyze.isSubmit) {
-			formData[analyze.el.attr('name')] = analyze.el.val() || '';
+			data[analyze.el.attr('name')] = analyze.el.val() || '';
 		} else if (analyze.isImage) {
 			var offset = analyze.el.offset();
 			var name = analyze.el.attr('name');
 			var dataOffset = [ Math.max(0, e.pageX - offset.left), Math.max(0, e.pageY - offset.top) ];
 
 			if (name.indexOf('[', 0) !== -1) { // inside a container
-				formData[name] = dataOffset;
+				data[name] = dataOffset;
 			} else {
-				formData[name + '.x'] = dataOffset[0];
-				formData[name + '.y'] = dataOffset[1];
+				data[name + '.x'] = dataOffset[0];
+				data[name + '.y'] = dataOffset[1];
 			}
 		}
+		
+		// https://developer.mozilla.org/en-US/docs/Web/Guide/Using_FormData_Objects#Sending_files_using_a_FormData_object
+		var formMethod = analyze.form.attr('method');
+		if (formMethod && formMethod.toLowerCase() === 'post' && 'FormData' in window) {
+			var formData = new FormData(analyze.form[0]);
+			for (var i in data) {
+				formData.append(i, data[i]);
+			}
 
-		if (typeof originalData !== 'string') {
-			originalData = $.param(originalData);
+			if (typeof originalData !== 'string') {
+				for (var i in originalData) {
+					formData.append(i, originalData[i]);
+				}
+			}
+
+			settings.data = formData;
+			settings.processData = false;
+			settings.contentType = false;
+		} else {
+			if (typeof originalData !== 'string') {
+				originalData = $.param(originalData);
+			}
+			data = $.param(data);
+			settings.data = analyze.form.serialize() + (data ? '&' + data : '') + '&' + originalData;
 		}
-		formData = $.param(formData);
-		settings.data = analyze.form.serialize() + (formData ? '&' + formData : '') + '&' + originalData;
 	}
 });
 
@@ -438,7 +478,9 @@ $.nette.ext('snippets', {
 	applySnippet: function ($el, html, back) {
 		if (!back && $el.is('[data-ajax-append]')) {
 			$el.append(html);
-		} else {
+		} else if (!back && $el.is('[data-ajax-prepend]')) {
+			$el.prepend(html);
+		} else if ($el.html() != html || /<[^>]*script/.test(html)) {
 			$el.html(html);
 		}
 	},
