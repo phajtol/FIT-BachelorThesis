@@ -9,3 +9,6 @@ CREATE TABLE `reference` (
   FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`),
   UNIQUE `publication_id_reference_id` (`publication_id`, `reference_id`)
 ) ENGINE='InnoDB' COLLATE 'utf8_czech_ci';
+
+ALTER TABLE `reference`
+CHANGE `reference_id` `reference_id` int(10) unsigned NULL AFTER `publication_id`;

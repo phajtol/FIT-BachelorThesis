@@ -1,10 +1,8 @@
 <script>
-	$(function(){
-
-		var uqs = {$uniqid};	// uniqid suffix
-
-       	$.each([
-       			'#DeleteModalConfirm'
+    $(function(){
+        var uqs = {$uniqid};	// uniqid suffix
+        $.each([
+                    '#DeleteModalConfirm'
 		], function(k, v){
 			$(document).on('click', v + uqs, function(){
 				$.nette.ajax({
@@ -17,8 +15,7 @@
             var signal_url = $(this).data('signal-url');
             $('#DeleteModalConfirm' + uqs).data('signal-url', signal_url);
         });
-
-	});
+    });
 </script>
 
 

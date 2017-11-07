@@ -74,7 +74,7 @@ class ReferenceCrud extends \App\CrudComponents\BaseCrudComponent {
                     }
             };
         }
-	public function handleDelete($id) {
+        public function handleDelete($id) {
 		if(!$this->isActionAllowed('delete')) return;
 
 		$record = $this->referenceModel->find($id);

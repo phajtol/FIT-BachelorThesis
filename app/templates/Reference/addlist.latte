@@ -1,0 +1,22 @@
+{block content}
+
+
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li><a n:href="Publication:showall">All Publications</a></li>
+        <li><a n:href="Publication:showpub $publication->id">Publication detail</a></li>
+        <li class="active"><a class="active" n:href="Reference:addlist $publication->id">Add list of references</a></li>
+    </ol>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <p>
+            Please insert one reference per row.
+        </p>
+        {control addListForm}
+    </div>
+</div>
+
+{/block}

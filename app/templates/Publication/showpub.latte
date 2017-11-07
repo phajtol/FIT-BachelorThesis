@@ -707,8 +707,14 @@
                             <p class="form-control-static">
                                 {control referenceCrud-addButton}
                             </p>
+                            <p class="form-control-static">
+                                <a n:href="Reference:addlist $publication->id" class="btn btn-success" title="Add list of references">
+                                    <span class="glyphicon glyphicon-list"></span>
+                                </a>
+                            </p>
                         </div>
                     </div>
+                    {snippet publicationReferencesData}
                     {if count($references)}
                         <div class="table-responsive">
                             <table class="table table-striped">
@@ -721,6 +727,10 @@
                                 <tbody n:snippet="referencesShowAllRecords">
                                     {foreach $references as $record}
                                         <tr n:snippet="record-$record->id">
+                                            {if (empty($record->reference_id))}
+                                                <td>{$record->text}</td>
+                                                <td>{control referenceCrud-controls-$record->id}</td>
+                                            {else}
                                             <td>
                                                 <a n:href="Publication:showpub, $record->reference->id">{$record->reference->title}</a>
                                                 <span class="text-muted">
@@ -728,18 +738,20 @@
                                                     {if $record->reference->issue_month}{$record->reference->issue_month}/{/if}{$record->reference->issue_year}
                                                 {/if}
                                                 </span>
-                                            {ifset $authorsByPubId[$record->reference->id]}
-                                                <br>
-                                                <span class="authors">{$authorsByPubId[$record->reference->id]|authors}</span>
-                                            {/ifset}
+                                                {ifset $authorsByPubId[$record->reference->id]}
+                                                    <br>
+                                                    <span class="authors">{$authorsByPubId[$record->reference->id]|authors}</span>
+                                                {/ifset}
                                             </td>
                                             <td>
+                                                {control referenceCrud-controls-$record->id}
                                                 {if in_array($record->reference->id, $recordsStarred)}
                                                     <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $record->reference->id" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {else}
                                                     <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $record->reference->id" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {/if}
                                             </td>
+                                            {/if}
                                         </tr>
                                     {/foreach}
                                 </tbody>
@@ -763,6 +775,7 @@
                             </table>
                         </div>
                     {/if}
+                    {/snippet}
                 </form>
 
             </div>
@@ -861,6 +874,3 @@
         $('#pub-detail-tab a[href="#citations"]').tab('show') // Select tab by name
     }
 </script>
-
-
-

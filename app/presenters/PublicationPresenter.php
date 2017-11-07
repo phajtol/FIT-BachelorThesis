@@ -1247,6 +1247,9 @@ class PublicationPresenter extends SecuredPresenter {
         }
 
         $this->publicationId = $id;
+    }
+
+    public function renderShowPub() {
 
         $data = $this->publicationModel->getAllPubInfo($this->publication, $this->authorModel, $this->functions, $this->filesModel, $this->user->id, $this->user->isInRole('admin'));
 
@@ -1292,10 +1295,12 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->pubCit['author_array'] = $data['pubCit_author_array'];
         $this->template->pubCit['author'] = $data['pubCit_author'];
         $this->template->types = $this->types;
-        $this->template->referenceDeleted = false;
         
         $authorsByPubId = array();
         foreach($this->template->references as $rec) {
+            if (empty($rec->reference_id)) {
+                continue;
+            }
             /** @var $rec Nette\Database\Table\ActiveRow */
             foreach($rec->reference->related('author_has_publication')->order('priority ASC') as $authHasPub) {
                 $author = $authHasPub->ref('author');
@@ -1312,9 +1317,8 @@ class PublicationPresenter extends SecuredPresenter {
             }
         }
         $this->template->authorsByPubId = $authorsByPubId;
-    }
 
-    public function renderShowPub() {
+
         $_this = $this;
         $this->template->registerHelper('template', function($text) use ($_this) {
             $template = new Nette\Templating\Template();
