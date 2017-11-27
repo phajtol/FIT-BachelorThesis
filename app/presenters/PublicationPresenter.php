@@ -371,6 +371,7 @@ class PublicationPresenter extends SecuredPresenter {
         $cbFn = function(){
             $references = $this->referenceModel->findAllBy(array('publication_id' => $this->publication->id))->order("id ASC");
 
+
             $this->template->references = $references;
 
             $this->successFlashMessage('Operation has been completed successfully.');
@@ -976,7 +977,7 @@ class PublicationPresenter extends SecuredPresenter {
                 $extractedText = '';
                 // $file je instance HttpUploadedFile
                 // $newFilePath = \Nette\Environment::expand("%appDir%") . "/../storage/q{" . $queueId . "}__f{" . rand(10, 99) . "}__" . $file->getName();
-                $newDirPath = $this->dirPath . $record->id;
+                $newDirPath = $this->filesModel->dirPath . $record->id;
                 $newFilePath = $newDirPath . "/" . rand(10, 99) . "_" . $file->getName();
 
                 $file->move($newFilePath);
@@ -1245,7 +1246,6 @@ class PublicationPresenter extends SecuredPresenter {
         if (!$this->publication) {
             $this->error('Publication not found');
         }
-
         $this->publicationId = $id;
     }
 
@@ -1360,7 +1360,6 @@ class PublicationPresenter extends SecuredPresenter {
 
         $this->drawAllowed = true;
 
-        // $publication = $this->context->Database->database->table('publication')->get($publicationId);
         $publication = $this->publicationModel->find($publicationId);
 
         if (!$publication) {

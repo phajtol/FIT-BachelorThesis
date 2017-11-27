@@ -22,7 +22,6 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
     public $data = array();
     private $numberOfUnconfirmed;
 
-    public $dirPath;
     public $itemsPerPageDB;
 
     public $id; // historical meaning
@@ -50,8 +49,6 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
             $this->userSettings = $userSettings;
         }
 
-        $this->dirPath = $this->context->Files->dirPath;
-        $this->template->dirPath = $this->dirPath;
         $this->template->dirPathTemplate = "/storage/";
 
         $this->template->presenterName = $this->name;
