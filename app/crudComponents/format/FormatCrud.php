@@ -43,22 +43,11 @@ class FormatCrud extends \App\CrudComponents\BaseCrudComponent {
 	}
 
 	public function createComponentAddForm($name){
-		$form = new FormatAddForm($this->formatModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('addForm');
-		};
-		$form->onSuccess[] = $this->addFormSucceeded;
-	}
-
-	public function createComponentEditForm($name){
-		$form = new FormatEditForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('editForm');
-		};
-		$form->onSuccess[] = $this->editFormSucceeded;
-	}
-
-	public function addFormSucceeded(FormatAddForm $form) {
+            $form = new FormatAddForm($this->formatModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('addForm');
+            };
+            $form->onSuccess[] = function(FormatAddForm $form) {
 		if(!$this->isActionAllowed('add')) return;
 
 		$formValues = $form->getValuesTransformed();
@@ -77,9 +66,15 @@ class FormatCrud extends \App\CrudComponents\BaseCrudComponent {
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-	public function editFormSucceeded(FormatEditForm $form) {
+	public function createComponentEditForm($name){
+            $form = new FormatEditForm($this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('editForm');
+            };
+            $form->onSuccess[] = function(FormatEditForm $form) {
 		if(!$this->isActionAllowed('edit')) return;
 
 		$formValues = $form->getValuesTransformed();
@@ -96,8 +91,8 @@ class FormatCrud extends \App\CrudComponents\BaseCrudComponent {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
-
 
 	public function handleDelete($id) {
 		if(!$this->isActionAllowed('delete')) return;
@@ -133,8 +128,5 @@ class FormatCrud extends \App\CrudComponents\BaseCrudComponent {
 		} else {
 			$this->redrawControl('editForm');
 		}
-
 	}
-
-
 }

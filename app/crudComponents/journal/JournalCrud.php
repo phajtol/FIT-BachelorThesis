@@ -48,22 +48,11 @@ class JournalCrud extends BaseCrudComponent {
 	}
 
 	public function createComponentJournalAddForm($name){
-		$form = new JournalAddForm($this->journalModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('journalAddForm');
-		};
-		$form->onSuccess[] = $this->journalAddFormSucceeded;
-	}
-
-	public function createComponentJournalEditForm($name){
-		$form = new JournalEditForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('journalEditForm');
-		};
-		$form->onSuccess[] = $this->journalEditFormSucceeded;
-	}
-
-	public function journalAddFormSucceeded(JournalAddForm $form) {
+            $form = new JournalAddForm($this->journalModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('journalAddForm');
+            };
+            $form->onSuccess[] = function(JournalAddForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
@@ -80,9 +69,15 @@ class JournalCrud extends BaseCrudComponent {
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-	public function journalEditFormSucceeded(JournalEditForm $form) {
+	public function createComponentJournalEditForm($name){
+            $form = new JournalEditForm($this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('journalEditForm');
+            };
+            $form->onSuccess[] = function(JournalEditForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
@@ -97,8 +92,8 @@ class JournalCrud extends BaseCrudComponent {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
-
 
 	public function handleDelete($id) {
 		$record = $this->journalModel->find($id);
@@ -145,4 +140,3 @@ class JournalCrud extends BaseCrudComponent {
 	}
 
 }
-?>

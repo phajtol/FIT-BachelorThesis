@@ -62,7 +62,24 @@ class AcmCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 		$form->onError[] = function(){
 			$this->redrawControl('categoryAddForm');
 		};
-		$form->onSuccess[] = $this->categoryAddFormSucceeded;
+		$form->onSuccess[] = function(AcmCategoryForm $form) {
+                    $formValues = $form->getValuesTransformed();
+
+                    $formValues['parent_id'] = NULL;
+
+                    $record = $this->acmCategoryModel->insert($formValues);
+
+                    if($record) {
+                            $this->template->categoryAdded = true;
+
+                            if ($this->presenter->isAjax()) {
+                                    $form->clearValues();
+                                    $this->redrawControl('categoryAddForm');
+                            } else $this->redirect('this');
+
+                            $this->onAdd($record);
+                    }
+                };
 	}
 
 	public function createComponentCategoryEditForm($name) {
@@ -70,7 +87,23 @@ class AcmCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 		$form->onError[] = function(){
 			$this->redrawControl('categoryEditForm');
 		};
-		$form->onSuccess[] = $this->categoryEditFormSucceeded;
+		$form->onSuccess[] = function(AcmCategoryEditForm $form) {
+                    $formValues = $form->getValuesTransformed();
+
+
+                    $this->acmCategoryModel->update($formValues);
+                    $record = $this->acmCategoryModel->find($formValues['id']);
+
+                    $this->template->categoryEdited = true;
+
+                    if($this->presenter->isAjax()) {
+                            $this->redrawControl('categoryEditForm');
+                    } else {
+                        $this->redirect('this');
+                    }
+
+                    $this->onEdit($record);
+            };
 	}
 
 	public function createComponentCategoryAddSubForm($name) {
@@ -78,59 +111,23 @@ class AcmCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 		$form->onError[] = function(){
 			$this->redrawControl('categoryAddSubForm');
 		};
-		$form->onSuccess[] = $this->categoryAddSubFormSucceeded;
+		$form->onSuccess[] = function(AcmCategoryAddSubForm $form) {
+                    $formValues = $form->getValuesTransformed();
+
+                    $record = $this->acmCategoryModel->insert($formValues);
+
+                    if($record) {
+                            $this->template->subcategoryAdded = true;
+
+                            if ($this->presenter->isAjax()) {
+                                    $this->redrawControl('categoryAddSubForm');
+                            } else $this->redirect('this');
+
+                            $this->onAddSub($record);
+                    }
+            };
 	}
 
-	public function categoryAddFormSucceeded(AcmCategoryAddForm $form){
-		$formValues = $form->getValuesTransformed();
-
-		$formValues['parent_id'] = NULL;
-
-		$record = $this->acmCategoryModel->insert($formValues);
-
-		if($record) {
-			$this->template->categoryAdded = true;
-
-			if ($this->presenter->isAjax()) {
-				$form->clearValues();
-				$this->redrawControl('categoryAddForm');
-			} else $this->redirect('this');
-
-			$this->onAdd($record);
-		}
-	}
-
-	public function categoryEditFormSucceeded(AcmCategoryEditForm $form) {
-		$formValues = $form->getValuesTransformed();
-
-
-		$this->acmCategoryModel->update($formValues);
-		$record = $this->acmCategoryModel->find($formValues['id']);
-
-		$this->template->categoryEdited = true;
-
-		if($this->presenter->isAjax()) {
-			$this->redrawControl('categoryEditForm');
-		} else $this->redirect('this');
-
-		$this->onEdit($record);
-	}
-
-	public function categoryAddSubFormSucceeded(AcmCategoryAddSubForm $form) {
-		$formValues = $form->getValuesTransformed();
-
-		$record = $this->acmCategoryModel->insert($formValues);
-
-		if($record) {
-			$this->template->subcategoryAdded = true;
-
-			if ($this->presenter->isAjax()) {
-				$this->redrawControl('categoryAddSubForm');
-			} else $this->redirect('this');
-
-			$this->onAddSub($record);
-		}
-	}
 
 	public function handleDelete($id) {
 		$record = $this->acmCategoryModel->find($id);

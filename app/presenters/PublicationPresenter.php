@@ -361,7 +361,299 @@ class PublicationPresenter extends SecuredPresenter {
 
     protected function createComponentPublicationImportForm($name) {
         $form = new \PublicationImportForm($this, $name);
-        $form->onSuccess[] = $this->publicationImportFormSucceeded;
+        $form->onSuccess[] = function($form) {
+
+            Debugger::fireLog('publicationImportFormSucceeded');
+
+            $formValues = $form->getValues();
+
+            $definitionTemplate = preg_replace('/\r+/', '<br />', $formValues['definition']);
+            $definitionTemplate = preg_replace('/\n+/', '<br />', $definitionTemplate);
+
+            if ($formValues['type'] == "bibtex") {
+                $definition = preg_replace('/\r+/', '', $formValues['definition']);
+                $definition = preg_replace('/\n+/', '', $definition);
+
+                $parser = new Helpers\BibTexParser($definition);
+                $pub_type = $fields = $authors = null;
+                $parser->parse($pub_type, $fields, $authors);
+                $bibtex = Helpers\Bibtex::create($pub_type);
+                $report = $bibtex->validate($fields);
+            } elseif ($formValues['type'] == "endnote") {
+                $parser = new Helpers\EndNoteRefWorksParser($formValues['definition'], 'endnote');
+                $parser->readLines();
+                $fields = $parser->getFields();
+                $pub_type = isset($fields['pub_type']) ? $fields['pub_type'] : 'misc';
+                $authors = isset($fields['authors']) ? $fields['authors'] : array();
+            } elseif ($formValues['type'] == "refworks") {
+                $parser = new Helpers\EndNoteRefWorksParser($formValues['definition'], 'refworks');
+                $parser->readLines();
+                $fields = $parser->getFields();
+                $pub_type = isset($fields['pub_type']) ? $fields['pub_type'] : 'misc';
+                $authors = isset($fields['authors']) ? $fields['authors'] : array();
+            }
+
+
+            $selectedAuthors = array();
+
+            foreach ($authors as $author) {
+                $tempAuthor = $this->authorModel->getAuthorNameByAuthorName($author['name'], $author['middlename'], $author['surname']);
+                if ($tempAuthor) {
+                    $selectedAuthors[$tempAuthor['id']] = $tempAuthor['name'];
+                }
+            }
+
+            $this->template->selectedAuthors = $selectedAuthors;
+
+            if ($pub_type == 'inproceedings' || $pub_type == 'proceedings') {
+
+                $isbn = "";
+                $location = "";
+                $conference = "";
+                $conference_year_id = "";
+                $conference_id = "";
+                $isbn = isset($fields['isbn']) ? $fields['isbn'] : '';
+                $location = isset($fields['location']) ? $fields['location'] : '';
+                $conference = isset($fields['booktitle']) ? $fields['booktitle'] : '';
+                if ($conference) {
+                    $conference_year_id = $this->conferenceYearModel->findOneBy(array('name' => $conference));
+                }
+                if ($isbn) {
+                    $conference_year_id2 = $this->conferenceYearModel->findOneBy(array('isbn' => $isbn));
+                    if ($conference_year_id2) {
+                        $conference_year_id = $conference_year_id2;
+                    }
+                }
+
+
+                if ($conference_year_id) {
+
+                    $selectedConferenceYear = $this->conferenceYearModel->find($conference_year_id);
+
+                    $this->selectedConferenceYearId = $conference_year_id;
+                    $this->selectedConferenceId = $selectedConferenceYear->conference_id;
+
+                    $this->loadConferenceYears(true);
+
+                    $this->publication['conference'] = $selectedConferenceYear->conference_id;
+                    $this->publication['conference_year_id'] = $conference_year_id;
+                } else {
+
+                    /** @var $conferenceForm \App\CrudComponents\Conference\ConferenceAddForm */
+                    $conferenceForm = $this['conferenceCrud']['conferenceAddForm'];
+
+                    $conferenceForm['name']->setDefaultValue(Helpers\Func::getValOrNull($fields, 'booktitle'));
+                }
+            }
+
+            //If the journal is detected, the appropriate fields are filled
+            if ($pub_type == 'article') {
+                $issn = "";
+                $journal = "";
+                $journal_id = "";
+                $issn = isset($fields['issn']) ? $fields['issn'] : '';
+                $journal = isset($fields['journal']) ? $fields['journal'] : '';
+                if ($journal) {
+                    $journal_id = $this->journalModel->findOneBy(array('name' => $journal));
+                }
+                if ($issn) {
+                    $journal_id2 = $this->journalModel->findOneBy(array('issn' => $issn));
+
+                    if ($journal_id2) {
+                        $journal_id = $journal_id2;
+                    }
+                }
+
+                if ($journal_id) {
+                    $this->publication['journal_id'] = $journal_id->id;
+                }
+            }
+
+            if ($pub_type != 'article') {
+                $issn = "";
+            }
+
+            if ($pub_type != 'inproceedings' && $pub_type != 'proceedings') {
+                //If the publisher is detected, the appropriate fields are filled
+                $publisher = $issn = isset($fields['publisher']) ? $fields['publisher'] : '';
+                $publisher_id = $this->publisherModel->findOneBy(array('name' => $publisher));
+
+                if ($publisher_id) {
+                    $this->publication['publisher_id'] = $publisher_id->id;
+                }
+            }
+
+
+            $this->publication['pub_type'] = $pub_type;
+
+            if (isset($fields['title'])) {
+                $this->publication['title'] = $fields['title'];
+            }
+
+            if (isset($fields['booktitle'])) {
+                $this->publication['booktitle'] = $fields['booktitle'];
+            }
+
+            if (isset($fields['volume'])) {
+                $this->publication['volume'] = $fields['volume'];
+            }
+
+            if (isset($fields['number'])) {
+                $this->publication['number'] = $fields['number'];
+            }
+
+            if (isset($fields['chapter'])) {
+                $this->publication['chapter'] = $fields['chapter'];
+            }
+
+            if (isset($fields['pages_start'])) {
+                $this->publication['pages'] = $fields['pages_start'];
+            }
+
+            if (isset($fields['pages_end'])) {
+                $this->publication['pages'] .= '-' . $fields['pages_end'];
+            }
+
+            if (isset($fields['pages'])) {
+                $this->publication['pages'] = $fields['pages'];
+            }
+
+            if (isset($fields['series'])) {
+                $this->publication['series'] = $fields['series'];
+            }
+
+            if (isset($fields['edition'])) {
+                $this->publication['edition'] = $fields['edition'];
+            }
+
+            if (isset($fields['editor'])) {
+                $this->publication['editor'] = $fields['editor'];
+            }
+
+            if (isset($fields['howpublished'])) {
+                $this->publication['howpublished'] = $fields['howpublished'];
+            }
+
+            if (isset($fields['institution'])) {
+                $this->publication['institution'] = $fields['institution'];
+            }
+
+            if (isset($fields['school'])) {
+                $this->publication['school'] = $fields['school'];
+            }
+
+            if (isset($fields['organization'])) {
+                $this->publication['organization'] = $fields['organization'];
+            }
+
+            if (isset($fields['type_of_report'])) {
+                $this->publication['type_of_report'] = $fields['type_of_report'];
+            }
+
+            if (isset($fields['year'])) {
+                $this->publication['issue_year'] = $fields['year'];
+                if (isset($fields['month'])) {
+                    if (!is_numeric($fields['month'])) {
+                        $month = $this->functions->strmonth2nummonth($fields['month']);
+                    } else {
+                        $month = $fields['month'];
+                    }
+                } elseif (!empty($fields['issue_date'])) {
+                    try {
+                        $date = new \DateTime($fields['issue_date']);
+                        $month = $date->format("m");
+                    } catch (\Exception $e) {
+                        $month = null;
+                    }
+                } else {
+                    $month = null;
+                }
+                if (intval($month)>0 && intval($month)<=12) {
+                    $this->publication['issue_month'] = intval($month);
+                }
+            }
+
+            if (isset($fields['location'])) {
+                $this->publication['location'] = $fields['location'];
+            }
+
+            if (isset($fields['address'])) { // neni to adresa publishera ????
+                $this->publication['address'] = $fields['address'];
+            }
+
+            if (isset($fields['isbn'])) {
+                $this->publication['isbn'] = $fields['isbn'];
+            }
+
+            if (isset($fields['note'])) {
+                $this->publication['note'] = $fields['note'];
+            }
+
+            if (isset($fields['url'])) {
+                $this->publication['url'] = $fields['url'];
+            }
+
+            if (isset($fields['abstract'])) {
+                $this->publication['abstract'] = $fields['abstract'];
+            }
+
+            if (isset($fields['doi'])) {
+                $this->publication['doi'] = $fields['doi'];
+            }
+
+            // NASTAV DO FORMULARU
+
+            if ($pub_type == 'article' && !isset($this->publication['journal_id'])) {
+                $journalForm = $this['journalCrud']['journalAddForm']; /** @var $journalForm \App\CrudComponents\Journal\JournalAddForm */
+                $journalForm['name']->setDefaultValue(isset($journal) ? $journal : '');
+                $journalForm['issn']->setDefaultValue(isset($issn) ? $issn : '');
+            }
+
+            if ($pub_type != 'inproceedings' && $pub_type != 'proceedings' && !isset($this->publication['publisher_id'])) {
+                $publisherForm = $this['publisherCrud']['publisherAddForm']; /** @var $publisherForm \App\CrudComponents\Publisher\PublisherAddForm */
+                $publisherForm['address']->setDefaultValue(isset($fields['address']) ? $fields['address'] : '');
+                $publisherForm['name']->setDefaultValue(isset($fields['publisher']) ? $fields['publisher'] : '');
+            }
+
+            if ($pub_type == 'inproceedings' || $pub_type == 'proceedings') {
+                if (!isset($this->publication['conference_year_id'])) {
+                    // todo
+                    // there is a problem of filling conference year, but not conference entity
+                    /*
+                    $conferenceYearForm = $this['conferenceYearCrud']['conferenceYearAddForm']; /** @var $conferenceYearForm \App\CrudComponents\ConferenceYear\ConferenceYearAddForm */
+                    /*
+                    $conferenceYearForm['name']->setDefaultValue(isset($conference) ? $conference : '');
+                    $conferenceYearForm['isbn']->setDefaultValue(isset($isbn) ? $isbn : '');
+                    $conferenceYearForm['location']->setDefaultValue(isset($location) ? $location : '');
+                    */
+                }
+            }
+
+            $this['publicationAddNewForm']->setDefaults($this->publication);
+
+            // NASTAV DO TEMPLATU
+
+            if (isset($this->publication['conference_year_id'])) {
+                $this->template->conferenceYearInfo = $selectedConferenceYear;
+            }
+
+            if (isset($this->publication['publisher_id']) && $this->publication['pub_type'] != 'inproceedings' && $this->publication['pub_type'] != 'proceedings') {
+                // $this->template->publisherInfo_alone = $this->database->table('publisher')->get($this->publication['publisher_id']);
+                $this->template->publisherInfo_alone = $this->publisherModel->find($this->publication['publisher_id']);
+            }
+
+            if (isset($this->publication['journal_id'])) {
+                $this->template->journalInfo = $this->journalModel->find($this->publication['journal_id']);
+            }
+
+            if (isset($this->publication['conference'])) {
+                $this->template->conferenceInfo = $this->conferenceModel->find($this->publication['conference']);
+            }
+
+            $this->template->definition = $definitionTemplate;
+
+            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
+        };
         return $form;
     }
 
@@ -402,300 +694,6 @@ class PublicationPresenter extends SecuredPresenter {
         $c->onDelete[] = $cbFn;
         $c->onEdit[] = $cbFn;
         return $c;
-    }
-
-    public function publicationImportFormSucceeded($form) {
-
-        Debugger::fireLog('publicationImportFormSucceeded');
-
-        $formValues = $form->getValues();
-
-        $definitionTemplate = preg_replace('/\r+/', '<br />', $formValues['definition']);
-        $definitionTemplate = preg_replace('/\n+/', '<br />', $definitionTemplate);
-
-        if ($formValues['type'] == "bibtex") {
-            $definition = preg_replace('/\r+/', '', $formValues['definition']);
-            $definition = preg_replace('/\n+/', '', $definition);
-
-            $parser = new Helpers\BibTexParser($definition);
-            $pub_type = $fields = $authors = null;
-            $parser->parse($pub_type, $fields, $authors);
-            $bibtex = Helpers\Bibtex::create($pub_type);
-            $report = $bibtex->validate($fields);
-        } elseif ($formValues['type'] == "endnote") {
-            $parser = new Helpers\EndNoteRefWorksParser($formValues['definition'], 'endnote');
-            $parser->readLines();
-            $fields = $parser->getFields();
-            $pub_type = isset($fields['pub_type']) ? $fields['pub_type'] : 'misc';
-            $authors = isset($fields['authors']) ? $fields['authors'] : array();
-        } elseif ($formValues['type'] == "refworks") {
-            $parser = new Helpers\EndNoteRefWorksParser($formValues['definition'], 'refworks');
-            $parser->readLines();
-            $fields = $parser->getFields();
-            $pub_type = isset($fields['pub_type']) ? $fields['pub_type'] : 'misc';
-            $authors = isset($fields['authors']) ? $fields['authors'] : array();
-        }
-
-
-        $selectedAuthors = array();
-
-        foreach ($authors as $author) {
-            $tempAuthor = $this->authorModel->getAuthorNameByAuthorName($author['name'], $author['middlename'], $author['surname']);
-            if ($tempAuthor) {
-                $selectedAuthors[$tempAuthor['id']] = $tempAuthor['name'];
-            }
-        }
-
-        $this->template->selectedAuthors = $selectedAuthors;
-
-        if ($pub_type == 'inproceedings' || $pub_type == 'proceedings') {
-
-            $isbn = "";
-            $location = "";
-            $conference = "";
-            $conference_year_id = "";
-            $conference_id = "";
-            $isbn = isset($fields['isbn']) ? $fields['isbn'] : '';
-            $location = isset($fields['location']) ? $fields['location'] : '';
-            $conference = isset($fields['booktitle']) ? $fields['booktitle'] : '';
-            if ($conference) {
-                $conference_year_id = $this->conferenceYearModel->findOneBy(array('name' => $conference));
-            }
-            if ($isbn) {
-                $conference_year_id2 = $this->conferenceYearModel->findOneBy(array('isbn' => $isbn));
-                if ($conference_year_id2) {
-                    $conference_year_id = $conference_year_id2;
-                }
-            }
-
-
-            if ($conference_year_id) {
-
-                $selectedConferenceYear = $this->conferenceYearModel->find($conference_year_id);
-
-                $this->selectedConferenceYearId = $conference_year_id;
-                $this->selectedConferenceId = $selectedConferenceYear->conference_id;
-
-                $this->loadConferenceYears(true);
-
-                $this->publication['conference'] = $selectedConferenceYear->conference_id;
-                $this->publication['conference_year_id'] = $conference_year_id;
-            } else {
-
-                /** @var $conferenceForm \App\CrudComponents\Conference\ConferenceAddForm */
-                $conferenceForm = $this['conferenceCrud']['conferenceAddForm'];
-
-                $conferenceForm['name']->setDefaultValue(Helpers\Func::getValOrNull($fields, 'booktitle'));
-            }
-        }
-
-        //If the journal is detected, the appropriate fields are filled
-        if ($pub_type == 'article') {
-            $issn = "";
-            $journal = "";
-            $journal_id = "";
-            $issn = isset($fields['issn']) ? $fields['issn'] : '';
-            $journal = isset($fields['journal']) ? $fields['journal'] : '';
-            if ($journal) {
-                $journal_id = $this->journalModel->findOneBy(array('name' => $journal));
-            }
-            if ($issn) {
-                $journal_id2 = $this->journalModel->findOneBy(array('issn' => $issn));
-
-                if ($journal_id2) {
-                    $journal_id = $journal_id2;
-                }
-            }
-
-            if ($journal_id) {
-                $this->publication['journal_id'] = $journal_id->id;
-            }
-        }
-
-        if ($pub_type != 'article') {
-            $issn = "";
-        }
-
-        if ($pub_type != 'inproceedings' && $pub_type != 'proceedings') {
-            //If the publisher is detected, the appropriate fields are filled
-            $publisher = $issn = isset($fields['publisher']) ? $fields['publisher'] : '';
-            $publisher_id = $this->publisherModel->findOneBy(array('name' => $publisher));
-
-            if ($publisher_id) {
-                $this->publication['publisher_id'] = $publisher_id->id;
-            }
-        }
-
-
-        $this->publication['pub_type'] = $pub_type;
-
-        if (isset($fields['title'])) {
-            $this->publication['title'] = $fields['title'];
-        }
-
-        if (isset($fields['booktitle'])) {
-            $this->publication['booktitle'] = $fields['booktitle'];
-        }
-
-        if (isset($fields['volume'])) {
-            $this->publication['volume'] = $fields['volume'];
-        }
-
-        if (isset($fields['number'])) {
-            $this->publication['number'] = $fields['number'];
-        }
-
-        if (isset($fields['chapter'])) {
-            $this->publication['chapter'] = $fields['chapter'];
-        }
-
-        if (isset($fields['pages_start'])) {
-            $this->publication['pages'] = $fields['pages_start'];
-        }
-
-        if (isset($fields['pages_end'])) {
-            $this->publication['pages'] .= '-' . $fields['pages_end'];
-        }
-
-        if (isset($fields['pages'])) {
-            $this->publication['pages'] = $fields['pages'];
-        }
-
-        if (isset($fields['series'])) {
-            $this->publication['series'] = $fields['series'];
-        }
-
-        if (isset($fields['edition'])) {
-            $this->publication['edition'] = $fields['edition'];
-        }
-
-        if (isset($fields['editor'])) {
-            $this->publication['editor'] = $fields['editor'];
-        }
-
-        if (isset($fields['howpublished'])) {
-            $this->publication['howpublished'] = $fields['howpublished'];
-        }
-
-        if (isset($fields['institution'])) {
-            $this->publication['institution'] = $fields['institution'];
-        }
-
-        if (isset($fields['school'])) {
-            $this->publication['school'] = $fields['school'];
-        }
-
-        if (isset($fields['organization'])) {
-            $this->publication['organization'] = $fields['organization'];
-        }
-
-        if (isset($fields['type_of_report'])) {
-            $this->publication['type_of_report'] = $fields['type_of_report'];
-        }
-
-        if (isset($fields['year'])) {
-            $this->publication['issue_year'] = $fields['year'];
-            if (isset($fields['month'])) {
-                if (!is_numeric($fields['month'])) {
-                    $month = $this->functions->strmonth2nummonth($fields['month']);
-                } else {
-                    $month = $fields['month'];
-                }
-            } elseif (!empty($fields['issue_date'])) {
-                try {
-                    $date = new \DateTime($fields['issue_date']);
-                    $month = $date->format("m");
-                } catch (\Exception $e) {
-                    $month = null;
-                }
-            } else {
-                $month = null;
-            }
-            if (intval($month)>0 && intval($month)<=12) {
-                $this->publication['issue_month'] = intval($month);
-            }
-        }
-
-        if (isset($fields['location'])) {
-            $this->publication['location'] = $fields['location'];
-        }
-
-        if (isset($fields['address'])) { // neni to adresa publishera ????
-            $this->publication['address'] = $fields['address'];
-        }
-
-        if (isset($fields['isbn'])) {
-            $this->publication['isbn'] = $fields['isbn'];
-        }
-
-        if (isset($fields['note'])) {
-            $this->publication['note'] = $fields['note'];
-        }
-
-        if (isset($fields['url'])) {
-            $this->publication['url'] = $fields['url'];
-        }
-
-        if (isset($fields['abstract'])) {
-            $this->publication['abstract'] = $fields['abstract'];
-        }
-
-        if (isset($fields['doi'])) {
-            $this->publication['doi'] = $fields['doi'];
-        }
-
-        // NASTAV DO FORMULARU
-
-        if ($pub_type == 'article' && !isset($this->publication['journal_id'])) {
-            $journalForm = $this['journalCrud']['journalAddForm']; /** @var $journalForm \App\CrudComponents\Journal\JournalAddForm */
-            $journalForm['name']->setDefaultValue(isset($journal) ? $journal : '');
-            $journalForm['issn']->setDefaultValue(isset($issn) ? $issn : '');
-        }
-
-        if ($pub_type != 'inproceedings' && $pub_type != 'proceedings' && !isset($this->publication['publisher_id'])) {
-            $publisherForm = $this['publisherCrud']['publisherAddForm']; /** @var $publisherForm \App\CrudComponents\Publisher\PublisherAddForm */
-            $publisherForm['address']->setDefaultValue(isset($fields['address']) ? $fields['address'] : '');
-            $publisherForm['name']->setDefaultValue(isset($fields['publisher']) ? $fields['publisher'] : '');
-        }
-
-        if ($pub_type == 'inproceedings' || $pub_type == 'proceedings') {
-            if (!isset($this->publication['conference_year_id'])) {
-                // todo
-                // there is a problem of filling conference year, but not conference entity
-                /*
-                $conferenceYearForm = $this['conferenceYearCrud']['conferenceYearAddForm']; /** @var $conferenceYearForm \App\CrudComponents\ConferenceYear\ConferenceYearAddForm */
-                /*
-                $conferenceYearForm['name']->setDefaultValue(isset($conference) ? $conference : '');
-                $conferenceYearForm['isbn']->setDefaultValue(isset($isbn) ? $isbn : '');
-                $conferenceYearForm['location']->setDefaultValue(isset($location) ? $location : '');
-                */
-            }
-        }
-
-        $this['publicationAddNewForm']->setDefaults($this->publication);
-
-        // NASTAV DO TEMPLATU
-
-        if (isset($this->publication['conference_year_id'])) {
-            $this->template->conferenceYearInfo = $selectedConferenceYear;
-        }
-
-        if (isset($this->publication['publisher_id']) && $this->publication['pub_type'] != 'inproceedings' && $this->publication['pub_type'] != 'proceedings') {
-            // $this->template->publisherInfo_alone = $this->database->table('publisher')->get($this->publication['publisher_id']);
-            $this->template->publisherInfo_alone = $this->publisherModel->find($this->publication['publisher_id']);
-        }
-
-        if (isset($this->publication['journal_id'])) {
-            $this->template->journalInfo = $this->journalModel->find($this->publication['journal_id']);
-        }
-
-        if (isset($this->publication['conference'])) {
-            $this->template->conferenceInfo = $this->conferenceModel->find($this->publication['conference']);
-        }
-
-        $this->template->definition = $definitionTemplate;
-
-        $this->flashMessage('Operation has been completed successfully.', 'alert-success');
     }
 
     public function actionAddNew($id) {
@@ -897,209 +895,206 @@ class PublicationPresenter extends SecuredPresenter {
             $this->publishers, $this->journals, $this->conferences, $this->conferenceYears, $this->attributes,
             $this->publicationModel, $this, $name);
 
-        $form->onSuccess[] = array($this, "publicationAddNewFormSucceeded");
+        $form->onSuccess[] = function($form) {
+
+            $this->publicationModel->beginTransaction();
+
+            $documentsObjectCreatedId = null;
+
+            try {
+                $data = $form->getValuesTransformed();
+                $formValues = $form->getValuesTransformed();
+
+                $values = $form->getHttpData();
+                $formValues['conference_year_id'] = $values['conference_year_id'];
+
+                Debugger::fireLog('publicationAddNewFormSucceeded()');
+
+                unset($formValues['categories']);
+                unset($formValues['group']);
+                unset($formValues['authors']);
+                unset($formValues['conference']);
+                unset($formValues['upload']);
+                unset($formValues['id']);
+
+                $formValues['submitter_id'] = $this->user->id;
+
+                if ($this->user->isInRole('admin')) {
+                    $formValues['confirmed'] = 1;
+                } else {
+                    $formValues['confirmed'] = 0;
+                }
+
+                $formValues = $this->publicationModel->prepareFormData($formValues);
+
+                foreach ($this->attributes as $attrib) {
+                    unset($formValues['attributes_' . $attrib->id]);
+                }
+
+                if ($form->values->id) {
+                    $formValues['id'] = $form->values->id;
+                    $record = $this->publicationModel->update($formValues);
+                    $record = $this->publicationModel->find($form->values->id);
+                } else {
+                    $record = $this->publicationModel->insert($formValues);
+                }
+
+
+                if ($form->values->id) {
+                    $authorHasPublication = $this->authorHasPublicationModel->findAllBy(array("publication_id" => $form->values->id));
+                    foreach ($authorHasPublication as $item) {
+                        $item->delete();
+                    }
+
+                    $categoriesHasPublication = $this->categoriesHasPublicationModel->findAllBy(array("publication_id" => $form->values->id));
+                    foreach ($categoriesHasPublication as $item) {
+                        $item->delete();
+                    }
+
+                    $groupHasPublication = $this->groupHasPublicationModel->findAllBy(array("publication_id" => $form->values->id));
+                    foreach ($groupHasPublication as $item) {
+                        $item->delete();
+                    }
+                }
+
+                // extrahuj informace z pdf
+                // Předáme data do šablony
+                $this->template->values = $data;
+
+                // $queueId = uniqid();
+                // Přesumene uploadované soubory
+
+
+                foreach ($form->values->upload as $file) {
+                    $extractedText = '';
+                    // $file je instance HttpUploadedFile
+                    // $newFilePath = \Nette\Environment::expand("%appDir%") . "/../storage/q{" . $queueId . "}__f{" . rand(10, 99) . "}__" . $file->getName();
+                    $newDirPath = $this->filesModel->dirPath . $record->id;
+                    $newFilePath = $newDirPath . "/" . rand(10, 99) . "_" . $file->getName();
+
+                    $file->move($newFilePath);
+                    //  $extension = $this->getFileExtension($file->getName());
+                    $extension = $this->filesModel->getFileExtension($file->getName());
+
+                    switch ($extension) {
+                        case "pdf":
+                            $this->pdfParser = new \Smalot\PdfParser\Parser();
+                            $extractedText = $this->pdfExtractorFirstPage($newFilePath);
+                            break;
+                        case "ps":
+                            // TODOOOO
+                            // $extractedText = $this->psExtractor($newFilePath);
+                            break;
+                        case "doc":
+                            // TODOOOO
+                            // $extractedText = $this->docExtractor($newFilePath);
+                            break;
+                        case "txt":
+                            // TODOOOO
+                            // $extractedText = $this->txtExtractor($newFilePath);
+                            break;
+                    }
+
+
+                    $this->fulltext .= "--- " . $file->getName() . " ---\n" . $extractedText . "\n\n\n";
+                }
+
+
+                if ($form->values->id) {
+                    $document = $this->documentsModel->find($form->values->id);
+                }
+                if (!empty($document)) {
+                            $doc_a = $document->toArray();
+                            $doc_a['title'] = $form->values->title;
+                            $doc_a['content'] .= $this->fulltext;
+                            $this->documentsModel->find($form->values->id)->update($doc_a);
+                } else {
+                    $this->documentsModel->insert(array(
+                        'publication_id' => $record->id,
+                        'title' => $form->values->title,
+                        'content' => $this->fulltext
+                    ));
+                    $documentsObjectCreatedId = $record->id;
+                }
+
+                $authors = array();
+                $categories = array();
+                $group = array();
+
+                if (!empty($form->values->authors) || $form->values->authors == "0") {
+                    $authors = explode(" ", $form->values->authors);
+                }
+                if (!empty($form->values->categories) || $form->values->categories == "0") {
+                    $categories = explode(" ", $form->values->categories);
+                }
+                if (!empty($form->values->group) || $form->values->group == "0") {
+                    $group = explode(" ", $form->values->group);
+                }
+
+                foreach ($categories as $key => $value) {
+                    $this->categoriesHasPublicationModel->insert(array(
+                        'categories_id' => $value,
+                        'publication_id' => $record->id
+                    ));
+                }
+
+                foreach ($group as $key => $value) {
+                    $this->groupHasPublicationModel->insert(array(
+                        'group_id' => $value,
+                        'publication_id' => $record->id
+                    ));
+                }
+
+
+                if ($form->values->pub_type != "proceedings") {
+                    foreach ($authors as $key => $value) {
+                        $this->authorHasPublicationModel->insert(array(
+                            'author_id' => $value,
+                            'publication_id' => $record->id,
+                            'priority' => $key
+                        ));
+                    }
+                }
+
+                // ATTRIBUTES
+
+                if ($form->values->id) {
+                    $attribStorage = $this->attribStorageModel->findAllBy(array("publication_id" => $form->values->id));
+                    foreach ($attribStorage as $item) {
+                        $item->delete();
+                    }
+                }
+
+                foreach ($this->attributes as $attrib) {
+                    if (!empty($values['attributes_' . $attrib->id])) {
+                        $this->attribStorageModel->insert(array(
+                            'publication_id' => $record->id,
+                            'attributes_id' => $attrib->id,
+                            'submitter_id' => $this->user->id,
+                            'value' => $values['attributes_' . $attrib->id],
+                        ));
+                    }
+                }
+
+                $this->publicationModel->commitTransaction();
+
+                $this->flashMessage('Operation has been completed successfullly.', 'alert-success');
+
+            } catch (\Exception $e) {
+                $this->publicationModel->rollbackTransaction();
+                if($documentsObjectCreatedId)
+                    $this->documentsModel->delete($documentsObjectCreatedId);
+                throw $e;
+            }
+
+            if (!$this->isAjax()) {
+                $this->presenter->redirect('Publication:showpub', $record->id);
+            } else {
+                $this->invalidateControl();
+            }
+        };
 
         return $form;
-    }
-
-
-    public function publicationAddNewFormSucceeded($form) {
-
-        $this->publicationModel->beginTransaction();
-
-        $documentsObjectCreatedId = null;
-
-        try {
-            $data = $form->getValuesTransformed();
-            $formValues = $form->getValuesTransformed();
-
-            $values = $form->getHttpData();
-            $formValues['conference_year_id'] = $values['conference_year_id'];
-
-            Debugger::fireLog('publicationAddNewFormSucceeded()');
-
-            unset($formValues['categories']);
-            unset($formValues['group']);
-            unset($formValues['authors']);
-            unset($formValues['conference']);
-            unset($formValues['upload']);
-            unset($formValues['id']);
-
-            $formValues['submitter_id'] = $this->user->id;
-
-            if ($this->user->isInRole('admin')) {
-                $formValues['confirmed'] = 1;
-            } else {
-                $formValues['confirmed'] = 0;
-            }
-
-            $formValues = $this->publicationModel->prepareFormData($formValues);
-
-            foreach ($this->attributes as $attrib) {
-                unset($formValues['attributes_' . $attrib->id]);
-            }
-
-            if ($form->values->id) {
-                $formValues['id'] = $form->values->id;
-                $record = $this->publicationModel->update($formValues);
-                $record = $this->publicationModel->find($form->values->id);
-            } else {
-                $record = $this->publicationModel->insert($formValues);
-            }
-
-
-            if ($form->values->id) {
-                $authorHasPublication = $this->authorHasPublicationModel->findAllBy(array("publication_id" => $form->values->id));
-                foreach ($authorHasPublication as $item) {
-                    $item->delete();
-                }
-
-                $categoriesHasPublication = $this->categoriesHasPublicationModel->findAllBy(array("publication_id" => $form->values->id));
-                foreach ($categoriesHasPublication as $item) {
-                    $item->delete();
-                }
-
-                $groupHasPublication = $this->groupHasPublicationModel->findAllBy(array("publication_id" => $form->values->id));
-                foreach ($groupHasPublication as $item) {
-                    $item->delete();
-                }
-            }
-
-            // extrahuj informace z pdf
-            // Předáme data do šablony
-            $this->template->values = $data;
-
-            // $queueId = uniqid();
-            // Přesumene uploadované soubory
-
-
-            foreach ($form->values->upload as $file) {
-                $extractedText = '';
-                // $file je instance HttpUploadedFile
-                // $newFilePath = \Nette\Environment::expand("%appDir%") . "/../storage/q{" . $queueId . "}__f{" . rand(10, 99) . "}__" . $file->getName();
-                $newDirPath = $this->filesModel->dirPath . $record->id;
-                $newFilePath = $newDirPath . "/" . rand(10, 99) . "_" . $file->getName();
-
-                $file->move($newFilePath);
-                //  $extension = $this->getFileExtension($file->getName());
-                $extension = $this->filesModel->getFileExtension($file->getName());
-
-                switch ($extension) {
-                    case "pdf":
-                        $this->pdfParser = new \Smalot\PdfParser\Parser();
-                        $extractedText = $this->pdfExtractorFirstPage($newFilePath);
-                        break;
-                    case "ps":
-                        // TODOOOO
-                        // $extractedText = $this->psExtractor($newFilePath);
-                        break;
-                    case "doc":
-                        // TODOOOO
-                        // $extractedText = $this->docExtractor($newFilePath);
-                        break;
-                    case "txt":
-                        // TODOOOO
-                        // $extractedText = $this->txtExtractor($newFilePath);
-                        break;
-                }
-
-
-                $this->fulltext .= "--- " . $file->getName() . " ---\n" . $extractedText . "\n\n\n";
-            }
-
-
-            if ($form->values->id) {
-                $document = $this->documentsModel->find($form->values->id);
-            }
-            if (!empty($document)) {
-                        $doc_a = $document->toArray();
-                        $doc_a['title'] = $form->values->title;
-                        $doc_a['content'] .= $this->fulltext;
-                        $this->documentsModel->find($form->values->id)->update($doc_a);
-            } else {
-                $this->documentsModel->insert(array(
-                    'publication_id' => $record->id,
-                    'title' => $form->values->title,
-                    'content' => $this->fulltext
-                ));
-                $documentsObjectCreatedId = $record->id;
-            }
-
-            $authors = array();
-            $categories = array();
-            $group = array();
-
-            if (!empty($form->values->authors) || $form->values->authors == "0") {
-                $authors = explode(" ", $form->values->authors);
-            }
-            if (!empty($form->values->categories) || $form->values->categories == "0") {
-                $categories = explode(" ", $form->values->categories);
-            }
-            if (!empty($form->values->group) || $form->values->group == "0") {
-                $group = explode(" ", $form->values->group);
-            }
-
-            foreach ($categories as $key => $value) {
-                $this->categoriesHasPublicationModel->insert(array(
-                    'categories_id' => $value,
-                    'publication_id' => $record->id
-                ));
-            }
-
-            foreach ($group as $key => $value) {
-                $this->groupHasPublicationModel->insert(array(
-                    'group_id' => $value,
-                    'publication_id' => $record->id
-                ));
-            }
-
-
-            if ($form->values->pub_type != "proceedings") {
-                foreach ($authors as $key => $value) {
-                    $this->authorHasPublicationModel->insert(array(
-                        'author_id' => $value,
-                        'publication_id' => $record->id,
-                        'priority' => $key
-                    ));
-                }
-            }
-
-            // ATTRIBUTES
-
-            if ($form->values->id) {
-                $attribStorage = $this->attribStorageModel->findAllBy(array("publication_id" => $form->values->id));
-                foreach ($attribStorage as $item) {
-                    $item->delete();
-                }
-            }
-
-            foreach ($this->attributes as $attrib) {
-                if (!empty($values['attributes_' . $attrib->id])) {
-                    $this->attribStorageModel->insert(array(
-                        'publication_id' => $record->id,
-                        'attributes_id' => $attrib->id,
-                        'submitter_id' => $this->user->id,
-                        'value' => $values['attributes_' . $attrib->id],
-                    ));
-                }
-            }
-
-            $this->publicationModel->commitTransaction();
-
-            $this->flashMessage('Operation has been completed successfullly.', 'alert-success');
-
-        } catch (\Exception $e) {
-            $this->publicationModel->rollbackTransaction();
-            if($documentsObjectCreatedId)
-                $this->documentsModel->delete($documentsObjectCreatedId);
-            throw $e;
-        }
-
-        if (!$this->isAjax()) {
-            $this->presenter->redirect('Publication:showpub', $record->id);
-        } else {
-            $this->invalidateControl();
-        }
     }
 
     public function pdfExtractor($newFilePath) {
@@ -1232,12 +1227,7 @@ class PublicationPresenter extends SecuredPresenter {
 
     protected function createComponentPublicationShowAllSearchForm($name) {
         $form = new \PublicationShowAllSearchForm($this, $name);
-        $form->onSuccess[] = $this->publicationShowAllSearchFormSucceeded;
         return $form;
-    }
-
-    public function publicationShowAllSearchFormSucceeded($form) {
-        $formValues = $form->getValues();
     }
 
     public function actionShowPub($id) {
@@ -1806,55 +1796,53 @@ class PublicationPresenter extends SecuredPresenter {
 
     protected function createComponentPublicationSpringerForm($name) {
         $form = new \PublicationSpringerForm($this, $name);
-        $form->onSuccess[] = $this->publicationSpringerFormSucceeded;
-        return $form;
-    }
+        $form->onSuccess[] = function($form) {
 
-    public function publicationSpringerFormSucceeded($form) {
+            Debugger::fireLog('publicationSpringerFormSucceeded');
 
-        Debugger::fireLog('publicationSpringerFormSucceeded');
+            $values = $form->getHttpData();
 
-        $values = $form->getHttpData();
-
-        if (!array_key_exists("data_springer", $values)) {
-            $this->presenter->redirect('this');
-        }
-
-
-        $data = $this->springerService->fetchData($values['id_springer'], $values['type_springer'], false);
-        $dataArr = $data['array'];
-        $data = $data['object'];
-
-        if ($data) {
-
-            $this->publication = $this->springerService->parseData($data[$values['data_springer']]);
-
-
-            $result = array();
-            foreach ($this->publication['creators'] as $author) {
-                $parser = new Helpers\HumanNameParser_Parser($bodytag = str_replace(".", ". ", $author->creator));
-                $result[] = array('name' => $parser->getFirst(), 'middlename' => $parser->getMiddle(), 'surname' => $parser->getLast());
+            if (!array_key_exists("data_springer", $values)) {
+                $this->presenter->redirect('this');
             }
 
 
-            $selectedAuthors = array();
+            $data = $this->springerService->fetchData($values['id_springer'], $values['type_springer'], false);
+            $dataArr = $data['array'];
+            $data = $data['object'];
 
-            foreach ($result as $author) {
-                $tempAuthor = $this->authorModel->getAuthorNameByAuthorName($author['name'], $author['middlename'], $author['surname']);
-                if ($tempAuthor) {
-                    $selectedAuthors[$tempAuthor['id']] = $tempAuthor['name'];
+            if ($data) {
+
+                $this->publication = $this->springerService->parseData($data[$values['data_springer']]);
+
+
+                $result = array();
+                foreach ($this->publication['creators'] as $author) {
+                    $parser = new Helpers\HumanNameParser_Parser($bodytag = str_replace(".", ". ", $author->creator));
+                    $result[] = array('name' => $parser->getFirst(), 'middlename' => $parser->getMiddle(), 'surname' => $parser->getLast());
                 }
+
+
+                $selectedAuthors = array();
+
+                foreach ($result as $author) {
+                    $tempAuthor = $this->authorModel->getAuthorNameByAuthorName($author['name'], $author['middlename'], $author['surname']);
+                    if ($tempAuthor) {
+                        $selectedAuthors[$tempAuthor['id']] = $tempAuthor['name'];
+                    }
+                }
+
+                $this->template->selectedAuthors = $selectedAuthors;
+
+                unset($this->publication['creators']);
             }
 
-            $this->template->selectedAuthors = $selectedAuthors;
-
-            unset($this->publication['creators']);
-        }
-
-        $this['publicationAddNewForm']->setDefaults($this->publication);
+            $this['publicationAddNewForm']->setDefaults($this->publication);
 
 
-        $this->flashMessage('Operation has been completed successfully.', 'alert-success');
+            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
+        };
+        return $form;
     }
 
     public function handleFetchFromSpringer($idSpringer, $typeSpringer) {

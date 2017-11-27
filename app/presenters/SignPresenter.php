@@ -114,69 +114,63 @@ class SignPresenter extends BasePresenter {
      */
     protected function createComponentSignInForm($name) {
         $form = new \SignInForm($this, $name);
-        $form->onSuccess[] = $this->signInFormSucceeded;
+        $form->onSuccess[] = function(Nette\Forms\Form $form) {
+            $values = $form->getValues();
+
+            if ($values->remember) {
+                $this->getUser()->setExpiration('14 days', FALSE);
+            } else {
+                $this->getUser()->setExpiration('20 minutes', TRUE);
+            }
+
+            try {
+                $this->getUser()->login($values->username, $values->password);
+                $this->flashMessage('You have been signed in successfully.', 'alert-success');
+                $this->presenter->redirect('Sign:in');
+            } catch (Nette\Security\AuthenticationException $e) {
+                $form->addError($e->getMessage());
+            }
+        };
         return $form;
-    }
-
-    public function signInFormSucceeded(Nette\Forms\Form $form) {
-        $values = $form->getValues();
-
-        if ($values->remember) {
-            $this->getUser()->setExpiration('14 days', FALSE);
-        } else {
-            $this->getUser()->setExpiration('20 minutes', TRUE);
-        }
-
-        try {
-            $this->getUser()->login($values->username, $values->password);
-            $this->flashMessage('You have been signed in successfully.', 'alert-success');
-            $this->presenter->redirect('Sign:in');
-        } catch (Nette\Security\AuthenticationException $e) {
-            $form->addError($e->getMessage());
-        }
     }
 
     protected function createComponentPublicationAddNewUserPasswordResetRequestForm($name) {
         $form = new \PublicationAddNewUserPasswordResetRequestForm($this->submitterModel, $this, $name);
-        $form->onSuccess[] = $this->publicationAddNewUserPasswordResetRequestFormSucceeded;
-        $form->onError[] = $this->publicationAddNewUserPasswordResetRequestFormError;
-        return $form;
-    }
-
-    public function publicationAddNewUserPasswordResetRequestFormError($form) {
-        $this->redrawControl('publicationAddNewUserPasswordResetRequestForm');
-    }
-
-    public function publicationAddNewUserPasswordResetRequestFormSucceeded( \PublicationAddNewUserPasswordResetRequestForm $form) {
-
-        $formValues = $form->getValues();
-        $this->drawAllowed = true;
-
-        // reset form if ajax call in use
-        if($this->isAjax()) {
-            $form->setValues(array(), TRUE);
+        $form->onSuccess[] = function($form) {
             $this->redrawControl('publicationAddNewUserPasswordResetRequestForm');
-        }
+        };
+        $form->onError[] = function($form) {
 
-        $record = $this->submitterModel->findByLoginOrEmail($formValues['email']);
+            $formValues = $form->getValues();
+            $this->drawAllowed = true;
 
-        if ($record) {
-
-            if($this->baseAuthenticator->getUserAuthenticationMethod($record->id) != \App\Services\Authenticators\BaseAuthenticator::AUTH_LOGIN_PASS) {
-                $this->finalFlashMessage("Given user has not associated internal credentials and uses different authentication method. Please contact site administrator.", 'alert-danger');
-            } else {
-
-                $this->passwordResetter->createPasswordRetrieve($record);
-
-                $this->finalFlashMessage('Reset link has been sent to your email: ' . $record->email, 'alert-success');
-
-                $this->template->resetLinkSent = true;
+            // reset form if ajax call in use
+            if($this->isAjax()) {
+                $form->setValues(array(), TRUE);
+                $this->redrawControl('publicationAddNewUserPasswordResetRequestForm');
             }
 
-        } else {
-            $this->finalFlashMessage("Login or email you've entered hasn't been found", 'alert-danger');
-        }
+            $record = $this->submitterModel->findByLoginOrEmail($formValues['email']);
 
+            if ($record) {
+
+                if($this->baseAuthenticator->getUserAuthenticationMethod($record->id) != \App\Services\Authenticators\BaseAuthenticator::AUTH_LOGIN_PASS) {
+                    $this->finalFlashMessage("Given user has not associated internal credentials and uses different authentication method. Please contact site administrator.", 'alert-danger');
+                } else {
+
+                    $this->passwordResetter->createPasswordRetrieve($record);
+
+                    $this->finalFlashMessage('Reset link has been sent to your email: ' . $record->email, 'alert-success');
+
+                    $this->template->resetLinkSent = true;
+                }
+
+            } else {
+                $this->finalFlashMessage("Login or email you've entered hasn't been found", 'alert-danger');
+            }
+            
+        };
+        return $form;
     }
 
     public function actionReset($hash) {

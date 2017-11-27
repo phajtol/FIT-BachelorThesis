@@ -54,28 +54,7 @@ class PublisherCrud extends BaseCrudComponent {
 
 	public function createComponentPublisherAddForm(){
 		$form = new PublisherAddForm($this->publisherModel, $this, 'publisherAddForm');
-		$form->onSuccess[] = $this->publisherAddFormSucceeded;
-		$form->onError[] = $this->publisherAddFormError;
-		return $form;
-	}
-
-	public function createComponentPublisherEditForm(){
-		$form = new PublisherEditForm($this, 'publisherEditForm');
-		$form->onSuccess[] = $this->publisherEditFormSucceeded;
-		$form->onError[] = $this->publisherEditFormError;
-		return $form;
-	}
-
-
-	public function publisherAddFormError($form) {
-		$this->redrawControl('publisherAddForm');
-	}
-	public function publisherEditFormError($form) {
-		$this->redrawControl('publisherEditForm');
-	}
-
-
-	public function publisherAddFormSucceeded(PublisherAddForm $form) {
+		$form->onSuccess[] = function(PublisherAddForm $form) {
 
 		$formValues = $form->getValues();
 
@@ -96,9 +75,16 @@ class PublisherCrud extends BaseCrudComponent {
 		}
 
 		$this->onAdd($record);
+            };
+            $form->onError[] = function($form) {
+                $this->redrawControl('publisherAddForm');
+            };
+            return $form;
 	}
 
-	public function publisherEditFormSucceeded(PublisherEditForm $form) {
+	public function createComponentPublisherEditForm(){
+            $form = new PublisherEditForm($this, 'publisherEditForm');
+            $form->onSuccess[] = function(PublisherEditForm $form) {
 
 		$formValues = $form->getValues();
 
@@ -121,7 +107,12 @@ class PublisherCrud extends BaseCrudComponent {
 			$this->redrawControl('publisherEditForm');
 		}
 
-	}
+            };
+            $form->onError[] = function($form) {
+                $this->redrawControl('publisherEditForm');
+            };
+            return $form;
+        }
 
 	public function handleDelete($publisherId) {
 

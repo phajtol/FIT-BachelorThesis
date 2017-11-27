@@ -57,11 +57,9 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
 
     protected function createComponentSearchForm($name) {
         $form = new \SearchForm($this, $name);
-        $form->onSuccess[] = $this->searchFormSucceeded;
+        $form->onSuccess[] = function($form) {
+            $this->presenter->redirect('this', (array) $form->getValues());
+        };
         return $form;
-    }
-
-    public function searchFormSucceeded($form) {
-        $this->presenter->redirect('this', (array) $form->getValues());
     }
 }

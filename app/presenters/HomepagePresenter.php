@@ -55,12 +55,10 @@ class HomepagePresenter extends SecuredPresenter {
 
   protected function createComponentHomepageSearchForm() {
     $form = $this->HomepageSearchForm->create($this->data);
-    $form->onSuccess[] = $this->homepageSearchFormSucceeded;
+    $form->onSuccess[] = function($form) {
+        $this->presenter->redirect('Homepage:searchresults', (array)$form->getValues());
+    };
     return $form;
-  }
-
-  public function homepageSearchFormSucceeded($form) {
-    $this->presenter->redirect('Homepage:searchresults', (array)$form->getValues());
   }
 
   public function remove_diac($text) {

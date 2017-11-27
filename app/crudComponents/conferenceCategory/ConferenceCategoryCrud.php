@@ -59,26 +59,7 @@ class ConferenceCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 		$form->onError[] = function(){
 			$this->redrawControl('categoryAddForm');
 		};
-		$form->onSuccess[] = $this->categoryAddFormSucceeded;
-	}
-
-	public function createComponentCategoryEditForm($name) {
-		$form = new ConferenceCategoryEditForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('categoryEditForm');
-		};
-		$form->onSuccess[] = $this->categoryEditFormSucceeded;
-	}
-
-	public function createComponentCategoryAddSubForm($name) {
-		$form = new ConferenceCategoryAddSubForm($this->conferenceCategoryModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('categoryAddSubForm');
-		};
-		$form->onSuccess[] = $this->categoryAddSubFormSucceeded;
-	}
-
-	public function categoryAddFormSucceeded(ConferenceCategoryAddForm $form){
+		$form->onSuccess[] = function(ConferenceCategoryAddForm $form){
 		$formValues = $form->getValuesTransformed();
 
 		$formValues['parent_id'] = NULL;
@@ -95,9 +76,15 @@ class ConferenceCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-	public function categoryEditFormSucceeded(ConferenceCategoryEditForm $form) {
+	public function createComponentCategoryEditForm($name) {
+            $form = new ConferenceCategoryEditForm($this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('categoryEditForm');
+            };
+            $form->onSuccess[] = function(ConferenceCategoryEditForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 
@@ -111,9 +98,15 @@ class ConferenceCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
 
-	public function categoryAddSubFormSucceeded(ConferenceCategoryAddSubForm $form) {
+	public function createComponentCategoryAddSubForm($name) {
+            $form = new ConferenceCategoryAddSubForm($this->conferenceCategoryModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('categoryAddSubForm');
+            };
+            $form->onSuccess[] = function(ConferenceCategoryAddSubForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$record = $this->conferenceCategoryModel->insert($formValues);
@@ -127,9 +120,11 @@ class ConferenceCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 
 			$this->onAddSub($record);
 		}
+            };
 	}
 
-	public function handleDelete($id) {
+
+    public function handleDelete($id) {
 		$record = $this->conferenceCategoryModel->find($id);
 		if($record) {
 

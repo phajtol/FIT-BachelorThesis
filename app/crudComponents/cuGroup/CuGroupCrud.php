@@ -53,23 +53,12 @@ class CuGroupCrud extends BaseCrudComponent {
 	}
 
 	public function createComponentCuGroupAddForm($name){
-		$form = new CuGroupAddForm($this->cuGroupModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('cuGroupAddForm');
-		};
-		$form->onSuccess[] = $this->cuGroupAddFormSucceeded;
-	}
-
-	public function createComponentCuGroupEditForm($name){
-		$form = new CuGroupEditForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('cuGroupEditForm');
-		};
-		$form->onSuccess[] = $this->cuGroupEditFormSucceeded;
-	}
-
-	public function cuGroupAddFormSucceeded(CuGroupAddForm $form) {
-		$formValues = $form->getValuesTransformed();
+            $form = new CuGroupAddForm($this->cuGroupModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('cuGroupAddForm');
+            };
+            $form->onSuccess[] = function(CuGroupAddForm $form) {
+                $formValues = $form->getValuesTransformed();
 
 		$conferenceCategories = $formValues['conference_categories'] ? explode(" ", $formValues['conference_categories']) : array();
 		unset($formValues['conference_categories']);
@@ -88,9 +77,15 @@ class CuGroupCrud extends BaseCrudComponent {
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-	public function cuGroupEditFormSucceeded(CuGroupEditForm $form) {
+	public function createComponentCuGroupEditForm($name){
+            $form = new CuGroupEditForm($this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('cuGroupEditForm');
+            };
+            $form->onSuccess[] = function(CuGroupEditForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$conferenceCategories = $formValues['conference_categories'] ? explode(" ", $formValues['conference_categories']) : array();
@@ -108,8 +103,8 @@ class CuGroupCrud extends BaseCrudComponent {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
-
 
 	public function handleDelete($id) {
 		$record = $this->cuGroupModel->find($id);

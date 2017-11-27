@@ -49,23 +49,12 @@ class AttributeCrud extends BaseCrudComponent {
 	}
 
 	public function createComponentAttributeAddForm($name){
-		$form = new AttributeAddForm($this->attributeModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('attributeAddForm');
-		};
-		$form->onSuccess[] = $this->attributeAddFormSucceeded;
-	}
-
-	public function createComponentAttributeEditForm($name){
-		$form = new AttributeEditForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('attributeEditForm');
-		};
-		$form->onSuccess[] = $this->attributeEditFormSucceeded;
-	}
-
-	public function attributeAddFormSucceeded(AttributeAddForm $form) {
-		$formValues = $form->getValuesTransformed();
+            $form = new AttributeAddForm($this->attributeModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('attributeAddForm');
+            };
+            $form->onSuccess[] = function(AttributeAddForm $form) {
+            $formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
 
@@ -81,10 +70,17 @@ class AttributeCrud extends BaseCrudComponent {
 
 			$this->onAdd($record);
 		}
+            };
+         
 	}
 
-	public function attributeEditFormSucceeded(AttributeEditForm $form) {
-		$formValues = $form->getValuesTransformed();
+	public function createComponentAttributeEditForm($name){
+            $form = new AttributeEditForm($this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('attributeEditForm');
+            };
+            $form->onSuccess[] = function(AttributeEditForm $form) {
+                $formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
 
@@ -98,8 +94,8 @@ class AttributeCrud extends BaseCrudComponent {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
-
 
 	public function handleDelete($id) {
 		$record = $this->attributeModel->find($id);

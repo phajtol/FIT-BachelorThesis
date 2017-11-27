@@ -207,31 +207,10 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	}
 
 	public function createComponentConferenceYearAddForm(){
-		if(!$this->isActionAllowed('add')) return null;
-		$form = new ConferenceYearAddForm($this->conferenceId, $this->loadPublishers(), $this->loadDocumentIndexes(), $this->conferenceModel, $this->conferenceYearModel, $this->conferenceYearIsIndexedModel, $this, 'conferenceYearAddForm');
-		$this->reduceForm($form);
-		$form->onSuccess[] = $this->conferenceYearAddFormSucceeded;
-		$form->onError[] = $this->conferenceYearAddFormError;
-		return $form;
-	}
-
-	public function createComponentConferenceYearEditForm(){
-		if(!$this->isActionAllowed('edit')) return null;
-		$form = new ConferenceYearEditForm($this->loadPublishers(), $this->loadDocumentIndexes(), $this, 'conferenceYearEditForm');
-		$this->reduceForm($form);
-		$form->onSuccess[] = $this->conferenceYearEditFormSucceeded;
-		$form->onError[] = $this->conferenceYearEditFormError;
-		return $form;
-	}
-
-	public function conferenceYearAddFormError($form) {
-		$this->redrawControl('conferenceYearAddForm');
-	}
-	public function conferenceYearEditFormError($form) {
-		$this->redrawControl('conferenceYearEditForm');
-	}
-
-	public function conferenceYearAddFormSucceeded(ConferenceYearAddForm $form) {
+            if(!$this->isActionAllowed('add')) return null;
+            $form = new ConferenceYearAddForm($this->conferenceId, $this->loadPublishers(), $this->loadDocumentIndexes(), $this->conferenceModel, $this->conferenceYearModel, $this->conferenceYearIsIndexedModel, $this, 'conferenceYearAddForm');
+            $this->reduceForm($form);
+            $form->onSuccess[] = function(ConferenceYearAddForm $form) {
 
 		$formValues = $form->getValuesTransformed();
 
@@ -254,15 +233,18 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		}
 
 		$this->onAdd($record);
+            };
+            $form->onError[] = function($form) {
+		$this->redrawControl('conferenceYearAddForm');
+            };
+            return $form;
 	}
 
-	protected function sanitizeEntityData(&$data){
-		Func::valOrNull($data,
-			array('publisher_id', 'location', 'isbn', 'description', 'doi', 'issn', 'web', 'submitter_id', 'parent_id', 'name', 'abbreviation')
-		);
-	}
-
-	public function conferenceYearEditFormSucceeded(ConferenceYearEditForm $form) {
+	public function createComponentConferenceYearEditForm(){
+            if(!$this->isActionAllowed('edit')) return null;
+            $form = new ConferenceYearEditForm($this->loadPublishers(), $this->loadDocumentIndexes(), $this, 'conferenceYearEditForm');
+            $this->reduceForm($form);
+            $form->onSuccess[] = function(ConferenceYearEditForm $form) {
 
 		$formValues = $form->getValuesTransformed();
 
@@ -287,6 +269,20 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		}
 
 		$this->onEdit($record);
+            };
+            
+            
+            $form->onError[] = function(ConferenceYearEditForm $form) {
+                $this->redrawControl('conferenceYearEditForm');
+            };
+            return $form;
+	}
+
+
+	protected function sanitizeEntityData(&$data){
+		Func::valOrNull($data,
+			array('publisher_id', 'location', 'isbn', 'description', 'doi', 'issn', 'web', 'submitter_id', 'parent_id', 'name', 'abbreviation')
+		);
 	}
 
 	public function handleShowPublisherInfoA($publisherId){

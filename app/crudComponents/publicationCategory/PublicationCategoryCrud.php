@@ -49,31 +49,12 @@ class PublicationCategoryCrud extends CategoryCrud {
 	}
 
 	public function createComponentCategoryAddForm($name) {
-		$form = new PublicationCategoryAddForm($this->publicationCategoryModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('categoryAddForm');
-		};
-		$form->onSuccess[] = $this->categoryAddFormSucceeded;
-	}
-
-	public function createComponentCategoryEditForm($name) {
-		$form = new PublicationCategoryEditForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('categoryEditForm');
-		};
-		$form->onSuccess[] = $this->categoryEditFormSucceeded;
-	}
-
-	public function createComponentCategoryAddSubForm($name) {
-		$form = new PublicationCategoryAddSubForm($this->publicationCategoryModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('categoryAddSubForm');
-		};
-		$form->onSuccess[] = $this->categoryAddSubFormSucceeded;
-	}
-
-	public function categoryAddFormSucceeded(PublicationCategoryAddForm $form){
-		$formValues = $form->getValuesTransformed();
+            $form = new PublicationCategoryAddForm($this->publicationCategoryModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('categoryAddForm');
+            };
+            $form->onSuccess[] = function(PublicationCategoryAddForm $form){
+                $formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
 		$formValues['categories_id'] = NULL;
@@ -90,9 +71,15 @@ class PublicationCategoryCrud extends CategoryCrud {
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-	public function categoryEditFormSucceeded(PublicationCategoryEditForm $form) {
+	public function createComponentCategoryEditForm($name) {
+            $form = new PublicationCategoryEditForm($this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('categoryEditForm');
+            };
+            $form->onSuccess[] = function(PublicationCategoryEditForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
@@ -107,9 +94,15 @@ class PublicationCategoryCrud extends CategoryCrud {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
 
-	public function categoryAddSubFormSucceeded(PublicationCategoryAddSubForm $form) {
+	public function createComponentCategoryAddSubForm($name) {
+            $form = new PublicationCategoryAddSubForm($this->publicationCategoryModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('categoryAddSubForm');
+            };
+            $form->onSuccess[] = function(PublicationCategoryAddSubForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
@@ -125,6 +118,7 @@ class PublicationCategoryCrud extends CategoryCrud {
 
 			$this->onAddSub($record);
 		}
+            };
 	}
 
 	public function handleDelete($id) {

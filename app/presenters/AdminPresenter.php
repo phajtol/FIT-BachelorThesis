@@ -41,33 +41,31 @@ class AdminPresenter extends SecuredPresenter {
 
     protected function createComponentAdminShowUnconfirmedForm($name) {
         $form = new \AdminShowUnconfirmedForm($this, $name);
-        $form->onSuccess[] = $this->adminShowUnconfirmedFormSucceeded;
-        return $form;
-    }
+        $form->onSuccess[] = function($form) {
 
-    public function adminShowUnconfirmedFormSucceeded($form) {
+            Debugger::fireLog('adminShowUnconfirmedFormSucceeded()');
 
-        Debugger::fireLog('adminShowUnconfirmedFormSucceeded()');
+            $formValues = $form->getValues();
 
-        $formValues = $form->getValues();
-
-        foreach ($formValues as $key => $value) {
-            $name = explode('_', $key);
-            if ($value == 'TRUE') {
-                $this->context->Publication->update(array('id' => $name[1], 'confirmed' => 1));
+            foreach ($formValues as $key => $value) {
+                $name = explode('_', $key);
+                if ($value == 'TRUE') {
+                    $this->context->Publication->update(array('id' => $name[1], 'confirmed' => 1));
+                }
             }
-        }
 
-        $this->drawAllowed = true;
+            $this->drawAllowed = true;
 
-        $this->flashMessage('Operation has been completed successfully.', 'alert-success');
+            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
 
-        if (!$this->presenter->isAjax()) {
-            $this->presenter->redirect('this');
-        } else {
-            $this->redrawControl('publicationShowAllRecords');
-            $this->redrawControl('flashMessages');
-        }
+            if (!$this->presenter->isAjax()) {
+                $this->presenter->redirect('this');
+            } else {
+                $this->redrawControl('publicationShowAllRecords');
+                $this->redrawControl('flashMessages');
+            }
+        };
+        return $form;
     }
 
     public function actionSettings() {
@@ -77,13 +75,39 @@ class AdminPresenter extends SecuredPresenter {
 
     protected function createComponentPublicationEditGeneralSettingsForm($name) {
         $form = new \PublicationAddNewGeneralSettingsForm($this, $name);
-        $form->onSuccess[] = $this->publicationEditGeneralSettingsFormSucceeded;
-        $form->onError[] = $this->publicationEditGeneralSettingsFormError;
-        return $form;
-    }
+        $form->onSuccess[] = function($form) {
 
-    public function publicationEditGeneralSettingsFormError($form) {
-        $this->redrawControl('publicationEditGeneralSettingsForm');
+            Debugger::fireLog('publicationEditGeneralSettingsFormSucceeded');
+
+            $formValues = $form->getValues();
+
+            $this->drawAllowed = false;
+
+            Debugger::fireLog($form->values->id);
+            Debugger::fireLog($this->action);
+
+            $this->context->GeneralSettings->update($formValues);
+
+            $this->template->generalSettingsEdited = true;
+
+            $generalSettings = $this->context->GeneralSettings->find($form->values->id);
+            $this->template->generalSettings = $generalSettings;
+
+            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
+
+            if (!$this->presenter->isAjax()) {
+                $this->presenter->redirect('this');
+            } else {
+                $form->setValues(array(), TRUE);
+                $this->redrawControl('publicationEditGeneralSettingsForm');
+                $this->redrawControl('settingsShowSettings');
+                $this->redrawControl('flashMessages');
+            }
+        };
+        $form->onError[] = function($form) {
+            $this->redrawControl('publicationEditGeneralSettingsForm');
+        };
+        return $form;
     }
 
     public function handleEditGeneralSettings() {
@@ -100,37 +124,6 @@ class AdminPresenter extends SecuredPresenter {
             $this->redrawControl('publicationEditGeneralSettingsForm');
         }
     }
-
-    public function publicationEditGeneralSettingsFormSucceeded($form) {
-
-        Debugger::fireLog('publicationEditGeneralSettingsFormSucceeded');
-
-        $formValues = $form->getValues();
-
-        $this->drawAllowed = false;
-
-        Debugger::fireLog($form->values->id);
-        Debugger::fireLog($this->action);
-
-        $this->context->GeneralSettings->update($formValues);
-
-        $this->template->generalSettingsEdited = true;
-
-        $generalSettings = $this->context->GeneralSettings->find($form->values->id);
-        $this->template->generalSettings = $generalSettings;
-
-        $this->flashMessage('Operation has been completed successfully.', 'alert-success');
-
-        if (!$this->presenter->isAjax()) {
-            $this->presenter->redirect('this');
-        } else {
-            $form->setValues(array(), TRUE);
-            $this->redrawControl('publicationEditGeneralSettingsForm');
-            $this->redrawControl('settingsShowSettings');
-            $this->redrawControl('flashMessages');
-        }
-    }
-
 
     public function drawPublicationUnconfirmed() {
 
@@ -186,13 +179,10 @@ class AdminPresenter extends SecuredPresenter {
         $this->redrawControl('publicationShowAll');
     }
 
-	/**
-	 * @param Model\Publication $publicationModel
-	 */
-	public function injectPublicationModel(Model\Publication $publicationModel) {
-		$this->publicationModel = $publicationModel;
-	}
-
-
-
+    /**
+     * @param Model\Publication $publicationModel
+     */
+    public function injectPublicationModel(Model\Publication $publicationModel) {
+            $this->publicationModel = $publicationModel;
+    }
 }

@@ -51,23 +51,12 @@ class AuthorCrud extends BaseCrudComponent {
 	}
 
 	public function createComponentAuthorAddForm($name){
-		$form = new AuthorAddForm($this->submitterModel,$this->authorModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('authorAddForm');
-		};
-		$form->onSuccess[] = $this->authorAddFormSucceeded;
-	}
-
-	public function createComponentAuthorEditForm($name){
-		$form = new AuthorEditForm($this->submitterModel,$this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('authorEditForm');
-		};
-		$form->onSuccess[] = $this->authorEditFormSucceeded;
-	}
-
-	public function authorAddFormSucceeded(AuthorAddForm $form) {
-		$formValues = $form->getValuesTransformed();
+            $form = new AuthorAddForm($this->submitterModel,$this->authorModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('authorAddForm');
+            };
+            $form->onSuccess[] = function(AuthorAddForm $form) {
+                $formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
 
@@ -83,10 +72,16 @@ class AuthorCrud extends BaseCrudComponent {
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-	public function authorEditFormSucceeded(AuthorEditForm $form) {
-		$formValues = $form->getValuesTransformed();
+	public function createComponentAuthorEditForm($name){
+            $form = new AuthorEditForm($this->submitterModel,$this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('authorEditForm');
+            };
+            $form->onSuccess[] = function(AuthorEditForm $form) {
+                $formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
 
@@ -100,10 +95,10 @@ class AuthorCrud extends BaseCrudComponent {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
 
-
-	public function handleDelete($id) {
+        public function handleDelete($id) {
 		$record = $this->authorModel->find($id);
 		if($record) {
 

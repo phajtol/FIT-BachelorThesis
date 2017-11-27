@@ -154,35 +154,30 @@ class UserPresenter extends SecuredPresenter {
 
         $form = new \UserPasswordChangeForm($this->loginPassAuthenticator, $user, $this, $name);
         if($this->userPasswordChangeFormEnabled) {
-            $form->onSuccess[] = $this->userPasswordChangeFormSucceeded;
-            $form->onError[] = $this->userPasswordChangeFormError;
+            $form->onSuccess[] = function($form) {
+
+                $user = $this->submitterModel->find($this->user->id);
+
+                $this->loginPassAuthenticator->associateLoginPasswordToUser($this->user->id, $user->nickname, $form['pass']->getValue());
+
+                $this->flashMessage('Your Password has been changed successfully.', 'alert-success');
+
+                $this->template->passwordChanged = true;
+
+                if (!$this->presenter->isAjax()) {
+                    $this->presenter->redirect('this');
+                } else {
+                    $form->setValues(array(), TRUE);
+                    $this->redrawControl('userPasswordChangeForm');
+                    $this->redrawControl('flashMessages');
+                }
+            };
+            $form->onError[] = function($form) {
+                $this->redrawControl('userPasswordChangeForm');
+            };
         }
         return $form;
     }
-
-    public function userPasswordChangeFormError($form) {
-        $this->redrawControl('userPasswordChangeForm');
-    }
-
-    public function userPasswordChangeFormSucceeded($form) {
-
-        $user = $this->submitterModel->find($this->user->id);
-
-        $this->loginPassAuthenticator->associateLoginPasswordToUser($this->user->id, $user->nickname, $form['pass']->getValue());
-
-        $this->flashMessage('Your Password has been changed successfully.', 'alert-success');
-
-        $this->template->passwordChanged = true;
-
-        if (!$this->presenter->isAjax()) {
-            $this->presenter->redirect('this');
-        } else {
-            $form->setValues(array(), TRUE);
-            $this->redrawControl('userPasswordChangeForm');
-            $this->redrawControl('flashMessages');
-        }
-    }
-    
 
     public function renderShow() {
         $this->template->userPasswordChangeFormEnabled = $this->userPasswordChangeFormEnabled;
@@ -211,15 +206,35 @@ class UserPresenter extends SecuredPresenter {
 
         if(!$this->isCU()) unset($form['deadline_notification_advance']);
 
-        $form->onSuccess[] = $this->publicationEditUserSettingsFormSucceeded;
-        $form->onError[] = $this->publicationEditUserSettingsFormError;
+        $form->onError[] = function($form) {
+            $this->redrawControl('publicationEditUserSettingsForm');
+        };
+        $form->onSuccess[] = function($form) {
+
+            $formValues = $form->getValues();
+
+            $this->drawAllowed = false;
+
+            $this->userSettingsModel->update($formValues);
+
+            $this->template->userSettingsEdited = true;
+
+            $userSettings = $this->userSettingsModel->find($form->values->id);
+            $this->template->userSettings = $userSettings;
+
+            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
+
+            if (!$this->presenter->isAjax()) {
+                $this->presenter->redirect('this');
+            } else {
+                $form->setValues(array(), TRUE);
+                $this->redrawControl('publicationEditUserSettingsForm');
+                $this->redrawControl('userShowSettings');
+                $this->redrawControl('flashMessages');
+            }
+        };
         return $form;
     }
-
-    public function publicationEditUserSettingsFormError($form) {
-        $this->redrawControl('publicationEditUserSettingsForm');
-    }
-
 
     public function handleEditUserSettings($userSettingsId) {
 
@@ -235,32 +250,6 @@ class UserPresenter extends SecuredPresenter {
             $this->redrawControl('publicationEditUserSettingsForm');
         }
     }
-
-    public function publicationEditUserSettingsFormSucceeded($form) {
-
-        $formValues = $form->getValues();
-
-        $this->drawAllowed = false;
-
-        $this->userSettingsModel->update($formValues);
-
-        $this->template->userSettingsEdited = true;
-
-        $userSettings = $this->userSettingsModel->find($form->values->id);
-        $this->template->userSettings = $userSettings;
-
-        $this->flashMessage('Operation has been completed successfully.', 'alert-success');
-
-        if (!$this->presenter->isAjax()) {
-            $this->presenter->redirect('this');
-        } else {
-            $form->setValues(array(), TRUE);
-            $this->redrawControl('publicationEditUserSettingsForm');
-            $this->redrawControl('userShowSettings');
-            $this->redrawControl('flashMessages');
-        }
-    }
-
 
     public function handleShowUserRelated($userId) {
         $this->drawAllowed = false;

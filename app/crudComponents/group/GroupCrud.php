@@ -45,22 +45,11 @@ class GroupCrud extends \App\CrudComponents\BaseCrudComponent {
 	}
 
 	public function createComponentAddForm($name){
-		$form = new GroupAddForm($this->groupModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('addForm');
-		};
-		$form->onSuccess[] = $this->addFormSucceeded;
-	}
-
-	public function createComponentEditForm($name){
-		$form = new GroupEditForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('editForm');
-		};
-		$form->onSuccess[] = $this->editFormSucceeded;
-	}
-
-	public function addFormSucceeded(GroupAddForm $form) {
+            $form = new GroupAddForm($this->groupModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('addForm');
+            };
+            $form->onSuccess[] = function(GroupAddForm $form) {
 		if(!$this->isActionAllowed('add')) return;
 
 		$formValues = $form->getValuesTransformed();
@@ -77,9 +66,15 @@ class GroupCrud extends \App\CrudComponents\BaseCrudComponent {
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-	public function editFormSucceeded(GroupEditForm $form) {
+	public function createComponentEditForm($name){
+            $form = new GroupEditForm($this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('editForm');
+            };
+            $form->onSuccess[] = function(GroupEditForm $form) {
 		if(!$this->isActionAllowed('edit')) return;
 
 		$formValues = $form->getValuesTransformed();
@@ -94,7 +89,9 @@ class GroupCrud extends \App\CrudComponents\BaseCrudComponent {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
+
 
 
 	public function handleDelete($id) {

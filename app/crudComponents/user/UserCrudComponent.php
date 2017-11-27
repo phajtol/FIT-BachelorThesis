@@ -153,28 +153,14 @@ class UserCrudComponent extends BaseCrudComponent {
 	}
 
 	public function createComponentUserAddForm($name){
-		$form = new UserAddForm($this->loggedUser, $this->getAvailableRoles(), $this->getAvailableCuGroups(), $this->baseAuthenticator->getAvailableAuthMethods(),
-			$this->submitterModel, $this, $name);
-		$this->reduceForm($form);
+            $form = new UserAddForm($this->loggedUser, $this->getAvailableRoles(), $this->getAvailableCuGroups(), $this->baseAuthenticator->getAvailableAuthMethods(),
+                    $this->submitterModel, $this, $name);
+            $this->reduceForm($form);
 
-		$form->onError[] = function(){
-			$this->redrawControl('userAddForm');
-		};
-		$form->onSuccess[] = $this->userAddFormSucceeded;
-	}
-
-	public function createComponentUserEditForm($name){
-		$form = new UserEditForm($this->loggedUser, $this->getAvailableRoles(), $this->getAvailableCuGroups(), $this->baseAuthenticator->getAvailableAuthMethods(),
-			$this->submitterModel, $this, $name);
-		$this->reduceForm($form);
-
-		$form->onError[] = function(){
-			$this->redrawControl('userEditForm');
-		};
-		$form->onSuccess[] = $this->userEditFormSucceeded;
-	}
-
-	public function userAddFormSucceeded(UserAddForm $form) {
+            $form->onError[] = function(){
+                    $this->redrawControl('userAddForm');
+            };
+            $form->onSuccess[] = function(UserAddForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$cu_groups = Func::getAndUnset($formValues, 'cu_groups');
@@ -195,13 +181,24 @@ class UserCrudComponent extends BaseCrudComponent {
 			if ($this->presenter->isAjax()) {
 				$form->clearValues();
 				$this->redrawControl('userAddForm');
-			} else $this->redirect('this');
+			} else {
+                            $this->redirect('this');
+                        }
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-	public function userEditFormSucceeded(UserEditForm $form) {
+	public function createComponentUserEditForm($name){
+		$form = new UserEditForm($this->loggedUser, $this->getAvailableRoles(), $this->getAvailableCuGroups(), $this->baseAuthenticator->getAvailableAuthMethods(),
+			$this->submitterModel, $this, $name);
+		$this->reduceForm($form);
+
+		$form->onError[] = function(){
+			$this->redrawControl('userEditForm');
+		};
+		$form->onSuccess[] = function(UserEditForm $form) {
 
 		$formValues = $form->getValuesTransformed();
 
@@ -221,9 +218,12 @@ class UserCrudComponent extends BaseCrudComponent {
 
 		if($this->presenter->isAjax()) {
 			$this->redrawControl('userEditForm');
-		} else $this->redirect('this');
+		} else {
+                    $this->redirect('this');
+                }
 
 		$this->onEdit($record);
+            };
 	}
 
 	public function handleShowRelatedPublications($id){

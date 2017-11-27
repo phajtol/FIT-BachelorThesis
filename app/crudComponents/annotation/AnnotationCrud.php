@@ -44,22 +44,11 @@ class AnnotationCrud extends \App\CrudComponents\BaseCrudComponent {
 	}
 
 	public function createComponentAddForm($name){
-		$form = new AnnotationAddForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('addForm');
-		};
-		$form->onSuccess[] = $this->addFormSucceeded;
-	}
-
-	public function createComponentEditForm($name){
-		$form = new AnnotationEditForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('editForm');
-		};
-		$form->onSuccess[] = $this->editFormSucceeded;
-	}
-
-	public function addFormSucceeded(AnnotationAddForm $form) {
+            $form = new AnnotationAddForm($this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('addForm');
+            };
+            $form->onSuccess[] = function(AnnotationAddForm $form) {
 		if(!$this->isActionAllowed('add')) return;
 
 		$formValues = $form->getValuesTransformed();
@@ -80,28 +69,37 @@ class AnnotationCrud extends \App\CrudComponents\BaseCrudComponent {
 
 			$this->onAdd($record);
 		}
+            };
+                
 	}
 
-	public function editFormSucceeded(AnnotationEditForm $form) {
-		if(!$this->isActionAllowed('edit')) return;
-
-		$formValues = $form->getValuesTransformed();
-
-		$formValues['submitter_id'] = $this->loggedUser->id;
-		$formValues['date'] = new \Nette\Utils\DateTime();
-
-		$this->annotationModel->update($formValues);
-		$record = $this->annotationModel->find($formValues['id']);
-
-		$this->template->entityEdited = true;
-
-		if($this->presenter->isAjax()) {
+	public function createComponentEditForm($name){
+		$form = new AnnotationEditForm($this, $name);
+		$form->onError[] = function(){
 			$this->redrawControl('editForm');
-		} else $this->redirect('this');
+		};
+		$form->onSuccess[] = function(AnnotationEditForm $form) {
+                    if(!$this->isActionAllowed('edit')) {
+                        return;
+                    }
 
-		$this->onEdit($record);
+                    $formValues = $form->getValuesTransformed();
+
+                    $formValues['submitter_id'] = $this->loggedUser->id;
+                    $formValues['date'] = new \Nette\Utils\DateTime();
+
+                    $this->annotationModel->update($formValues);
+                    $record = $this->annotationModel->find($formValues['id']);
+
+                    $this->template->entityEdited = true;
+
+                    if($this->presenter->isAjax()) {
+                            $this->redrawControl('editForm');
+                    } else $this->redirect('this');
+
+                    $this->onEdit($record);
+            };
 	}
-
 
 	public function handleDelete($id) {
 		if(!$this->isActionAllowed('delete')) return;

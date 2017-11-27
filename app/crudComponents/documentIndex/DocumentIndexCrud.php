@@ -47,23 +47,12 @@ class DocumentIndexCrud extends \App\CrudComponents\BaseCrudComponent {
 	}
 
 	public function createComponentAddForm($name){
-		$form = new DocumentIndexAddForm($this->documentIndexModel, $this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('addForm');
-		};
-		$form->onSuccess[] = $this->addFormSucceeded;
-	}
-
-	public function createComponentEditForm($name){
-		$form = new DocumentIndexEditForm($this, $name);
-		$form->onError[] = function(){
-			$this->redrawControl('editForm');
-		};
-		$form->onSuccess[] = $this->editFormSucceeded;
-	}
-
-	public function addFormSucceeded(DocumentIndexAddForm $form) {
-		if(!$this->isActionAllowed('add')) return;
+            $form = new DocumentIndexAddForm($this->documentIndexModel, $this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('addForm');
+            };
+            $form->onSuccess[] = function(DocumentIndexAddForm $form) {
+                if(!$this->isActionAllowed('add')) return;
 
 		$formValues = $form->getValuesTransformed();
 
@@ -79,9 +68,15 @@ class DocumentIndexCrud extends \App\CrudComponents\BaseCrudComponent {
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-	public function editFormSucceeded(DocumentIndexEditForm $form) {
+	public function createComponentEditForm($name){
+            $form = new DocumentIndexEditForm($this, $name);
+            $form->onError[] = function(){
+                    $this->redrawControl('editForm');
+            };
+            $form->onSuccess[] = function(DocumentIndexEditForm $form) {
 		if(!$this->isActionAllowed('edit')) return;
 
 		$formValues = $form->getValuesTransformed();
@@ -96,8 +91,8 @@ class DocumentIndexCrud extends \App\CrudComponents\BaseCrudComponent {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
-
 
 	public function handleDelete($id) {
 		if(!$this->isActionAllowed('delete')) return;

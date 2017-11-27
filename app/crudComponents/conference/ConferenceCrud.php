@@ -161,24 +161,12 @@ class ConferenceCrud extends BaseCrudComponent {
 	}
 	
 	public function createComponentConferenceAddForm($name){
-		$form = new ConferenceAddForm($this->conferenceModel, $this, $name);
-		$this->reduceForm($form);
-		$form->onError[] = function(){
-			$this->redrawControl('conferenceAddForm');
-		};
-		$form->onSuccess[] = $this->conferenceAddFormSucceeded;
-	}
-
-	public function createComponentConferenceEditForm($name){
-		$form = new ConferenceEditForm($this, $name);
-		$this->reduceForm($form);
-		$form->onError[] = function(){
-			$this->redrawControl('conferenceEditForm');
-		};
-		$form->onSuccess[] = $this->conferenceEditFormSucceeded;
-	}
-
-	public function conferenceAddFormSucceeded(ConferenceAddForm $form) {
+            $form = new ConferenceAddForm($this->conferenceModel, $this, $name);
+            $this->reduceForm($form);
+            $form->onError[] = function(){
+                    $this->redrawControl('conferenceAddForm');
+            };
+            $form->onSuccess[] = function(ConferenceAddForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
@@ -208,10 +196,16 @@ class ConferenceCrud extends BaseCrudComponent {
 
 			$this->onAdd($record);
 		}
+            };
 	}
 
-
-	public function conferenceEditFormSucceeded(ConferenceEditForm $form) {
+	public function createComponentConferenceEditForm($name){
+            $form = new ConferenceEditForm($this, $name);
+            $this->reduceForm($form);
+            $form->onError[] = function(){
+                    $this->redrawControl('conferenceEditForm');
+            };
+            $form->onSuccess[] = function(ConferenceEditForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
@@ -239,7 +233,9 @@ class ConferenceCrud extends BaseCrudComponent {
 		} else $this->redirect('this');
 
 		$this->onEdit($record);
+            };
 	}
+
 
 	public function createComponentMergeConferencesForm() {
 		$form = new \App\Forms\BaseForm();
