@@ -10,15 +10,14 @@ php:
 	date.timezone: Europe/Prague
 	# zlib.output_compression: yes
 
-nette:
-	application:
-		errorPresenter: Error
-		mapping:
-			*: App\*Module\Presenters\*Presenter
+application:
+	errorPresenter: Error
+	mapping:
+		*: App\*Module\Presenters\*Presenter
 
-	session:
-		autoStart: true
-#		expiration: 14 days
+session:
+	autoStart: true
+#	expiration: 14 days
 
 
 di:
@@ -44,7 +43,7 @@ services:
 
 	- HomepageSearchForm
 
-	App\Model\ShibbolethParams: App\Model\ShibbolethParams(%shibboleth%)
+	ShibbolethParams: App\Model\ShibbolethParams(%shibboleth%)
 	Annotation: App\Model\Annotation
 	AttribStorage: App\Model\AttribStorage
 	Attributes: App\Model\Attributes

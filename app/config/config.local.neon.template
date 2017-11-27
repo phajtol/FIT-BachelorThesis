@@ -1,10 +1,9 @@
-nette:
-	database:
-		dsn: 'mysql:host=localhost;dbname='
-		user: 
-		password: 
-		options:
-			lazy: yes
+database:
+	dsn: 'mysql:host=localhost;dbname='
+	user: 
+	password: 
+	options:
+		lazy: yes
 
 parameters:			
 	global:
