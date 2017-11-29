@@ -361,7 +361,7 @@ class PublicationPresenter extends SecuredPresenter {
 
     protected function createComponentPublicationImportForm($name) {
         $form = new \PublicationImportForm($this, $name);
-        $form->onSuccess[] = function($form) {
+        $form->onSuccess[] = function(\PublicationImportForm $form) {
 
             Debugger::fireLog('publicationImportFormSucceeded');
 
@@ -895,7 +895,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->publishers, $this->journals, $this->conferences, $this->conferenceYears, $this->attributes,
             $this->publicationModel, $this, $name);
 
-        $form->onSuccess[] = function($form) {
+        $form->onSuccess[] = function(\PublicationAddNewForm $form) {
 
             $this->publicationModel->beginTransaction();
 
@@ -1796,7 +1796,7 @@ class PublicationPresenter extends SecuredPresenter {
 
     protected function createComponentPublicationSpringerForm($name) {
         $form = new \PublicationSpringerForm($this, $name);
-        $form->onSuccess[] = function($form) {
+        $form->onSuccess[] = function(\PublicationSpringerForm $form) {
 
             Debugger::fireLog('publicationSpringerFormSucceeded');
 
