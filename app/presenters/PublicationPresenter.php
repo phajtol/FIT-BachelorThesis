@@ -1138,11 +1138,13 @@ class PublicationPresenter extends SecuredPresenter {
 
     public function renderShowAll() {
         if ($this->drawAllowed) {
-            $this->drawPublications($this['individualFilter']->getActiveButtonName() == 'starred');
+            $starred = $this['individualFilter']->getActiveButtonName() == 'starred';
+            $my = $this['individualFilter']->getActiveButtonName() == 'my';
+            $this->drawPublications($starred, $my);
         }
     }
 
-    public function drawPublications($starred = false) {
+    public function drawPublications($starred = false, $my = false) {
         Debugger::fireLog('drawPublications');
         $params = $this->getHttpRequest()->getQuery();
         $alphabet = range('A', 'Z');
@@ -1168,6 +1170,10 @@ class PublicationPresenter extends SecuredPresenter {
 
             if($starred) {
                 $this->records->where(':submitter_has_publication.submitter_id = ?', $this->user->id);
+            }
+
+            if($my) {
+                $this->records->where(':author_has_publication.author.user_id = ?', $this->user->id);
             }
 
             $this->setupRecordsPaginator();
@@ -1878,6 +1884,10 @@ class PublicationPresenter extends SecuredPresenter {
                 'caption'   =>  'Starred publications',
                 'icon'      =>  'star'
             ),
+            'my'            => array(
+                'caption'   => 'My publications',
+                'icon'      => 'user'
+            )
         ], 'all');
 
         $c->onActiveButtonChanged[] = function(){
