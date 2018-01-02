@@ -26,7 +26,7 @@ class HumanNameParser_Name extends Nette\Object {
      */
     public function setStr($str) {
         if (!mb_check_encoding($str)) {
-            throw new Exception("Name is not encoded in UTF-8");
+            throw new \Exception("Name is not encoded in UTF-8");
         }
         $this->str = $str;
         $this->norm();
@@ -55,7 +55,7 @@ class HumanNameParser_Name extends Nette\Object {
         if ($subset) {
             $this->str = preg_replace($regex, ' ', $this->str, -1, $numReplacements);
             if ($numReplacements > 1) {
-                throw new Exception("The regex being used to find the name has multiple matches.");
+                throw new \Exception("The regex being used to find the name has multiple matches.");
             }
             $this->norm();
             return $subset;
@@ -79,7 +79,7 @@ class HumanNameParser_Name extends Nette\Object {
             $this->str = $substrings[1] . " " . $substrings[0];
             $this->norm();
         } else if (count($substrings) > 2) {
-            throw new Exception("Can't flip around multiple '$flipAroundChar' characters in namestring.");
+            throw new \Exception("Can't flip around multiple '$flipAroundChar' characters in namestring.");
         }
         return true; // if there's 1 or 0 $flipAroundChar found
     }
