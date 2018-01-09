@@ -51,9 +51,10 @@
         <li class="active"><a href="#detail" data-toggle="tab">User Detail</a></li>
         <li class="" n:if="$PU"><a href="#annotations" data-toggle="tab">My Annotations</a></li>
         <li class=""><a href="#settings" data-toggle="tab">User Settings</a></li>
+        <li class=""><a href="#publications" data-toggle="tab">My publications</a></li>
     </ul>
 
-    <div class="col-md-12" id="main-content-123" class="grey" style="padding-top: 30px;">
+    <div class="col-md-12 grey" style="padding-top: 30px;">
         <div id="user-detail-tab-content" class="tab-content">
             <div class="tab-pane fade active in" id="detail">
 
@@ -368,63 +369,46 @@
                                     <button type="button" id="editUserSettingsButton" class="btn btn-primary" data-toggle="modal" data-target="#EditUserSettingsModal" title="Edit User Settings">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </button>
-
                                 </p>
                             </div>
                         </div>
                     </form>
                 {/snippet}
-
-
             </div>
-                                
-                                
-                                
-                            </div>
-                            
-                           
-
-                        </div>
+            <div class="tab-pane fade" id="publications">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <h1 class="col-sm-3 control-label">My publications</h1>
                     </div>
-
-                    <script>
-
-                        $('#user-detail-tab a').click(function(e) {
-                            e.preventDefault();
-                            $(this).tab('show');
-                            window.location.hash = $(this).attr("href");
-                            
-                             if ($(this).attr("href") == '#publications') {
-                                $("#main-content-123").removeClass("grey");
-                             } else {
-                                $("#main-content-123").addClass("grey");
-                             }
-                        });
+                    <hr>
+                </form>
+            </div>
 
 
-                        var hash = window.location.hash.replace('#', '');
-                        
-                        if (hash == 'annotations') {
-                            $('#user-detail-tab a[href="#annotations"]').tab('show') // Select tab by name
-                            $("#main-content-123").addClass("grey");
-                        } else if (hash == 'detail') {
-                            $('#user-detail-tab a[href="#detail"]').tab('show') // Select tab by name
-                            $("#main-content-123").addClass("grey");
-                        } else if (hash == 'publications') {
-                            $('#user-detail-tab a[href="#publications"]').tab('show') // Select tab by name
-                            $("#main-content-123").removeClass("grey");
-                        } else if (hash == 'settings') {
-                            $('#user-detail-tab a[href="#settings"]').tab('show') // Select tab by name
-                            $("#main-content-123").removeClass("grey");
-                        }
+    </div>
+</div>
 
-                        refresh();
+<script>
+$(function() {
+    $('#user-detail-tab a').click(function(e) {
+        e.preventDefault();
+        window.location.hash = $(this).attr("href");
 
-                    </script>
-                    
-                    <style>
-                        .grey{
-                           background-color:#f8f8f8; 
-                        }   
-                    </style>
+    });
 
+
+    var hash = window.location.hash.replace('#', '');
+
+    if (hash == 'annotations') {
+        $('#user-detail-tab a[href="#annotations"]').tab('show') // Select tab by name
+    } else if (hash == 'detail') {
+        $('#user-detail-tab a[href="#detail"]').tab('show') // Select tab by name
+    } else if (hash == 'publications') {
+        $('#user-detail-tab a[href="#publications"]').tab('show') // Select tab by name
+    } else if (hash == 'settings') {
+        $('#user-detail-tab a[href="#settings"]').tab('show') // Select tab by name
+    }
+
+    refresh();
+});
+</script>
