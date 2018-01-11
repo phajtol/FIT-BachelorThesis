@@ -34,124 +34,94 @@ class PublicationPresenter extends SecuredPresenter {
 
     //--
 
-    /** @var  Model\Publication */
-    protected $publicationModel;
+    /** @var  Model\Publication  @inject */
+    public $publicationModel;
 
-    /** @var  Model\Publisher */
-    protected $publisherModel;
+    /** @var  Model\Publisher @inject */
+    public $publisherModel;
 
-    /** @var  Model\Journal */
-    protected $journalModel;
+    /** @var  Model\Journal @inject */
+    public $journalModel;
 
-    /** @var  Model\Conference */
-    protected $conferenceModel;
+    /** @var  Model\Conference @inject */
+    public $conferenceModel;
 
-    /** @var  Model\ConferenceYear */
-    protected $conferenceYearModel;
+    /** @var  Model\ConferenceYear @inject */
+    public $conferenceYearModel;
 
-    /** @var  Model\Attribute */
-    protected $attributeModel;
+    /** @var  Model\Attribute @inject */
+    public $attributeModel;
 
-    /** @var  Model\Author */
-    protected $authorModel;
+    /** @var  Model\Author @inject */
+    public $authorModel;
 
-    /** @var  Model\Group */
-    protected $groupModel;
+    /** @var  Model\Group @inject */
+    public $groupModel;
 
-    /** @var  Model\Files */
-    protected $filesModel;
+    /** @var  Model\Files @inject */
+    public $filesModel;
 
-    /**
-     * @var Model\Annotation
-     * @autowire
-     */
-    protected $annotationModel;
+    /** @var Model\Annotation @inject */
+    public $annotationModel;
 
-    /**
-     * @var Model\Reference
-     * @autowire
-     */
-    protected $referenceModel;
-    
-    /**
-     * @var Model\AttribStorage
-     * @autowire
-     */
-    protected $attribStorageModel;
+    /** @var Model\Reference @inject */
+    public $referenceModel;
 
-    /**
-     * @var Model\Springer
-     * @autowire
-     */
-    protected $springerService;
+    /** @var Model\AttribStorage @inject */
+    public $attribStorageModel;
 
-    /**
-     * @var Model\GroupHasPublication
-     * @autowire
-     */
-    protected $groupHasPublicationModel;
+    /** @var Model\Springer @inject */
+    public $springerService;
 
-    /**
-     * @var Model\CategoriesHasPublication
-     * @autowire
-     */
-    protected $categoriesHasPublicationModel;
+    /** @var Model\GroupHasPublication @inject */
+    public $groupHasPublicationModel;
 
-    /**
-     * @var Model\AuthorHasPublication
-     * @autowire
-     */
-    protected $authorHasPublicationModel;
+    /** @var Model\CategoriesHasPublication @inject */
+    public $categoriesHasPublicationModel;
 
-    /**
-     * @var Model\Documents
-     * @autowire
-     */
-    protected $documentsModel;
+    /** @var Model\AuthorHasPublication @inject */
+    public $authorHasPublicationModel;
 
-    /**
-     * @var Model\SubmitterHasPublication
-     * @autowire
-     */
-    protected $submitterHasPublicationModel;
+    /** @var Model\Documents @inject */
+    public $documentsModel;
 
-    /**
-     * @var  Model\Format
-     * @autowire
-     */
-    protected $formatModel;
+    /** @var Model\SubmitterHasPublication @inject */
+    public $submitterHasPublicationModel;
+
+    /** @var  Model\Format @inject */
+    public $formatModel;
 
     //--
 
-    /** @var  \App\Factories\IAnnotationCrudFactory */
-    protected $annotationCrudFactory;
+    /** @var  \App\Factories\IAnnotationCrudFactory @inject */
+    public $annotationCrudFactory;
 
-    /** @var  \App\Factories\IPublisherCrudFactory */
-    protected $publisherCrudFactory;
+    /** @var  \App\Factories\IPublisherCrudFactory @inject */
+    public $publisherCrudFactory;
 
-    /** @var  \App\Factories\IJournalCrudFactory */
-    protected $journalCrudFactory;
+    /** @var  \App\Factories\IJournalCrudFactory @inject */
+    public $journalCrudFactory;
 
-    /** @var  \App\Factories\IConferenceYearCrudFactory */
-    protected $conferenceYearCrudFactory;
+    /** @var  \App\Factories\IConferenceYearCrudFactory @inject */
+    public $conferenceYearCrudFactory;
 
-    /** @var  \App\Factories\IConferenceCrudFactory */
-    protected $conferenceCrudFactory;
+    /** @var  \App\Factories\IConferenceCrudFactory @inject */
+    public $conferenceCrudFactory;
 
-    /** @var  \App\Factories\IAttributeCrudFactory */
-    protected $attributeCrudFactory;
+    /** @var  \App\Factories\IAttributeCrudFactory @inject */
+    public $attributeCrudFactory;
 
-    /** @var  \App\Factories\IGroupCrudFactory */
-    protected $groupCrudFactory;
+    /** @var  \App\Factories\IGroupCrudFactory @inject */
+    public $groupCrudFactory;
 
-    /** @var  \App\Factories\IAuthorCrudFactory */
-    protected $authorCrudFactory;
+    /** @var  \App\Factories\IAuthorCrudFactory @inject */
+    public $authorCrudFactory;
 
-    /** @var  \App\Factories\IReferenceCrudFactory */
-    protected $referenceCrudFactory;
+    /** @var  \App\Factories\IReferenceCrudFactory @inject */
+    public $referenceCrudFactory;
 
-    /** @var  \App\Factories\IPublicationCategoryListFactory */
-    protected $publicationCategoryListFactory;
+    /** @var  \App\Factories\IPublicationCategoryListFactory @inject */
+    public $publicationCategoryListFactory;
 
     // --
 
@@ -170,149 +140,12 @@ class PublicationPresenter extends SecuredPresenter {
     protected $selectedAuthorId;
 
 
-    /**
-     * @param Model\Publisher $publisherModel
-     */
-    public function injectPublisherModel(Model\Publisher $publisherModel) {
-        $this->publisherModel = $publisherModel;
-    }
-
-    /**
-     * @param Model\Journal $journalModel
-     */
-    public function injectJournalModel(Model\Journal $journalModel) {
-        $this->journalModel = $journalModel;
-    }
-
-    /**
-     * @param Model\ConferenceYear $conferenceYearModel
-     */
-    public function injectConferenceYearModel(Model\ConferenceYear $conferenceYearModel) {
-        $this->conferenceYearModel = $conferenceYearModel;
-    }
-
-    /**
-     * @param Model\Conference $conferenceModel
-     */
-    public function injectConferenceModel(Model\Conference $conferenceModel) {
-        $this->conferenceModel = $conferenceModel;
-    }
-
-    /**
-     * @param Model\Attribute $attributeModel
-     */
-    public function injectAttributeModel(Model\Attribute $attributeModel) {
-        $this->attributeModel = $attributeModel;
-    }
-
-    /**
-     * @param Model\Publication $publicationModel
-     */
-    public function injectPublicationModel(Model\Publication $publicationModel) {
-        $this->publicationModel = $publicationModel;
-    }
-
-    /**
-     * @param Model\Files $filesModel
-     */
-    public function injectFilesModel(Model\Files $filesModel) {
-        $this->filesModel = $filesModel;
-    }
-
-    /**
-     * @param Model\Author $authorModel
-     */
-    public function injectAuthorModel(Model\Author $authorModel) {
-        $this->authorModel = $authorModel;
-    }
-
-    /**
-     * @param Model\Group $groupModel
-     */
-    public function injectGroupModel(Model\Group $groupModel) {
-        $this->groupModel = $groupModel;
-    }
-
-
-    
-    //  --
-
-    /**
-     * @param \App\Factories\IAnnotationCrudFactory $annotationCrudFactory
-     */
-    public function injectAnnotationCrudFactory(\App\Factories\IAnnotationCrudFactory $annotationCrudFactory) {
-        $this->annotationCrudFactory = $annotationCrudFactory;
-    }
-
-    /**
-     * @param \App\Factories\IPublisherCrudFactory $publisherCrudFactory
-     */
-    public function injectPublisherCrudFactory(\App\Factories\IPublisherCrudFactory $publisherCrudFactory) {
-        $this->publisherCrudFactory = $publisherCrudFactory;
-    }
-
-    /**
-     * @param \App\Factories\IJournalCrudFactory $journalCrudFactory
-     */
-    public function injectJournalCrudFactory(\App\Factories\IJournalCrudFactory $journalCrudFactory) {
-        $this->journalCrudFactory = $journalCrudFactory;
-    }
-
-    /**
-     * @param \App\Factories\IConferenceYearCrudFactory $conferenceYearCrudFactory
-     */
-    public function injectConferenceYearCrudFactory(\App\Factories\IConferenceYearCrudFactory $conferenceYearCrudFactory) {
-        $this->conferenceYearCrudFactory = $conferenceYearCrudFactory;
-    }
-
-    /**
-     * @param \App\Factories\IConferenceCrudFactory $conferenceCrudFactory
-     */
-    public function injectConferenceCrudFactory(\App\Factories\IConferenceCrudFactory $conferenceCrudFactory) {
-        $this->conferenceCrudFactory = $conferenceCrudFactory;
-    }
-
-    /**
-     * @param \App\Factories\IAttributeCrudFactory $attributeCrudFactory
-     */
-    public function injectAttributeCrudFactory(\App\Factories\IAttributeCrudFactory $attributeCrudFactory) {
-        $this->attributeCrudFactory = $attributeCrudFactory;
-    }
-
-    /**
-     * @param \App\Factories\IGroupCrudFactory $groupCrudFactory
-     */
-    public function injectGroupCrudFactory(\App\Factories\IGroupCrudFactory $groupCrudFactory) {
-        $this->groupCrudFactory = $groupCrudFactory;
-    }
-
-    /**
-     * @param \App\Factories\IAuthorCrudFactory $authorCrudFactory
-     */
-    public function injectAuthorCrudFactory(\App\Factories\IAuthorCrudFactory $authorCrudFactory) {
-        $this->authorCrudFactory = $authorCrudFactory;
-    }
-
-    /**
-     * @param \App\Factories\IReferenceCrudFactory $referenceCrudFactory
-     */
-    public function injectReferenceCrudFactory(\App\Factories\IReferenceCrudFactory $referenceCrudFactory) {
-        $this->referenceCrudFactory = $referenceCrudFactory;
-    }
-    
-    /**
-     * @param \App\Factories\IPublicationCategoryListFactory $publicationCategoryListFactory
-     */
-    public function injectPublicationCategoryListFactory(\App\Factories\IPublicationCategoryListFactory $publicationCategoryListFactory) {
-        $this->publicationCategoryListFactory = $publicationCategoryListFactory;
-    }
-
 
     // --
 
-    
 
-    public function __construct(Nette\Database\Context $database) {
+
+    public function __construct() {
         $this->functions = new Helpers\Functions();
     }
 
@@ -352,11 +185,11 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
     public function actionDefault() {
-        
+
     }
 
     public function renderDefault() {
-        
+
     }
 
     protected function createComponentPublicationImportForm($name) {
@@ -674,7 +507,7 @@ class PublicationPresenter extends SecuredPresenter {
         $c->onEdit[] = $cbFn;
         return $c;
     }
-    
+
     protected function createComponentAnnotationCrud(){
         $c = $this->annotationCrudFactory->create($this->publicationId);
         if(!$this->publicationId) $c->disallowAction('add');
@@ -840,7 +673,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->conferenceYearModel->find($this->selectedConferenceYearId);
 
         $this->template->selectedGroupId = !$this->selectedGroupId ? null : $this->selectedGroupId;
-        
+
         $this->template->selectedAuthorId = !$this->selectedAuthorId ? null : $this->selectedAuthorId;
 
         $this->template->attributes = $this->attributes;
@@ -885,6 +718,8 @@ class PublicationPresenter extends SecuredPresenter {
     }
 
     public function createComponentPublicationAddNewForm($name) {
+
+
         if(!$this->journals) $this->loadJournals();
         if(!$this->publishers) $this->loadPublishers();
         if(!$this->conferences) $this->loadConferences();
@@ -1291,7 +1126,7 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->pubCit['author_array'] = $data['pubCit_author_array'];
         $this->template->pubCit['author'] = $data['pubCit_author'];
         $this->template->types = $this->types;
-        
+
         $authorsByPubId = array();
         foreach($this->template->references as $rec) {
             if (empty($rec->reference_id)) {
@@ -1379,7 +1214,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('flashMessages');
         }
     }
-    
+
     public function handleDeleteReference($referenceId) {
          $this->drawAllowed = true;
 
@@ -1388,7 +1223,7 @@ class PublicationPresenter extends SecuredPresenter {
         if (!$reference) {
             $this->error('Reference not found');
         }
-        
+
         $this->referenceModel->delete($referenceId);
 
         $this->template->referenceDeleted = true;
@@ -1400,7 +1235,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('deleteReference');
             $this->redrawControl('referenceShowAllRecords');
         }
-        
+
     }
 
     public function handleSetFavouritePub($favorite_id) {
@@ -1640,7 +1475,7 @@ class PublicationPresenter extends SecuredPresenter {
 
 
     // =======================   DATA LOADERS    =======================
-    
+
     protected function loadPublishers($updateDependencies = false){
         $this->publishers =  $this->publisherModel->findAll()->order("name ASC")->fetchPairs('id', 'name');
         if($updateDependencies) {
@@ -1677,7 +1512,7 @@ class PublicationPresenter extends SecuredPresenter {
             if(isset($this['publicationAddNewForm'])) $this['publicationAddNewForm']->setAttributes($this->attributes);
         }
     }
-    
+
 
 
     // ==============================       SIGNALS        ===============================
@@ -1735,17 +1570,17 @@ class PublicationPresenter extends SecuredPresenter {
         $this->drawAllowed = false;
 
         $this->selectedConferenceYearId = $conferenceYearId;
-        
+
         $conferenceYearInfo =  $this->conferenceYearModel->find($conferenceYearId);
-        
+
         if (!empty($conferenceYearInfo['w_year'])) {
             $this['publicationAddNewForm']['issue_year']->setValue($conferenceYearInfo['w_year']);
         }
-        
+
         if (!empty($conferenceYearInfo['w_from'])) {
             $this['publicationAddNewForm']['issue_month']->setValue($conferenceYearInfo['w_from']->format("n"));
         }
-        
+
         if (!$this->isAjax()) {
             $this->redirect('this');
         } else {
