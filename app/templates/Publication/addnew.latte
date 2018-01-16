@@ -1181,23 +1181,23 @@
                                 </p>
                             </div>
                 </div>
-                
+
                 <div n:snippet="attributeShowAllRecords">
                     {var $form = $presenter['publicationAddNewForm']}
                     {foreach $attributes as $attrib}
-                                 <div id="addnew-attributes_{$attrib->id}" class="form-group attributes">
-                                     {label attributes_$attrib->id, class => "col-sm-2 control-label" /}   
-                                    <div class="col-sm-7">
-                                        {input attributes_$attrib->id, class => "form-control"} <span class=error n:ifcontent>{$form['attributes_'.$attrib->id]->error}</span>
-                                    </div>
-                                     <div class="col-sm-3">
-
-                                        {control attributeCrud-controls-$attrib->id}
-                                     </div>
-                                </div>
+                        <div id="addnew-attributes_{$attrib->id}" class="form-group attributes">
+                            {label $form['attributes'][$attrib->id], class=>"col-sm-2 control-label"}{/label}
+                            <div class="col-sm-7">
+                                {input $form['attributes'][$attrib->id], class=>"form-control"}
+                                <span class=error n:ifcontent>{$form['attributes'][$attrib->id]->error}</span>
+                            </div>
+                             <div class="col-sm-3">
+                                {control attributeCrud-controls-$attrib->id}
+                             </div>
+                        </div>
                     {/foreach}
-                     </div>
-                        
+                </div>
+
                 {snippet files}
                     {foreach $files as $key => $file}
                         <div class="form-group">

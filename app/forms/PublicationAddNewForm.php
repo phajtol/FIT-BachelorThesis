@@ -1,107 +1,136 @@
 <?php
 
+namespace App\Forms;
+
+
 use App\Forms\BaseForm;
-use App\Model\Publication;
+use App\Model;
 use Nette\Application\UI,
     Nette\ComponentModel\IContainer,
     Nette\Diagnostics\Debugger;
 use Nette\Forms\Controls\TextInput;
 
-class PublicationAddNewForm extends BaseForm {
+class PublicationAddNewFormFactory {
 
+    /**
+     * @var Model\AttribStorage
+     */
+    protected $attribStorageModel;
 
-    public function __construct($publicationId = null, $typesOfPublication, $attribStorage, $publishers, $journals, $conferences, $conferencesYears, $attributes,
-                                Publication $publicationModel,
-                                IContainer $parent = NULL, $name = NULL) {
-        parent::__construct($parent, $name);
+    /**
+     * @var Model\Publisher
+     */
+    protected $publisherModel;
+
+    /**
+     * @var Model\Journal
+     */
+    protected $journalModel;
+
+    /**
+     * @var Model\Conference
+     */
+    protected $conferenceModel;
+
+    /**
+     * @var Model\ConferenceYear
+     */
+    protected $conferenceYearModel;
+
+    /**
+     * @var Model\Attribute
+     */
+    protected $attributeModel;
+
+    /**
+     * @var Model\Publication
+     */
+    protected $publicationModel;
+
+    public function __construct(Model\AttribStorage $attribStorageModel,
+                                Model\Publisher $publisherModel,
+                                Model\Journal $journalModel,
+                                Model\Conference $conferenceModel,
+                                Model\ConferenceYear $conferenceYearModel,
+                                Model\Attribute $attributeModel,
+                                Model\Publication $publicationModel) {
+
+        $this->attribStorageModel = $attribStorageModel;
+        $this->publisherModel = $publisherModel;
+        $this->journalModel = $journalModel;
+        $this->conferenceModel = $conferenceModel;
+        $this->conferenceYearModel = $conferenceYearModel;
+        $this->attributeModel = $attributeModel;
+        $this->publicationModel = $publicationModel;
+
+      }
+
+      public function create($publication_id = null, $selectedConferenceId, $typesOfPublication, $parent, $onSuccess) {
 
         Debugger::fireLog('PublicationAddNewForm()');
 
-        $this->addText('title', 'Title')->addRule($this::MAX_LENGTH, 'Title is way too long', 500)->setRequired('Title is required.');
-        if (!$publicationId) {
-            $this['title']->addRule(function($item) use ($publicationModel) {
-                if($publicationModel->findOneBy(array('title' => $item->value))) return false;
+        $form = new BaseForm();
+
+        $form->addText('title', 'Title')->addRule($form::MAX_LENGTH, 'Title is way too long', 500)->setRequired('Title is required.');
+        if (!$publication_id) {
+          $that = $this;
+            $form['title']->addRule(function($item) use ($that) {
+                if($that->publicationModel->findOneBy(array('title' => $item->value))) return false;
                 return true;
             }, "Title already exists.", $parent);
         }
-        $this->addTextArea('abstract', 'Abstract', 6, 8)->addRule($this::MAX_LENGTH, 'Abstract is way too long', 20000);
-        $this->addSelect('pub_type', 'Type of publication', $typesOfPublication)->setPrompt(' ------- ')->setRequired('Type of publication is required.');
-        $this->addText('categories')->addRule(PublicationFormRules::CATEGORIES_SET_DEFAULT_VALUES, "-", $parent);
-        $this->addHidden('group')->addRule(PublicationFormRules::GROUP_SET_DEFAULT_VALUES, "-", $parent);
-        $this->addText('authors')
-                ->addRule(PublicationFormRules::AUTHOR_REQUIRED, "Author(s) is/are required.", $this)
-                ->addRule(PublicationFormRules::AUTHOR_OPTIONAL, "Select Author(s) or fill Editor.", $this)
-                ->addRule(PublicationFormRules::AUTHOR_SET_DEFAULT_VALUES, "-", $parent);
-        $this->addText('volume', 'Volume')->addRule($this::MAX_LENGTH, 'Volume is way too long', 50);
-        $this->addText('number', 'Number')->addRule($this::MAX_LENGTH, 'Number is way too long', 50);
-        $this->addText('chapter', 'Chapter')->addRule($this::MAX_LENGTH, 'Chapter is way too long', 200)->addRule(PublicationFormRules::CHAPTER_OPTIONAL, "Fill Chapter or Pages.", $this);
-        $this->addText('pages', 'Pages')->addRule(PublicationFormRules::PAGES_OPTIONAL, "Fill Pages or Chapter.", $this)->addCondition($this::FILLED)->addRule($this::PATTERN, 'Pages must be in P-P form.', '([0-9]{1,5})|([0-9]{1,5}-[0-9]{1,5})');
-        $this->addText('editor', 'Editor')->addRule($this::MAX_LENGTH, 'Editor is way too long', 200)->addRule(PublicationFormRules::EDITOR_OPTIONAL, "Fill Editor or select Author(s).", $this);
-        $this->addText('edition', 'Edition')->addRule($this::MAX_LENGTH, 'Edition is way too long', 200);
-        $this->addText('address', 'Address')->addRule($this::MAX_LENGTH, 'Address is way too long', 500);
-        $this->addText('booktitle', 'Booktitle')->addRule($this::MAX_LENGTH, 'Booktitle is way too long', 500)->addRule(PublicationFormRules::BOOKTITLE_REQUIRED, "Booktitle is required.", $this);
-        $this->addText('school', 'School')->addRule($this::MAX_LENGTH, 'School is way too long', 200)->addRule(PublicationFormRules::SCHOOL_REQUIRED, "School is required.", $this);
-        $this->addText('institution', 'Institution')->addRule($this::MAX_LENGTH, 'Institution is way too long', 200)->addRule(PublicationFormRules::INSTITUTION_REQUIRED, "Institution is required.", $this);
-        $this->addText('type_of_report', 'Type of report');
-        $this->addSelect('publisher_id', 'Publisher', $publishers)->setPrompt(' ------- ')->addRule(PublicationFormRules::PUBLISHER_REQUIRED, "Publisher is required.", $this);
-        $this->addSelect('journal_id', 'Journal', $journals)->setPrompt(' ------- ')->addRule(PublicationFormRules::JOURNAL_REQUIRED, "Journal is required.", $this);
-        $this->addSelect('conference', 'Conference', $conferences)->setPrompt(' ------- ')->addRule(PublicationFormRules::CONFERENCE_REQUIRED, "Conference is required.", $this);
-        $this->addSelect('conference_year_id', 'Year of Conference', $conferencesYears)->setPrompt(' ------- ')->addRule(PublicationFormRules::CONFERENCE_YEAR_REQUIRED, "Year of Conference is required.", $parent);
-        $this->addText('isbn', 'ISBN')->addCondition($this::FILLED)->addRule(PublicationFormRules::ISBN_VALID_FORM, "ISBN is not in correct form.", $parent);
-        $this->addText('doi', 'DOI')->addRule($this::MAX_LENGTH, 'DOI is way too long', 100);
-        $this->addText('howpublished', 'Howpublished')->addRule($this::MAX_LENGTH, 'Howpublished is way too long', 200);
-        $this->addSelect('issue_year', 'Year of publication', array_combine(range(date("Y"), 1900), range(date("Y"),1900)))->setPrompt(' ------- ');
-        $this->addSelect('issue_month', 'Month of publication', array_combine(range(1, 12), range(1,12)))->setPrompt(' ------- ');
-        $this['issue_year']->addConditionOn($this['issue_month'], $this::FILLED)->addRule($this::FILLED,"Year of publication year is required if Month of publication is not empty.");
-        $this->addText('organization', 'Organization')->addRule($this::MAX_LENGTH, 'Organization is way too long', 200);
-        $this->addText('url', 'URL')->addRule($this::MAX_LENGTH, 'URL is way too long', 500)->addCondition($this::FILLED)->addRule($this::URL, 'URL is not in correct form.');
+        $form->addTextArea('abstract', 'Abstract', 6, 8)->addRule($form::MAX_LENGTH, 'Abstract is way too long', 20000);
+        $form->addSelect('pub_type', 'Type of publication', $typesOfPublication)->setPrompt(' ------- ')->setRequired('Type of publication is required.');
+        $form->addText('categories')->addRule(\PublicationFormRules::CATEGORIES_SET_DEFAULT_VALUES, "-", $parent);
+        $form->addHidden('group')->addRule(\PublicationFormRules::GROUP_SET_DEFAULT_VALUES, "-", $parent);
+        $form->addText('authors')
+                ->addRule(\PublicationFormRules::AUTHOR_REQUIRED, "Author(s) is/are required.", $form)
+                ->addRule(\PublicationFormRules::AUTHOR_OPTIONAL, "Select Author(s) or fill Editor.", $form)
+                ->addRule(\PublicationFormRules::AUTHOR_SET_DEFAULT_VALUES, "-", $parent);
+        $form->addText('volume', 'Volume')->addRule($form::MAX_LENGTH, 'Volume is way too long', 50);
+        $form->addText('number', 'Number')->addRule($form::MAX_LENGTH, 'Number is way too long', 50);
+        $form->addText('chapter', 'Chapter')->addRule($form::MAX_LENGTH, 'Chapter is way too long', 200)->addRule(\PublicationFormRules::CHAPTER_OPTIONAL, "Fill Chapter or Pages.", $form);
+        $form->addText('pages', 'Pages')->addRule(\PublicationFormRules::PAGES_OPTIONAL, "Fill Pages or Chapter.", $form)->addCondition($form::FILLED)->addRule($form::PATTERN, 'Pages must be in P-P form.', '([0-9]{1,5})|([0-9]{1,5}-[0-9]{1,5})');
+        $form->addText('editor', 'Editor')->addRule($form::MAX_LENGTH, 'Editor is way too long', 200)->addRule(\PublicationFormRules::EDITOR_OPTIONAL, "Fill Editor or select Author(s).", $form);
+        $form->addText('edition', 'Edition')->addRule($form::MAX_LENGTH, 'Edition is way too long', 200);
+        $form->addText('address', 'Address')->addRule($form::MAX_LENGTH, 'Address is way too long', 500);
+        $form->addText('booktitle', 'Booktitle')->addRule($form::MAX_LENGTH, 'Booktitle is way too long', 500)->addRule(\PublicationFormRules::BOOKTITLE_REQUIRED, "Booktitle is required.", $form);
+        $form->addText('school', 'School')->addRule($form::MAX_LENGTH, 'School is way too long', 200)->addRule(\PublicationFormRules::SCHOOL_REQUIRED, "School is required.", $form);
+        $form->addText('institution', 'Institution')->addRule($form::MAX_LENGTH, 'Institution is way too long', 200)->addRule(\PublicationFormRules::INSTITUTION_REQUIRED, "Institution is required.", $form);
+        $form->addText('type_of_report', 'Type of report');
+        $form->addSelect('publisher_id', 'Publisher',$this->publisherModel->findAll()->order("name ASC")->fetchPairs('id', 'name'))->setPrompt(' ------- ')->addRule(\PublicationFormRules::PUBLISHER_REQUIRED, "Publisher is required.", $form);
+        $form->addSelect('journal_id', 'Journal', $this->journalModel->findAll()->order("name ASC")->fetchPairs('id', 'name'))->setPrompt(' ------- ')->addRule(\PublicationFormRules::JOURNAL_REQUIRED, "Journal is required.", $form);
+        $form->addSelect('conference', 'Conference', $this->conferences = $this->conferenceModel->getConferenceForSelectbox())->setPrompt(' ------- ')->addRule(\PublicationFormRules::CONFERENCE_REQUIRED, "Conference is required.", $form);
+        $form->addSelect('conference_year_id', 'Year of Conference', $this->conferenceYearModel->getConferenceYearForSelectbox($selectedConferenceId))->setPrompt(' ------- ')->addRule(\PublicationFormRules::CONFERENCE_YEAR_REQUIRED, "Year of Conference is required.", $parent);
+        $form->addText('isbn', 'ISBN')->addCondition($form::FILLED)->addRule(\PublicationFormRules::ISBN_VALID_FORM, "ISBN is not in correct form.", $parent);
+        $form->addText('doi', 'DOI')->addRule($form::MAX_LENGTH, 'DOI is way too long', 100);
+        $form->addText('howpublished', 'Howpublished')->addRule($form::MAX_LENGTH, 'Howpublished is way too long', 200);
+        $form->addSelect('issue_year', 'Year of publication', array_combine(range(date("Y"), 1900), range(date("Y"),1900)))->setPrompt(' ------- ');
+        $form->addSelect('issue_month', 'Month of publication', array_combine(range(1, 12), range(1,12)))->setPrompt(' ------- ');
+        $form['issue_year']->addConditionOn($form['issue_month'], $form::FILLED)->addRule($form::FILLED,"Year of publication year is required if Month of publication is not empty.");
+        $form->addText('organization', 'Organization')->addRule($form::MAX_LENGTH, 'Organization is way too long', 200);
+        $form->addText('url', 'URL')->addRule($form::MAX_LENGTH, 'URL is way too long', 500)->addCondition($form::FILLED)->addRule($form::URL, 'URL is not in correct form.');
 
+        $attributes = $this->attributeModel->findAll()->order("name ASC");
+        $cont = $form->addContainer("attributes");
         foreach ($attributes as $atrib) {
-            $this->addText('attributes_' . $atrib->id, $atrib->name . ' (' . $atrib->description . ')');
+            $cont->addText($atrib->id, $atrib->name . ' (' . $atrib->description . ')');
         }
 
-        if ($publicationId) {
-            foreach ($attribStorage as $atSt) {
-                $this['attributes_' . $atSt->attributes_id]->setDefaultValue($atSt->value);
-            }
-        }
+        $form->addTextArea('note', 'Note', 6, 8)->addRule(\PublicationFormRules::NOTE_REQUIRED, "Note is required.", $form);
+        $form->addMultiUpload("upload", "Attachments");
+        $form->addHidden('id');
 
-        $this->addTextArea('note', 'Note', 6, 8)->addRule(PublicationFormRules::NOTE_REQUIRED, "Note is required.", $this);
-        $this->addMultiUpload("upload", "Attachments");
-        $this->addHidden('id');
-
-        $this->addSubmit('cancel', 'Cancel')->setValidationScope(NULL)->onClick[] = function () use ($parent) {
+        $form->addSubmit('cancel', 'Cancel')->setValidationScope(NULL)->onClick[] = function () use ($parent) {
             $parent->redirect('Publication:showall');
         };
-        $this->addSubmit('send', 'Done');
+        $form->addSubmit('send', 'Done');
 
+        $form->onSuccess[] = function($form) use ($onSuccess) {
+          $onSuccess($form);
+        };
 
-    }
-
-    public function setAttributes($attributes) {
-        $attributeArr = [];
-        foreach($attributes as $attribute) $attributeArr[] = $attribute;
-
-        foreach($this->getControls() as $control){
-            if(substr($control->name, 0, strlen('attributes_')) == 'attributes_'
-                && !count(array_filter($attributeArr, function(&$a) use ($control) { return $control->name == 'attributes_' . $a->id ; }))
-            ){
-                unset($this[$control->name]);
-            }
-        }
-        foreach($attributes as $attrib) {
-            $label = $attrib->name . ' (' . $attrib->description . ')';
-            $key = 'attributes_' . $attrib->id;
-            if(!isset($this[$key])) {
-                $this->addText($key, $label);
-            } else {
-                $this[$key]->caption = $label;
-            }
-        }
-    }
-
-    public function updateConferences(){
+        return $form;
 
     }
-
 }

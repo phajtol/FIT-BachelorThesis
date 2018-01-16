@@ -125,6 +125,11 @@ class PublicationPresenter extends SecuredPresenter {
 
     // --
 
+    /** @var \App\Forms\PublicationAddNewFormFactory @inject */
+    public $publicationAddNewFormFactory;
+
+    // --
+
     protected $publicationId;
 
     protected $selectedPublisherId;
@@ -591,6 +596,7 @@ class PublicationPresenter extends SecuredPresenter {
             $selectedAuthors = $this->authorModel->getAuthorsNamesByPubId($id);
             $selectedConferenceYear = false;
             $this->attribStorage = $this->attribStorageModel->findAllBy(array("publication_id" => $id));
+
             $selectedGroups = $this->groupHasPublicationModel->findAllBy(array('publication_id' => $id));
 
             if (isset($this->publication['conference_year_id'])) {
@@ -627,6 +633,10 @@ class PublicationPresenter extends SecuredPresenter {
 
         if ($id) {
             $this['publicationAddNewForm']->setDefaults($this->publication);
+
+            foreach ($this->attribStorage as $atSt) {
+                $this['publicationAddNewForm']['attributes'][$atSt->attributes_id]->setDefaultValue($atSt->value);
+            }
 
             if ($selectedConferenceYear) {
                 $this->template->conferenceYearInfo = $selectedConferenceYear;
@@ -717,7 +727,7 @@ class PublicationPresenter extends SecuredPresenter {
         return $c;
     }
 
-    public function createComponentPublicationAddNewForm($name) {
+    public function createComponentPublicationAddNewForm($parent=null, $name=null) {
 
 
         if(!$this->journals) $this->loadJournals();
@@ -726,11 +736,8 @@ class PublicationPresenter extends SecuredPresenter {
         if(!$this->conferenceYears) $this->loadConferenceYears();
         if(!$this->attributes) $this->loadAttributes();
 
-        $form = new \PublicationAddNewForm($this->publicationId, $this->types, $this->attribStorage,
-            $this->publishers, $this->journals, $this->conferences, $this->conferenceYears, $this->attributes,
-            $this->publicationModel, $this, $name);
-
-        $form->onSuccess[] = function(\PublicationAddNewForm $form) {
+        $form = $this->publicationAddNewFormFactory->create(
+                $this->publicationId, $this->selectedConferenceId, $this->types, $this, function($form) {
 
             $this->publicationModel->beginTransaction();
 
@@ -762,10 +769,8 @@ class PublicationPresenter extends SecuredPresenter {
 
                 $formValues = $this->publicationModel->prepareFormData($formValues);
 
-                foreach ($this->attributes as $attrib) {
-                    unset($formValues['attributes_' . $attrib->id]);
-                }
-
+                unset($formValues['attributes']);
+                
                 if ($form->values->id) {
                     $formValues['id'] = $form->values->id;
                     $record = $this->publicationModel->update($formValues);
@@ -901,12 +906,12 @@ class PublicationPresenter extends SecuredPresenter {
                 }
 
                 foreach ($this->attributes as $attrib) {
-                    if (!empty($values['attributes_' . $attrib->id])) {
+                    if (!empty($values['attributes'][$attrib->id])) {
                         $this->attribStorageModel->insert(array(
                             'publication_id' => $record->id,
                             'attributes_id' => $attrib->id,
                             'submitter_id' => $this->user->id,
-                            'value' => $values['attributes_' . $attrib->id],
+                            'value' => $values['attributes'][$attrib->id],
                         ));
                     }
                 }
@@ -927,7 +932,7 @@ class PublicationPresenter extends SecuredPresenter {
             } else {
                 $this->invalidateControl();
             }
-        };
+        });
 
         return $form;
     }
@@ -1509,7 +1514,15 @@ class PublicationPresenter extends SecuredPresenter {
     protected function loadAttributes($updateDependencies = false){
         $this->attributes =  $this->attributeModel->findAll()->order("name ASC");
         if($updateDependencies) {
-            if(isset($this['publicationAddNewForm'])) $this['publicationAddNewForm']->setAttributes($this->attributes);
+            $cont = $this['publicationAddNewForm']['attributes'];
+            foreach ($this->attributes as $attribute) {
+              $label = $attribute->name . ' (' . $attribute->description . ')';
+              if (empty($cont[$attribute->id])) {
+                $cont->addText($attribute->id, $label);
+              } else {
+                $cont[$attribute->id]->caption = $label;
+              }
+            }
         }
     }
 
