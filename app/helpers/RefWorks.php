@@ -116,7 +116,10 @@ class RefWorks extends Nette\Object {
     $this->definition .= isset($this->pub['edition']) && $this->pub['edition'] ? "ED " . $this->pub['edition'] . $this->newLine : '';
 
     // $this->definition .= isset($this->pub['type_of_report']) && $this->pub['type_of_report'] ? "%9 " . $this->pub['type_of_report'] . $this->newLine : '';
-    $this->definition .= isset($this->pub['isbn']) && $this->pub['isbn'] ? "SN " . $this->pub['isbn'] . $this->newLine : (isset($this->pub['issn']) && $this->pub['issn'] ? "SN " . $this->pub['issn'] . $this->newLine : '');
+    foreach ($this->pub['isbn'] as $isbn) {
+      $this->definition .= !empty($isbn->isbn) ? "SN " . $isbn->isbn . $this->newLine : '';
+    }
+
     $this->definition .= isset($this->pub['address']) && $this->pub['address'] ? "PP " . $this->pub['address'] . $this->newLine : (isset($this->pub['publisher_address']) && $this->pub['publisher_address'] ? "PP " . $this->pub['publisher_address'] . $this->newLine : '');
     // $this->definition .= isset($this->pub['school']) && $this->pub['school'] ? "%1 School: " . $this->pub['school'] . $this->newLine : '';
     // $this->definition .= isset($this->pub['organization']) && $this->pub['organization'] ? "%2 Organization: " . $this->pub['organization'] . $this->newLine : '';

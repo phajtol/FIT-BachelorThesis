@@ -117,7 +117,9 @@ class EndNote extends Nette\Object {
     $this->definition .= isset($this->pub['edition']) && $this->pub['edition'] ? "%7 " . $this->pub['edition'] . $this->newLine : '';
 
     $this->definition .= isset($this->pub['type_of_report']) && $this->pub['type_of_report'] ? "%9 " . $this->pub['type_of_report'] . $this->newLine : '';
-    $this->definition .= isset($this->pub['isbn']) && $this->pub['isbn'] ? "%@ " . $this->pub['isbn'] . $this->newLine : (isset($this->pub['issn']) && $this->pub['issn'] ? "%@ " . $this->pub['issn'] . $this->newLine : '');
+    foreach ($this->pub['isbn'] as $isbn) {
+      $this->definition .= !empty($isbn->isbn) ? "%@ " . $isbn->isbn . $this->newLine : '';
+    }
     $this->definition .= isset($this->pub['address']) && $this->pub['address'] ? "%C " . $this->pub['address'] . $this->newLine : (isset($this->pub['publisher_address']) && $this->pub['publisher_address'] ? "%C " . $this->pub['publisher_address'] . $this->newLine : '');
     $this->definition .= isset($this->pub['school']) && $this->pub['school'] ? "%1 School: " . $this->pub['school'] . $this->newLine : '';
     $this->definition .= isset($this->pub['organization']) && $this->pub['organization'] ? "%2 Organization: " . $this->pub['organization'] . $this->newLine : '';

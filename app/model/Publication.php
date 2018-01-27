@@ -131,11 +131,12 @@ class Publication extends Base {
         $references = $this->database->table('reference')->where(array('publication_id' => $publicationCopy->id))->order("id ASC");
         $citations = $this->database->table('reference')->where(array('reference_id' => $publicationCopy->id))->order("id ASC");
 
-        
+
         $favourite = $this->database->table('submitter_has_publication')->where(array('submitter_id' => $userId, 'publication_id' => $publicationCopy->id))->fetch();
         $conferenceYearOriginal = $this->database->table('conference_year')->get($publicationCopy->conference_year_id);
         $conferenceYearPublisher = '';
 
+        $publication['isbn'] = $publicationCopy->related("publication_isbn");
 
         if ($conferenceYearOriginal) {
             $conferenceYear = $conferenceYearOriginal->toArray();
@@ -980,7 +981,6 @@ class Publication extends Base {
           journal_id => NULL
           conference2 => NULL
           conference_year_id => NULL
-          isbn => ""
           howpublished => ""
           organization => ""
           url => ""
@@ -1048,7 +1048,6 @@ class Publication extends Base {
       $formValues['publisher_id'] = NULL;
       $formValues['journal_id'] = NULL;
       $formValues['conference_year_id'] = NULL;
-      $formValues['isbn'] = NULL;
       $formValues['howpublished'] = NULL;
       $formValues['organization'] = NULL;
      */
@@ -1067,7 +1066,6 @@ class Publication extends Base {
         $formValues['publisher_id'] = NULL;
         $formValues['journal_id'] = NULL;
         $formValues['conference_year_id'] = NULL;
-        $formValues['isbn'] = NULL;
         $formValues['organization'] = NULL;
 
         return $formValues;
@@ -1099,7 +1097,6 @@ class Publication extends Base {
         $formValues['type_of_report'] = NULL;
         $formValues['publisher_id'] = NULL;
         $formValues['conference_year_id'] = NULL;
-        $formValues['isbn'] = NULL;
         $formValues['howpublished'] = NULL;
         $formValues['organization'] = NULL;
 
@@ -1178,7 +1175,6 @@ class Publication extends Base {
         $formValues['publisher_id'] = NULL;
         $formValues['journal_id'] = NULL;
         $formValues['conference_year_id'] = NULL;
-        $formValues['isbn'] = NULL;
         $formValues['organization'] = NULL;
 
         return $formValues;
@@ -1196,7 +1192,6 @@ class Publication extends Base {
         $formValues['publisher_id'] = NULL;
         $formValues['journal_id'] = NULL;
         $formValues['conference_year_id'] = NULL;
-        $formValues['isbn'] = NULL;
         $formValues['howpublished'] = NULL;
 
         return $formValues;
@@ -1212,7 +1207,6 @@ class Publication extends Base {
         $formValues['publisher_id'] = NULL;
         $formValues['journal_id'] = NULL;
         $formValues['conference_year_id'] = NULL;
-        $formValues['isbn'] = NULL;
         $formValues['howpublished'] = NULL;
         $formValues['organization'] = NULL;
 
@@ -1249,7 +1243,6 @@ class Publication extends Base {
         $formValues['publisher_id'] = NULL;
         $formValues['journal_id'] = NULL;
         $formValues['conference_year_id'] = NULL;
-        $formValues['isbn'] = NULL;
         $formValues['howpublished'] = NULL;
         $formValues['organization'] = NULL;
 

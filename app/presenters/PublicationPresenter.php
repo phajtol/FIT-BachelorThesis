@@ -1174,6 +1174,17 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->pubCit = $data['pubCit'];
         $this->template->pubCit['author_array'] = $data['pubCit_author_array'];
         $this->template->pubCit['author'] = $data['pubCit_author'];
+        $isbn = null;
+        if (!empty($data['pubCit']['isbn'])) {
+          foreach ($data['pubCit']['isbn'] as $row) {
+            if ($row['type']=="ISBN") {
+              $isbn= $row['isbn'];
+              break;
+            }
+          }
+        }
+        $this->template->pubCit['isbn'] = $isbn;
+
         $this->template->types = $this->types;
 
         $authorsByPubId = array();
