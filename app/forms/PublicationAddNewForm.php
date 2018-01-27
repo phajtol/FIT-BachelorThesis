@@ -47,13 +47,19 @@ class PublicationAddNewFormFactory {
      */
     protected $publicationModel;
 
+    /**
+     * @var Model\PublicationIsbn
+     */
+    protected $publicationIsbnModel;
+
     public function __construct(Model\AttribStorage $attribStorageModel,
                                 Model\Publisher $publisherModel,
                                 Model\Journal $journalModel,
                                 Model\Conference $conferenceModel,
                                 Model\ConferenceYear $conferenceYearModel,
                                 Model\Attribute $attributeModel,
-                                Model\Publication $publicationModel) {
+                                Model\Publication $publicationModel,
+                                Model\PublicationIsbn $publicationIsbnModel) {
 
         $this->attribStorageModel = $attribStorageModel;
         $this->publisherModel = $publisherModel;
@@ -62,11 +68,10 @@ class PublicationAddNewFormFactory {
         $this->conferenceYearModel = $conferenceYearModel;
         $this->attributeModel = $attributeModel;
         $this->publicationModel = $publicationModel;
-
+        $this->publicationIsbnModel = $publicationIsbnModel;
       }
 
       public function create($publication_id = null, $selectedConferenceId, $typesOfPublication, $parent, $onSuccess) {
-
         Debugger::fireLog('PublicationAddNewForm()');
 
         $form = new BaseForm();
@@ -102,7 +107,16 @@ class PublicationAddNewFormFactory {
         $form->addSelect('journal_id', 'Journal', $this->journalModel->findAll()->order("name ASC")->fetchPairs('id', 'name'))->setPrompt(' ------- ')->addRule(\PublicationFormRules::JOURNAL_REQUIRED, "Journal is required.", $form);
         $form->addSelect('conference', 'Conference', $this->conferences = $this->conferenceModel->getConferenceForSelectbox())->setPrompt(' ------- ')->addRule(\PublicationFormRules::CONFERENCE_REQUIRED, "Conference is required.", $form);
         $form->addSelect('conference_year_id', 'Year of Conference', $this->conferenceYearModel->getConferenceYearForSelectbox($selectedConferenceId))->setPrompt(' ------- ')->addRule(\PublicationFormRules::CONFERENCE_YEAR_REQUIRED, "Year of Conference is required.", $parent);
-        $form->addText('isbn', 'ISBN')->addCondition($form::FILLED)->addRule(\PublicationFormRules::ISBN_VALID_FORM, "ISBN is not in correct form.", $parent);
+
+        if ($publication_id) {
+          $count = $this->publicationIsbnModel->findAllBy(["publication_id" => $publication_id])->count('*');
+        } else {
+          $count = 1;
+        }
+        $form->addHidden('isbn_count')
+          ->setDefaultValue($count);
+        $cont = $form->addContainer("isbn");
+
         $form->addText('doi', 'DOI')->addRule($form::MAX_LENGTH, 'DOI is way too long', 100);
         $form->addText('howpublished', 'Howpublished')->addRule($form::MAX_LENGTH, 'Howpublished is way too long', 200);
         $form->addSelect('issue_year', 'Year of publication', array_combine(range(date("Y"), 1900), range(date("Y"),1900)))->setPrompt(' ------- ');

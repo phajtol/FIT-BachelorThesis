@@ -88,8 +88,11 @@ class PublicationPresenter extends SecuredPresenter {
     /** @var Model\SubmitterHasPublication @inject */
     public $submitterHasPublicationModel;
 
-    /** @var  Model\Format @inject */
+    /** @var Model\Format @inject */
     public $formatModel;
+
+    /** @var Model\PublicationIsbn @inject */
+    public $publicationIsbnModel;
 
     //--
 
@@ -122,8 +125,6 @@ class PublicationPresenter extends SecuredPresenter {
 
     /** @var  \App\Factories\IPublicationCategoryListFactory @inject */
     public $publicationCategoryListFactory;
-
-    // --
 
     /** @var \App\Forms\PublicationAddNewFormFactory @inject */
     public $publicationAddNewFormFactory;
@@ -256,13 +257,6 @@ class PublicationPresenter extends SecuredPresenter {
                 if ($conference) {
                     $conference_year_id = $this->conferenceYearModel->findOneBy(array('name' => $conference));
                 }
-                if ($isbn) {
-                    $conference_year_id2 = $this->conferenceYearModel->findOneBy(array('isbn' => $isbn));
-                    if ($conference_year_id2) {
-                        $conference_year_id = $conference_year_id2;
-                    }
-                }
-
 
                 if ($conference_year_id) {
 
@@ -534,6 +528,16 @@ class PublicationPresenter extends SecuredPresenter {
         return $c;
     }
 
+
+    public function handleAddIsbn($count) {
+      $this['publicationAddNewForm']['isbn_count']->setValue($count);
+      $this->redrawControl('isbn_count');
+
+      $this->redrawControl("add_isbn");
+      $this->redrawControl("isbnArea");
+      $this->redrawControl("last_isbn");
+
+    }
     public function actionAddNew($id) {
 
         // rozlisovat ADD, EDIT (id), smazat vsechny kategorie a vytvorit nove!!, u EDIT skryt IMPORT
@@ -544,7 +548,6 @@ class PublicationPresenter extends SecuredPresenter {
         Debugger::fireLog($params);
 
         $this->publication = array();
-
         if ($id) {
             $this->publication = $this->publicationModel->find($id)->toArray();
             $title = "Edit Publication";
@@ -592,7 +595,6 @@ class PublicationPresenter extends SecuredPresenter {
         $files = array();
 
         if ($id) {
-
             $selectedAuthors = $this->authorModel->getAuthorsNamesByPubId($id);
             $selectedConferenceYear = false;
             $this->attribStorage = $this->attribStorageModel->findAllBy(array("publication_id" => $id));
@@ -632,6 +634,8 @@ class PublicationPresenter extends SecuredPresenter {
         //
 
         if ($id) {
+            unset($this->publication['isbn']);
+
             $this['publicationAddNewForm']->setDefaults($this->publication);
 
             foreach ($this->attribStorage as $atSt) {
@@ -662,6 +666,29 @@ class PublicationPresenter extends SecuredPresenter {
     }
 
     public function renderAddNew() {
+      $this->template->isbn_count = $this['publicationAddNewForm']['isbn_count']->getValue();
+      $count = $this['publicationAddNewForm']['isbn_count']->getValue()+1;
+      $cont = $this['publicationAddNewForm']['isbn'];
+
+      for ($i=0;$i<$count;$i++) {
+        $cont2 = $cont->addContainer($i);
+        $cont2->addText("isbn", "ISBN/ISSN")
+          ->setRequired(false);
+        $cont2->addSelect("type", "Typ", ["ISBN" => "ISBN", "ISSN" => "ISSN"]);
+        $cont2->addText("note", "Poznámka")
+          ->setRequired(false);
+      }
+      if ($this->publicationId) {
+        $isbn = $this->publicationIsbnModel->findAllBy(["publication_id" => $this->publicationId]);
+        $i = 0;
+        foreach ($isbn as $row) {
+          $cont[$i]['isbn']->setDefaultValue($row['isbn']);
+          $cont[$i]['type']->setDefaultValue($row['type']);
+          $cont[$i]['note']->setDefaultValue($row['note']);
+          $i++;
+        }
+      }
+
         if (!isset($this->template->files) && $this->publicationId) {
             $this->template->files = $this->filesModel->prepareFiles($this->publicationId);
         }
@@ -770,7 +797,9 @@ class PublicationPresenter extends SecuredPresenter {
                 $formValues = $this->publicationModel->prepareFormData($formValues);
 
                 unset($formValues['attributes']);
-                
+                unset($formValues['isbn']);
+                unset($formValues['isbn_count']);
+
                 if ($form->values->id) {
                     $formValues['id'] = $form->values->id;
                     $record = $this->publicationModel->update($formValues);
@@ -914,6 +943,21 @@ class PublicationPresenter extends SecuredPresenter {
                             'value' => $values['attributes'][$attrib->id],
                         ));
                     }
+                }
+
+                $this->publicationIsbnModel->findAllBy(["publication_id" => $record->id])
+                                  ->delete();
+
+                if (!empty($values['isbn'])) {
+                  foreach ($values['isbn'] as $isbn) {
+                    if (empty($isbn['isbn']) && empty($isbn['note']) ) {
+                      continue;
+                    }
+                    $this->publicationIsbnModel->insert(["publication_id" => $record->id,
+                                              "isbn" => $isbn['isbn'],
+                                              "type" => $isbn['type'],
+                                              "note" => $isbn['note']]);
+                  }
                 }
 
                 $this->publicationModel->commitTransaction();
