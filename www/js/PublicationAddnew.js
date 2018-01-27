@@ -275,7 +275,11 @@ $(document).ready(function() {
 
 	showSome($('#frm-publicationAddNewForm-pub_type').val());
 
-
+	$('.isbn-items').on("click", "a.delete-isbn", function(e) {
+		$($(this).data("target")).remove();
+		e.preventDefault();
+		}
+	);
 
 
 	Nette.validators.PublicationFormRules_validateJournal_IsRequired = function(elem, arg, value) {
