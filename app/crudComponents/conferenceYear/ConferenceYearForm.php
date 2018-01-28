@@ -8,6 +8,9 @@
 
 namespace App\CrudComponents\ConferenceYear;
 
+use App\Model\Conference;
+use App\Model\ConferenceYear;
+use App\Model\ConferenceYearIsIndexed;
 
 use PublicationFormRules;
 
