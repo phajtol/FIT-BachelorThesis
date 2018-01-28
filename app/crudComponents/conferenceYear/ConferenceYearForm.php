@@ -11,7 +11,7 @@ namespace App\CrudComponents\ConferenceYear;
 
 use PublicationFormRules;
 
-abstract class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixtureForm {
+class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixtureForm {
 
 	/**
 	 * @param array $publishers assoc [publisher_id => publisher_name, ..]
