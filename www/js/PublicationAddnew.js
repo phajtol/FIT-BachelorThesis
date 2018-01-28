@@ -87,7 +87,8 @@ function showSome(type) {
 			$('#addnew-authors1').removeClass("hidden");
 			$('#addnew-authors2').removeClass("hidden");
 			$('#addnew-authors3').removeClass("hidden");
-                        $('#addnew-note').removeClass("hidden");
+			$('#addnew-isbn').removeClass("hidden");
+      $('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			break;
 
@@ -101,7 +102,7 @@ function showSome(type) {
 			$('#addnew-editor').removeClass("hidden").addClass("required");
 			$('#addnew-publisher').removeClass("hidden").addClass("required");
 			$('#addnew-isbn').removeClass("hidden");
-                        $('#addnew-edition').removeClass("hidden");
+      $('#addnew-edition').removeClass("hidden");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			break;
@@ -115,7 +116,7 @@ function showSome(type) {
 			$('#addnew-authors3').removeClass("hidden");
 			$('#addnew-journal').removeClass("hidden").addClass("required");
 			$('#snippet--publicationJournalInfo').removeClass("hidden");
-                        $('#addnew-note').removeClass("hidden");
+      $('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			break;
 
@@ -131,8 +132,7 @@ function showSome(type) {
 			$('#snippet--publicationConferenceInfo').removeClass("hidden");
 			$('#addnew-conferenceYear').removeClass("hidden").addClass("required");
 			$('#snippet--publicationConferenceYearInfo').removeClass("hidden");
-			$('#addnew-isbn').removeClass("hidden");
-                        $('#addnew-organization').removeClass("hidden");
+			$('#addnew-organization').removeClass("hidden");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			break;
@@ -145,7 +145,6 @@ function showSome(type) {
 			$('#snippet--publicationConferenceInfo').removeClass("hidden");
 			$('#addnew-conferenceYear').removeClass("hidden").addClass("required");
 			$('#snippet--publicationConferenceYearInfo').removeClass("hidden");
-			$('#addnew-isbn').removeClass("hidden");
 			$('#addnew-organization').removeClass("hidden");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
@@ -162,7 +161,6 @@ function showSome(type) {
 			$('#addnew-authors3').removeClass("hidden");
 			$('#addnew-publisher').removeClass("hidden").addClass("required");
 			$('#addnew-isbn').removeClass("hidden");
-                        $('#addnew-edition').removeClass("hidden");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			break;
@@ -178,7 +176,7 @@ function showSome(type) {
 			$('#addnew-editor').removeClass("hidden").addClass("required");
 			$('#addnew-publisher').removeClass("hidden").addClass("required");
 			$('#addnew-isbn').removeClass("hidden");
-                        $('#addnew-edition').removeClass("hidden");
+      $('#addnew-edition').removeClass("hidden");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			break;
@@ -189,6 +187,7 @@ function showSome(type) {
 			$('#addnew-authors1').removeClass("hidden");
 			$('#addnew-authors2').removeClass("hidden");
 			$('#addnew-authors3').removeClass("hidden");
+			$('#addnew-isbn').removeClass("hidden");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			$('#addnew-address').removeClass("hidden");
@@ -201,6 +200,7 @@ function showSome(type) {
 			$('#addnew-authors3').removeClass("hidden");
 			$('#addnew-organization').removeClass("hidden");
 			$('#addnew-edition').removeClass("hidden");
+			$('#addnew-isbn').removeClass("hidden");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			$('#addnew-address').removeClass("hidden");
@@ -214,6 +214,7 @@ function showSome(type) {
 			$('#addnew-authors1').removeClass("hidden");
 			$('#addnew-authors2').removeClass("hidden").addClass("required");
 			$('#addnew-authors3').removeClass("hidden");
+			$('#addnew-isbn').removeClass("hidden");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			$('#addnew-address').removeClass("hidden");
@@ -237,6 +238,7 @@ function showSome(type) {
 			$('#addnew-authors2').removeClass("hidden").addClass("required");
 			$('#addnew-authors3').removeClass("hidden");
 			$('#addnew-school').removeClass("hidden").addClass("required");
+			$('#addnew-isbn').removeClass("hidden");
 			$('#addnew-note').removeClass("hidden");
 			$('#addnew-url').removeClass("hidden");
 			$('#addnew-address').removeClass("hidden");
