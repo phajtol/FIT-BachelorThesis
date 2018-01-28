@@ -210,7 +210,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
             if(!$this->isActionAllowed('add')) return null;
             $form = new ConferenceYearForm($this->conferenceId, $this->loadPublishers(), $this->loadDocumentIndexes(), $this->conferenceModel, $this->conferenceYearModel, $this->conferenceYearIsIndexedModel, $this, 'conferenceYearAddForm');
             $this->reduceForm($form);
-            $form->onSuccess[] = function(ConferenceYearAddForm $form) {
+            $form->onSuccess[] = function(ConferenceYearForm $form) {
 
 		$formValues = $form->getValuesTransformed();
 
@@ -244,7 +244,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
             if(!$this->isActionAllowed('edit')) return null;
             $form = new ConferenceYearForm(null,$this->loadPublishers(), $this->loadDocumentIndexes(), $this->conferenceModel, $this->conferenceYearModel, $this->conferenceYearIsIndexedModel, $this, 'conferenceYearEditForm');
             $this->reduceForm($form);
-            $form->onSuccess[] = function(ConferenceYearEditForm $form) {
+            $form->onSuccess[] = function(ConferenceYearForm $form) {
 
 		$formValues = $form->getValuesTransformed();
 
@@ -270,9 +270,9 @@ class ConferenceYearCrud extends BaseCrudComponent {
 
 		$this->onEdit($record);
             };
-            
-            
-            $form->onError[] = function(ConferenceYearEditForm $form) {
+
+
+            $form->onError[] = function(ConferenceYearForm $form) {
                 $this->redrawControl('conferenceYearEditForm');
             };
             return $form;
