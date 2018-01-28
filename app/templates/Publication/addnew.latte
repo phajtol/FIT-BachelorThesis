@@ -385,6 +385,28 @@
     });
 </script>
 
+{define #isbnFormElement}
+  <div id="addnew-isbn-{$name}" class="form-group addnew-isbn" >
+    {label isbn-$name-isbn, class => "col-sm-2 control-label" /}
+    <div class="col-sm-2">
+        {input isbn-$name-isbn, class => "form-control"}
+    </div>
+    {label isbn-$name-type, class => "col-sm-1 control-label" /}
+    <div class="col-sm-2">
+        {input isbn-$name-type, class => "form-control"}
+    </div>
+    {label isbn-$name-note, class => "col-sm-1 control-label" /}
+    <div class="col-sm-2">
+        {input isbn-$name-note, class => "form-control"}
+    </div>
+    <div class="col-sm-1">
+        <a id="deleteIsbnButton-{$name}" class="btn btn-danger delete-isbn" data-target="#addnew-isbn-{$name}" title="Delete ISBN">
+            <span class="glyphicon glyphicon-remove"></span>
+        </a>
+    </div>
+  </div>
+{/define}
+
 
 <div class="row">
     <ol class="breadcrumb">
@@ -1036,48 +1058,12 @@
 
                 <div id="addnew-isbn" class="isbn-items" >
                 {for $name=0;$name<($isbn_count-1);$name++}
-                  <div id="addnew-isbn-{$name}" class="form-group addnew-isbn" >
-                    {label isbn-$name-isbn, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-2">
-                        {input isbn-$name-isbn, class => "form-control"}
-                    </div>
-                    {label isbn-$name-type, class => "col-sm-1 control-label" /}
-                    <div class="col-sm-2">
-                        {input isbn-$name-type, class => "form-control"}
-                    </div>
-                    {label isbn-$name-note, class => "col-sm-1 control-label" /}
-                    <div class="col-sm-2">
-                        {input isbn-$name-note, class => "form-control"}
-                    </div>
-                    <div class="col-sm-1">
-                        <a id="deleteIsbnButton-{$name}" class="btn btn-danger delete-isbn" data-target="#addnew-isbn-{$name}" title="Delete ISBN">
-                            <span class="glyphicon glyphicon-remove"></span>
-                        </a>
-                    </div>
-                  </div>
+                  {include #isbnFormElement}
                 {/for}
                 <div n:snippet="last_isbn" data-ajax-append>
                   {if ($isbn_count>0)}
                     {var $name = ($isbn_count-1)}
-                    <div id="addnew-isbn-{$name}" class="form-group addnew-isbn" >
-                      {label isbn-$name-isbn, class => "col-sm-2 control-label" /}
-                      <div class="col-sm-2">
-                          {input isbn-$name-isbn, class => "form-control"}
-                      </div>
-                      {label isbn-$name-type, class => "col-sm-1 control-label" /}
-                      <div class="col-sm-2">
-                          {input isbn-$name-type, class => "form-control"}
-                      </div>
-                      {label isbn-$name-note, class => "col-sm-1 control-label" /}
-                      <div class="col-sm-2">
-                          {input isbn-$name-note, class => "form-control"}
-                      </div>
-                      <div class="col-sm-1">
-                          <a id="deleteIsbnButton-{$name}" class="btn btn-danger delete-isbn" data-target="#addnew-isbn-{$name}" title="Delete ISBN">
-                              <span class="glyphicon glyphicon-remove"></span>
-                          </a>
-                      </div>
-                    </div>
+                    {include #isbnFormElement}
                   {/if}
                 </div>
                 <div class="form-group">
