@@ -288,48 +288,45 @@
                 </div>
 
 
-               
+
 
             <div class="tab-pane fade" id="annotations" n:if="$PU">
 
-                                    <form class="form-horizontal" role="form">
-                                        <div class="form-group">
-                                            <h1 class="col-sm-3 control-label">Annotations</h1>
-                                        </div>
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <h1 class="col-sm-3 control-label">Annotations</h1>
+                    </div>
 
-                                        {snippet publicationAnnotationData}
-                                            {foreach $annotations as $annotation}
-                                                <hr>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">{$annotation->submitter->name} {$annotation->submitter->surname}
-                                                        <br>
-                                                        {if $annotation->global_scope == 1}
-                                                            <span class="glyphicon glyphicon-globe"></span> Global
-                                                        {else}
-                                                            <span class="glyphicon glyphicon-lock"></span> Private
-                                                        {/if}
-                                                        <br>
-                                                        {if $annotation->date}
-                                                            {$annotation->date|ldate}
-                                                        {/if}
-                                                    </label>
-                                                    <div class="col-sm-9">
-                                                        <p class="form-control-static"><a n:href="Publication:showpub $annotation->publication->id">{$annotation->publication->title}</a></p>
-                                                        <p id="annotation-{$annotation->id}" class="form-control-static">{$annotation->text}</p>
-                                                        <p class="form-control-static">
-                                                            {control annotationCrud-controls-$annotation->id}
-                                                        </p>
-                                                    </div>
-                                                    <hr>
-                                                </div>
-                                            {/foreach}
-                                        {/snippet}
-                                    </form>
-
-                                    {control annotationCrud}
-
+                    {snippet publicationAnnotationData}
+                        {foreach $annotations as $annotation}
+                            <hr>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">{$annotation->submitter->name} {$annotation->submitter->surname}
+                                    <br>
+                                    {if $annotation->global_scope == 1}
+                                        <span class="glyphicon glyphicon-globe"></span> Global
+                                    {else}
+                                        <span class="glyphicon glyphicon-lock"></span> Private
+                                    {/if}
+                                    <br>
+                                    {if $annotation->date}
+                                        {$annotation->date|ldate}
+                                    {/if}
+                                </label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static"><a n:href="Publication:showpub $annotation->publication->id">{$annotation->publication->title}</a></p>
+                                    <p id="annotation-{$annotation->id}" class="form-control-static">{$annotation->text}</p>
+                                    <p class="form-control-static">
+                                        {control annotationCrud-controls-$annotation->id}
+                                    </p>
+                                </div>
+                                <hr>
+                            </div>
+                        {/foreach}
+                    {/snippet}
+                </form>
+                {control annotationCrud}
             </div>
-
 
             <div class="tab-pane fade" id="settings">
 
@@ -340,7 +337,7 @@
                             <h1 class="col-sm-3 control-label">User Settings</h1>
                         </div>
                         <hr>
-                        
+
                         {if $userSettings->pagination}
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Items per page</label>
