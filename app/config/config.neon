@@ -89,6 +89,7 @@ services:
 	UserRole: App\Model\UserRole
 	Reference: App\Model\Reference
 	PublicationIsbn: App\Model\PublicationIsbn
+	ConferenceYearIsbn: App\Model\ConferenceYearIsbn
 
 
 	# global

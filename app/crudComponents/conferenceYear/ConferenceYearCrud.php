@@ -33,6 +33,9 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	/** @var  \App\Model\ConferenceYearIsIndexed */
 	protected $conferenceYearIsIndexedModel;
 
+	/** @var  \App\Model\ConferenceYearIsbn */
+	protected $conferenceYearIsbnModel;
+
 	/** @var  \Nette\Security\User */
 	protected $loggedUser;
 
@@ -45,6 +48,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	public function __construct($conferenceId, \Nette\Security\User $loggedUser, \App\Model\Publisher $publisherModel,
 								\App\Model\Publication $publicationModel, \App\Model\ConferenceYear $conferenceYearModel, \App\Model\Conference $conferenceModel,
 								\App\Model\DocumentIndex $documentIndexModel, \App\Model\ConferenceYearIsIndexed $conferenceYearIsIndexedModel,
+								\App\Model\ConferenceYearIsbn $conferenceYearIsbnModel,
 								\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL)
 	{
 		$this->conferenceYearModel = $conferenceYearModel;
@@ -53,6 +57,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$this->publisherModel = $publisherModel;
 		$this->documentIndexModel = $documentIndexModel;
 		$this->conferenceYearIsIndexedModel = $conferenceYearIsIndexedModel;
+		$this->conferenceYearIsbnModel = $conferenceYearIsbnModel;
 
 		$this->loggedUser = $loggedUser;
 		$this->conferenceId = $conferenceId;
@@ -102,11 +107,9 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		parent::attached($presenter);
 
 		// load forms
-		if($this->isActionAllowed('add'))
-			$this->template->conferenceYearAddForm = $this['conferenceYearAddForm'];
-
-		if($this->isActionAllowed('edit'))
-			$this->template->conferenceYearEditForm = $this['conferenceYearEditForm'];
+		if($this->isActionAllowed('edit') || $this->isActionAllowed('add')) {
+			$this->template->conferenceYearForm = $this['conferenceYearForm'];
+		}
 
 		// templates
 		$this->template->conferenceYearAdded = false;
@@ -127,24 +130,24 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$publisherCrud->onAdd[] = function($record) use ($p) {
 			$p->handleShowPublisherInfoA($record->id);
 			$this->updatePublishers();
-			$p["conferenceYearAddForm"]["publisher_id"]->setValue($record->id);
-			$p->redrawControl('conferenceYearAddForm-publisher_id');
+			$p["conferenceYearForm"]["publisher_id"]->setValue($record->id);
+			$p->redrawControl('conferenceYearForm-publisher_id');
 		};
 
 		$publisherCrud->onDelete[] = function($record) use ($p) {
 			$p->handleShowPublisherInfoA($record->id);
 			$this->updatePublishers();
-			$p["conferenceYearAddForm"]["publisher_id"]->setValue(null);
-			$p->redrawControl('conferenceYearAddForm-publisher_id');
+			$p["conferenceYearForm"]["publisher_id"]->setValue(null);
+			$p->redrawControl('conferenceYearForm-publisher_id');
 		};
 
 		$publisherCrud->onEdit[] = function($record) use ($p) {
 			$p->handleShowPublisherInfoA($record->id);
 			$this->updatePublishers();
-			$p["conferenceYearAddForm"]["publisher_id"]->setValue($record->id);
-			//$p["conferenceYearEditForm"]->setValues(array('publisher_id', $record->id));
-			$p->redrawControl('conferenceYearAddForm-publisher_id');
-			//$p->redrawControl('conferenceYearEditForm-publisher_id');
+			$p["conferenceYearForm"]["publisher_id"]->setValue($record->id);
+			//$p["conferenceYearForm"]->setValues(array('publisher_id', $record->id));
+			$p->redrawControl('conferenceYearForm-publisher_id');
+			//$p->redrawControl('conferenceYearForm-publisher_id');
 		};
 
 		return $publisherCrud;
@@ -160,22 +163,22 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$publisherCrud->onAdd[] = function($record) use ($p) {
 			$p->handleShowPublisherInfoE($record->id);
 			$this->updatePublishers();
-			$p["conferenceYearEditForm"]["publisher_id"]->setValue($record->id);
-			$p->redrawControl('conferenceYearEditForm-publisher_id');
+			$p["conferenceYearForm"]["publisher_id"]->setValue($record->id);
+			$p->redrawControl('conferenceYearForm-publisher_id');
 		};
 
 		$publisherCrud->onDelete[] = function($record) use ($p) {
 			$p->handleShowPublisherInfoE($record->id);
 			$this->updatePublishers();
-			$p["conferenceYearEditForm"]["publisher_id"]->setValue(null);
-			$p->redrawControl('conferenceYearEditForm-publisher_id');
+			$p["conferenceYearForm"]["publisher_id"]->setValue(null);
+			$p->redrawControl('conferenceYearForm-publisher_id');
 		};
 
 		$publisherCrud->onEdit[] = function($record) use ($p) {
 			$p->handleShowPublisherInfoE($record->id);
 			$this->updatePublishers();
-			$p["conferenceYearEditForm"]->setValues(array('publisher_id', $record->id));
-			$p->redrawControl('conferenceYearEditForm-publisher_id');
+			$p["conferenceYearForm"]->setValues(array('publisher_id', $record->id));
+			$p->redrawControl('conferenceYearForm-publisher_id');
 		};
 
 		return $publisherCrud;
@@ -200,88 +203,80 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	}
 
 	protected function updatePublishers(){
-		$this['conferenceYearAddForm']->setPublishers($this->loadPublishers());
-		$this['conferenceYearEditForm']->setPublishers($this->loadPublishers());
-		$this->redrawControl('conferenceYearEditForm-publisher_id');
-		$this->redrawControl('conferenceYearAddForm-publisher_id');
+		$this['conferenceYearForm']->setPublishers($this->loadPublishers());
+		$this->redrawControl('conferenceYearForm-publisher_id');
 	}
 
-	public function createComponentConferenceYearAddForm(){
-            if(!$this->isActionAllowed('add')) return null;
-            $form = new ConferenceYearForm($this->conferenceId, $this->loadPublishers(), $this->loadDocumentIndexes(), $this->conferenceModel, $this->conferenceYearModel, $this->conferenceYearIsIndexedModel, $this, 'conferenceYearAddForm');
+	public function createComponentConferenceYearForm(){
+            if(!$this->isActionAllowed('edit') && !$this->isActionAllowed('add')) return null;
+            $form = new ConferenceYearForm($this->conferenceId,$this->loadPublishers(), $this->loadDocumentIndexes(), $this->conferenceModel, $this->conferenceYearModel, $this->conferenceYearIsIndexedModel, $this, 'conferenceYearForm');
             $this->reduceForm($form);
             $form->onSuccess[] = function(ConferenceYearForm $form) {
-
 		$formValues = $form->getValuesTransformed();
-
-		$this->template->conferenceYearAdded = true;
 
 		$formValues['submitter_id'] = intval($this->loggedUser->id);
 
 		$documentIndexes = Func::getAndUnset($formValues, 'document_indexes');
+
 		$this->sanitizeEntityData($formValues);
+		unset($formValues['isbn']);
+		unset($formValues['isbn_count']);
 
-		$record = $this->conferenceYearModel->insert($formValues);
-
-		$this->conferenceYearIsIndexedModel->setAssociatedDocumentIndexes($record->id, $documentIndexes);
-
-		if (!$this->presenter->isAjax()) {
-			$this->presenter->redirect('this');
+		if (empty($formValues['id'])) {
+			$this->template->conferenceYearAdded = true;
+			$record = $this->conferenceYearModel->insert($formValues);
 		} else {
-			$form->clearValues();
-			$this->redrawControl('conferenceYearAddForm');
+			unset($formValues['publisher_id']);
+			$this->template->conferenceYearEdited = true;
+			$this->conferenceYearModel->update($formValues);
+			$record = $this->conferenceYearModel->findOneById($formValues['id']);
 		}
-
-		$this->onAdd($record);
-            };
-            $form->onError[] = function($form) {
-		$this->redrawControl('conferenceYearAddForm');
-            };
-            return $form;
-	}
-
-	public function createComponentConferenceYearEditForm(){
-            if(!$this->isActionAllowed('edit')) return null;
-            $form = new ConferenceYearForm(null,$this->loadPublishers(), $this->loadDocumentIndexes(), $this->conferenceModel, $this->conferenceYearModel, $this->conferenceYearIsIndexedModel, $this, 'conferenceYearEditForm');
-            $this->reduceForm($form);
-            $form->onSuccess[] = function(ConferenceYearForm $form) {
 
 		$formValues = $form->getValuesTransformed();
 
-		$formValues['submitter_id'] = $this->loggedUser->id;
+		$this->conferenceYearIsbnModel->findAllBy(["conference_year_id" => $record->id])
+											->delete();
 
-		$documentIndexes = Func::getAndUnset($formValues, 'document_indexes');
-		$this->sanitizeEntityData($formValues);
+		if (!empty($formValues['isbn'])) {
+			foreach ($formValues['isbn'] as $isbn) {
+				if (empty($isbn['isbn']) && empty($isbn['note']) ) {
+					continue;
+				}
+				$this->conferenceYearIsbnModel->insert(["conference_year_id" => $record->id,
+																	"isbn" => $isbn['isbn'],
+																	"type" => $isbn['type'],
+																	"note" => $isbn['note']]);
+			}
+		}
 
-		$this->template->conferenceYearEdited = true;
 
-		$this->conferenceYearModel->update($formValues);
+		if (empty($record->id)) {
+			$this->onAdd($record);
+		} else {
+			$this->onEdit($record);
+		}
 
-		$record = $this->conferenceYearModel->findOneById($formValues['id']);
 
 		$this->conferenceYearIsIndexedModel->setAssociatedDocumentIndexes($record->id, $documentIndexes);
 
 		if (!$this->presenter->isAjax()) {
 			$this->presenter->redirect('this');
 		} else {
-			$form->setValues(array(), TRUE);
-			$this->redrawControl('conferenceYearEditForm');
+			$this->redrawControl('conferenceYearForm');
 		}
 
-		$this->onEdit($record);
-            };
+  };
+  $form->onError[] = function(ConferenceYearForm $form) {
+      $this->redrawControl('conferenceYearForm');
+  };
 
-
-            $form->onError[] = function(ConferenceYearForm $form) {
-                $this->redrawControl('conferenceYearEditForm');
-            };
-            return $form;
+  return $form;
 	}
 
 
 	protected function sanitizeEntityData(&$data){
 		Func::valOrNull($data,
-			array('publisher_id', 'location', 'isbn', 'description', 'doi', 'issn', 'web', 'submitter_id', 'parent_id', 'name', 'abbreviation')
+			array('publisher_id', 'location', 'description', 'doi', 'web', 'submitter_id', 'parent_id', 'name', 'abbreviation')
 		);
 	}
 
@@ -336,7 +331,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		if($conferenceYear) {
 
 			// load defaults
-			$this["conferenceYearEditForm"]->setDefaults($conferenceYear); // set up new values
+			$this["conferenceYearForm"]->setDefaults($conferenceYear); // set up new values
 
 			// load document index defaults
 			$indexedRecords = $this->conferenceYearIsIndexedModel->findAllByConferenceYearId($id);
@@ -344,7 +339,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 			foreach($indexedRecords as $indexedRecord)
 				$documentIndexesIds[] = $indexedRecord->ref('document_index')->id;
 
-			$this["conferenceYearEditForm"]["document_indexes"]->setDefaultValue(
+			$this["conferenceYearForm"]["document_indexes"]->setDefaultValue(
 				$documentIndexesIds
 			);
 
@@ -353,11 +348,36 @@ class ConferenceYearCrud extends BaseCrudComponent {
 				$this->handleShowPublisherInfoE($conferenceYear["publisher_id"]);
 			}
 
+			$cont = $this['conferenceYearForm']['isbn'];
+			$isbn = $this->conferenceYearIsbnModel->findAllBy(["conference_year_id" => $conferenceYear->id]);
+			$i = 0;
+			$count = count($isbn);
+			$this['conferenceYearForm']->setIsbnCount($count);
+
+			$this['conferenceYearForm']->addIsbn();
+
+			foreach ($isbn as $row) {
+				$cont[$i]['isbn']->setDefaultValue($row['isbn']);
+				$cont[$i]['type']->setDefaultValue($row['type']);
+				$cont[$i]['note']->setDefaultValue($row['note']);
+				$i++;
+			}
+
 			if (!$this->presenter->isAjax()) {
 				$this->presenter->redirect('this');
 			} else {
-				$this->redrawControl('conferenceYearEditForm');
+				$this->redrawControl('conferenceYearForm');
 			}
+		}
+	}
+
+	public function handleAdd() {
+		if(!$this->isActionAllowed('add')) return;
+
+		if (!$this->presenter->isAjax()) {
+			$this->presenter->redirect('this');
+		} else {
+			$this->redrawControl('conferenceYearForm');
 		}
 	}
 
@@ -418,6 +438,29 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$this->conferenceYearModel->find($id)->update(array('parent_id' => null));
 		$this->onWorkshopsUpdate($id, $conferenceYearId);
 		$this->handleShowWorkshops($conferenceYearId);
+	}
+
+	public function handleAddIsbn($count) {
+		$this['conferenceYearForm']['isbn_count']->setValue($count);
+		$this['conferenceYearForm']->addIsbn();
+
+		$this->redrawControl('isbn_count');
+
+		$this->redrawControl("add_isbn");
+		$this->redrawControl("isbnArea");
+		$this->redrawControl("last_isbn");
+
+	}
+
+	public function createComponentAddButton(){
+		$sc = parent::createComponentAddButton();
+		$sc->template->addLink =  $this->link('add!');
+		return $sc;
+	}
+
+	public function render() {
+
+		parent::render();
 	}
 
 }

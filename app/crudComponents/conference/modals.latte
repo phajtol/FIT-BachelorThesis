@@ -197,8 +197,6 @@
                                             <th n:if="$CU" class="CU">{control cYSorting, "notification", "Notification"}</th>
                                             <th n:if="$CU" class="CU">{control cYSorting, "finalversion", "Final version"}</th>
                                             <th>{control cYSorting, "location", "Location"}</th>
-                                            <th n:if="$PU" class="PU">{control cYSorting, "isbn", "ISBN"}</th>
-                                            <th n:if="$PU" class="PU">{control cYSorting, "issn", "ISSN"}</th>
                                             <th n:if="$PU" class="PU">{control cYSorting, "doi", "DOI"}</th>
                                             <th n:if="$PU" class="PU">{control cYSorting, "publisher_id", "Publisher"}</th>
                                             <th>Action</th>
@@ -216,8 +214,6 @@
                                                 <td n:if="$CU" class="CU">{$conferenceYear->notification|ldate}</td>
                                                 <td n:if="$CU" class="CU">{$conferenceYear->finalversion|ldate}</td>
                                                 <td>{$conferenceYear->location}</td>
-                                                <td n:if="$PU" class="PU">{$conferenceYear->isbn}</td>
-                                                <td n:if="$PU" class="PU">{$conferenceYear->issn}</td>
                                                 <td n:if="$PU" class="PU">{$conferenceYear->doi}</td>
                                                 {*<td>{$conferenceYear->description}</td>*}
                                                 <td n:if="$PU" class="PU">

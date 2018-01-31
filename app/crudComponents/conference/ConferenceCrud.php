@@ -466,8 +466,6 @@ class ConferenceCrud extends BaseCrudComponent {
 			'notification' => $tablePrefix . 'notification',
 			'finalversion' => $tablePrefix . 'finalversion',
 			'location' => $tablePrefix . 'location',
-			'isbn' => $tablePrefix . 'isbn',
-			'issn' => $tablePrefix . 'issn',
 			'doi' => $tablePrefix . 'doi',
 			'publisher_id' => $tablePrefix . 'publisher_id'
 		),  'w_year', \NasExt\Controls\SortingControl::DESC);
