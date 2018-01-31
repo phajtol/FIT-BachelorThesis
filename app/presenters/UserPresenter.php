@@ -12,86 +12,36 @@ use Nette\Mail\SendmailMailer;
 class UserPresenter extends SecuredPresenter {
 
     /**
-     * @var \App\Services\Authenticators\LoginPassAuthenticator
+     * @var \App\Services\Authenticators\LoginPassAuthenticator @inject
      */
-    protected $loginPassAuthenticator;
+    public $loginPassAuthenticator;
 
     /**
-     * @var Model\Submitter
+     * @var Model\Submitter @inject
      */
-    protected $submitterModel;
+    public $submitterModel;
 
     /**
-     * @var Model\Annotation
+     * @var Model\Annotation @inject
      */
-    protected $annotationModel;
+    public $annotationModel;
 
     /**
-     * @var Model\UserSettings
+     * @var Model\UserSettings @inject
      */
-    protected $userSettingsModel;
+    public $userSettingsModel;
 
     /**
-     * @var \App\Services\Authenticators\BaseAuthenticator
+     * @var \App\Services\Authenticators\BaseAuthenticator @inject
      */
-    protected $baseAuthenticator;
+    public $baseAuthenticator;
 
     /**
-     * @var \App\Factories\IAnnotationCrudFactory
+     * @var \App\Factories\IAnnotationCrudFactory @inject
      */
-    protected $annotationCrudFactory;
+    public $annotationCrudFactory;
 
     protected $userPasswordChangeFormEnabled = false;
-
-
-    /**
-     * @param \App\Services\Authenticators\LoginPassAuthenticator $loginPassAuthenticator
-     */
-    public function injectLoginPassAuthenticator(\App\Services\Authenticators\LoginPassAuthenticator $loginPassAuthenticator)
-    {
-        if(!$this->loginPassAuthenticator)
-            $this->loginPassAuthenticator = $loginPassAuthenticator;
-    }
-
-    /**
-     * @param \App\Services\Authenticators\BaseAuthenticator $baseAuthenticator
-     */
-    public function injectBaseAuthenticator(\App\Services\Authenticators\BaseAuthenticator $baseAuthenticator) {
-        $this->baseAuthenticator = $baseAuthenticator;
-    }
-
-    /**
-     * @param Model\Submitter $submitterModel
-     */
-    public function injectSubmitterModel(Model\Submitter $submitterModel)
-    {
-        if(!$this->submitterModel)
-            $this->submitterModel = $submitterModel;
-    }
-
-    /**
-     * @param Model\Annotation $annotationModel
-     */
-    public function injectAnnotationModel(Model\Annotation $annotationModel)
-    {
-        $this->annotationModel = $annotationModel;
-    }
-
-    /**
-     * @param Model\UserSettings $userSettingsModel
-     */
-    public function injectUserSettingsModel(Model\UserSettings $userSettingsModel)
-    {
-        $this->userSettingsModel = $userSettingsModel;
-    }
-
-    /**
-     * @param \App\Factories\IAnnotationCrudFactory $annotationCrudFactory
-     */
-    public function injectAnnotationCrudFactory(\App\Factories\IAnnotationCrudFactory $annotationCrudFactory) {
-        $this->annotationCrudFactory = $annotationCrudFactory;
-    }
-
 
 
     /**
@@ -104,11 +54,11 @@ class UserPresenter extends SecuredPresenter {
     }
 
     public function actionDefault() {
-        
+
     }
 
     public function renderDefault() {
-        
+
     }
 
     public function actionShow($sort, $order, $keywords) {
@@ -154,7 +104,7 @@ class UserPresenter extends SecuredPresenter {
 
         $form = new \UserPasswordChangeForm($this->loginPassAuthenticator, $user, $this, $name);
         if($this->userPasswordChangeFormEnabled) {
-            $form->onSuccess[] = function($form) {
+            $form->onSuccess[] = function(\UserPasswordChangeForm $form) {
 
                 $user = $this->submitterModel->find($this->user->id);
 
@@ -209,7 +159,7 @@ class UserPresenter extends SecuredPresenter {
         $form->onError[] = function($form) {
             $this->redrawControl('publicationEditUserSettingsForm');
         };
-        $form->onSuccess[] = function($form) {
+        $form->onSuccess[] = function(\PublicationAddNewUserSettingsForm $form) {
 
             $formValues = $form->getValues();
 
