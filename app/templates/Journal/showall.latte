@@ -37,9 +37,6 @@
 									{control sorting, "abbreviation", "Abbr."}
 								</th>
 								<th>
-									{control sorting, "issn", "ISSN"}
-								</th>
-								<th>
 									{control sorting, "doi", "DOI"}
 								</th>
 								<th>
@@ -52,7 +49,6 @@
 								<tr n:snippet="journalRow$record->id">
 									<td>{$record->name}</td>
 									<td>{$record->abbreviation}</td>
-									<td>{$record->issn}</td>
 									<td>{$record->doi}</td>
 									<td>
 										{control crud-controls-$record->id}

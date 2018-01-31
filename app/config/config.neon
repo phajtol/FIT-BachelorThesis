@@ -90,6 +90,7 @@ services:
 	Reference: App\Model\Reference
 	PublicationIsbn: App\Model\PublicationIsbn
 	ConferenceYearIsbn: App\Model\ConferenceYearIsbn
+	JournalIsbn: App\Model\JournalIsbn
 
 
 	# global

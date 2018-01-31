@@ -23,7 +23,10 @@ class JournalPresenter extends SecuredPresenter {
 
 	public function createComponentCrud(){
 		$c = new \App\CrudComponents\Journal\JournalCrud(
-			$this->user, $this->context->Journal, $this->context->Publication,
+			$this->user,
+			$this->context->Journal,
+			$this->context->Publication,
+			$this->context->JournalIsbn,
 			$this, 'crud'
 		);
 
@@ -77,7 +80,6 @@ class JournalPresenter extends SecuredPresenter {
 	{
 		$control = $this->sortingControlFactory->create( array(
 			'name' => 'name',
-			'issn' => 'issn',
 			'doi'  => 'doi',
 			'abbreviation' => 'abbreviation'
 		),  'name', \NasExt\Controls\SortingControl::ASC);

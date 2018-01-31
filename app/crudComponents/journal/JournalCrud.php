@@ -23,10 +23,15 @@ class JournalCrud extends BaseCrudComponent {
 	/** @var \App\Model\Publication */
 	protected $publicationModel;
 
+	/** @var  \App\Model\JournalIsbn */
+	protected $journalIsbnModel;
+
 
 	public function __construct(
 
-		\Nette\Security\User $loggedUser, \App\Model\Journal $journalModel, \App\Model\Publication $publicationModel,
+		\Nette\Security\User $loggedUser, \App\Model\Journal $journalModel,
+		\App\Model\Publication $publicationModel,
+		\App\Model\JournalIsbn $journalIsbn,
 		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
 	) {
 		parent::__construct($parent, $name);
@@ -41,59 +46,70 @@ class JournalCrud extends BaseCrudComponent {
 		$this->journalModel = $journalModel;
 		$this->loggedUser = $loggedUser;
 		$this->publicationModel = $publicationModel;
+		$this->journalIsbnModel = $journalIsbn;
 
 		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent) {
 			$controlsComponent->addActionAvailable('showRelatedPublications');
 		};
 	}
 
-	public function createComponentJournalAddForm($name){
-            $form = new JournalAddForm($this->journalModel, $this, $name);
+	public function createComponentJournalForm($name) {
+            $form = new \App\CrudComponents\Journal\JournalForm($this->journalModel, $this, $name);
             $form->onError[] = function(){
-                    $this->redrawControl('journalAddForm');
+                    $this->redrawControl('journalForm');
             };
-            $form->onSuccess[] = function(JournalAddForm $form) {
+            $form->onSuccess[] = function(JournalForm $form) {
 		$formValues = $form->getValuesTransformed();
 
 		$formValues['submitter_id'] = $this->loggedUser->id;
 
-		$record = $this->journalModel->insert($formValues);
+		unset($formValues['isbn']);
+		unset($formValues['isbn_count']);
+
+		if (empty($formValues['id'])) {
+			$record = $this->journalModel->insert($formValues);
+			$this->template->journalAdded = true;
+			$this->onAdd($record);
+		} else {
+			$this->journalModel->update($formValues);
+			$record = $this->journalModel->find($formValues['id']);
+			$this->template->journalEdited = true;
+			$this->onEdit($record);
+		}
+
+		$formValues = $form->getValuesTransformed();
+
+		$this->journalIsbnModel->findAllBy(["journal_id" => $record->id])
+											->delete();
+
+		if (!empty($formValues['isbn'])) {
+			foreach ($formValues['isbn'] as $isbn) {
+				if (empty($isbn['isbn']) && empty($isbn['note']) ) {
+					continue;
+				}
+				$this->journalIsbnModel->insert(["journal_id" => $record->id,
+																	"isbn" => $isbn['isbn'],
+																	"type" => $isbn['type'],
+																	"note" => $isbn['note']]);
+			}
+		}
+
+
+
 
 		if($record) {
-			$this->template->journalAdded = true;
 
 			if ($this->presenter->isAjax()) {
 				$form->clearValues();
-				$this->redrawControl('journalAddForm');
-			} else $this->redirect('this');
+				$this->redrawControl('journalForm');
+			} else {
+				$this->redirect('this');
+			}
 
-			$this->onAdd($record);
 		}
-            };
+    };
 	}
 
-	public function createComponentJournalEditForm($name){
-            $form = new JournalEditForm($this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('journalEditForm');
-            };
-            $form->onSuccess[] = function(JournalEditForm $form) {
-		$formValues = $form->getValuesTransformed();
-
-		$formValues['submitter_id'] = $this->loggedUser->id;
-
-		$this->journalModel->update($formValues);
-		$record = $this->journalModel->find($formValues['id']);
-
-		$this->template->journalEdited = true;
-
-		if($this->presenter->isAjax()) {
-			$this->redrawControl('journalEditForm');
-		} else $this->redirect('this');
-
-		$this->onEdit($record);
-            };
-	}
 
 	public function handleDelete($id) {
 		$record = $this->journalModel->find($id);
@@ -118,12 +134,27 @@ class JournalCrud extends BaseCrudComponent {
 	public function handleEdit($id) {
 		$journal = $this->journalModel->find($id);
 
-		$this["journalEditForm"]->setDefaults($journal); // set up new values
+		$this["journalForm"]->setDefaults($journal); // set up new values
+
+		$cont = $this['journalForm']['isbn'];
+		$isbn = $this->journalIsbnModel->findAllBy(["journal_id" => $journal->id]);
+		$i = 0;
+		$count = count($isbn);
+		$this['journalForm']->setIsbnCount($count);
+
+		$this['journalForm']->addIsbn();
+
+		foreach ($isbn as $row) {
+			$cont[$i]['isbn']->setDefaultValue($row['isbn']);
+			$cont[$i]['type']->setDefaultValue($row['type']);
+			$cont[$i]['note']->setDefaultValue($row['note']);
+			$i++;
+		}
 
 		if (!$this->presenter->isAjax()) {
 			$this->presenter->redirect('this');
 		} else {
-			$this->redrawControl('journalEditForm');
+			$this->redrawControl('journalForm');
 		}
 
 	}
@@ -139,4 +170,33 @@ class JournalCrud extends BaseCrudComponent {
 		}
 	}
 
+	public function handleAdd() {
+		if (!$this->presenter->isAjax()) {
+			$this->presenter->redirect('this');
+		} else {
+			$this->redrawControl('journalForm');
+		}
+	}
+
+	public function handleAddIsbn($count) {
+		$this['journalForm']['isbn_count']->setValue($count);
+		$this['journalForm']->addIsbn();
+
+		$this->redrawControl('isbn_count');
+
+		$this->redrawControl("add_isbn");
+		$this->redrawControl("last_isbn");
+
+	}
+
+	public function createComponentAddButton(){
+		$sc = parent::createComponentAddButton();
+		$sc->template->addLink =  $this->link('add!');
+		return $sc;
+	}
+
+	public function render() {
+		$this->template->journalForm = $this['journalForm'];
+		parent::render();
+	}
 }
