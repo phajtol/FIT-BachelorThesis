@@ -386,9 +386,11 @@ class ConferencePresenter extends SecuredPresenter {
 			$c->setReadOnly(true);
 		}
 
-		$c->onAdd[] = function($row) {
+		$c->onAdd[] = function($row, $cy) {
 			$this->template->newConferenceId = $row->id;
+			$this['particularCYCrud'][$row->id]->handleEdit($cy->id);
 			$this->redrawControl('showAddCY');
+			$this->redrawControl('conferenceYearsShowAll');
 		};
 		$c->onDelete[] = function() { $this->successFlashMessage('The whole conference has been deleted successfully.'); $this->redirect('Conference:showall'); };
 		$c->onEdit[] = function() { $this->successFlashMessage('The whole conference has been edited successfully.'); $this->redrawControl('conferenceYearDetail'); };

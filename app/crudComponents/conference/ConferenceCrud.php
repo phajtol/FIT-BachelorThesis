@@ -159,7 +159,7 @@ class ConferenceCrud extends BaseCrudComponent {
 		});
 
 	}
-	
+
 	public function createComponentConferenceAddForm($name){
             $form = new ConferenceAddForm($this->conferenceModel, $this, $name);
             $this->reduceForm($form);
@@ -186,6 +186,11 @@ class ConferenceCrud extends BaseCrudComponent {
 		if($record) {
 			$this->template->conferenceAdded = true;
 
+			$cy = $this->conferenceYearModel->insert(["w_year" => \date("Y"),
+													"conference_id" => $record->id,
+													"name" => $record->name,
+												  "abbreviation" => $record->abbreviation]);
+
 			if(isset($acm_categories)) $this->conferenceHasAcmCategoryModel->setAssociatedAcmCategories($record->id, $acm_categories);
 			if(isset($conference_categories)) $this->conferenceHasCategoryModel->setAssociatedConferenceCategories($record->id, $conference_categories);
 
@@ -194,7 +199,7 @@ class ConferenceCrud extends BaseCrudComponent {
 				$this->redrawControl('conferenceAddForm');
 			} else $this->redirect('this');
 
-			$this->onAdd($record);
+			$this->onAdd($record, $cy);
 		}
             };
 	}
@@ -310,7 +315,7 @@ class ConferenceCrud extends BaseCrudComponent {
 			$this->redrawControl('conferenceEditForm');
 		}
 
-	}  
+	}
 
 
 	public function handleShowRelatedPublications($id) {
