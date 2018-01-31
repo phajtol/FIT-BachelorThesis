@@ -534,10 +534,9 @@ class PublicationPresenter extends SecuredPresenter {
       $this->redrawControl('isbn_count');
 
       $this->redrawControl("add_isbn");
-      $this->redrawControl("isbnArea");
       $this->redrawControl("last_isbn");
-
     }
+
     public function actionAddNew($id) {
 
         // rozlisovat ADD, EDIT (id), smazat vsechny kategorie a vytvorit nove!!, u EDIT skryt IMPORT

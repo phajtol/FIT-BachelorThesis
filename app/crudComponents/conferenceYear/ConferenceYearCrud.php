@@ -447,7 +447,6 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$this->redrawControl('isbn_count');
 
 		$this->redrawControl("add_isbn");
-		$this->redrawControl("isbnArea");
 		$this->redrawControl("last_isbn");
 
 	}
