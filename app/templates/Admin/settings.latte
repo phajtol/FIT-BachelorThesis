@@ -41,7 +41,7 @@
 
 
 
-    <div class="col-md-12" id="main-content-123" class="grey" style="padding-top: 30px;">
+    <div class="col-md-12 grey" style="padding-top: 30px;">
         <div id="user-detail-tab-content" class="tab-content">
             <div class="tab-pane fade active in" id="settings">
 
@@ -168,16 +168,10 @@
         $(this).tab('show');
         window.location.hash = $(this).attr("href");
 
-        if ($(this).attr("href") == '#publications') {
-            $("#main-content-123").removeClass("grey");
-        } else {
-            $("#main-content-123").addClass("grey");
-        }
     });
 
 
     $('#settings-detail-tab a[href="#settings"]').tab('show') // Select tab by name
-    $("#main-content-123").removeClass("grey");
 
     refresh();
 
