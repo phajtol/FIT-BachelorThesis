@@ -252,7 +252,7 @@ class ConferencePresenter extends SecuredPresenter {
 		// load other conference years
 		$otherConferenceYears = $this->conferenceYearModel->findAllBy(
 			array("conference_id"   =>  $conferenceYear->conference_id)
-		)->where('id != ?', $conferenceYear->id)->order($sorting->getColumn() . ' ' . $sorting->getSortDirection());
+		)->order($sorting->getColumn() . ' ' . $sorting->getSortDirection());
 
 
 		// load associated publications
