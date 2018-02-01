@@ -441,26 +441,22 @@
                                     <p class="form-control-static"><a href="{$conferenceYear->web}" target="_blank">{$conferenceYear->web}</a></p>
                                 </div>
                             </div>
-                        {/if}                        
+                        {/if}
 
-                        {if $conferenceYear->isbn}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">ISBN</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->isbn}</p>
+                        {if $conferenceYear->related("conference_year_isbn")}
+                            {foreach $conferenceYear->related("conference_year_isbn") as $isbn}
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">{$isbn->type}</label>
+                                    <div class="col-sm-3">
+                                        <p class="form-control-static">{$isbn->isbn}</p>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <p class="form-control-static">{$isbn->note}</p>
+                                    </div>
                                 </div>
-                            </div>
+                            {/foreach}
                         {/if}
-                        
-                        {if $conferenceYear->issn}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">ISSN</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->issn}</p>
-                                </div>
-                            </div>
-                        {/if}
-                        
+
                         {if $conferenceYear->doi}
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">DOI</label>
