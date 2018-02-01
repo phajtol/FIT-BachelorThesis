@@ -377,7 +377,16 @@
                     <div class="form-group">
                         <h1 class="col-sm-3 control-label">My publications</h1>
                     </div>
-                    <hr>
+
+                        <hr />
+
+                          {if count($myPublications)}
+                          <ul n:foreach="$myPublications as $my">
+                            <li><a target="_blank" href="{link Publication:showpub, $my->id}">{$my->title}</a></li>
+                          </ul>
+                          {else}
+                            There are no associated Publications with this User.
+                          {/if}
                 </form>
             </div>
 

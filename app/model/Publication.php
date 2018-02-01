@@ -1293,5 +1293,12 @@ class Publication extends Base {
         }
         return $arr;
     }
+    public function findAllByUserId($id) {
+      return $this->database->fetchAll("SELECT p.* FROM publication p
+                                        JOIN author_has_publication ap ON (p.id = ap.publication_id)
+                                        JOIN author a ON (ap.author_id = a.id)
+                                        WHERE a.user_id=?
+                                        ORDER BY title ASC;",$id);
+    }
 
 }

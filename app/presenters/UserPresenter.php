@@ -32,6 +32,11 @@ class UserPresenter extends SecuredPresenter {
     public $userSettingsModel;
 
     /**
+     * @var Model\Publication @inject
+     */
+    public $publicationModel;
+
+    /**
      * @var \App\Services\Authenticators\BaseAuthenticator @inject
      */
     public $baseAuthenticator;
@@ -88,9 +93,12 @@ class UserPresenter extends SecuredPresenter {
 
         $userSettings = $this->userSettingsModel->findOneBy(array('submitter_id' => $this->user->id));
 
+        $myPublications = $this->publicationModel->findAllByUserId($this->user->id);
+
         $this->template->submitter = $submitter;
         $this->template->annotations = $annotations;
         $this->template->userSettings = $userSettings;
+        $this->template->myPublications = $myPublications;
 
         $this->template->annotationAdded = false;
         $this->template->annotationEdited = false;
