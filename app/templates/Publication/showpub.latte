@@ -298,17 +298,22 @@
                                     <p class="form-control-static">{$journal->abbreviation}</p>
                                 </div>
                             </div>
-                        {/if}    
-
-                        {if $journal->issn}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">ISSN</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$journal->issn}</p>
-                                </div>
-                            </div>
                         {/if}
-                        
+
+                        {if $journal->related("journal_isbn")}
+                            {foreach $journal->related("journal_isbn") as $isbn}
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">{$isbn->type}</label>
+                                    <div class="col-sm-3">
+                                        <p class="form-control-static">{$isbn->isbn}</p>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <p class="form-control-static">{$isbn->note}</p>
+                                    </div>
+                                </div>
+                            {/foreach}
+                        {/if}
+
                         {if $journal->doi}
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">DOI</label>
