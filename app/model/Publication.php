@@ -80,21 +80,15 @@ class Publication extends Base {
         }
     }
 
-    public function pokus($author) {
-        $author->getAuthorsNamesByPubId(2);
-    }
-
     public function getAllPubInfo($publicationCopy, $authorService, $functions, $files, $userId, $isAdmin) {
 
         $publication = $publicationCopy->toArray();
-        $publication['issn'] = '';
         $publication['location'] = '';
 
         $journal = $this->database->table('journal')->get($publicationCopy->journal_id);
         unset($publication['journal_id']);
         if ($journal) {
             $publication['journal'] = $journal->name;
-            $publication['issn'] = $journal->issn;
         }
 
         $categories = $this->database->table('categories_has_publication')->where(array('publication_id' => $publicationCopy->id));
@@ -1263,13 +1257,12 @@ class Publication extends Base {
         $formValues['publisher_id'] = NULL;
         $formValues['journal_id'] = NULL;
         $formValues['conference_year_id'] = NULL;
-        $formValues['isbn'] = NULL;
         $formValues['howpublished'] = NULL;
         $formValues['organization'] = NULL;
 
         return $formValues;
     }
-    
+
     public function getPairs() {
         $params = [];
         $params['sort'] = 'title';
