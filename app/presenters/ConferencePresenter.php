@@ -152,17 +152,20 @@ class ConferencePresenter extends SecuredPresenter {
 			} else {
 				$this->records = $this->conferenceYearModel->findAll();
 			}
-
-			$sorting = $this["sorting"];
 			/** @var $sorting \NasExt\Controls\SortingControl */
-			$alphabetFilter = $this["alphabetFilter"];
-			/** @var $alphabetFilter \App\Components\AlphabetFilter\AlphabetFilterComponent */
-			$conferenceYearStateFilter = $this["conferenceYearStateFilter"];
-			/** @var $conferenceYearStateFilter \App\Components\ButtonToggle\ButtonGroupComponent */
-			$conferenceIndividualFilter = $this["conferenceIndividualFilter"];
-			/** @var $conferenceIndividualFilter \App\Components\ButtonToggle\ButtonGroupComponent */
+			$sorting = $this["sorting"];
 
-			// filter ba name & abbr vs abbr
+			/** @var $alphabetFilter \App\Components\AlphabetFilter\AlphabetFilterComponent */
+			$alphabetFilter = $this["alphabetFilter"];
+
+			/** @var $conferenceYearStateFilter \App\Components\ButtonToggle\ButtonGroupComponent */
+			$conferenceYearStateFilter = $this["conferenceYearStateFilter"];
+
+			/** @var $conferenceIndividualFilter \App\Components\ButtonToggle\ButtonGroupComponent */
+			$conferenceIndividualFilter = $this["conferenceIndividualFilter"];
+
+
+			// filter by name & abbr vs abbr
 			//if($alphabetFilter->getFilter()) $this->records->where('(conference_year.name LIKE ? OR conference_year.abbreviation LIKE ? OR conference.name LIKE ? OR conference.abbreviation LIKE ?)', $alphabetFilter->getFilter() . '%', strtolower($alphabetFilter->getFilter()) . "%", $alphabetFilter->getFilter() . '%', strtolower($alphabetFilter->getFilter()) . "%");
 			if($alphabetFilter->getFilter()) $this->records->where('(conference_year.abbreviation LIKE ? OR conference.abbreviation LIKE ?)', $alphabetFilter->getFilter() . '%', strtolower($alphabetFilter->getFilter()) . "%");
 

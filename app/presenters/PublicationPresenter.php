@@ -198,6 +198,15 @@ class PublicationPresenter extends SecuredPresenter {
 
     }
 
+    public function createComponentAlphabetFilter($name) {
+      $c = new \App\Components\AlphabetFilter\AlphabetFilterComponent($this, $name);
+      $c->setAjaxRequest(false);
+      $c->onFilter[] = function(){
+        $this->resetPagination();
+      };
+      return $c;
+    }
+
     protected function createComponentPublicationImportForm($name) {
         $form = new \PublicationImportForm($this, $name);
         $form->onSuccess[] = function(\PublicationImportForm $form) {
@@ -1029,8 +1038,11 @@ class PublicationPresenter extends SecuredPresenter {
 
     public function drawPublications($starred = false, $my = false) {
         Debugger::fireLog('drawPublications');
+
+        /** @var $alphabetFilter \App\Components\AlphabetFilter\AlphabetFilterComponent */
+  			$alphabetFilter = $this["alphabetFilter"];
+
         $params = $this->getHttpRequest()->getQuery();
-        $alphabet = range('A', 'Z');
 
         if (!isset($params['sort'])) {
             $params['sort'] = 'title';
@@ -1040,12 +1052,10 @@ class PublicationPresenter extends SecuredPresenter {
             $params['order'] = 'ASC';
         }
 
-        if (!isset($params['filter']) || $params['filter'] == 'none') {
-            $params['filter'] = 'none';
-        }
-
-        if (!isset($params['keywords'])) {
-            $params['keywords'] = '';
+  			if($alphabetFilter->getFilter()) {
+            $params['filter'] = $alphabetFilter->getFilter();
+        } else {
+          $params['filter'] = 'none';
         }
 
         if (!isset($this->template->records)) {
@@ -1075,29 +1085,6 @@ class PublicationPresenter extends SecuredPresenter {
             } else {
                 $this->template->order = null;
             }
-
-            if (isset($params['keywords'])) {
-                $keywords = $params['keywords'];
-            }
-
-            if (isset($params['filter'])) {
-                $filter = $params['filter'];
-            }
-
-            $params = array();
-
-            if (isset($keywords)) {
-                $params['keywords'] = $keywords;
-            }
-
-            if (isset($filter)) {
-                $params['filter'] = $filter;
-            }
-
-            $this->template->filter = $filter;
-            $this->template->alphabet = $alphabet;
-
-            $this->template->params = $params;
         }
 
         $authorsByPubId = array();

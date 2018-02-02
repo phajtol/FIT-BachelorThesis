@@ -92,20 +92,11 @@
                 <a class="btn btn-success" n:href="Publication:addnew" role="button" title="Add new Publication"><span class="glyphicon glyphicon-plus"></span></a>
             </div>
         </div>
-        <ul class="pagination pagination-sm" style="margin: 20px 0 0 0;">
-                {if $filter == 'none'}
-                    <li class="active"><a n:href="Publication:showall (expand) $params, '', '', '', 'none'">NO FILTER</a></li>
-                    {else}
-                    <li><a n:href="Publication:showall (expand) $params, '', '', '', 'none'">NO FILTER</a></li>
-                    {/if}
-                {foreach $alphabet as $letter}
-                    {if $letter == $filter}
-                        <li class="active"><a n:href="Publication:showall (expand) $params, '', '', '', $letter">{$letter}</a></li>
-                        {else}
-                        <li><a n:href="Publication:showall (expand) $params, '', '', '', $letter">{$letter}</a></li>
-                        {/if}
-                    {/foreach}
-        </ul>
+        <div class="row">
+    			<div class="col-lg-12">
+    				{control alphabetFilter}
+    			</div>
+    		</div>
         {if count($records)}
             <div class="table-responsive">
                 <table class="table table-striped">
@@ -113,11 +104,11 @@
                         <tr>
                             <th>
                                 {if $sort == 'title' && $order == 'ASC'}
-                                    <a n:href="Publication:showall (expand) $params,'title','DESC'">Title &#9650;</a>
+                                    <a n:href="Publication:showall '','title','DESC'">Title &#9650;</a>
                                 {elseif $sort == 'title' && $order == 'DESC'}
-                                    <a n:href="Publication:showall (expand) $params,'title','ASC'">Title &#9660;</a>
+                                    <a n:href="Publication:showall '','title','ASC'">Title &#9660;</a>
                                 {else}
-                                    <a n:href="Publication:showall (expand) $params,'title','ASC'">Title</a>
+                                    <a n:href="Publication:showall '','title','ASC'">Title</a>
                                 {/if}
                             </th>
                             <th>Action</th>
