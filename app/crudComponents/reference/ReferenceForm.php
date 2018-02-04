@@ -13,8 +13,7 @@ abstract class ReferenceForm extends \App\Forms\BaseForm {
                         ->setPrompt("-- please choose --")
                         ->setRequired('Referenced publication is required.');
 		$this->addSubmit('send', 'Add');
-                
-       		$this->action .= '#references';
+ 		$this->action .= '#references';
 
 		$this->setModal(true);
 	}

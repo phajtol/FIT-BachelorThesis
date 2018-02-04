@@ -10,6 +10,13 @@ class Publication extends Base {
      */
     protected $tableName = 'publication';
 
+    protected $authorModel;
+
+    public function __construct(Author $authorModel, \Nette\Database\Context $db) {
+        parent::__construct($db);
+        $this->authorModel = $authorModel;
+    }
+
     public function findAllByKw($params) {
         $records = $this->database->table('publication');
         if (isset($params['keywords'])) {
@@ -1282,7 +1289,8 @@ class Publication extends Base {
                 ->order("title");
         $arr = array();
         foreach ($publications as $one) {
-            $arr[$one->id] = $one->title;
+            $authors = $this->authorModel->getAuthorsNamesByPubId($one->id, "; ");
+            $arr[$one->id] = $one->title." (".$authors."; id: ".$one->id.")";
         }
         return $arr;
     }
