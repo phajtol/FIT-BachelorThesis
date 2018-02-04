@@ -123,6 +123,9 @@ class PublicationPresenter extends SecuredPresenter {
     /** @var  \App\Factories\IReferenceCrudFactory @inject */
     public $referenceCrudFactory;
 
+    /** @var  \App\Factories\ICitationCrudFactory @inject */
+    public $citationCrudFactory;
+
     /** @var  \App\Factories\IPublicationCategoryListFactory @inject */
     public $publicationCategoryListFactory;
 
@@ -515,6 +518,20 @@ class PublicationPresenter extends SecuredPresenter {
         $c->onEdit[] = $cbFn;
         return $c;
     }
+
+    protected function createComponentCitationCrud($name) {
+        $c = $this->citationCrudFactory->create($this->publicationId);
+        if(!$this->publicationId) $c->disallowAction('add');
+        $cbFn = function(){
+            $this->successFlashMessage('Operation has been completed successfully.');
+            $this->redrawControl('citationsShowAllRecords');
+        };
+        $c->onAdd[] = $cbFn;
+        $c->onDelete[] = $cbFn;
+        $c->onEdit[] = $cbFn;
+        return $c;
+    }
+
 
     protected function createComponentAnnotationCrud(){
         $c = $this->annotationCrudFactory->create($this->publicationId);

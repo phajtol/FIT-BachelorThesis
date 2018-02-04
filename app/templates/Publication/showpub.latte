@@ -9,6 +9,7 @@
     </ol>
 </div>
 {control referenceCrud}
+{control citationCrud}
 
 <div class="row">
 
@@ -817,6 +818,7 @@
                                             {/ifset}
                                             </td>
                                             <td>
+                                                {control citationCrud-controls-$record->id}
                                                 {if in_array($record->publication->id, $recordsStarred)}
                                                     <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $record->publication->id" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {else}
