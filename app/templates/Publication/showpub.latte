@@ -75,20 +75,20 @@
                             <div class="col-sm-9">
                                 <p class="form-control-static">
                                     {foreach $categories as $category}
-                                        {$category->categories->name}{if !$iterator->last}, {/if} 
+                                        {$category->categories->name}{if !$iterator->last}, {/if}
                                     {/foreach}
                                 </p>
                             </div>
                         </div>
                     {/if}
-                    
+
                      {if $group}
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Groups</label>
                             <div class="col-sm-9">
                                 <p class="form-control-static">
                                     {foreach $group as $gr}
-                                        {$gr->group->name}{if !$iterator->last}, {/if} 
+                                        {$gr->group->name}{if !$iterator->last}, {/if}
                                     {/foreach}
                                 </p>
                             </div>
@@ -291,7 +291,7 @@
                                 <p class="form-control-static">{$journal->name}</p>
                             </div>
                         </div>
-                            
+
                         {if $journal->abbreviation}
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Abbreviation</label>
@@ -439,7 +439,7 @@
                                 </div>
                             </div>
                         {/if}
-                        
+
                         {if $conferenceYear->web}
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Web</label>
@@ -513,7 +513,7 @@
                             <div class="col-sm-9">
                                 <p class="form-control-static">
                                     {foreach $authors as $author}
-                                        {$author}{if !$iterator->last}, {/if} 
+                                        {$author}{if !$iterator->last}, {/if}
                                     {/foreach}
                                 </p>
                             </div>
@@ -580,7 +580,7 @@
                             </p>
                         </div>
                     </div>
-                 {/if}           
+                 {/if}
                 </form>
 
                 <div class="modal fade" id="DeletePublicationModal" tabindex="-1" role="dialog" aria-labelledby="DeletePublicationModalLabel" aria-hidden="true">
@@ -638,7 +638,7 @@
                                         {if $user->isInRole('admin') || $user->id == $annotation->submitter_id}
                                             {control annotationCrud-controls-$annotation->id}
                                         {/if}
-                                    </p>  
+                                    </p>
                                 </div>
                                 <hr>
                             </div>
@@ -867,7 +867,7 @@ $(function() {
     var hash = window.location.hash.replace('#', '');
 
     if (hash == 'annotations') {
-        $('#pub-detail-tab a[href="#annotations"]').tab('show') // Select tab by name            
+        $('#pub-detail-tab a[href="#annotations"]').tab('show') // Select tab by name
     } else if (hash == 'detail') {
         $('#pub-detail-tab a[href="#detail"]').tab('show') // Select tab by name
     } else if (hash == 'exports') {
