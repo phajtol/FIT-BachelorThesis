@@ -8,6 +8,7 @@
         <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Publication detail</a></li>
     </ol>
 </div>
+{control referenceCrud}
 
 <div class="row">
 
@@ -701,7 +702,6 @@
             </div>
 
             <div class="tab-pane fade" id="references">
-                {control referenceCrud}
 
                 <form class="form-horizontal" role="form">
 
@@ -857,10 +857,9 @@
 </div>
 
 <script>
-
+$(function() {
     $('#pub-detail-tab a').click(function(e) {
         e.preventDefault();
-        $(this).tab('show');
         window.location.hash = $(this).attr("href");
     });
 
@@ -878,4 +877,14 @@
     } else if (hash == 'citations') {
         $('#pub-detail-tab a[href="#citations"]').tab('show') // Select tab by name
     }
+});
 </script>
+{/block}
+
+{block head}
+  <link href="{$basePath}/select2/css/select2.min.css" rel="stylesheet" />
+{/block}
+{block scripts}
+  {include #parent}
+  <script src="{$basePath}/select2/js/select2.min.js"></script>
+{/block}
