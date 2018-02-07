@@ -88,7 +88,7 @@ class ReferenceParser extends Nette\Object {
                 $i++;
                 continue;
             } else {
-                if (empty($this->authors[$i+1] || strstr($this->authors[$i+1]," "))) {
+                if (empty($this->authors[$i+1]) || strstr($this->authors[$i+1]," ")) {
                     $authorsnew[] = $author;
                     $i++;
                 } else {
