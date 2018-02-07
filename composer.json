@@ -21,7 +21,7 @@
 		"foglcz/ldap-authenticator": "~1.2",
 		"kdyby/autowired": "~1.0",
 		"nasext/sorting-control": "~3.0",
-	  	"smalot/pdfparser": "*"
+	  	"smalot/pdfparser": "*",
 		"ext-mbstring": "*"
 	},
 	"require-dev": {
@@ -31,5 +31,5 @@
 		"nasext/sorting-control": "~3.0",
 	  	"smalot/pdfparser": "*"
 	}
-                  
+
 }
