@@ -22,6 +22,7 @@
 		"kdyby/autowired": "~1.0",
 		"nasext/sorting-control": "~3.0",
 	  	"smalot/pdfparser": "*"
+		"ext-mbstring": "*"
 	},
 	"require-dev": {
 		"nette/tester": "~1.0.0",
