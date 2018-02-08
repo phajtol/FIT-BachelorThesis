@@ -49,8 +49,8 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
         if ($this->getUser()->isLoggedIn()) {
             $this->template->numberOfUnconfirmed = $this->publicationModel->findAllBy(array('confirmed' => 0))->count();
             $this->template->numberOfUnconfirmedReference = count($this->referenceModel->findUnconfirmedWithPublication());
-            $userSettings = $this->userSettingsModel->findOneBy(array('submitter_id' => $this->user->id));
-            $this->itemsPerPageDB = $userSettings->pagination;
+            $this->userSettings = $this->userSettingsModel->findOneBy(array('submitter_id' => $this->user->id));
+            $this->itemsPerPageDB = $this->userSettings->pagination;
         }
 
         $this->template->dirPathTemplate = "/storage/";
