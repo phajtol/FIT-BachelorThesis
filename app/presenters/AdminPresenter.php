@@ -9,27 +9,27 @@ use Nette,
 
 class AdminPresenter extends SecuredPresenter {
 
-    /** @var Nette\Database\Context */
-    private $database;
+    /** @var Model\Reference @inject */
+    public $referenceModel;
 
-	/** @var  Model\Publication */
-	protected $publicationModel;
+    /** @var Model\Publication @inject */
+    public $publicationModel;
 
-
-	public function __construct(Nette\Database\Context $database) {
-        $this->database = $database;
-    }
 
     protected function startup() {
         parent::startup();
     }
 
     public function actionDefault() {
-        
+
     }
 
     public function renderDefault() {
-        
+    }
+
+    public function handleConfirmReference($reference_id, $publication_id) {
+        $this->referenceModel->confirm($publication_id, $reference_id);
+        $this->redirect("this");
     }
 
     public function actionShowUnconfirmed($sort, $order, $keywords) {
@@ -39,9 +39,25 @@ class AdminPresenter extends SecuredPresenter {
         $this->drawPublicationUnconfirmed();
     }
 
+    public function actionReference() {
+      $this->template->references = $this->referenceModel->findUnconfirmedWithPublication();
+
+
+      $authorsByPubId = array();
+      foreach($this->template->references as $rec) {
+          /** @var $rec Nette\Database\Table\ActiveRow */
+          foreach($rec['publication2']->related('author_has_publication')->order('priority ASC') as $authHasPub) {
+              $author = $authHasPub->ref('author');
+              if(!isset($authorsByPubId[$rec['publication2']->id])) $authorsByPubId[$rec['publication2']->id] = [];
+              $authorsByPubId[$rec['publication2']->id][] = $author;
+          }
+      }
+      $this->template->authorsByPubId = $authorsByPubId;
+    }
+
     protected function createComponentAdminShowUnconfirmedForm($name) {
         $form = new \AdminShowUnconfirmedForm($this, $name);
-        $form->onSuccess[] = function($form) {
+        $form->onSuccess[] = function(\AdminShowUnconfirmedForm $form) {
 
             Debugger::fireLog('adminShowUnconfirmedFormSucceeded()');
 
@@ -50,7 +66,7 @@ class AdminPresenter extends SecuredPresenter {
             foreach ($formValues as $key => $value) {
                 $name = explode('_', $key);
                 if ($value == 'TRUE') {
-                    $this->context->Publication->update(array('id' => $name[1], 'confirmed' => 1));
+                    $this->publicationModel->update(array('id' => $name[1], 'confirmed' => 1));
                 }
             }
 
@@ -75,7 +91,7 @@ class AdminPresenter extends SecuredPresenter {
 
     protected function createComponentPublicationEditGeneralSettingsForm($name) {
         $form = new \PublicationAddNewGeneralSettingsForm($this, $name);
-        $form->onSuccess[] = function($form) {
+        $form->onSuccess[] = function(\PublicationAddNewGeneralSettingsForm $form) {
 
             Debugger::fireLog('publicationEditGeneralSettingsFormSucceeded');
 
@@ -179,10 +195,15 @@ class AdminPresenter extends SecuredPresenter {
         $this->redrawControl('publicationShowAll');
     }
 
-    /**
-     * @param Model\Publication $publicationModel
-     */
-    public function injectPublicationModel(Model\Publication $publicationModel) {
-            $this->publicationModel = $publicationModel;
+    public function handleConfirm($id, $reference_id) {
+        $this->referenceModel->confirm($id, $reference_id);
+        $this->flashMessage("Reference confirmed.");
+        $this->redirect("this");
+    }
+
+    public function handleRefuse($id) {
+        $this->referenceModel->refuse($id);
+        $this->flashMessage("Reference refused.");
+        $this->redirect("this");
     }
 }

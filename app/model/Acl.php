@@ -50,6 +50,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addResource('Admin');
         $this->addResource('Admin:default');
         $this->addResource('Admin:showunconfirmed');
+        $this->addResource('Admin:reference');
         $this->addResource('Admin:settings');
 
         // Attribute presenter
@@ -186,9 +187,9 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
 
         $this->allow('submitter', 'Publication:showall');
         $this->allow('submitter', 'Publication:addnew');
-        
+
         $this->allow('submitter', 'Reference:addlist');
-        
+
         $this->allow('submitter', 'Publisher');
         $this->allow('submitter', 'Publisher:default');
         $this->allow('submitter', 'Publisher:showall');
@@ -200,7 +201,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->allow('conference-moderator', 'AcmCategory');
         $this->allow('conference-moderator', 'AcmCategory:default');
         $this->allow('conference-moderator', 'AcmCategory:showall');
-        
+
         $this->allow('conference-moderator', 'CuGroup');
         $this->allow('conference-moderator', 'CuGroup:default');
         $this->allow('conference-moderator', 'CuGroup:showall');
@@ -229,6 +230,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->allow('admin', 'Admin');
         $this->allow('admin', 'Admin:default');
         $this->allow('admin', 'Admin:showunconfirmed');
+        $this->allow('admin', 'Admin:reference');
         $this->allow('admin', 'Admin:settings');
 
         $this->allow('admin', 'User:showall');

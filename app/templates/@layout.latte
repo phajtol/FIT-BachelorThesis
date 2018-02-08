@@ -179,8 +179,9 @@
                             </ul>
 
                             <ul class="nav navbar-nav" n:if="$user->isInRole('admin') || $user->isInRole('submitter') || $user->isInRole('conference-moderator')">
-                                <li class="dropdown 
+                                <li class="dropdown
                                     {ifCurrent Admin:showunconfirmed}active{/ifCurrent}
+                                    {ifCurrent Admin:reference}active{/ifCurrent}
                                     {ifCurrent Author:showall}active{/ifCurrent}
                                     {ifCurrent Journal:showall}active{/ifCurrent}
                                     {ifCurrent Publisher:showall}active{/ifCurrent}
@@ -194,11 +195,13 @@
                                     {ifCurrent Attribute:showall}active{/ifCurrent}
                                     {ifCurrent Format:showall}active{/ifCurrent}
                                     ">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administration{if $user->isInRole('admin')} <span class="badge">{$numberOfUnconfirmed}</span>{/if}<b class="caret"></b></a>
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administration{if $user->isInRole('admin')} <span class="badge">{$numberOfUnconfirmed+$numberOfUnconfirmedReference}</span>{/if}<b class="caret"></b></a>
                                     <ul class="dropdown-menu">
                                         <li n:if="$CU && $PU" class="dropdown-header">Publication management</li>
                                         {if $user->isInRole('admin')}
-                                            <li class="{ifCurrent Admin:showunconfirmed}active{/ifCurrent}"><a n:href="Admin:showunconfirmed">Waiting for check <span class="badge">{$numberOfUnconfirmed}</span><span class="badge">{*$numberOfUnconfirmed*}</span></a></li>
+                                            <li class="{ifCurrent Admin:showunconfirmed}active{/ifCurrent}"><a n:href="Admin:showunconfirmed">Publications for check <span class="badge">{$numberOfUnconfirmed}</span></a></li>
+                                            <li class="{ifCurrent Admin:reference}active{/ifCurrent}"><a n:href="Admin:reference">Reference for check <span class="badge">{$numberOfUnconfirmedReference}</span></a></li>
+
                                         {/if}
                                         <li n:if="$user->isAllowed('Author:showall')" class="{ifCurrent Author:showall}active{/ifCurrent}"><a n:href="Author:showall">All Authors</a></li>
                                         <li n:if="$user->isAllowed('Journal:showall')" class="{ifCurrent Journal:showall}active{/ifCurrent}"><a n:href="Journal:showall">All Journals</a></li>

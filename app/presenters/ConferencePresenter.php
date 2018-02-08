@@ -44,8 +44,8 @@ class ConferencePresenter extends SecuredPresenter {
 	/** @var  \App\Model\AcmCategory */
 	protected $acmCategoryModel;
 
-	/** @var  \App\Model\Publication */
-	protected $publicationModel;
+	/** @var  \App\Model\Publication  @inject */
+	public $publicationModel;
 
 	/** @var  \App\Model\ConferenceYearIsIndexed */
 	protected $conferenceYearIsIndexedModel;

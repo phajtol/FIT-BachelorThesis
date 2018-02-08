@@ -1,0 +1,45 @@
+{block content}
+
+<div class="row">
+    <ol class="breadcrumb">
+        <li><a n:href="Homepage:">Home</a></li>
+        <li><a href="#">Administration</a></li>
+        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Reference for check</a></li>
+    </ol>
+</div>
+
+<div class="row">
+  <table class="table">
+    {foreach $references as $reference}
+      <tr>
+        <th  class="col-md-4" rowspan=2>
+          <a n:href=":Publication:showpub $reference['publication1']['id']" >
+            {$reference['publication1']['title']}
+          </a>
+        </th>
+        <td  class="col-md-8" colspan="4">
+          {$reference['reference']['text']}
+        </td>
+      </tr>
+      <tr>
+        <td class="col-md-2">
+          {$authorsByPubId[$reference['publication2']->id]|authors}
+        </td>
+        <th class="col-md-2">
+          <a n:href=":Publication:showpub $reference['publication2']['id']" >
+            {$reference['publication2']['title']}
+          </a>
+        </th>
+        <td class="col-md-2">{$reference['publication2']->issue_year}</td>
+        <td class="col-md-2">
+          <a n:href="confirm! $reference['reference']['id'], $reference['reference']['reference_id']" class="btn btn-success">
+            <span class="glyphicon glyphicon-ok"></span>
+          </a>
+          <a n:href="refuse! $reference['reference']['id']" class="btn btn-danger">
+            <span class="glyphicon glyphicon-remove"></span>
+          </a>
+        </td>
+      </tr>
+    {/foreach}
+  </table>
+</div>

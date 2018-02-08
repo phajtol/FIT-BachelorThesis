@@ -5,7 +5,7 @@
     <ol class="breadcrumb">
         <li><a n:href="Homepage:">Home</a></li>
         <li><a href="#">Administration</a></li>
-        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Waiting for check</a></li>
+        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Publications for check</a></li>
     </ol>
 </div>
 
@@ -20,7 +20,7 @@
                             <li n:foreach="$form->ownErrors as $error">{$error}</li>
                         </ul>
                         <div class="input-group">
-                            {input keywords class => "form-control"} 
+                            {input keywords class => "form-control"}
                             <span class="input-group-btn">
                                 {input send, class => "btn btn-default"}
                             </span>
@@ -65,7 +65,7 @@
                     <div class="col-lg-11">
                     </div>
                     <div class="col-lg-1">
-                        {input send} 
+                        {input send}
                     </div>
                 </div>
 

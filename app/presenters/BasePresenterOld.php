@@ -20,7 +20,6 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
     public $drawAllowed;
 
     public $data = array();
-    private $numberOfUnconfirmed;
 
     public $itemsPerPageDB;
 
@@ -28,25 +27,30 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
 
     protected $userSettings;
 
-    /** @var Model\Database */
-    private $database;
 
     /**
-     * @inject
-     * @var Model\Publication
+     * @var Model\UserSettings @inject
      */
-    private $publication;
+    public $userSettingsModel;
 
+    /**
+     * @var Model\Publication @inject
+     */
+    public $publicationModel;
+
+    /**
+     * @var Model\Reference @inject
+     */
+    public $referenceModel;
 
     protected function startup() {
         parent::startup();
 
         if ($this->getUser()->isLoggedIn()) {
-            $this->template->numberOfUnconfirmed = $this->context->Publication->findAllBy(array('confirmed' => 0))->count();
-            $userSettings = $this->context->UserSettings->findOneBy(array('submitter_id' => $this->user->id));
+            $this->template->numberOfUnconfirmed = $this->publicationModel->findAllBy(array('confirmed' => 0))->count();
+            $this->template->numberOfUnconfirmedReference = count($this->referenceModel->findUnconfirmedWithPublication());
+            $userSettings = $this->userSettingsModel->findOneBy(array('submitter_id' => $this->user->id));
             $this->itemsPerPageDB = $userSettings->pagination;
-
-            $this->userSettings = $userSettings;
         }
 
         $this->template->dirPathTemplate = "/storage/";

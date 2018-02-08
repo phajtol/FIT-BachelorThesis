@@ -9,20 +9,20 @@ use Nette,
 
 class ReferencePresenter extends SecuredPresenter {
 
-    
-    /** @var  Model\Publication
-     *  @autowire
-     */
-    protected $publicationModel;
 
-    /** @var  Model\Reference
-     *  @autowire
+    /**
+     * @var  Model\Publication @inject
      */
-    protected $referenceModel;
-    
+    public $publicationModel;
+
+    /**
+     * @var  Model\Reference @inject
+     */
+    public $referenceModel;
+
     public function createComponentAddListForm() {
         $form = new \App\Forms\BaseForm();
-        
+
         $form->addTextArea("references", "Referenced publications",null,20)
             ->setRequired('Referenced publications are required.');
         $form->addHidden("publication_id");
@@ -39,7 +39,7 @@ class ReferencePresenter extends SecuredPresenter {
         };
         return $form;
     }
-    
+
     public function actionAddlist($publication_id) {
         $publication = $this->publicationModel->find($publication_id);
         if (empty($publication)) {
