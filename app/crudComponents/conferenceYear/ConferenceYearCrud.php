@@ -208,69 +208,67 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	}
 
 	public function createComponentConferenceYearForm(){
-            if(!$this->isActionAllowed('edit') && !$this->isActionAllowed('add')) return null;
-            $form = new ConferenceYearForm($this->conferenceId,$this->loadPublishers(), $this->loadDocumentIndexes(), $this->conferenceModel, $this->conferenceYearModel, $this->conferenceYearIsIndexedModel, $this, 'conferenceYearForm');
-            $this->reduceForm($form);
-            $form->onSuccess[] = function(ConferenceYearForm $form) {
-		$formValues = $form->getValuesTransformed();
+    if(!$this->isActionAllowed('edit') && !$this->isActionAllowed('add')) return null;
+    $form = new ConferenceYearForm($this->conferenceId,$this->loadPublishers(), $this->loadDocumentIndexes(), $this->conferenceModel, $this->conferenceYearModel, $this->conferenceYearIsIndexedModel, $this, 'conferenceYearForm');
+    $this->reduceForm($form);
+    $form->onSuccess[] = function(ConferenceYearForm $form) {
+    		$formValues = $form->getValuesTransformed();
 
-		$formValues['submitter_id'] = intval($this->loggedUser->id);
+    		$formValues['submitter_id'] = intval($this->loggedUser->id);
 
-		$documentIndexes = Func::getAndUnset($formValues, 'document_indexes');
+    		$documentIndexes = Func::getAndUnset($formValues, 'document_indexes');
 
-		$this->sanitizeEntityData($formValues);
-		unset($formValues['isbn']);
-		unset($formValues['isbn_count']);
+    		$this->sanitizeEntityData($formValues);
+    		unset($formValues['isbn']);
+    		unset($formValues['isbn_count']);
 
-		if (empty($formValues['id'])) {
-			$this->template->conferenceYearAdded = true;
-			$record = $this->conferenceYearModel->insert($formValues);
-		} else {
-			unset($formValues['publisher_id']);
-			$this->template->conferenceYearEdited = true;
-			$this->conferenceYearModel->update($formValues);
-			$record = $this->conferenceYearModel->findOneById($formValues['id']);
-		}
+    		if (empty($formValues['id'])) {
+    			$this->template->conferenceYearAdded = true;
+    			$record = $this->conferenceYearModel->insert($formValues);
+    		} else {
+    			unset($formValues['publisher_id']);
+    			$this->template->conferenceYearEdited = true;
+    			$this->conferenceYearModel->update($formValues);
+    			$record = $this->conferenceYearModel->findOneById($formValues['id']);
+    		}
 
-		$formValues = $form->getValuesTransformed();
+    		$formValues = $form->getValuesTransformed();
 
-		$this->conferenceYearIsbnModel->findAllBy(["conference_year_id" => $record->id])
-											->delete();
+    		$this->conferenceYearIsbnModel->findAllBy(["conference_year_id" => $record->id])
+    											->delete();
 
-		if (!empty($formValues['isbn'])) {
-			foreach ($formValues['isbn'] as $isbn) {
-				if (empty($isbn['isbn']) && empty($isbn['note']) ) {
-					continue;
-				}
-				$this->conferenceYearIsbnModel->insert(["conference_year_id" => $record->id,
-																	"isbn" => $isbn['isbn'],
-																	"type" => $isbn['type'],
-																	"note" => $isbn['note']]);
-			}
-		}
-
-
-		if (empty($record->id)) {
-			$this->onAdd($record);
-		} else {
-			$this->onEdit($record);
-		}
+    		if (!empty($formValues['isbn'])) {
+    			foreach ($formValues['isbn'] as $isbn) {
+    				if (empty($isbn['isbn']) && empty($isbn['note']) ) {
+    					continue;
+    				}
+    				$this->conferenceYearIsbnModel->insert(["conference_year_id" => $record->id,
+    																	"isbn" => $isbn['isbn'],
+    																	"type" => $isbn['type'],
+    																	"note" => $isbn['note']]);
+    			}
+    		}
 
 
-		$this->conferenceYearIsIndexedModel->setAssociatedDocumentIndexes($record->id, $documentIndexes);
+    		if (empty($record->id)) {
+    			$this->onAdd($record);
+    		} else {
+    			$this->onEdit($record);
+    		}
 
-		if (!$this->presenter->isAjax()) {
-			$this->presenter->redirect('this');
-		} else {
-			$this->redrawControl('conferenceYearForm');
-		}
 
-  };
-  $form->onError[] = function(ConferenceYearForm $form) {
-      $this->redrawControl('conferenceYearForm');
-  };
+    		$this->conferenceYearIsIndexedModel->setAssociatedDocumentIndexes($record->id, $documentIndexes);
 
-  return $form;
+    		if (!$this->presenter->isAjax()) {
+    			$this->presenter->redirect('this');
+    		} else {
+    			$this->redrawControl('conferenceYearForm');
+    		}
+    };
+    $form->onError[] = function(ConferenceYearForm $form) {
+        $this->redrawControl('conferenceYearForm');
+    };
+    return $form;
 	}
 
 

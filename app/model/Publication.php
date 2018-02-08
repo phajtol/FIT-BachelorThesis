@@ -216,7 +216,7 @@ class Publication extends Base {
         return $this->database->query('
           SELECT publication.*, submitter_has_publication.submitter_id as submitter_favouriter_id FROM publication
           LEFT JOIN submitter_has_publication ON publication.id = submitter_has_publication.publication_id
-          WHERE submitter_has_publication.submitter_id = ? 
+          WHERE submitter_has_publication.submitter_id = ?
           OR submitter_has_publication.submitter_id IS NULL
           ORDER BY publication.title ' . $sort . '
           LIMIT ? OFFSET ?
@@ -234,7 +234,7 @@ class Publication extends Base {
           JOIN publication p ON p.id = d.publication_id
           JOIN categories_has_publication c ON p.id = c.publication_id
           WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
-          AND c.categories_id IN (?) 
+          AND c.categories_id IN (?)
           " . $orderQuery . $limitQuery;
 
         if ($limit) {
@@ -262,7 +262,7 @@ class Publication extends Base {
           JOIN categories_has_publication c ON p.id = c.publication_id
           WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
           AND c.categories_id IN (?)
-          AND p.id IN (SELECT x.publication_id FROM submitter_has_publication x WHERE x.submitter_id = $userId)  
+          AND p.id IN (SELECT x.publication_id FROM submitter_has_publication x WHERE x.submitter_id = $userId)
           " . $orderQuery . $limitQuery;
 
 
@@ -293,7 +293,7 @@ class Publication extends Base {
 		  AND p.id IN (
                     SELECT publication_id
                     FROM categories_has_publication
-                    WHERE categories_id IN (?) 
+                    WHERE categories_id IN (?)
                     GROUP BY (publication_id)
                     HAVING COUNT(publication_id) = ?
 		  )" . $orderQuery . $limitQuery;
@@ -323,7 +323,7 @@ class Publication extends Base {
         $query = $selectQuery . "
                   FROM documents d
                   JOIN publication p ON p.id = d.publication_id
-		  WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE)) 
+		  WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
                   AND p.id IN (
 		  SELECT publication_id
 		  FROM categories_has_publication
@@ -354,7 +354,7 @@ class Publication extends Base {
         $selectQuery = $this->getSelectQueryAND($limit);
 
         $query = $selectQuery . "
-                  FROM documents d 
+                  FROM documents d
                   JOIN publication p ON p.id = d.publication_id
 		  WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
                   AND p.id NOT IN (
@@ -412,7 +412,7 @@ class Publication extends Base {
         $selectQuery = $this->getSelectQueryAND($limit);
 
         $query = $selectQuery . "
-                   FROM documents d 
+                   FROM documents d
                    JOIN publication p ON p.id = d.publication_id
                    WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
                   " . $orderQuery . $limitQuery;
@@ -535,7 +535,7 @@ class Publication extends Base {
         $conditions .= ' false)';
 
 
-        $query = $selectQuery . " 
+        $query = $selectQuery . "
             FROM publication p
             JOIN `categories_has_publication` c ON p.id = c.publication_id
             JOIN author_has_publication ap ON p.id = ap.publication_id
@@ -568,7 +568,7 @@ class Publication extends Base {
         $conditions .= "p.title LIKE '%$keywordsString%' OR ";
         $conditions .= ' false)';
 
-        $query = $selectQuery . " 
+        $query = $selectQuery . "
                 FROM publication p
                 JOIN categories_has_publication c ON p.id = c.publication_id
                 JOIN author_has_publication ap ON p.id = ap.publication_id
@@ -645,7 +645,7 @@ class Publication extends Base {
            AND p.id IN (
                 SELECT publication_id
                 FROM categories_has_publication
-                WHERE categories_id IN (?) 
+                WHERE categories_id IN (?)
                 GROUP BY (publication_id)
                 HAVING COUNT(publication_id) = ?
             )
@@ -717,7 +717,7 @@ class Publication extends Base {
                     SELECT publication_id
                     FROM categories_has_publication
             )
-            AND p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId) 
+            AND p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId)
                 " . $orderQuery . $limitQuery;
 
         if ($limit) {
@@ -794,7 +794,7 @@ class Publication extends Base {
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
 
-        $query = $selectQuery . " 
+        $query = $selectQuery . "
             FROM publication p
             JOIN categories_has_publication c ON p.id = c.publication_id
             " . $orderQuery . $limitQuery;
@@ -814,7 +814,7 @@ class Publication extends Base {
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
 
-        $query = $selectQuery . " 
+        $query = $selectQuery . "
             FROM publication p
             JOIN categories_has_publication c ON p.id = c.publication_id
             WHERE c.categories_id IN (?)
@@ -835,9 +835,9 @@ class Publication extends Base {
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
 
-        $query = $selectQuery . " 
-          FROM publication p 
-          JOIN categories_has_publication c ON p.id = c.publication_id 
+        $query = $selectQuery . "
+          FROM publication p
+          JOIN categories_has_publication c ON p.id = c.publication_id
           WHERE p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId)
             " . $orderQuery . $limitQuery;
 
@@ -856,7 +856,7 @@ class Publication extends Base {
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
         $selectQuery = $this->getSelectQuery_Author_OR($limit);
 
-        $query = $selectQuery . " 
+        $query = $selectQuery . "
           FROM publication p
           JOIN categories_has_publication c ON p.id = c.publication_id
           WHERE c.categories_id IN (?)
@@ -906,7 +906,7 @@ class Publication extends Base {
             WHERE p.id IN (
                             SELECT publication_id
                             FROM categories_has_publication
-                            WHERE categories_id IN (?) 
+                            WHERE categories_id IN (?)
                             GROUP BY (publication_id)
                             HAVING COUNT(publication_id) = ?
                     )
