@@ -32,7 +32,7 @@
         </th>
         <td class="col-md-2">{$reference['publication2']->issue_year}</td>
         <td class="col-md-2">
-          <a n:href="confirm! $reference['reference']['id'], $reference['reference']['reference_id']" class="btn btn-success">
+          <a n:href="confirm! $reference['reference']['id'], $reference['publication2']['id']" class="btn btn-success">
             <span class="glyphicon glyphicon-ok"></span>
           </a>
           <a n:href="refuse! $reference['reference']['id']" class="btn btn-danger">
