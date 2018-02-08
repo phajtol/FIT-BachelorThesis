@@ -50,6 +50,7 @@
     <ul id="user-detail-tab" class="nav nav-tabs">
         <li class="active"><a href="#detail" data-toggle="tab">User Detail</a></li>
         <li class="" n:if="$PU"><a href="#annotations" data-toggle="tab">My Annotations</a></li>
+        <li class="" n:if="$PU"><a href="#tags" data-toggle="tab">My Tags</a></li>
         <li class=""><a href="#settings" data-toggle="tab">User Settings</a></li>
         <li class=""><a href="#publications" data-toggle="tab">My publications</a></li>
     </ul>
@@ -326,6 +327,41 @@
                     {/snippet}
                 </form>
                 {control annotationCrud}
+            </div>
+
+            <div class="tab-pane fade" id="tags" n:if="$PU">
+
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <h1 class="col-sm-3 control-label">Tags</h1>
+                        <div class="col-sm-offset-8 col-sm-1" n:if="$control['tagCrud']->isActionAllowed('add')">
+                          {control tagCrud-addButton}
+                        </div>
+                    </div>
+
+                    {snippet tags}
+                        {foreach $tags as $tag}
+                            <hr>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">
+                                    {if $tag->global_scope == 1}
+                                        <span class="glyphicon glyphicon-globe"></span> Global
+                                    {else}
+                                        <span class="glyphicon glyphicon-lock"></span> Private
+                                    {/if}
+                                </label>
+                                <div class="col-sm-9">
+                                    <p id="tag-{$tag->id}" class="form-control-static">{$tag->name}</p>
+                                    <p class="form-control-static">
+                                        {control tagCrud-controls-$tag->id}
+                                    </p>
+                                </div>
+                                <hr>
+                            </div>
+                        {/foreach}
+                    {/snippet}
+                </form>
+                {control tagCrud}
             </div>
 
             <div class="tab-pane fade" id="settings">

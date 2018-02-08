@@ -92,6 +92,7 @@ services:
 	ConferenceYearIsbn: App\Model\ConferenceYearIsbn
 	JournalIsbn: App\Model\JournalIsbn
 
+	Tag: App\Model\Tag
 
 	# global
 	GlobalParams: App\Model\GlobalParams(%global%)
@@ -129,6 +130,7 @@ services:
 
 	#factories
 	- App\Factories\ICitationCrudFactory
+	- App\Factories\ITagCrudFactory
 	- App\Factories\IReferenceCrudFactory
 	- App\Factories\IConferenceCrudFactory
 	- App\Factories\IAcmCategoryListFactory

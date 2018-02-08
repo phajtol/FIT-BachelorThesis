@@ -1,0 +1,79 @@
+<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.editTagButton',
+            '.addTagButton',
+       			'#DeleteModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deleteButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#DeleteModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+	});
+</script>
+
+
+{ifset $deleteAllowed}
+	<div class="modal fade" id="DeleteModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel{$uniqid}" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="DeleteModalLabel{$uniqid}">Delete annotation</h4>
+				</div>
+				<div class="modal-body" id="DeleteModalBody{$uniqid}">
+					Are you sure to delete?
+				</div>
+				<div class="modal-footer">
+					<br>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" id="DeleteModalConfirm{$uniqid}">Delete</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{snippet deleteTag}
+		{if $tagDeleted}
+			<script>
+				$('#DeleteModal{$uniqid|noescape}').modal('hide');
+			</script>
+		{/if}
+	{/snippet}
+{/ifset}
+
+{if isset($addAllowed) || isset($editAllowed)}
+	<div class="modal fade" id="TagModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="TagModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="TagModalLabel{$uniqid}">Add new tag</h4>
+				</div>
+				{snippet tagForm}
+					{control tagForm}
+					{if $tagAdded}
+						<script>
+							$('#TagModal{$uniqid|noescape}').modal('hide');
+						</script>
+					{/if}
+          {if $tagEdited}
+  					<script>
+  						$('#TagModal{$uniqid|noescape}').modal('hide');
+  					</script>
+  				{/if}
+
+				{/snippet}
+			</div>
+		</div>
+	</div>
+{/if}

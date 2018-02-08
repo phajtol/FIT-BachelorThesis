@@ -37,6 +37,11 @@ class UserPresenter extends SecuredPresenter {
     public $publicationModel;
 
     /**
+     * @var Model\Tag @inject
+     */
+    public $tagModel;
+
+    /**
      * @var \App\Services\Authenticators\BaseAuthenticator @inject
      */
     public $baseAuthenticator;
@@ -45,6 +50,11 @@ class UserPresenter extends SecuredPresenter {
      * @var \App\Factories\IAnnotationCrudFactory @inject
      */
     public $annotationCrudFactory;
+
+    /**
+     * @var \App\Factories\ITagCrudFactory @inject
+     */
+    public $tagCrudFactory;
 
     protected $userPasswordChangeFormEnabled = false;
 
@@ -95,10 +105,13 @@ class UserPresenter extends SecuredPresenter {
 
         $myPublications = $this->publicationModel->findAllByUserId($this->user->id);
 
+        $myTags = $this->tagModel->findAllByUserId($this->user->id);
+
         $this->template->submitter = $submitter;
         $this->template->annotations = $annotations;
         $this->template->userSettings = $userSettings;
         $this->template->myPublications = $myPublications;
+        $this->template->tags = $myTags;
 
         $this->template->annotationAdded = false;
         $this->template->annotationEdited = false;
@@ -316,6 +329,20 @@ class UserPresenter extends SecuredPresenter {
             $this->redrawControl('publicationAnnotationData');
         };
 
+        $c->onDelete[] = $cbFn;
+        $c->onEdit[] = $cbFn;
+
+        return $c;
+    }
+
+    protected function createComponentTagCrud(){
+        $c = $this->tagCrudFactory->create();
+
+        $cbFn = function(){
+            $this->successFlashMessage('Operation has been completed successfully.');
+            $this->redrawControl('tags');
+        };
+        $c->onAdd[] = $cbFn;
         $c->onDelete[] = $cbFn;
         $c->onEdit[] = $cbFn;
 
