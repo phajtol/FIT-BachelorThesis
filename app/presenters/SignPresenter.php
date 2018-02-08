@@ -136,10 +136,10 @@ class SignPresenter extends BasePresenter {
 
     protected function createComponentPublicationAddNewUserPasswordResetRequestForm($name) {
         $form = new \PublicationAddNewUserPasswordResetRequestForm($this->submitterModel, $this, $name);
-        $form->onSuccess[] = function($form) {
+        $form->onError[] = function($form) {
             $this->redrawControl('publicationAddNewUserPasswordResetRequestForm');
         };
-        $form->onError[] = function($form) {
+        $form->onSuccess[] = function($form) {
 
             $formValues = $form->getValues();
             $this->drawAllowed = true;
@@ -168,7 +168,6 @@ class SignPresenter extends BasePresenter {
             } else {
                 $this->finalFlashMessage("Login or email you've entered hasn't been found", 'alert-danger');
             }
-            
         };
         return $form;
     }
