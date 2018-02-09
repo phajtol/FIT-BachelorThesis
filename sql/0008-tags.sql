@@ -18,3 +18,7 @@ CREATE TABLE `publication_has_tag` (
   CONSTRAINT `publication_has_tag_ibfk_1` FOREIGN KEY (`publication_id`) REFERENCES `publication` (`id`),
   CONSTRAINT `publication_has_tag_ibfk_3` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+
+ALTER TABLE `publication_has_tag`
+ADD FOREIGN KEY (`publication_id`) REFERENCES `publication` (`id`),
+ADD FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`);

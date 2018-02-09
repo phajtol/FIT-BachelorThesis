@@ -64,6 +64,10 @@ class PublicationPresenter extends SecuredPresenter {
     /** @var Model\Annotation @inject */
     public $annotationModel;
 
+    /** @var Model\Tag @inject */
+    public $tagModel;
+
+
     /** @var Model\Reference @inject */
     public $referenceModel;
 
@@ -98,6 +102,9 @@ class PublicationPresenter extends SecuredPresenter {
 
     /** @var  \App\Factories\IAnnotationCrudFactory @inject */
     public $annotationCrudFactory;
+
+    /** @var  \App\Factories\IPublicationTagCrudFactory @inject */
+    public $publicationTagCrudFactory;
 
     /** @var  \App\Factories\IPublisherCrudFactory @inject */
     public $publisherCrudFactory;
@@ -547,6 +554,19 @@ class PublicationPresenter extends SecuredPresenter {
 
             $this->successFlashMessage('Operation has been completed successfully.');
             $this->redrawControl('publicationAnnotationData');
+        };
+        $c->onAdd[] = $cbFn;
+        $c->onDelete[] = $cbFn;
+        $c->onEdit[] = $cbFn;
+        return $c;
+    }
+
+    protected function createComponentPublicationTagCrud(){
+        $c = $this->publicationTagCrudFactory->create($this->publicationId);
+        if(!$this->publicationId) $c->disallowAction('add');
+        $cbFn = function(){
+            $this->successFlashMessage('Operation has been completed successfully.');
+            $this->redrawControl('publicationTagData');
         };
         $c->onAdd[] = $cbFn;
         $c->onDelete[] = $cbFn;
@@ -1241,6 +1261,14 @@ class PublicationPresenter extends SecuredPresenter {
         });
 
         $this->template->formats = $this->formatModel->findAll();
+
+        if ($this->user->isInRole('admin')) {
+            $tags = $this->tagModel->findAllBy(array(':publication_has_tag.publication_id' => $this->publication->id))->order("id ASC");
+        } else {
+            $tags = $this->tagModel->findAllForReaderOrSubmitter($this->publication->id, $this->user->id);
+        }
+
+        $this->template->tags = $tags;
     }
 
     // ====================================================================

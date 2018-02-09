@@ -93,6 +93,7 @@ services:
 	JournalIsbn: App\Model\JournalIsbn
 
 	Tag: App\Model\Tag
+	PublicationHasTag: App\Model\PublicationHasTag
 
 	# global
 	GlobalParams: App\Model\GlobalParams(%global%)
@@ -148,6 +149,7 @@ services:
 	- App\Factories\IGroupCrudFactory
 	- App\Factories\IAuthorCrudFactory
 	- App\Factories\IFormatCrudFactory
+	- App\Factories\IPublicationTagCrudFactory
 
 	- App\Forms\PublicationAddNewFormFactory
 

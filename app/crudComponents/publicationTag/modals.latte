@@ -1,0 +1,72 @@
+<script>
+	$(function(){
+
+		var uqs = {$uniqid};	// uniqid suffix
+
+       	$.each([
+       			'.addPublicationTagButton',
+       			'#PublicationTagDeleteModalConfirm'
+		], function(k, v){
+			$(document).on('click', v + uqs, function(){
+				$.nette.ajax({
+					url: $(this).data('signal-url')
+				});
+			});
+		});
+
+        $(document).on('click', '.deletePublicationTagButton' + uqs, function() {
+            var signal_url = $(this).data('signal-url');
+            $('#PublicationTagDeleteModalConfirm' + uqs).data('signal-url', signal_url);
+        });
+
+	});
+</script>
+
+
+{ifset $deleteAllowed}
+	<div class="modal fade" id="PublicationTagDeleteModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="PublicationTagDeleteModalLabel{$uniqid}" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="PublicationTagDeleteModalLabel{$uniqid}">Delete annotation</h4>
+				</div>
+				<div class="modal-body" id="PublicationTagDeleteModalBody{$uniqid}">
+					Are you sure to delete?
+				</div>
+				<div class="modal-footer">
+					<br>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" id="PublicationTagDeleteModalConfirm{$uniqid}">Delete</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{snippet deletePublicationTag}
+		{if $publicationTagDeleted}
+			<script>
+				$('#PublicationTagDeleteModal{$uniqid|noescape}').modal('hide');
+			</script>
+		{/if}
+	{/snippet}
+{/ifset}
+
+{ifset $addAllowed}
+	<div class="modal fade" id="PublicationTagModal{$uniqid}" tabindex="-1" role="dialog" aria-labelledby="PublicationTagModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="PublicationTagModalLabel{$uniqid}">Add new tag</h4>
+				</div>
+				{snippet publicationTagForm}
+					{control publicationTagForm}
+					{if $publicationTagAdded}
+						<script>
+							$('#PublicationTagModal{$uniqid|noescape}').modal('hide');
+						</script>
+					{/if}
+				{/snippet}
+			</div>
+		</div>
+	</div>
+{/ifset}

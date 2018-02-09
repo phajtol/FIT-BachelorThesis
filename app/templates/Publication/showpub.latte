@@ -16,6 +16,7 @@
     <ul id="pub-detail-tab" class="nav nav-tabs">
         <li class="active"><a href="#detail" data-toggle="tab">Publication Detail</a></li>
         <li class=""><a href="#annotations" data-toggle="tab">Annotations</a></li>
+        <li class=""><a href="#tags" data-toggle="tab">Tags</a></li>
         <li class=""><a href="#exports" data-toggle="tab">Exports</a></li>
         <li class=""><a href="#references" data-toggle="tab">References</a></li>
         <li class=""><a href="#citations" data-toggle="tab">Citations</a></li>
@@ -648,6 +649,49 @@
                 </form>
 
             </div>
+            <div class="tab-pane fade" id="tags">
+                {control publicationTagCrud}
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <h1 class="col-sm-3 control-label">Tags</h1>
+                        <div class="col-sm-8"></div>
+                        <div class="col-sm-1">
+                            <p class="form-control-static">
+                                {control publicationTagCrud-addButton}
+                            </p>
+                        </div>
+                    </div>
+
+                    {snippet publicationTagData}
+                        {foreach $tags as $tag}
+                            <hr>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">{$tag->submitter->name} {$tag->submitter->surname}
+                                    <br>
+                                    {if $tag->global_scope == 1}
+                                        <span class="glyphicon glyphicon-globe"></span> Global
+                                    {else}
+                                        <span class="glyphicon glyphicon-lock"></span> Private
+                                    {/if}
+                                    <br>
+                                </label>
+                                <div class="col-sm-9">
+                                    <p id="annotation-{$tag->id}" class="form-control-static">{$tag->name}</p>
+                                    <p class="form-control-static">
+                                        {if $user->isInRole('admin') || $user->id == $tag->submitter_id}
+                                            {control publicationTagCrud-controls-$tag->id}
+                                        {/if}
+                                    </p>
+                                </div>
+                                <hr>
+                            </div>
+                        {/foreach}
+                    {/snippet}
+                </form>
+
+            </div>
+
+
 
             <div class="tab-pane fade" id="exports">
 
@@ -870,6 +914,8 @@ $(function() {
 
     if (hash == 'annotations') {
         $('#pub-detail-tab a[href="#annotations"]').tab('show') // Select tab by name
+    } else if (hash == 'tags') {
+        $('#pub-detail-tab a[href="#tags"]').tab('show') // Select tab by name
     } else if (hash == 'detail') {
         $('#pub-detail-tab a[href="#detail"]').tab('show') // Select tab by name
     } else if (hash == 'exports') {
