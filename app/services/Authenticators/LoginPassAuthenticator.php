@@ -44,7 +44,7 @@ class LoginPassAuthenticator extends Nette\Object implements Nette\Security\IAut
 
 		if (!$row) {
 			throw new Nette\Security\AuthenticationException('The username is incorrect.', self::IDENTITY_NOT_FOUND);
-		} elseif ($row->password != $this->calculateHash($password, $row->salt)) {
+		} elseif (!\password_verify($password, $row->password)) {
 			throw new Nette\Security\AuthenticationException('The password is incorrect.', self::INVALID_CREDENTIAL);
 		}
 
@@ -80,34 +80,6 @@ class LoginPassAuthenticator extends Nette\Object implements Nette\Security\IAut
 		return $password === Strings::upper($password)
 			? Strings::lower($password)
 			: $password;
-	}
-
-	/**
-	 * Computes salted password hash.
-	 * @param  string
-	 * @return string
-	 */
-	public static function calculateHash($password, $salt = NULL)
-	{
-		// perhaps caps lock is on
-		/* if ($password === Strings::upper($password)) {
-		  $password = Strings::lower($password);
-		  }
-		  $password = substr($password, 0, self::PASSWORD_MAX_LENGTH);
-		  return crypt($password, $salt ? : '$2a$07$' . Strings::random(22)); */
-
-		return crypt(md5($password), '$6$rounds=5000$' . $salt . '$');
-	}
-
-	public function associateLoginPasswordToUser($user_id, $login, $password) {
-		$salt = Nette\Utils\Random::generate(32);
-
-		$this->authLoginPasswordModel->associateToUser(
-			$user_id,
-			$login,
-			$this->calculateHash($password, $salt),
-			$salt
-		);
 	}
 
 	public function generateRandomPassword($length = 8) {
