@@ -85,7 +85,7 @@ class LoginPassAuthenticator extends Nette\Object implements Nette\Security\IAut
     $this->authLoginPasswordModel->associateToUser(
       $user_id,
       $login,
-      \password_hash($password, PASSWORD_BCRYPT);
+      \password_hash($password, PASSWORD_BCRYPT)
     );
   }
 
