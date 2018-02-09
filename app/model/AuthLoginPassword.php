@@ -19,7 +19,6 @@ class AuthLoginPassword extends Base {
 
 	const COLUMN_LOGIN = 'login';
 	const COLUMN_PASSWORD_HASH = 'password';
-	const COLUMN_SALT = 'salt';
 	const COLUMN_USER_ID = 'submitter_id';
 
 	/**
@@ -32,12 +31,11 @@ class AuthLoginPassword extends Base {
 		));
 	}
 
-	public function associateToUser($user_id, $login, $password_hash, $salt)
+	public function associateToUser($user_id, $login, $password_hash)
 	{
 		return $this->createOrUpdate(array(
 			self::COLUMN_USER_ID		=>	$user_id,
 			self::COLUMN_PASSWORD_HASH	=>	$password_hash,
-			self::COLUMN_SALT			=>	$salt,
 			self::COLUMN_LOGIN			=>	$login
 		));
 	}

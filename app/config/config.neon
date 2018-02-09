@@ -75,7 +75,6 @@ services:
 	Help: App\Model\Help
 	Format: App\Model\Format
 	Journal: App\Model\Journal
-	Passwords: App\Model\Passwords
 	Publication: App\Model\Publication
 	Publisher: App\Model\Publisher
 	Retrieve: App\Model\Retrieve

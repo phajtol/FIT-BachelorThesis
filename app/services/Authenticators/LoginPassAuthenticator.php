@@ -81,6 +81,14 @@ class LoginPassAuthenticator extends Nette\Object implements Nette\Security\IAut
 			? Strings::lower($password)
 			: $password;
 	}
+  public function associateLoginPasswordToUser($user_id, $login, $password) {
+    $this->authLoginPasswordModel->associateToUser(
+      $user_id,
+      $login,
+      \password_hash($password, PASSWORD_BCRYPT);
+    );
+  }
+
 
 	public function generateRandomPassword($length = 8) {
 		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
