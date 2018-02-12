@@ -128,21 +128,12 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addResource('User:default');
         $this->addResource('User:showall');
         $this->addResource('User:show');
-        $this->addResource('User:convertpw');
 
         $this->addResource('Publi');
         $this->addResource('Publi:showall');
         $this->addResource('Publi:default');
 
         // PRIVILEGES
-
-        // GUEST user
-        $this->allow('guest', 'Homepage');
-        $this->allow('guest', 'Homepage:default');
-
-        $this->allow('guest', 'Publi');
-        $this->allow('guest', 'Publi:showall');
-        $this->allow('guest', 'Publi:default');
 
         // READER reader
         $this->allow('reader', 'Homepage');
@@ -154,7 +145,6 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->allow('reader', 'User:default');
         $this->allow('reader', 'User:show');
         $this->allow('conference-user', 'User:show');
-        $this->allow('reader', 'User:convertpw');
 
         $this->allow('reader', 'Publication');
         $this->allow('reader', 'Publication:default');
