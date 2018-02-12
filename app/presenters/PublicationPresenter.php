@@ -455,7 +455,7 @@ class PublicationPresenter extends SecuredPresenter {
             // NASTAV DO FORMULARU
 
             if ($pub_type == 'article' && !isset($this->publication['journal_id'])) {
-                $journalForm = $this['journalCrud']['journalAddForm']; /** @var $journalForm \App\CrudComponents\Journal\JournalAddForm */
+                $journalForm = $this['journalCrud']['journalForm']; /** @var $journalForm \App\CrudComponents\Journal\JournalForm */
                 $journalForm['name']->setDefaultValue(isset($journal) ? $journal : '');
                 $journalForm['issn']->setDefaultValue(isset($issn) ? $issn : '');
             }
