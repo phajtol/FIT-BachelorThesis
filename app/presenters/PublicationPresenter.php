@@ -308,7 +308,7 @@ class PublicationPresenter extends SecuredPresenter {
                     $journal_id = $this->journalModel->findOneBy(array('name' => $journal));
                 }
                 if ($issn) {
-                    $journal_id2 = $this->journalModel->findOneBy(array('issn' => $issn));
+                    $journal_id2 = $this->journalModel->findOneBy(array(':journal_isbn.isbn' => $issn));
 
                     if ($journal_id2) {
                         $journal_id = $journal_id2;
