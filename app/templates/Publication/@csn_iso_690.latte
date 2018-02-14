@@ -14,11 +14,11 @@
 {/if}
 
 {if $pubCit['pub_type']=='book'}
- {if $pubCit['editor']} {$pubCit['editor']}{/if}{if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{foreach $pubCit['isbn'] as $isbn}, {$isbn->type} {$isbn->isbn}{/foreach}{/if}.
+ {if $pubCit['editor']} {$pubCit['editor']}{/if}{if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{foreach $pubCit['isbn'] as $isbn}, {$isbn->type} {$isbn->isbn}{/foreach}.
 {/if}
 
 {if $pubCit['pub_type']=='booklet'}
- {if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['howpublished']}, {$pubCit['howpublished']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{foreach $pubCit['isbn'] as $isbn}, {$isbn->type} {$isbn->isbn}{/foreach}{/if}.
+ {if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['howpublished']}, {$pubCit['howpublished']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{foreach $pubCit['isbn'] as $isbn}, {$isbn->type} {$isbn->isbn}{/foreach}.
 {/if}
 
 {if $pubCit['pub_type']=='inbook'}
