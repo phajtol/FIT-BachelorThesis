@@ -24,10 +24,6 @@ class SignPresenter extends BasePresenter {
      */
     protected $baseAuthenticator;
 
-    /**
-     * @var Model\Submitter
-     */
-    protected $submitterModel;
 
     /**
      * @var \App\Services\PasswordResetter

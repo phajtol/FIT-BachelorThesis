@@ -13,41 +13,19 @@ use Nette,
 class ConferenceAdminPresenter extends SecuredPresenter {
 
     /**
-     * @var \App\Factories\IAcmCategoryListFactory
+     * @var \App\Factories\IAcmCategoryListFactory @inject
      */
-    protected $acmCategoryListFactory;
+    public $acmCategoryListFactory;
 
     /**
-     * @var \App\Factories\IConferenceCrudFactory
+     * @var \App\Factories\IConferenceCrudFactory @inject
      */
-    protected $conferenceCrudFactory;
+    public $conferenceCrudFactory;
 
     /**
-     * @var Model\Conference
+     * @var Model\Conference @inject
      */
-    protected $conferenceModel;
-
-    /**
-     * @param \App\Factories\IAcmCategoryListFactory $acmCategoryListFactory
-     */
-    public function injectAcmCategoryListFactory(\App\Factories\IAcmCategoryListFactory $acmCategoryListFactory) {
-        $this->acmCategoryListFactory = $acmCategoryListFactory;
-    }
-
-    /**
-     * @param \App\Factories\IConferenceCrudFactory $conferenceCrudFactory
-     */
-    public function injectConferenceCrudFactory(\App\Factories\IConferenceCrudFactory $conferenceCrudFactory) {
-        $this->conferenceCrudFactory = $conferenceCrudFactory;
-    }
-
-    /**
-     * @param Model\Conference $conferenceModel
-     */
-    public function injectConferenceModel(Model\Conference $conferenceModel) {
-        $this->conferenceModel = $conferenceModel;
-    }
-
+    public $conferenceModel;
 
     public function createComponentAlphabetFilter($name) {
         $c = new \App\Components\AlphabetFilter\AlphabetFilterComponent($this, $name);

@@ -225,7 +225,7 @@ class UserPresenter extends SecuredPresenter {
     public function handleShowUserRelated($userId) {
         $this->drawAllowed = false;
 
-        $this->template->userRelated = $this->context->Publication->findAllBy(array("submitter_id" => $userId));
+        $this->template->userRelated = $this->publicationModel->findAllBy(array("submitter_id" => $userId));
 
         if (!$this->presenter->isAjax()) {
             $this->presenter->redirect('this');
@@ -237,8 +237,8 @@ class UserPresenter extends SecuredPresenter {
 
     // new
 
-    /** @var  \App\Factories\IUserCrudFactory */
-    protected $userCrudFactory;
+    /** @var  \App\Factories\IUserCrudFactory  @inject */
+    public $userCrudFactory;
 
     public function createComponentCrud(){
         $c = $this->userCrudFactory->create();
@@ -260,13 +260,6 @@ class UserPresenter extends SecuredPresenter {
         };
 
         return $c;
-    }
-
-    /**
-     * @param \App\Factories\IUserCrudFactory $userCrudFactory
-     */
-    public function injectUserCrudFactory(\App\Factories\IUserCrudFactory $userCrudFactory) {
-        $this->userCrudFactory = $userCrudFactory;
     }
 
     public function renderShowAll($keywords) {

@@ -11,26 +11,11 @@ namespace App\Presenters;
 
 class DocumentIndexPresenter extends SecuredPresenter {
 
-	/** @var  \App\Factories\IDocumentIndexCrudFactory */
-	protected $documentIndexCrudFactory;
+	/** @var  \App\Factories\IDocumentIndexCrudFactory @inject */
+	public $documentIndexCrudFactory;
 
-	/** @var  \App\Model\DocumentIndex */
-	protected $documentIndexModel;
-
-	/**
-	 * @param \App\Factories\IDocumentIndexCrudFactory $documentIndexCrudFactory
-	 */
-	public function injectDocumentIndexCrudFactory(\App\Factories\IDocumentIndexCrudFactory $documentIndexCrudFactory) {
-		$this->documentIndexCrudFactory = $documentIndexCrudFactory;
-	}
-
-	/**
-	 * @param \App\Model\DocumentIndex $documentIndexModel
-	 */
-	public function injectDocumentIndexModel(\App\Model\DocumentIndex $documentIndexModel) {
-		$this->documentIndexModel = $documentIndexModel;
-	}
-
+	/** @var  \App\Model\DocumentIndex @inject */
+	public $documentIndexModel;
 
 
 	public function createComponentCrud(){

@@ -13,50 +13,29 @@ class BasePresenter extends BasePresenterOld {
 
 	/**
 	 * global params used in application (contact email etc)
-	 * @var \App\Model\GlobalParams
+	 * @var \App\Model\GlobalParams @inject
 	 */
-	protected $globalParams;
+	public $globalParams;
 
-	/** @var \App\Model\Acl */
-	protected $aclModel;
+	/** @var \App\Model\Acl @inject */
+	public $aclModel;
 
-	/** @var \App\Model\Submitter */
-	protected $submitterModel;
+	/** @var \App\Model\Submitter @inject */
+	public $submitterModel;
 
 	/** @var \App\Model\UserRole */
 	protected $userRoleModel;
 
-	/** @var  \NasExt\Controls\ISortingControlFactory */
-	protected $sortingControlFactory;
+	/** @var  \NasExt\Controls\ISortingControlFactory @inject */
+	public $sortingControlFactory;
 
-	/** @var \App\Model\Help */
-	protected $helpModel;
+	/** @var \App\Model\Help @inject */
+	public $helpModel;
 
 	/** @var  bool */
 	private $isConferencePartVisible;
 	/** @var  bool */
 	private $isPublicationPartVisible;
-
-	/** @param \App\Model\GlobalParams $globalParams */
-	public function injectGlobalParams(\App\Model\GlobalParams $globalParams) { $this->globalParams = $globalParams; }
-
-	/** @param \App\Model\Acl $aclModel */
-	public function injectAclModel(\App\Model\Acl $aclModel) { $this->aclModel = $aclModel; }
-
-	/** @param \App\Model\Submitter $submitterModel */
-	public function injectSubmitterModel(\App\Model\Submitter $submitterModel) { $this->submitterModel = $submitterModel; }
-
-	/** @param \App\Model\UserRole $userRoleModel */
-	public function injectUserRoleModel(\App\Model\UserRole $userRoleModel) { $this->userRoleModel = $userRoleModel; }
-
-	/** @param \NasExt\Controls\ISortingControlFactory $sortingControlFactory  */
-	public function injectItemsPerPageFactory(\NasExt\Controls\ISortingControlFactory $sortingControlFactory) { $this->sortingControlFactory = $sortingControlFactory; }
-
-	/** @param \App\Model\Help $helpModel */
-	public function injectHelpModel(\App\Model\Help $helpModel) {
-		$this->helpModel = $helpModel;
-	}
-
 
 
 	protected function startup() {
@@ -146,8 +125,5 @@ class BasePresenter extends BasePresenterOld {
 	protected function successFlashMessage($message, $add_class = '') { return $this->easyFlashMessage($message, 'alert-success', $add_class); }
 	protected function errorFlashMessage($message, $add_class = '') { return $this->easyFlashMessage($message, 'alert-danger', $add_class); }
 	private function easyFlashMessage($message, $class, $add_class) { $fm = $this->flashMessage($message, $class . ($add_class ? ' '.$add_class : '')); $this->redrawControl("flashMessages"); return $fm; }
-
-	use \Kdyby\Autowired\AutowireProperties;
-	use \Kdyby\Autowired\AutowireComponentFactories;
 
 }

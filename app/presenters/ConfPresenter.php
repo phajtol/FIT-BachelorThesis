@@ -8,14 +8,28 @@
 
 namespace App\Presenters;
 
+use App\Model;
 
 class ConfPresenter extends SecuredPresenter {
+
+  /** @var Model\Publisher @inject */
+  public $publisherModel;
+
+  /** @var Model\Publication @inject */
+  public $publicationModel;
+
+  /** @var Model\ConferenceYear @inject */
+  public $conferenceYearModel;
+
+  /** @var Model\Conference @inject */
+  public $conferenceModel;
+
 
 	public function createComponentCrud(){
 		$c = new \App\CrudComponents\ConferenceYear\ConferenceYearCrud (
 			3,
-			$this->user, $this->context->Publisher,
-			$this->context->Publication, $this->context->ConferenceYear, $this->context->Conference,
+			$this->user, $this->publisherModel,
+			$this->publicationModel, $this->conferenceYearModel, $this->conferenceModel,
 			$this, 'crud'
 		);
 
@@ -38,9 +52,9 @@ class ConfPresenter extends SecuredPresenter {
 
 	public function renderShowAll($keywords = null) {
 		if ($keywords !== null) {
-			$this->records = $this->context->Publisher->findAllByKw($keywords);
+			$this->records = $this->publisherModel->findAllByKw($keywords);
 		} else {
-			$this->records = $this->context->Publisher->findAll();
+			$this->records = $this->publisherModel->findAll();
 		}
 
 		$sorting = $this["sorting"];

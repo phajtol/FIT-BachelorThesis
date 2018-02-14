@@ -11,41 +11,39 @@ use Nette,
  */
 class HomepagePresenter extends SecuredPresenter {
 
-  /** @var Nette\Database\Context */
-  private $database;
+  /** @var  Model\Annotation @inject */
+  public $annotationModel;
+
+  /** @var  Model\CategoriesHasPublication @inject */
+  public $categoriesHasPublicationModel;
+
+  /** @var  Model\AuthorHasPublication @inject */
+  public $authorHasPublicationModel;
+
+  /** @var  Model\Author @inject */
+  public $authorModel;
 
   /** @var \HomepageSearchForm @inject */
   public $HomepageSearchForm;
 
-  /** @var  Model\Categories */
+  /** @var  Model\Categories @inject */
   public $categoriesModel;
 
-  /** @var  \App\Factories\IPublicationCategoryListFactory */
+  /** @var  Model\Publication @inject */
+  public $publicationModel;
+
+
+  /** @var  \App\Factories\IPublicationCategoryListFactory @inject */
   public $publicationCategoryListFactory;
 
-  public function __construct(Nette\Database\Context $database) {
-    $this->database = $database;
-  }
-
-  /**
-   * @param Model\Categories $categoriesModel
-   */
-  public function injectCategoriesModel(Model\Categories $categoriesModel) {
-    $this->categoriesModel = $categoriesModel;
-  }
-
-  /**
-   * @param \App\Factories\IPublicationCategoryListFactory $publicationCategoryListFactory
-   */
-  public function injectPublicationCategoryListFactory(\App\Factories\IPublicationCategoryListFactory $publicationCategoryListFactory) {
-    $this->publicationCategoryListFactory = $publicationCategoryListFactory;
-  }
+  /** @var \Nette\Http\Request @inject */
+  public $httpRequest;
 
 
 
   public function actionDefault() {
     $this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
-    $dataAutocomplete = $this->context->Publication->getAuthorsNamesAndPubsTitles();
+    $dataAutocomplete = $this->publicationModel->getAuthorsNamesAndPubsTitles();
     $this->template->dataAutocomplete = json_encode($dataAutocomplete);
   }
 
@@ -72,15 +70,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_OR($keywords, $categories, $sort);
+        $itemCount = $this->publicationModel->getAllPubs_FullText_OR($keywords, $categories, $sort);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_AND($keywords, $categories, $sort);
+        $itemCount = $this->publicationModel->getAllPubs_FullText_AND($keywords, $categories, $sort);
       }
     } else {
       if ($advanced) {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_advanced($keywords, $sort);
+        $itemCount = $this->publicationModel->getAllPubs_FullText_advanced($keywords, $sort);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_FullText($keywords, $sort);
+        $itemCount = $this->publicationModel->getAllPubs_FullText($keywords, $sort);
       }
     }
 
@@ -91,15 +89,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $preResults = $this->context->Publication->getAllPubs_FullText_OR($keywords, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_FullText_OR($keywords, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_FullText_AND($keywords, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_FullText_AND($keywords, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
       }
     } else {
       if ($advanced) {
-        $preResults = $this->context->Publication->getAllPubs_FullText_advanced($keywords, $sort, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_FullText_advanced($keywords, $sort, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_FullText($keywords, $sort, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_FullText($keywords, $sort, $paginator->itemsPerPage, $paginator->offset);
       }
     }
 
@@ -149,9 +147,9 @@ class HomepagePresenter extends SecuredPresenter {
         }
       }
 
-      $annotationTag = $this->context->Annotation->getAnnotationTag($id, $this->user->id);
-      $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
-      $categories = $this->context->CategoriesHasPublication->findAllBy(array('publication_id' => $id));
+      $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
+      $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
+      $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
 
       $search_results[] = array(
           'id' => $id,
@@ -171,15 +169,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $this->user->id);
+        $itemCount = $this->publicationModel->getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $this->user->id);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $this->user->id);
+        $itemCount = $this->publicationModel->getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $this->user->id);
       }
     } else {
       if ($advanced) {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $this->user->id);
+        $itemCount = $this->publicationModel->getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $this->user->id);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_FullText_starred_publication($keywords, $sort, $this->user->id);
+        $itemCount = $this->publicationModel->getAllPubs_FullText_starred_publication($keywords, $sort, $this->user->id);
       }
     }
 
@@ -190,15 +188,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $preResults = $this->context->Publication->getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       }
     } else {
       if ($advanced) {
-        $preResults = $this->context->Publication->getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_FullText_starred_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_FullText_starred_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       }
     }
 
@@ -247,9 +245,9 @@ class HomepagePresenter extends SecuredPresenter {
         }
       }
 
-      $annotationTag = $this->context->Annotation->getAnnotationTag($id, $this->user->id);
-      $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
-      $categories = $this->context->CategoriesHasPublication->findAllBy(array('publication_id' => $id));
+      $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
+      $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
+      $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
 
       $search_results[] = array(
           'id' => $id,
@@ -274,15 +272,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_OR($keywords, $keywordsString, $categories, $sort);
+        $itemCount = $this->publicationModel->getAllPubs_Authors_OR($keywords, $keywordsString, $categories, $sort);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_AND($keywords, $keywordsString, $categories, $sort);
+        $itemCount = $this->publicationModel->getAllPubs_Authors_AND($keywords, $keywordsString, $categories, $sort);
       }
     } else {
       if ($advanced) {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_advanced($keywords, $keywordsString, $sort);
+        $itemCount = $this->publicationModel->getAllPubs_Authors_advanced($keywords, $keywordsString, $sort);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_Authors($keywords, $keywordsString, $sort);
+        $itemCount = $this->publicationModel->getAllPubs_Authors($keywords, $keywordsString, $sort);
       }
     }
 
@@ -294,15 +292,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $preResults = $this->context->Publication->getAllPubs_Authors_OR($keywords, $keywordsString, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_Authors_OR($keywords, $keywordsString, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_Authors_AND($keywords, $keywordsString, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_Authors_AND($keywords, $keywordsString, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
       }
     } else {
       if ($advanced) {
-        $preResults = $this->context->Publication->getAllPubs_Authors_advanced($keywords, $keywordsString, $sort, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_Authors_advanced($keywords, $keywordsString, $sort, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_Authors($keywords, $keywordsString, $sort, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_Authors($keywords, $keywordsString, $sort, $paginator->itemsPerPage, $paginator->offset);
       }
     }
 
@@ -314,19 +312,19 @@ class HomepagePresenter extends SecuredPresenter {
       $title = htmlspecialchars($row['title']);
       $issue_year = $row['issue_year'];
       $issue_month = $row['issue_month'];
-      
+
       $authorsString = "";
-      $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
+      $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
       foreach ($authors as $author) {
-        $authorsString .= $this->context->Author->formNames($author->author->surname, $author->author->middlename, $author->author->name);
+        $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
       }
 
       $authorsString = $this->highlight_str($authorsString, $keywords);
-      $categories = $this->context->CategoriesHasPublication->findAllBy(array('publication_id' => $id));
+      $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
       $pub_type = $row['pub_type'];
 
-      $annotationTag = $this->context->Annotation->getAnnotationTag($id, $this->user->id);
+      $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
 
       $search_results[] = array(
           'id' => $id,
@@ -351,15 +349,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
+        $itemCount = $this->publicationModel->getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
+        $itemCount = $this->publicationModel->getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
       }
     } else {
       if ($advanced) {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $this->user->id);
+        $itemCount = $this->publicationModel->getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $this->user->id);
       } else {
-        $itemCount = $this->context->Publication->getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $this->user->id);
+        $itemCount = $this->publicationModel->getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $this->user->id);
       }
     }
 
@@ -371,15 +369,15 @@ class HomepagePresenter extends SecuredPresenter {
 
     if ($advanced && $categories) {
       if ($operator == 'OR') {
-        $preResults = $this->context->Publication->getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       }
     } else {
       if ($advanced) {
-        $preResults = $this->context->Publication->getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       } else {
-        $preResults = $this->context->Publication->getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+        $preResults = $this->publicationModel->getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
       }
     }
 
@@ -391,19 +389,19 @@ class HomepagePresenter extends SecuredPresenter {
       $title = htmlspecialchars($row['title']);
       $issue_year = $row['issue_year'];
       $issue_month = $row['issue_month'];
-      
+
       $authorsString = "";
-      $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
+      $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
       foreach ($authors as $author) {
-        $authorsString .= $this->context->Author->formNames($author->author->surname, $author->author->middlename, $author->author->name);
+        $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
       }
 
       $authorsString = $this->highlight_str($authorsString, $keywords);
-      $categories = $this->context->CategoriesHasPublication->findAllBy(array('publication_id' => $id));
+      $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
       $pub_type = $row['pub_type'];
 
-      $annotationTag = $this->context->Annotation->getAnnotationTag($id, $this->user->id);
+      $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
 
       $search_results[] = array(
           'id' => $id,
@@ -421,7 +419,7 @@ class HomepagePresenter extends SecuredPresenter {
 
   public function actionSearchResults($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
-    $params = $this->context->httpRequest->getQuery();
+    $params = $this->httpRequest->getQuery();
 
     if ($categories) {
       $categories = explode(" ", $categories);
@@ -467,22 +465,22 @@ class HomepagePresenter extends SecuredPresenter {
 
     $this->data = $params;
 
-    $this->template->categoriesTree = $this->context->Categories->findAll()->order('name ASC');
+    $this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
 
     if (!$categories) {
       $categories = array();
     }
     $this->template->selectedCategories = $categories;
-    $dataAutocomplete = $this->context->Publication->getAuthorsNamesAndPubsTitles();
+    $dataAutocomplete = $this->publicationModel->getAuthorsNamesAndPubsTitles();
     $this->template->dataAutocomplete = json_encode($dataAutocomplete);
   }
 
   private function display_search_results_categories($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
     if ($operator == 'OR') {
-      $itemCount = $this->context->Publication->getAllPubs_Categories_OR($categories, $sort);
+      $itemCount = $this->publicationModel->getAllPubs_Categories_OR($categories, $sort);
     } else {
-      $itemCount = $this->context->Publication->getAllPubs_Categories_AND($categories, $sort);
+      $itemCount = $this->publicationModel->getAllPubs_Categories_AND($categories, $sort);
     }
 
     $this->vp = new \VisualPaginator($this, 'vp');
@@ -491,9 +489,9 @@ class HomepagePresenter extends SecuredPresenter {
     $paginator->itemCount = $itemCount['length'];
 
     if ($operator == 'OR') {
-      $preResults = $this->context->Publication->getAllPubs_Categories_OR($categories, $sort, $paginator->itemsPerPage, $paginator->offset);
+      $preResults = $this->publicationModel->getAllPubs_Categories_OR($categories, $sort, $paginator->itemsPerPage, $paginator->offset);
     } else {
-      $preResults = $this->context->Publication->getAllPubs_Categories_AND($categories, $sort, $paginator->itemsPerPage, $paginator->offset);
+      $preResults = $this->publicationModel->getAllPubs_Categories_AND($categories, $sort, $paginator->itemsPerPage, $paginator->offset);
     }
 
     $search_results = array();
@@ -504,17 +502,17 @@ class HomepagePresenter extends SecuredPresenter {
       $title = htmlspecialchars($row['title']);
       $issue_year = $row['issue_year'];
       $issue_month = $row['issue_month'];
-      
+
       $authorsString = "";
-      $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
+      $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
       foreach ($authors as $author) {
-        $authorsString .= $this->context->Author->formNames($author->author->surname, $author->author->middlename, $author->author->name);
+        $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
       }
-      $categories = $this->context->CategoriesHasPublication->findAllBy(array('publication_id' => $id));
+      $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
       $pub_type = $row['pub_type'];
 
-      $annotationTag = $this->context->Annotation->getAnnotationTag($id, $this->user->id);
+      $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
 
       $search_results[] = array(
           'id' => $id,
@@ -532,14 +530,14 @@ class HomepagePresenter extends SecuredPresenter {
 
   private function display_search_results($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
-    $itemCount = $this->context->Publication->getAllPubs_no_params($categories, $sort);
+    $itemCount = $this->publicationModel->getAllPubs_no_params($categories, $sort);
 
     $this->vp = new \VisualPaginator($this, 'vp');
     $paginator = $this->vp->getPaginator();
     $paginator->itemsPerPage = $this->itemsPerPageDB;
     $paginator->itemCount = $itemCount['length'];
 
-    $preResults = $this->context->Publication->getAllPubs_no_params($categories, $sort, $paginator->itemsPerPage, $paginator->offset);
+    $preResults = $this->publicationModel->getAllPubs_no_params($categories, $sort, $paginator->itemsPerPage, $paginator->offset);
 
     $search_results = array();
 
@@ -551,17 +549,17 @@ class HomepagePresenter extends SecuredPresenter {
       $issue_month = $row['issue_month'];
 
       $authorsString = "";
-      $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
+      $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
       foreach ($authors as $author) {
-        $authorsString .= $this->context->Author->formNames($author->author->surname, $author->author->middlename, $author->author->name);
+        $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
       }
 
       $authorsString = $this->highlight_str($authorsString, $keywords);
-      $categories = $this->context->CategoriesHasPublication->findAllBy(array('publication_id' => $id));
+      $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
       $pub_type = $row['pub_type'];
 
-      $annotationTag = $this->context->Annotation->getAnnotationTag($id, $this->user->id);
+      $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
 
       $search_results[] = array(
           'id' => $id,
@@ -580,9 +578,9 @@ class HomepagePresenter extends SecuredPresenter {
   private function display_search_results_categories_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
     if ($operator == 'OR') {
-      $itemCount = $this->context->Publication->getAllPubs_Categories_OR_starred_publication($categories, $sort, $this->user->id);
+      $itemCount = $this->publicationModel->getAllPubs_Categories_OR_starred_publication($categories, $sort, $this->user->id);
     } else {
-      $itemCount = $this->context->Publication->getAllPubs_Categories_AND_starred_publication($categories, $sort, $this->user->id);
+      $itemCount = $this->publicationModel->getAllPubs_Categories_AND_starred_publication($categories, $sort, $this->user->id);
     }
 
     $this->vp = new \VisualPaginator($this, 'vp');
@@ -591,9 +589,9 @@ class HomepagePresenter extends SecuredPresenter {
     $paginator->itemCount = $itemCount['length'];
 
     if ($operator == 'OR') {
-      $preResults = $this->context->Publication->getAllPubs_Categories_OR_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+      $preResults = $this->publicationModel->getAllPubs_Categories_OR_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
     } else {
-      $preResults = $this->context->Publication->getAllPubs_Categories_AND_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+      $preResults = $this->publicationModel->getAllPubs_Categories_AND_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
     }
 
     $search_results = array();
@@ -604,17 +602,17 @@ class HomepagePresenter extends SecuredPresenter {
       $title = htmlspecialchars($row['title']);
       $issue_year = $row['issue_year'];
       $issue_month = $row['issue_month'];
-      
+
       $authorsString = "";
-      $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
+      $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
       foreach ($authors as $author) {
-        $authorsString .= $this->context->Author->formNames($author->author->surname, $author->author->middlename, $author->author->name);
+        $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
       }
-      $categories = $this->context->CategoriesHasPublication->findAllBy(array('publication_id' => $id));
+      $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
       $pub_type = $row['pub_type'];
 
-      $annotationTag = $this->context->Annotation->getAnnotationTag($id, $this->user->id);
+      $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
 
 
       $search_results[] = array(
@@ -633,14 +631,14 @@ class HomepagePresenter extends SecuredPresenter {
 
   private function display_search_results_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort) {
 
-    $itemCount = $this->context->Publication->getAllPubs_no_params_starred_publication($categories, $sort, $this->user->id);
+    $itemCount = $this->publicationModel->getAllPubs_no_params_starred_publication($categories, $sort, $this->user->id);
 
     $this->vp = new \VisualPaginator($this, 'vp');
     $paginator = $this->vp->getPaginator();
     $paginator->itemsPerPage = $this->itemsPerPageDB;
     $paginator->itemCount = $itemCount['length'];
 
-    $preResults = $this->context->Publication->getAllPubs_no_params_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
+    $preResults = $this->publicationModel->getAllPubs_no_params_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
 
     $search_results = array();
 
@@ -650,17 +648,17 @@ class HomepagePresenter extends SecuredPresenter {
       $title = htmlspecialchars($row['title']);
       $issue_year = $row['issue_year'];
       $issue_month = $row['issue_month'];
-      
+
       $authorsString = "";
-      $authors = $this->context->AuthorHasPublication->findAllBy(array('publication_id' => $id))->order('priority ASC');
+      $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
 
       foreach ($authors as $author) {
-        $authorsString .= $this->context->Author->formNames($author->author->surname, $author->author->middlename, $author->author->name);
+        $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
       }
-      $categories = $this->context->CategoriesHasPublication->findAllBy(array('publication_id' => $id));
+      $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
       $pub_type = $row['pub_type'];
 
-      $annotationTag = $this->context->Annotation->getAnnotationTag($id, $this->user->id);
+      $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
 
       $search_results[] = array(
           'id' => $id,

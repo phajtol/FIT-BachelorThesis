@@ -12,9 +12,9 @@ namespace App\Presenters;
 class ConferenceCategoryPresenter extends SecuredPresenter {
 
 	/**
-	 * @var \App\Factories\IConferenceCategoryListFactory
+	 * @var \App\Factories\IConferenceCategoryListFactory @inject
 	 */
-	protected $conferenceCategoryListFactory;
+	public $conferenceCategoryListFactory;
 
 	public function createComponentConferenceCategoryList($name){
 		$c = $this->conferenceCategoryListFactory->create();
@@ -26,11 +26,5 @@ class ConferenceCategoryPresenter extends SecuredPresenter {
 		return $c;
 	}
 
-	/**
-	 * @param \App\Factories\IConferenceCategoryListFactory $conferenceCategoryListFactory
-	 */
-	public function injectConferenceCategoryListFactory(\App\Factories\IConferenceCategoryListFactory $conferenceCategoryListFactory) {
-		$this->conferenceCategoryListFactory = $conferenceCategoryListFactory;
-	}
 
 }

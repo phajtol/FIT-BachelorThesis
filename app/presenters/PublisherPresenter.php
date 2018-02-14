@@ -8,8 +8,23 @@
 
 namespace App\Presenters;
 
+use App\Model;
 
 class PublisherPresenter extends SecuredPresenter {
+
+
+  /** @var Model\Author @inject */
+  public $authorModel;
+
+  /** @var Model\Publisher @inject */
+  public $publisherModel;
+
+  /** @var Model\Publication @inject */
+  public $publicationModel;
+
+  /** @var Model\ConferenceYear @inject */
+  public $conferenceYearModel;
+
 
 	public function createComponentAlphabetFilter($name) {
 		$c = new \App\Components\AlphabetFilter\AlphabetFilterComponent($this, $name);
@@ -22,8 +37,8 @@ class PublisherPresenter extends SecuredPresenter {
 
 	public function createComponentCrud(){
 		$c = new \App\CrudComponents\Publisher\PublisherCrud(
-			$this->user, $this->context->Publisher,
-			$this->context->Publication, $this->context->ConferenceYear,
+			$this->user, $this->publisherModel,
+			$this->publicationModel, $this->conferenceYearModel,
 			$this, 'crud'
 		);
 
@@ -48,9 +63,9 @@ class PublisherPresenter extends SecuredPresenter {
 		if(!$this->template->records) {
 			if ($keywords !== null) {
 				$this["searchForm"]->setDefaults(array('keywords' => $keywords));
-				$this->records = $this->context->Publisher->findAllByKw($keywords);
+				$this->records = $this->publisherModel->findAllByKw($keywords);
 			} else {
-				$this->records = $this->context->Publisher->findAll();
+				$this->records = $this->publisherModel->findAll();
 			}
 
 			$sorting = $this["sorting"];

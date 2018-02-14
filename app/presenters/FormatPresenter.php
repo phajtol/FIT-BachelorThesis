@@ -10,27 +10,11 @@ use Nette,
 class FormatPresenter extends SecuredPresenter {
 
 
-    /** @var  \App\Factories\IFormatCrudFactory */
-    protected $formatCrudFactory;
+    /** @var  \App\Factories\IFormatCrudFactory @inject */
+    public $formatCrudFactory;
 
-    /** @var  \App\Model\Format */
-    protected $formatModel;
-
-    /**
-     * @param \App\Factories\IFormatCrudFactory $formatCrudFactory
-     */
-    public function injectFormatCrudFactory(\App\Factories\IFormatCrudFactory $formatCrudFactory) {
-        $this->formatCrudFactory = $formatCrudFactory;
-    }
-
-    /**
-     * @param \App\Model\Format $formatModel
-     */
-    public function injectFormatModel(\App\Model\Format $formatModel) {
-        $this->formatModel = $formatModel;
-    }
-
-
+    /** @var  \App\Model\Format @inject */
+    public $formatModel;
 
     public function createComponentCrud(){
         $c = $this->formatCrudFactory->create();

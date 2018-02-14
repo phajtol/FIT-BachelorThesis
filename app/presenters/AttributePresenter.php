@@ -7,13 +7,20 @@
  */
 
 namespace App\Presenters;
+use App\Model;
 
 
 class AttributePresenter extends BasePresenter {
 
+  /** @var Model\Attribute @inject */
+  public $attributeModel;
+
+  /** @var Model\AttribStorage @inject */
+  public $attribStorageModel;
+
 	public function createComponentCrud(){
 		$c = new \App\CrudComponents\Attribute\AttributeCrud(
-			$this->user, $this->context->Attribute, $this->context->AttribStorage,
+			$this->user, $this->attributeModel, $this->attribStorageModel,
 			$this, 'crud'
 		);
 
@@ -27,7 +34,7 @@ class AttributePresenter extends BasePresenter {
 		};
 		$c->onEdit[] = function($row) {
 			$this->successFlashMessage(sprintf("Attribute %s has been edited successfully", $row->name));
-			$this->template->records = array($this->context->Attribute->find($row->id));
+			$this->template->records = array($this->attributeModel->find($row->id));
 			$this->redrawControl('attributeShowAllRecords');
 		};
 
@@ -39,9 +46,9 @@ class AttributePresenter extends BasePresenter {
 		if(!$this->template->records) {    // can be loaded only single one in case of edit
 			if ($keywords !== null) {
 				$this["searchForm"]->setDefaults(array('keywords' => $keywords));
-				$this->records = $this->context->Attribute->findAllByKw($keywords);
+				$this->records = $this->attributeModel->findAllByKw($keywords);
 			} else {
-				$this->records = $this->context->Attribute->findAll();
+				$this->records = $this->attributeModel->findAll();
 			}
 
 			$sorting = $this["sorting"];

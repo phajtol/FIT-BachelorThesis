@@ -15,6 +15,9 @@ class AdminPresenter extends SecuredPresenter {
     /** @var Model\Publication @inject */
     public $publicationModel;
 
+    /** @var Model\GeneralSettings @inject */
+    public $generalSettingsModel;
+
 
     protected function startup() {
         parent::startup();
@@ -86,7 +89,7 @@ class AdminPresenter extends SecuredPresenter {
 
     public function actionSettings() {
         $this->template->generalSettingsEdited = false;
-        $this->template->generalSettings = $this->context->GeneralSettings->findOneBy(array('id' => 1));
+        $this->template->generalSettings = $this->generalSettingsModel->findOneBy(array('id' => 1));
     }
 
     protected function createComponentPublicationEditGeneralSettingsForm($name) {
@@ -102,11 +105,11 @@ class AdminPresenter extends SecuredPresenter {
             Debugger::fireLog($form->values->id);
             Debugger::fireLog($this->action);
 
-            $this->context->GeneralSettings->update($formValues);
+            $this->generalSettingsModel->update($formValues);
 
             $this->template->generalSettingsEdited = true;
 
-            $generalSettings = $this->context->GeneralSettings->find($form->values->id);
+            $generalSettings = $this->generalSettingsModel->find($form->values->id);
             $this->template->generalSettings = $generalSettings;
 
             $this->flashMessage('Operation has been completed successfully.', 'alert-success');
@@ -130,7 +133,7 @@ class AdminPresenter extends SecuredPresenter {
 
         $this->drawAllowed = false;
 
-        $generalSettings = $this->context->GeneralSettings->findOneBy(array('id' => 1));
+        $generalSettings = $this->generalSettingsModel->findOneBy(array('id' => 1));
 
         $this["publicationEditGeneralSettingsForm"]->setDefaults($generalSettings); // set up new values
 

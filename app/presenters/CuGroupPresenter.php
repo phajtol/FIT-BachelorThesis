@@ -12,14 +12,14 @@ namespace App\Presenters;
 class CuGroupPresenter extends SecuredPresenter {
 
 	/**
-	 * @var \App\Factories\ICuGroupCrudFactory
+	 * @var \App\Factories\ICuGroupCrudFactory @inject
 	 */
-	protected $cuGroupCrudFactory;
+	public $cuGroupCrudFactory;
 
 	/**
-	 * @var \App\Model\CuGroup
+	 * @var \App\Model\CuGroup @inject
 	 */
-	protected $cuGroupModel;
+	public $cuGroupModel;
 
 	public function createComponentCrud(){
 		$c = $this->cuGroupCrudFactory->create();
@@ -39,21 +39,6 @@ class CuGroupPresenter extends SecuredPresenter {
 
 		return $c;
 	}
-
-	/**
-	 * @param \App\Factories\ICuGroupCrudFactory $cuGroupCrudFactory
-	 */
-	public function injectCuGroupCrudFactory(\App\Factories\ICuGroupCrudFactory $cuGroupCrudFactory) {
-		$this->cuGroupCrudFactory = $cuGroupCrudFactory;
-	}
-
-	/**
-	 * @param \App\Model\CuGroup $cuGroupModel
-	 */
-	public function injectCuGroupModel(\App\Model\CuGroup $cuGroupModel) {
-		$this->cuGroupModel = $cuGroupModel;
-	}
-
 
 	public function renderShowAll() {
 		if(!$this->template->records) {    // can be loaded only single one in case of edit

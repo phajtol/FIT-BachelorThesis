@@ -7,6 +7,11 @@ use Nette,
 
 class AuthorPresenter extends SecuredPresenter {
 
+    /** @var Model\Author @inject */
+    public $authorModel;
+
+    /** @var Model\AuthorHasPublication @inject */
+    public $authorHasPublicationModel;
     public function createComponentAlphabetFilter($name) {
         $c = new \App\Components\AlphabetFilter\AlphabetFilterComponent($this, $name);
         $c->setAjaxRequest(true)->onFilter[] = function($filter) use ($name) {
@@ -17,7 +22,7 @@ class AuthorPresenter extends SecuredPresenter {
 
     public function createComponentCrud(){
         $c = new \App\CrudComponents\Author\AuthorCrud(
-            $this->user,$this->submitterModel, $this->context->Author, $this->context->AuthorHasPublication,
+            $this->user,$this->submitterModel, $this->authorModel, $this->authorHasPublicationModel,
             $this, 'crud'
         );
 
@@ -31,7 +36,7 @@ class AuthorPresenter extends SecuredPresenter {
         };
         $c->onEdit[] = function($row) {
             $this->successFlashMessage(sprintf("Author %s has been edited successfully", $row->name . " " . $row->surname));
-            $this->template->records = array($this->context->Author->find($row->id));
+            $this->template->records = array($this->authorModel->find($row->id));
             $this->redrawControl('authorShowAllRecords');
         };
 
@@ -43,9 +48,9 @@ class AuthorPresenter extends SecuredPresenter {
         if(!$this->template->records) {    // can be loaded only single one in case of edit
             if ($keywords !== null) {
                 $this["searchForm"]->setDefaults(array('keywords' => $keywords));
-                $this->records = $this->context->Author->findAllByKw($keywords);
+                $this->records = $this->authorModel->findAllByKw($keywords);
             } else {
-                $this->records = $this->context->Author->findAll();
+                $this->records = $this->authorModel->findAll();
             }
 
             $sorting = $this["sorting"];

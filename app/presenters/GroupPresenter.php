@@ -9,23 +9,17 @@ use Nette,
 
 class GroupPresenter extends SecuredPresenter {
 
-    /** @var Nette\Database\Context */
-    private $database;
+    /** @var \App\Factories\IGroupCrudFactory @inject */
+    public $groupCrudFactory;
 
-    /** @var \App\Factories\IGroupCrudFactory */
-    protected $groupCrudFactory;
+    /** @var \Nette\Http\Request @inject */
+    public $httpRequest;
 
-    public function __construct(Nette\Database\Context $database) {
-        $this->database = $database;
-    }
+    /** @var Model\Group @inject */
+    public $groupModel;
 
-    /**
-     * @param \App\Factories\IGroupCrudFactory $groupCrudFactory
-     */
-    public function injectGroupCrudFactory(\App\Factories\IGroupCrudFactory $groupCrudFactory) {
-        $this->groupCrudFactory = $groupCrudFactory;
-    }
-
+    /** @var Model\SubmitterHasGroup @inject */
+    public $submitterHasGroupModel;
 
     public function createComponentCrud(){
         $c = $this->groupCrudFactory->create();
@@ -52,11 +46,11 @@ class GroupPresenter extends SecuredPresenter {
     }
 
     public function actionDefault() {
-        
+
     }
 
     public function renderDefault() {
-        
+
     }
 
     public function actionShowAll($sort, $order, $keywords, $filter) {
@@ -65,7 +59,7 @@ class GroupPresenter extends SecuredPresenter {
 
     public function drawGroups($starred) {
         if ($this->drawAllowed) {
-            $params = $this->context->httpRequest->getQuery();
+            $params = $this->httpRequest->getQuery();
             $alphabet = range('A', 'Z');
 
             if (!isset($params['sort'])) {
@@ -87,11 +81,11 @@ class GroupPresenter extends SecuredPresenter {
             if (!isset($this->template->records)) {
                 Debugger::fireLog('--aaaaaaaaaa');
 
-                $this->records = $this->context->Group->findAllByKw($params);
+                $this->records = $this->groupModel->findAllByKw($params);
                 if($starred) $this->records->where(':submitter_has_group.submitter_id = ?', $this->user->id);
                 $this->template->recordsStarred = array();
 
-                $recordsStarredTemp = $this->context->SubmitterHasGroup->findAllBy(array('submitter_has_group.submitter_id' => $this->user->id));
+                $recordsStarredTemp = $this->submitterHasGroupModel->findAllBy(array('submitter_has_group.submitter_id' => $this->user->id));
                 foreach ($recordsStarredTemp as $record) {
                     $this->template->recordsStarred[] = $record->group_id;
                 }
@@ -161,7 +155,7 @@ class GroupPresenter extends SecuredPresenter {
         Debugger::fireLog('handleSetFavouriteGroup(' . $id . ')');
 
 
-        $this->context->SubmitterHasGroup->insert(array(
+        $this->submitterHasGroupModel->insert(array(
             'group_id' => $id,
             'submitter_id' => $this->user->id
         ));
@@ -179,7 +173,7 @@ class GroupPresenter extends SecuredPresenter {
 
         Debugger::fireLog('handleUnsetFavouriteGroup(' . $id . ')');
 
-        $record = $this->context->SubmitterHasGroup->findOneBy(array(
+        $record = $this->submitterHasGroupModel->findOneBy(array(
             'group_id' => $id,
             'submitter_id' => $this->user->id));
 

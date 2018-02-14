@@ -95,7 +95,7 @@ class PublicationFormRules {
         $selectedAuthors = array();
 
         foreach ($authors as $authorId) {
-            $selectedAuthors[$authorId] = $parent->context->Author->getAuthorName($authorId);
+            $selectedAuthors[$authorId] = $parent->authorModel->getAuthorName($authorId);
         }
 
         $parent->template->selectedAuthors = $selectedAuthors;
@@ -231,7 +231,7 @@ class PublicationFormRules {
             return false;
         } elseif (in_array($formValues['pub_type'], $requiredTypes)) {
 
-            $conferenceYears = $parent->context->ConferenceYear->findAllBy(array('conference_id' => $formValues['conference']))->order("name ASC")->fetchPairs('id', 'name');
+            $conferenceYears = $parent->conferenceYearModel->findAllBy(array('conference_id' => $formValues['conference']))->order("name ASC")->fetchPairs('id', 'name');
 
             $parent['publicationAddNewForm']['conference_year_id']->setItems($conferenceYears);
             $parent['publicationAddNewForm']['conference_year_id']->setDefaultValue($formValues['conference_year_id']);
@@ -292,22 +292,6 @@ class PublicationFormRules {
     }
 
 
-    public static function springerFetchData($item, $parent) {
-
-        if ($parent['publicationForm']['again']->value == 1) {
-            return true;
-        }
-
-        $record = $parent->context->Author->getAuthorNameByAuthorName($parent['publicationAddNewAuthorForm']['name']->value, $parent['publicationAddNewAuthorForm']['middlename']->value, $item->value);
-
-        if ($record) {
-            $parent['publicationAddNewAuthorForm']->addError($record['name']);
-            $parent['publicationAddNewAuthorForm']['again']->setValue(1); // set up new values
-            return false;
-        }
-
-        return true;
-    }
 
     public static function validateBibtex($item, $parent) {
 
@@ -356,14 +340,14 @@ class PublicationFormRules {
       'unpublished'
       );
      */
-	 
+
 	public static function validateCheckboxList_AtLeastOneChecked($item) {
         if(!$item->value || empty($item->value) || !count($item->value)) {
             return false;
         }
         return true;
     }
-	
+
 	public static function validateCategories($item) {
         if(strlen($item->value)) {
             $arr = explode(" ", $item->value);
@@ -372,5 +356,5 @@ class PublicationFormRules {
             }
         }
         return true;
-    }	 
+    }
 }

@@ -12,9 +12,9 @@ namespace App\Presenters;
 class AcmCategoryPresenter extends SecuredPresenter {
 
 	/**
-	 * @var \App\Factories\IAcmCategoryListFactory
+	 * @var \App\Factories\IAcmCategoryListFactory @inject
 	 */
-	protected $acmCategoryListFactory;
+	public $acmCategoryListFactory;
 
 	public function createComponentAcmCategoryList($name){
 		$c = $this->acmCategoryListFactory->create();
@@ -23,13 +23,5 @@ class AcmCategoryPresenter extends SecuredPresenter {
 
 		return $c;
 	}
-
-	/**
-	 * @param \App\Factories\IAcmCategoryListFactory $acmCategoryListFactory
-	 */
-	public function injectAcmCategoryListFactory(\App\Factories\IAcmCategoryListFactory $acmCategoryListFactory) {
-		$this->acmCategoryListFactory = $acmCategoryListFactory;
-	}
-
 
 }

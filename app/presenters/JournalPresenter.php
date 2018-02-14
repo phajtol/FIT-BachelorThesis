@@ -12,6 +12,14 @@ use Nette,
 	App\Model;
 
 class JournalPresenter extends SecuredPresenter {
+  /** @var Model\Journal @inject */
+  public $journalModel;
+
+  /** @var Model\Publication @inject */
+  public $publicationModel;
+
+  /** @var Model\JournalIsbn @inject */
+  public $journalIsbnModel;
 
 	public function createComponentAlphabetFilter($name) {
 		$c = new \App\Components\AlphabetFilter\AlphabetFilterComponent($this, $name);
@@ -24,9 +32,9 @@ class JournalPresenter extends SecuredPresenter {
 	public function createComponentCrud(){
 		$c = new \App\CrudComponents\Journal\JournalCrud(
 			$this->user,
-			$this->context->Journal,
-			$this->context->Publication,
-			$this->context->JournalIsbn,
+			$this->journalModel,
+			$this->publicationModel,
+			$this->journalIsbnModel,
 			$this, 'crud'
 		);
 
@@ -40,7 +48,7 @@ class JournalPresenter extends SecuredPresenter {
 		};
 		$c->onEdit[] = function($row) {
 			$this->successFlashMessage(sprintf("Journal %s has been edited successfully", $row->name));
-			$this->template->records = array($this->context->Journal->find($row->id));
+			$this->template->records = array($this->journalModel->find($row->id));
 			$this->redrawControl('journalShowAllRecords');
 		};
 
@@ -52,9 +60,9 @@ class JournalPresenter extends SecuredPresenter {
 		if(!$this->template->records) {    // can be loaded only single one in case of edit
 			if ($keywords !== null) {
 				$this["searchForm"]->setDefaults(array('keywords' => $keywords));
-				$this->records = $this->context->Journal->findAllByKw($keywords);
+				$this->records = $this->journalModel->findAllByKw($keywords);
 			} else {
-				$this->records = $this->context->Journal->findAll();
+				$this->records = $this->journalModel->findAll();
 			}
 
 			$sorting = $this["sorting"];

@@ -20,44 +20,44 @@ class ConferencePresenter extends SecuredPresenter {
 	/** @persistent */
 	public $acmCategoryFilter;
 
-	/** @var  \App\Model\Conference */
-	protected $conferenceModel;
+	/** @var  \App\Model\Conference @inject */
+	public $conferenceModel;
 
-	/** @var  \App\Model\ConferenceYear */
-	protected $conferenceYearModel;
+	/** @var  \App\Model\ConferenceYear @inject */
+	public $conferenceYearModel;
 
-	/** @var \App\Factories\IConferenceYearCrudFactory */
-	protected $conferenceYearCrudFactory;
+	/** @var \App\Factories\IConferenceYearCrudFactory @inject */
+	public $conferenceYearCrudFactory;
 
-	/** @var  \App\Factories\IFavouriteConferenceToggleFactory */
-	protected $favouriteConferenceToggleFactory;
+	/** @var  \App\Factories\IFavouriteConferenceToggleFactory @inject */
+	public $favouriteConferenceToggleFactory;
 
-	/** @var  \App\Model\SubmitterFavouriteConference */
-	protected $submitterFavouriteConferenceModel;
+	/** @var  \App\Model\SubmitterFavouriteConference @inject */
+	public $submitterFavouriteConferenceModel;
 
-	/** @var  \App\Model\Submitter */
-	protected $submitterModel;
+	/** @var  \App\Model\Submitter @inject */
+	public $submitterModel;
 
-	/** @var  \App\Model\ConferenceCategory */
-	protected $conferenceCategoryModel;
+	/** @var  \App\Model\ConferenceCategory @inject */
+	public $conferenceCategoryModel;
 
-	/** @var  \App\Model\AcmCategory */
-	protected $acmCategoryModel;
+	/** @var  \App\Model\AcmCategory @inject */
+	public $acmCategoryModel;
 
 	/** @var  \App\Model\Publication  @inject */
 	public $publicationModel;
 
-	/** @var  \App\Model\ConferenceYearIsIndexed */
-	protected $conferenceYearIsIndexedModel;
+	/** @var  \App\Model\ConferenceYearIsIndexed @inject */
+	public $conferenceYearIsIndexedModel;
 
-	/** @var  \App\Factories\IConferenceCategoryListFactory */
-	protected $conferenceCategoryListFactory;
+	/** @var  \App\Factories\IConferenceCategoryListFactory @inject */
+	public $conferenceCategoryListFactory;
 
-	/** @var  \App\Factories\IAcmCategoryListFactory */
-	protected $acmCategoryListFactory;
+	/** @var  \App\Factories\IAcmCategoryListFactory @inject */
+	public $acmCategoryListFactory;
 
-	/** @var  \App\Factories\IConferenceCrudFactory */
-	protected $conferenceCrudFactory;
+	/** @var  \App\Factories\IConferenceCrudFactory @inject */
+	public $conferenceCrudFactory;
 
 	protected $currentConferenceId = 0;
 
@@ -572,98 +572,4 @@ class ConferencePresenter extends SecuredPresenter {
 		return $form;
 	}
 
-
-	/**
-	 * @param \App\Factories\IConferenceCrudFactory $conferenceCrudFactory
-	 */
-	public function injectConferenceCrudFactory(\App\Factories\IConferenceCrudFactory $conferenceCrudFactory) {
-		$this->conferenceCrudFactory = $conferenceCrudFactory;
-	}
-
-	/**
-	 * @param \App\Model\Conference $conferenceModel
-	 */
-	public function injectConferenceModel(\App\Model\Conference $conferenceModel) {
-		$this->conferenceModel = $conferenceModel;
-	}
-
-	/**
-	 * @param \App\Model\ConferenceYear $conferenceYearModel
-	 */
-	public function injectConferenceYearModel(\App\Model\ConferenceYear $conferenceYearModel) {
-		$this->conferenceYearModel = $conferenceYearModel;
-	}
-
-	/**
-	 * @param mixed $conferenceYearCrudFactory
-	 */
-	public function injectConferenceYearCrudFactory(\App\Factories\IConferenceYearCrudFactory $conferenceYearCrudFactory) {
-		$this->conferenceYearCrudFactory = $conferenceYearCrudFactory;
-	}
-
-	/**
-	 * @param \App\Factories\IFavouriteConferenceToggleFactory $favouriteConferenceToggleFactory
-	 */
-	public function injectFavouriteConferenceToggleFactory(\App\Factories\IFavouriteConferenceToggleFactory $favouriteConferenceToggleFactory) {
-		$this->favouriteConferenceToggleFactory = $favouriteConferenceToggleFactory;
-	}
-
-	/**
-	 * @param \App\Model\SubmitterFavouriteConference $submitterFavouriteConferenceModel
-	 */
-	public function injectSubmitterFavouriteConferenceModel(\App\Model\SubmitterFavouriteConference $submitterFavouriteConferenceModel) {
-		$this->submitterFavouriteConferenceModel = $submitterFavouriteConferenceModel;
-	}
-
-	/**
-	 * @param \App\Model\Submitter $submitterModel
-	 */
-	public function injectSubmitterModel(\App\Model\Submitter $submitterModel) {
-		$this->submitterModel = $submitterModel;
-	}
-
-	/**
-	 * @param \App\Model\ConferenceCategory $conferenceCategoryModel
-	 */
-	public function injectConferenceCategoryModel(\App\Model\ConferenceCategory $conferenceCategoryModel) {
-		$this->conferenceCategoryModel = $conferenceCategoryModel;
-	}
-
-	/**
-	 * @param \App\Factories\IAcmCategoryListFactory $acmCategoryListFactory
-	 */
-	public function injectAcmCategoryListFactory(\App\Factories\IAcmCategoryListFactory $acmCategoryListFactory) {
-		$this->acmCategoryListFactory = $acmCategoryListFactory;
-	}
-
-	/**
-	 * @param \App\Factories\IConferenceCategoryListFactory $conferenceCategoryListFactory
-	 */
-	public function injectConferenceCategoryListFactory(\App\Factories\IConferenceCategoryListFactory $conferenceCategoryListFactory) {
-		$this->conferenceCategoryListFactory = $conferenceCategoryListFactory;
-	}
-
-	/**
-	 * @param \App\Model\AcmCategory $acmCategoryModel
-	 */
-	public function injectAcmCategoryModel(\App\Model\AcmCategory $acmCategoryModel) {
-		$this->acmCategoryModel = $acmCategoryModel;
-	}
-
-	/**
-	 * @param \App\Model\Publication $publicationModel
-	 */
-	public function injectPublicationModel(\App\Model\Publication $publicationModel) {
-		$this->publicationModel = $publicationModel;
-	}
-
-	/**
-	 * @param \App\Model\ConferenceYearIsIndexed $conferenceYearIsIndexedModel
-	 */
-	public function injectConferenceYearIsIndexedModel(\App\Model\ConferenceYearIsIndexed $conferenceYearIsIndexedModel) {
-		$this->conferenceYearIsIndexedModel = $conferenceYearIsIndexedModel;
-	}
-
-
-	//use \App\Helpers\SessionPersistence;
 }
