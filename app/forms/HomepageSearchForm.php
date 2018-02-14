@@ -13,7 +13,9 @@ class HomepageSearchForm extends Nette\Object {
     public function create($data) {
         $form = new UI\Form;
 
-        $form->addText('keywords', 'Keywords')->addRule($form::MAX_LENGTH, 'Keywords is way too long', 100);
+        $form->addText('keywords', 'Keywords')
+          ->setRequired(false)
+          ->addRule($form::MAX_LENGTH, 'Keywords is way too long', 100);
         $form->addRadioList('operator', 'Search operator', array('OR' => 'OR', 'AND' => 'AND'))->setDefaultValue('OR');
         $form->addText('categories');
         $form->addRadioList('searchtype', 'Search type', array('fulltext' => 'Fulltext search', 'authors' => 'Authors / Publication search'))->setDefaultValue('fulltext');
