@@ -68,7 +68,7 @@ services:
 	Documents: App\Model\Documents
 	DocumentIndex: App\Model\DocumentIndex
 	DocxConversion: App\Helpers\DocxConversion #wtf
-	Files: App\Model\Files
+	Files: App\Model\Files (%appDir%)
 	GeneralSettings: App\Model\GeneralSettings
 	GroupHasPublication: App\Model\GroupHasPublication
 	Group: App\Model\Group

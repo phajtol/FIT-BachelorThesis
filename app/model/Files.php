@@ -8,8 +8,8 @@ class Files extends Nette\Object {
 
     public $dirPath;
 
-    public function __construct() {
-        $this->dirPath = Nette\Environment::expand("%appDir%") . "/../www/storage/";
+    public function __construct($appDir) {
+        $this->dirPath = $appDir . "/../www/storage/";
     }
 
     public function prepareFiles($pubId) {
