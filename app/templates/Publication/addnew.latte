@@ -1033,13 +1033,18 @@
                             </div>
                         </div>
                          {/if}
-                         {if $journalInfo['issn']}
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Journal ISSN</label>
-                            <div class="col-sm-10">
-                                <p class="form-control-static">{$journalInfo['issn']}</p>
-                            </div>
-                        </div>
+                         {if $journalInfo->related('journal_isbn')}
+                             {foreach $journalInfo->related('journal_isbn') as $isbn}
+                                 <div class="form-group">
+                                     <label class="col-sm-2 control-label">{$isbn->type}</label>
+                                     <div class="col-sm-3">
+                                         <p class="form-control-static">{$isbn->isbn}</p>
+                                     </div>
+                                     <div class="col-sm-3">
+                                         <p class="form-control-static">{$isbn->note}</p>
+                                     </div>
+                                 </div>
+                             {/foreach}
                          {/if}
                          {if $journalInfo['doi']}
                         <div class="form-group">
