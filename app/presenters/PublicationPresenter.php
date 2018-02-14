@@ -649,6 +649,7 @@ class PublicationPresenter extends SecuredPresenter {
             if (isset($this->publication['conference_year_id'])) {
                 $selectedConferenceYear = $this->conferenceYearModel->find($this->publication['conference_year_id']);
                 $this->selectedConferenceId = $selectedConferenceYear->conference_id;
+                $this->selectedConferenceYearId = $selectedConferenceYear->id;
                 $this->publication['conference'] = $selectedConferenceYear->conference_id;
                 $this->loadConferenceYears();
             }
@@ -695,9 +696,11 @@ class PublicationPresenter extends SecuredPresenter {
 
             if (isset($this->publication['publisher_id']) && $this->publication['pub_type'] != 'inproceedings' && $this->publication['pub_type'] != 'proceedings') {
                 $this->template->publisherInfo_alone = $this->publisherModel->find($this->publication['publisher_id']);
+                $this->selectedPublisherId = $this->publication['publisher_id'];
             }
 
             if (isset($this->publication['journal_id'])) {
+                $this->selectedJournalId = $this->publication['journal_id'];
                 $this->template->journalInfo = $this->journalModel->find($this->publication['journal_id']);
             }
 
