@@ -4,21 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "22386f9f0ed3bfc6adab3f2e826ee69b",
-    "content-hash": "5a5720c2dd1eb2bce6ec9fd31f767302",
+    "content-hash": "e8bcdafb247bdc2c645edc2549fdb61c",
     "packages": [
         {
             "name": "dg/adminer-custom",
-            "version": "v1.9.2",
+            "version": "v1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dg/adminer-custom.git",
-                "reference": "f1982e3b59d1435e70c0f58a78d3b417a4887ccd"
+                "reference": "ff5b62f188f13a4b7f465fb81d4f72c81afc78e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dg/adminer-custom/zipball/f1982e3b59d1435e70c0f58a78d3b417a4887ccd",
-                "reference": "f1982e3b59d1435e70c0f58a78d3b417a4887ccd",
+                "url": "https://api.github.com/repos/dg/adminer-custom/zipball/ff5b62f188f13a4b7f465fb81d4f72c81afc78e3",
+                "reference": "ff5b62f188f13a4b7f465fb81d4f72c81afc78e3",
                 "shasum": ""
             },
             "type": "library",
@@ -34,7 +33,7 @@
                 "postgresql",
                 "sqlite"
             ],
-            "time": "2017-08-30 07:41:05"
+            "time": "2018-02-12T23:55:01+00:00"
         },
         {
             "name": "foglcz/ldap-authenticator",
@@ -80,88 +79,7 @@
                 "ldap",
                 "nette"
             ],
-            "time": "2016-03-03 11:12:47"
-        },
-        {
-            "name": "kdyby/autowired",
-            "version": "v1.4.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Kdyby/Autowired.git",
-                "reference": "a81bf753d4e2954732dc0d2797a737140003e4cc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Kdyby/Autowired/zipball/a81bf753d4e2954732dc0d2797a737140003e4cc",
-                "reference": "a81bf753d4e2954732dc0d2797a737140003e4cc",
-                "shasum": ""
-            },
-            "require": {
-                "nette/application": "~2.3@dev",
-                "nette/di": "~2.3@dev",
-                "nette/reflection": "~2.3@dev",
-                "tracy/tracy": "~2.3@dev"
-            },
-            "require-dev": {
-                "latte/latte": "~2.3@dev",
-                "nette/application": "~2.3@dev",
-                "nette/bootstrap": "~2.3@dev",
-                "nette/caching": "~2.3@dev",
-                "nette/component-model": "~2.2@dev",
-                "nette/database": "~2.3@dev",
-                "nette/deprecated": "~2.3@dev",
-                "nette/di": "~2.3@dev",
-                "nette/finder": "~2.3@dev",
-                "nette/forms": "~2.3@dev",
-                "nette/http": "~2.3@dev",
-                "nette/mail": "~2.3@dev",
-                "nette/neon": "~2.3@dev",
-                "nette/php-generator": "~2.3@dev",
-                "nette/reflection": "~2.3@dev",
-                "nette/robot-loader": "~2.3@dev",
-                "nette/safe-stream": "~2.3@dev",
-                "nette/security": "~2.3@dev",
-                "nette/tester": "~1.7",
-                "nette/tokenizer": "~2.2@dev",
-                "nette/utils": "~2.3@dev",
-                "tracy/tracy": "~2.3@dev"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.3-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Kdyby\\Autowired": "src/"
-                },
-                "classmap": [
-                    "src/Kdyby/Autowired/exceptions.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause",
-                "GPL-2.0",
-                "GPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Filip Procházka",
-                    "email": "filip@prochazka.su",
-                    "homepage": "http://filip-prochazka.com"
-                }
-            ],
-            "description": "Syntax sugar for working with services in Nette Framework",
-            "homepage": "http://kdyby.org",
-            "keywords": [
-                "autowire",
-                "di",
-                "kdyby",
-                "nette"
-            ],
-            "time": "2016-08-26 06:30:06"
+            "time": "2016-03-03T11:12:47+00:00"
         },
         {
             "name": "latte/latte",
@@ -216,7 +134,7 @@
                 "templating",
                 "twig"
             ],
-            "time": "2016-12-21 02:04:59"
+            "time": "2016-12-21T02:04:59+00:00"
         },
         {
             "name": "mrdm-nl/ldap",
@@ -261,20 +179,20 @@
             "keywords": [
                 "ldap"
             ],
-            "time": "2013-12-23 16:31:55"
+            "time": "2013-12-23T16:31:55+00:00"
         },
         {
             "name": "nasext/sorting-control",
-            "version": "v3.0.2",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/NasExt/SortingControl.git",
-                "reference": "661eacab10fc2ae9474817fcb748c31d3fe0b6db"
+                "reference": "e3e2cae998352c1ca0ea0f6599cedba3fbfd08c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NasExt/SortingControl/zipball/661eacab10fc2ae9474817fcb748c31d3fe0b6db",
-                "reference": "661eacab10fc2ae9474817fcb748c31d3fe0b6db",
+                "url": "https://api.github.com/repos/NasExt/SortingControl/zipball/e3e2cae998352c1ca0ea0f6599cedba3fbfd08c2",
+                "reference": "e3e2cae998352c1ca0ea0f6599cedba3fbfd08c2",
                 "shasum": ""
             },
             "require": {
@@ -306,7 +224,7 @@
                 "nasext",
                 "nette"
             ],
-            "time": "2014-09-16 13:22:07"
+            "time": "2018-01-03T13:24:07+00:00"
         },
         {
             "name": "nette/application",
@@ -368,7 +286,7 @@
             ],
             "description": "Nette Application MVC Component",
             "homepage": "https://nette.org",
-            "time": "2016-06-17 17:40:16"
+            "time": "2016-06-17T17:40:16+00:00"
         },
         {
             "name": "nette/bootstrap",
@@ -434,7 +352,7 @@
             ],
             "description": "Nette Bootstrap",
             "homepage": "https://nette.org",
-            "time": "2016-05-17 19:52:51"
+            "time": "2016-05-17T19:52:51+00:00"
         },
         {
             "name": "nette/caching",
@@ -492,7 +410,7 @@
             ],
             "description": "Nette Caching Component",
             "homepage": "https://nette.org",
-            "time": "2016-02-22 02:08:08"
+            "time": "2016-02-22T02:08:08+00:00"
         },
         {
             "name": "nette/component-model",
@@ -542,7 +460,7 @@
             ],
             "description": "Nette Component Model",
             "homepage": "https://nette.org",
-            "time": "2016-12-12 12:12:37"
+            "time": "2016-12-12T12:12:37+00:00"
         },
         {
             "name": "nette/database",
@@ -596,7 +514,7 @@
             ],
             "description": "Nette Database Component",
             "homepage": "https://nette.org",
-            "time": "2016-12-12 12:46:29"
+            "time": "2016-12-12T12:46:29+00:00"
         },
         {
             "name": "nette/deprecated",
@@ -653,7 +571,7 @@
             ],
             "description": "APIs and features removed from Nette Framework",
             "homepage": "https://nette.org",
-            "time": "2016-07-15 13:06:38"
+            "time": "2016-07-15T13:06:38+00:00"
         },
         {
             "name": "nette/di",
@@ -705,7 +623,7 @@
             ],
             "description": "Nette Dependency Injection Component",
             "homepage": "https://nette.org",
-            "time": "2017-03-17 15:13:49"
+            "time": "2017-03-17T15:13:49+00:00"
         },
         {
             "name": "nette/finder",
@@ -755,7 +673,7 @@
             ],
             "description": "Nette Finder: Files Searching",
             "homepage": "https://nette.org",
-            "time": "2015-10-20 17:15:41"
+            "time": "2015-10-20T17:15:41+00:00"
         },
         {
             "name": "nette/forms",
@@ -810,7 +728,7 @@
             ],
             "description": "Nette Forms: greatly facilitates web forms",
             "homepage": "https://nette.org",
-            "time": "2016-12-21 00:59:07"
+            "time": "2016-12-21T00:59:07+00:00"
         },
         {
             "name": "nette/http",
@@ -864,7 +782,7 @@
             ],
             "description": "Nette HTTP Component",
             "homepage": "https://nette.org",
-            "time": "2017-03-16 15:47:05"
+            "time": "2017-03-16T15:47:05+00:00"
         },
         {
             "name": "nette/mail",
@@ -919,7 +837,7 @@
             ],
             "description": "Nette Mail: Sending E-mails",
             "homepage": "https://nette.org",
-            "time": "2016-04-10 12:50:29"
+            "time": "2016-04-10T12:50:29+00:00"
         },
         {
             "name": "nette/neon",
@@ -966,7 +884,7 @@
             ],
             "description": "Nette NEON: parser & generator for Nette Object Notation",
             "homepage": "http://ne-on.org",
-            "time": "2016-05-17 17:14:44"
+            "time": "2016-05-17T17:14:44+00:00"
         },
         {
             "name": "nette/nette",
@@ -1038,7 +956,7 @@
                 "mvc",
                 "templating"
             ],
-            "time": "2016-04-13 18:47:10"
+            "time": "2016-04-13T18:47:10+00:00"
         },
         {
             "name": "nette/php-generator",
@@ -1088,7 +1006,7 @@
             ],
             "description": "Nette PHP Generator",
             "homepage": "https://nette.org",
-            "time": "2016-06-17 16:33:17"
+            "time": "2016-06-17T16:33:17+00:00"
         },
         {
             "name": "nette/reflection",
@@ -1141,7 +1059,7 @@
             ],
             "description": "Nette PHP Reflection Component",
             "homepage": "https://nette.org",
-            "time": "2016-03-12 14:57:07"
+            "time": "2016-03-12T14:57:07+00:00"
         },
         {
             "name": "nette/robot-loader",
@@ -1193,7 +1111,7 @@
             ],
             "description": "Nette RobotLoader: comfortable autoloading",
             "homepage": "https://nette.org",
-            "time": "2016-05-17 15:36:50"
+            "time": "2016-05-17T15:36:50+00:00"
         },
         {
             "name": "nette/safe-stream",
@@ -1254,7 +1172,7 @@
                 "nette",
                 "safe"
             ],
-            "time": "2017-07-13 18:20:37"
+            "time": "2017-07-13T18:20:37+00:00"
         },
         {
             "name": "nette/security",
@@ -1306,7 +1224,7 @@
             ],
             "description": "Nette Security: Access Control Component",
             "homepage": "https://nette.org",
-            "time": "2016-05-17 15:37:18"
+            "time": "2016-05-17T15:37:18+00:00"
         },
         {
             "name": "nette/tokenizer",
@@ -1356,7 +1274,7 @@
             ],
             "description": "Nette Tokenizer",
             "homepage": "https://nette.org",
-            "time": "2017-07-11 19:30:23"
+            "time": "2017-07-11T19:30:23+00:00"
         },
         {
             "name": "nette/utils",
@@ -1413,7 +1331,7 @@
             ],
             "description": "Nette Utility Classes",
             "homepage": "https://nette.org",
-            "time": "2016-12-12 12:20:10"
+            "time": "2016-12-12T12:20:10+00:00"
         },
         {
             "name": "smalot/pdfparser",
@@ -1462,7 +1380,7 @@
                 "pdf",
                 "text"
             ],
-            "time": "2017-09-14 12:26:16"
+            "time": "2017-09-14T12:26:16+00:00"
         },
         {
             "name": "tecnickcom/tcpdf",
@@ -1524,7 +1442,7 @@
                 "pdf417",
                 "qrcode"
             ],
-            "time": "2017-04-26 08:14:48"
+            "time": "2017-04-26T08:14:48+00:00"
         },
         {
             "name": "tracy/tracy",
@@ -1579,7 +1497,7 @@
                 "debugger",
                 "nette"
             ],
-            "time": "2017-01-18 14:14:42"
+            "time": "2017-01-18T14:14:42+00:00"
         }
     ],
     "packages-dev": [
@@ -1633,7 +1551,7 @@
                 "testing",
                 "unit"
             ],
-            "time": "2014-02-08 12:54:09"
+            "time": "2014-02-08T12:54:09+00:00"
         }
     ],
     "aliases": [],

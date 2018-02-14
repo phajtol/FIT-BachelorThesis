@@ -19,7 +19,6 @@
 		"nette/nette": "~2.3.0",
 		"dg/adminer-custom": "1.*",
 		"foglcz/ldap-authenticator": "~1.2",
-		"kdyby/autowired": "~1.0",
 		"nasext/sorting-control": "~3.0",
 	  	"smalot/pdfparser": "*",
 		"ext-mbstring": "*"
@@ -27,7 +26,6 @@
 	"require-dev": {
 		"nette/tester": "~1.0.0",
 		"foglcz/ldap-authenticator": "~1.2",
-		"kdyby/autowired": "~1.0",
 		"nasext/sorting-control": "~3.0",
 	  	"smalot/pdfparser": "*"
 	}
