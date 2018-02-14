@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use \App\Helpers\ReferenceParser;
+
 class Reference extends Base {
 
     /**
@@ -29,9 +31,12 @@ class Reference extends Base {
             if (empty($data)) {
                 continue;
             } else {
+                $parser = new ReferenceParser($data);
+                $parser->parse();
                 $this->insert(array("text" => $data,
                     "publication_id" => $publication_id,
-                    "submitter_id" => $submitter_id));
+                    "submitter_id" => $submitter_id,
+                    "title" => $parser->getTitle()));
             }
             $counter++;
         }
@@ -57,10 +62,8 @@ class Reference extends Base {
       $arr = [];
       foreach ($unconfirmed as $reference) {
         $arr2 = [];
-        $parser = new \App\Helpers\ReferenceParser($reference->text);
-        $parser->parse();
         $publication1 = $this->publicationModel->find($reference->publication_id);
-        $publication2 = $this->publicationModel->findOneBy(["title" => $parser->getTitle()]);
+        $publication2 = $this->publicationModel->findOneBy(["title" => $reference->title]);
         if (empty($publication2) || $reference->max_refused_id>$publication2->id) {
           continue;
         }
