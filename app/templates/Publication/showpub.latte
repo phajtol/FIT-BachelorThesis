@@ -700,24 +700,12 @@
                     <div class="form-group">
                         <h1 class="col-sm-3 control-label">Exports</h1>
                     </div>
-
-                    {foreach $formats as $d}
-                        <hr>
-                        <div class="form-group">
-                        <h2 class="col-sm-3 control-label"><small>{$d->name}</small></h2>
-                        <div class="col-sm-9">
-                            <p class="form-control-static">
-                                {!$d->content|template}
-                            </p>
-                        </div>
-                    </div>
-                    {/foreach}
-                    {* <hr>
-                    {include 'csn_iso_690.latte'}
                     <hr>
-                    {include 'apa.latte'}
+                    {include '@csn_iso_690.latte'}
                     <hr>
-                    {include 'ieee.latte'} *}
+                    {include '@apa.latte'}
+                    <hr>
+                    {include '@ieee.latte'}
                     <hr>
                     <div class="form-group">
                         <h2 class="col-sm-3 control-label"><small>Bibtex</small></h2>

@@ -1,0 +1,61 @@
+<div class="form-group">
+<h2 class="col-sm-3 control-label"><small>ČSN ISO 690</small></h2>
+<div class="col-sm-9">
+    <p class="form-control-static">
+    {if count($pubCit['author_array']) >= 4}
+ {strtoupper($pubCit['author_array'][0]['surname'])}, {$pubCit['author_array'][0]['middlename']} {$pubCit['author_array'][0]['name']} et al.
+{elseif count($pubCit['author_array']) < 4 && count($pubCit['author_array']) != 0}
+ {foreach $pubCit['author_array'] as $k => $author}{if $k != 0} - {/if}{strtoupper($author['surname'])}, {$author['middlename']} {$author['name']}{/foreach}.
+{/if}
+<em>{$pubCit['title']}.</em>;
+
+{if $pubCit['pub_type']=='article'}
+ {if isset($pubCit['journal']) && $pubCit['journal']}<em> {$pubCit['journal']},</em>{/if} {$pubCit['month_cze']} {$pubCit['year']}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['pages']}, s. {$pubCit['pages']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{foreach $pubCit['isbn'] as $isbn}, {$isbn->type} {$isbn->isbn}{/foreach}{if $pubCit['note']}, {$pubCit['note']}{/if}.
+{/if}
+
+{if $pubCit['pub_type']=='book'}
+ {if $pubCit['editor']} {$pubCit['editor']}{/if}{if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{foreach $pubCit['isbn'] as $isbn}, {$isbn->type} {$isbn->isbn}{/foreach}{/if}.
+{/if}
+
+{if $pubCit['pub_type']=='booklet'}
+ {if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['howpublished']}, {$pubCit['howpublished']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{foreach $pubCit['isbn'] as $isbn}, {$isbn->type} {$isbn->isbn}{/foreach}{/if}.
+{/if}
+
+{if $pubCit['pub_type']=='inbook'}
+ {if $pubCit['editor']} {$pubCit['editor']}{/if}{if $pubCit['edition']}. {$pubCit['edition']}{/if}{if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{if $pubCit['isbn']}, ISBN {$pubCit['isbn']}{/if}{if isset($pubCit['chapter']) && $pubCit['chapter']}, s. {$pubCit['chapter']}{/if}{if $pubCit['pages']}, s. {$pubCit['pages']}{/if}.
+{/if}
+
+{if $pubCit['pub_type']=='incollection'}
+ {if $pubCit['booktitle']} In {$pubCit['booktitle']}{/if}{if $pubCit['editor']}. {$pubCit['editor']}{/if}{if $pubCit['edition']}. {$pubCit['edition']}{/if}{if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{if $pubCit['isbn']}, ISBN {$pubCit['isbn']}{/if}{if $pubCit['chapter']}, s. {$pubCit['chapter']}{/if}{if $pubCit['pages']}, s. {$pubCit['pages']}{/if}.
+{/if}
+
+{if $pubCit['pub_type']=='inproceedings'}
+ {if $pubCit['booktitle']} In {$pubCit['booktitle']}{/if}{if $pubCit['location']} ({$pubCit['location']}){/if}{if $pubCit['editor']}. {$pubCit['editor']}{/if}{if $pubCit['organization']}. {$pubCit['organization']}{/if}{if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{if $pubCit['isbn']}, ISBN {$pubCit['isbn']}{/if}{if $pubCit['pages']}, s. {$pubCit['pages']}{/if}.
+{/if}
+
+{if $pubCit['pub_type']=='manual'}
+ {if $pubCit['edition']}. {$pubCit['edition']}{/if}{if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{foreach $pubCit['isbn'] as $isbn}, {$isbn->type} {$isbn->isbn}{/foreach}.
+{/if}
+
+{if $pubCit['pub_type']=='mastersthesis' || $pubCit['pub_type']=='phdthesis'}
+ {if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['school']} {$pubCit['school']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}.
+{/if}
+
+{if $pubCit['pub_type']=='misc'}
+ {if $pubCit['editor']} {$pubCit['editor']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['howpublished']}, {$pubCit['howpublished']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}.
+{/if}
+
+{if $pubCit['pub_type']=='proceedings'}
+{if $pubCit['location']}. {$pubCit['location']}{/if}{if $pubCit['editor']}. {$pubCit['editor']}{/if}{if $pubCit['organization']}. {$pubCit['organization']}{/if}{if $pubCit['address']} {$pubCit['address']}:{elseif $pubCit['publisher']} [s.l.]:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['from'] && $pubCit['to']}, {$pubCit['from']} - {$pubCit['to']}{/if}{if $pubCit['year']}, {$pubCit['year']}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{/if}{if $pubCit['pages']}, {$pubCit['pages']} s.{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{foreach $pubCit['isbn'] as $isbn}, {$isbn->type} {$isbn->isbn}{/foreach}.
+{/if}
+
+{if $pubCit['pub_type']=='techreport'}
+{if $pubCit['institution']}. {$pubCit['institution']}{/if}{if $pubCit['address']} {$pubCit['address']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['type']}, {$pubCit['type']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}.
+{/if}
+
+{if $pubCit['pub_type']=='unpublished'}
+{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}.
+{/if}
+    </p>
+</div>
+</div>

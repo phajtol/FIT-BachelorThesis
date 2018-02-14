@@ -1,0 +1,61 @@
+<div class="form-group">
+<h2 class="col-sm-3 control-label"><small>IEEE</small></h2>
+<div class="col-sm-9">
+    <p class="form-control-static">
+    {if count($pubCit['author_array']) >= 4}
+           {$pubCit['author_array'][0]['initials']} {$pubCit['author_array'][0]['surname']} et al.
+       {elseif count($pubCit['author_array']) < 4 && count($pubCit['author_array']) != 0}
+           {foreach $pubCit['author_array'] as $k => $author}{$author['initials']} {$author['surname']}, {/foreach}
+       {/if}
+
+
+       {if $pubCit['pub_type']=='article'}
+           "{$pubCit['title']}"{if isset($pubCit['journal']) && $pubCit['journal']}, <em>{$pubCit['journal']}</em>{/if} {if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['month_eng']}, {$pubCit['month_eng']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['url']} [online], URL {$pubCit['url']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='book'}
+           <em>{$pubCit['title']}</em>{if $pubCit['edition']}, {$pubCit['edition']}{/if}{if $pubCit['editor']}, Eds., {$pubCit['editor']}{/if} {if $pubCit['address']}, {$pubCit['address']}:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']} [online], Available: {$pubCit['url']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='booklet'}
+           <em>{$pubCit['title']}</em>{if $pubCit['edition']}, {$pubCit['edition']}{/if}{if $pubCit['address']} {$pubCit['address']}:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['howpublished']}, {$pubCit['howpublished']}{/if}{if $pubCit['url']} [online], Available: {$pubCit['url']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='inbook'}
+           <em>{$pubCit['title']}</em>{if $pubCit['edition']}, {$pubCit['edition']}{/if}{if $pubCit['editor']}Eds., {$pubCit['editor']}{/if} {if $pubCit['address']}, {$pubCit['address']}:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['chapter']}, ch. {$pubCit['chapter']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']} [online], Available: {$pubCit['url']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='incollection'}
+           "{$pubCit['title']}" in <em>{$pubCit['booktitle']}</em> {if $pubCit['edition']}, {$pubCit['edition']}{/if}{if $pubCit['editor']}Eds., {$pubCit['editor']}{/if} {if $pubCit['address']}, {$pubCit['address']}:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['chapter']}, ch. {$pubCit['chapter']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']} [online], Available: {$pubCit['url']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='inproceedings'}
+           "{$pubCit['title']}"{if $pubCit['booktitle']} In {$pubCit['booktitle']}{/if}{if $pubCit['location']}, {$pubCit['location']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}[online], Available: {$pubCit['url']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='manual'}
+           <em>{$pubCit['title']}</em>{if $pubCit['edition']}, {$pubCit['edition']}{/if}{if $pubCit['address']} {$pubCit['address']}:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']} [online], Available: {$pubCit['url']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='mastersthesis' || $pubCit['pub_type']=='phdthesis'}
+           "{$pubCit['title']}"{if $pubCit['school']}, {$pubCit['school']}{/if}{if $pubCit['address']}, {$pubCit['address']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['url']}[online], Available: {$pubCit['url']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='misc'}
+           <em>{$pubCit['title']}</em>{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['howpublished']}, {$pubCit['howpublished']}{/if}{if $pubCit['url']}[online], Available {$pubCit['url']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='proceedings'}
+           "{$pubCit['title']}"{if $pubCit['location']}, {$pubCit['location']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['volume']}, vol. {$pubCit['volume']}{/if}{if $pubCit['number']}, no. {$pubCit['number']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']}[online], Available: {$pubCit['url']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='techreport'}
+           <em>{$pubCit['title']}</em>{if $pubCit['type']}, {$pubCit['type']}{/if}{if $pubCit['edition']}. {$pubCit['edition']}{/if}{if $pubCit['institution']}, {$pubCit['institution']}{/if}{if $pubCit['address']} {$pubCit['address']}:{/if}{if $pubCit['publisher']} {$pubCit['publisher']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['pages']}, pp. {$pubCit['pages']}{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['url']} [online], Available: {$pubCit['url']}{/if}.
+       {/if}
+
+       {if $pubCit['pub_type']=='unpublished'}
+           "{$pubCit['title']}"{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['month']}, {$pubCit['month']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}.
+       {/if}
+    </p>
+</div>
+</div>
