@@ -86,12 +86,6 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addResource('CuGroup:default');
         $this->addResource('CuGroup:showall');
 
-
-        // Format presenter
-        $this->addResource('Format');
-        $this->addResource('Format:default');
-        $this->addResource('Format:showall');
-
         // Group presenter
         $this->addResource('Group');
         $this->addResource('Group:default');
@@ -162,10 +156,6 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->allow('submitter', 'PublicationCategory');
         $this->allow('submitter', 'PublicationCategory:default');
         $this->allow('submitter', 'PublicationCategory:showall');
-
-        $this->allow('submitter', 'Format');
-        $this->allow('submitter', 'Format:default');
-        $this->allow('submitter', 'Format:showall');
 
         $this->allow('submitter', 'Group');
         $this->allow('submitter', 'Group:default');

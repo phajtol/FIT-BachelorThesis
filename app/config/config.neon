@@ -73,7 +73,6 @@ services:
 	GroupHasPublication: App\Model\GroupHasPublication
 	Group: App\Model\Group
 	Help: App\Model\Help
-	Format: App\Model\Format
 	Journal: App\Model\Journal
 	Publication: App\Model\Publication
 	Publisher: App\Model\Publisher
@@ -147,7 +146,6 @@ services:
 	- App\Factories\IAttributeCrudFactory
 	- App\Factories\IGroupCrudFactory
 	- App\Factories\IAuthorCrudFactory
-	- App\Factories\IFormatCrudFactory
 	- App\Factories\IPublicationTagCrudFactory
 
 	- App\Forms\PublicationAddNewFormFactory

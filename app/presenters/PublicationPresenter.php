@@ -92,9 +92,6 @@ class PublicationPresenter extends SecuredPresenter {
     /** @var Model\SubmitterHasPublication @inject */
     public $submitterHasPublicationModel;
 
-    /** @var Model\Format @inject */
-    public $formatModel;
-
     /** @var Model\PublicationIsbn @inject */
     public $publicationIsbnModel;
 
@@ -1251,8 +1248,6 @@ class PublicationPresenter extends SecuredPresenter {
             $txt = $template->__toString();
             return $txt;
         });
-
-        $this->template->formats = $this->formatModel->findAll();
 
         if ($this->user->isInRole('admin')) {
             $tags = $this->tagModel->findAllBy(array(':publication_has_tag.publication_id' => $this->publication->id))->order("id ASC");

@@ -192,7 +192,6 @@
                                     {ifCurrent CuGroup:showall}active{/ifCurrent}
                                     {ifCurrent DocumentIndex:showall}active{/ifCurrent}
                                     {ifCurrent Attribute:showall}active{/ifCurrent}
-                                    {ifCurrent Format:showall}active{/ifCurrent}
                                     ">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administration{if $user->isInRole('admin')} <span class="badge">{$numberOfUnconfirmed+$numberOfUnconfirmedReference}</span>{/if}<b class="caret"></b></a>
                                     <ul class="dropdown-menu">
@@ -207,7 +206,6 @@
                                         <li n:if="$user->isAllowed('Publisher:showall')" class="{ifCurrent Publisher:showall}active{/ifCurrent}"><a n:href="Publisher:showall">All Publishers</a></li>
                                         <li n:if="$user->isAllowed('PublicationCategory:showall')" class="{ifCurrent PublicationCategory:showall}active{/ifCurrent}"><a n:href="PublicationCategory:showall">All Publication Categories</a></li>
                                         <li n:if="$user->isAllowed('Attribute:showall')" class="{ifCurrent Attribute:showall}active{/ifCurrent}"><a n:href="Attribute:showall">All Attributes</a></li>
-                                        <li n:if="$user->isAllowed('Format:showall')" class="{ifCurrent Format:showall}active{/ifCurrent}"><a n:href="Format:showall">All Citation Formats</a></li>
                                         <li n:if="$CU && $PU" class="divider"></li>
                                         <li n:if="$CU && $PU" class="dropdown-header">Conference management</li>
                                         <li n:if="$user->isAllowed('AcmCategory:showall')" class="{ifCurrent AcmCategory:showall}active{/ifCurrent}"><a n:href="AcmCategory:showall">All ACM Categories</a></li>
