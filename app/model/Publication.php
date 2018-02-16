@@ -1282,11 +1282,16 @@ class Publication extends Base {
         }
         return $arr;
     }
-    public function getPairsForReference($publication_id) {
-        $publications = $this->database->table('publication')
+    public function getPairsForReference($publication_id, $text_reference_id = null) {
+        $query = $this->database->table('publication')
                 ->where('id != ?',$publication_id)
-                ->where("id NOT", $this->database->table("reference")->select('reference_id')->where("publication_id=?",$publication_id))
-                ->order("title");
+                ->where("id NOT", $this->database->table("reference")->select('reference_id')->where("publication_id=?",$publication_id)->where("reference_id IS NOT NULL"));
+        $reference = $this->database->fetch("SELECT * FROM reference where id=?;",$text_reference_id);
+        if (empty($text_reference_id)) {
+                $publications = $query->order("title");
+        } else {
+                $publications = $query->order("MATCH(title) AGAINST (? IN BOOLEAN MODE) DESC",$reference->title);
+        }
         $arr = array();
         foreach ($publications as $one) {
             $authors = $this->authorModel->getAuthorsNamesByPubId($one->id, "; ");

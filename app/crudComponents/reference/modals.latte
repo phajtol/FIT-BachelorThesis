@@ -50,7 +50,7 @@
                 <h4 class="modal-title" id="AddNewReferenceModalLabel{$uniqid}">Add new Reference</h4>
             </div>
               {snippet addForm}
-                  {form addForm, class => "ajax form-horizontal"}
+                  {form addForm, class => "ajax form-horizontal addForm"}
                     <div class="modal-body">
                       <div class="form-group required">
                         <div class="col-sm-2 control-label">
@@ -73,7 +73,7 @@
                     </div>
                     <script type="text/javascript">
                         $(document).ready(function () {
-                            $('select[name=reference_id]').select2({
+                            $('form.addForm select[name=reference_id]').select2({
                                 dropdownParent: $('#AddNewReferenceModal{$uniqid|noescape}'),
                                 width: "100%"
                             });
@@ -137,7 +137,7 @@
                 <h4 class="modal-title" id="SelectReferenceModalLabel{$uniqid}">Select Reference</h4>
             </div>
               {snippet selectForm}
-                  {form selectForm, class => "ajax form-horizontal"}
+                  {form selectForm, class => "ajax form-horizontal selectForm"}
                     <div class="modal-body">
                       <div class="form-group required">
                         <div class="col-sm-2 control-label">
@@ -160,7 +160,10 @@
                     </div>
                     <script type="text/javascript">
                         $(document).ready(function () {
-                            $('select[name=reference_id]').select2({
+
+
+                          $('form.selectForm select[name=reference_id][class^="select2"]').select2("destroy");
+                            $('form.selectForm select[name=reference_id]').select2({
                                 dropdownParent: $('#SelectReferenceModal{$uniqid|noescape}'),
                                 width: "100%"
                             });

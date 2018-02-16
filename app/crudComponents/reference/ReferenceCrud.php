@@ -91,6 +91,7 @@ class ReferenceCrud extends \App\CrudComponents\BaseCrudComponent {
                           if (!empty($record->reference_id)) {
                             return;
                           }
+                          $formValues['confirmed'] = 1;
                           $record = $this->referenceModel->update($formValues);
 
                           if($record) {
@@ -176,7 +177,11 @@ class ReferenceCrud extends \App\CrudComponents\BaseCrudComponent {
         public function handleSelect($reference_id) {
           $reference = $this->referenceModel->find($reference_id);
 
+          $this['selectForm']['reference_id']->setItems($this->publicationModel->getPairsForReference($this->publicationId, $reference_id));
+
       		$this["selectForm"]->setDefaults($reference); // set up new values
+
+
 
       		if (!$this->presenter->isAjax()) {
       			$this->presenter->redirect('this');
