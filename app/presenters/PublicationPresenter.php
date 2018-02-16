@@ -506,7 +506,8 @@ class PublicationPresenter extends SecuredPresenter {
     }
 
     protected function createComponentReferenceCrud($name) {
-        $c = $this->referenceCrudFactory->create($this->publicationId);
+        $c = new \App\CrudComponents\Reference\ReferenceCrud($this->publicationId, $this->getUser(), $this->publicationModel, $this->referenceModel, $this, $name);
+        //$c = $this->referenceCrudFactory->create($this->publicationId);
         if(!$this->publicationId) $c->disallowAction('add');
         $cbFn = function(){
             $references = $this->referenceModel->findAllBy(array('publication_id' => $this->publication->id))->order("id ASC");
@@ -1019,7 +1020,7 @@ class PublicationPresenter extends SecuredPresenter {
             if (!$this->isAjax()) {
                 $this->presenter->redirect('Publication:showpub', $record->id);
             } else {
-                $this->invalidateControl();
+                $this->redrawControl();
             }
         });
 

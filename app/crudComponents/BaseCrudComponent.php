@@ -62,7 +62,7 @@ abstract class BaseCrudComponent extends BaseControl implements IBaseCrudCompone
 	 */
 	protected function createComponentCPToggle() { return $this->getPresenter(true)->createComponentCPToggle(); }
 
-	private function fillTemplateWithAllowedActions(&$template) {
+	protected function fillTemplateWithAllowedActions(&$template) {
 		foreach($this->actionsAllowed as $actionAllowed) {
 			$tmp = $actionAllowed . "Allowed";
 			$template->$tmp = true;
