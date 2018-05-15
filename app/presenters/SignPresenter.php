@@ -126,7 +126,7 @@ class SignPresenter extends BasePresenter {
                 $this->getUser()->login($values->username, $values->password);
                 $this->flashMessage('You have been signed in successfully.', 'alert-success');
                 $this->presenter->restoreRequest($this->backlink);
-                $this->presenter->redirectUser();
+                $this->presenter->redirect("Sign:in");
             } catch (Nette\Security\AuthenticationException $e) {
                 $form->addError($e->getMessage());
             }
