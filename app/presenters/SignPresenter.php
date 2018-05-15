@@ -14,6 +14,9 @@ use Nette\Diagnostics\Debugger;
 
 class SignPresenter extends BasePresenter {
 
+    /** @persistent */
+    public $backlink = '';
+
     /**
      * @var \App\Services\Authenticators\LoginPassAuthenticator
      */
@@ -122,7 +125,8 @@ class SignPresenter extends BasePresenter {
             try {
                 $this->getUser()->login($values->username, $values->password);
                 $this->flashMessage('You have been signed in successfully.', 'alert-success');
-                $this->presenter->redirect('Sign:in');
+                $this->presenter->restoreRequest($this->backlink);
+                $this->presenter->redirectUser();
             } catch (Nette\Security\AuthenticationException $e) {
                 $form->addError($e->getMessage());
             }

@@ -11,7 +11,7 @@ abstract class SecuredPresenter extends BasePresenter {
     parent::startup();
 
     if (!$this->getUser()->isLoggedIn()) {
-      $this->presenter->redirect('Sign:in');
+      $this->redirect('Sign:in', ['backlink' => $this->storeRequest()]);
     }
 
     if (!$this->user->isAllowed($this->name . ':' . $this->action)) {
