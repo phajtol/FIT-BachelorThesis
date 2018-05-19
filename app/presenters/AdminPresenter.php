@@ -200,17 +200,21 @@ class AdminPresenter extends SecuredPresenter {
 
     public function handleConfirm($id, $reference_id) {
         $this->referenceModel->confirm($id, $reference_id);
-        $this->flashMessage("Reference confirmed.");
         if ($this->isAjax()) {
             $this->redrawControl("references");
         } else {
+            $this->flashMessage("Reference confirmed.");
             $this->redirect("this");
         }
     }
 
     public function handleRefuse($id) {
         $this->referenceModel->refuse($id);
-        $this->flashMessage("Reference refused.");
-        $this->redirect("this");
+        if ($this->isAjax()) {
+            $this->redrawControl("references");
+        } else {
+            $this->flashMessage("Reference refused.");
+            $this->redirect("this");
+        }
     }
 }
