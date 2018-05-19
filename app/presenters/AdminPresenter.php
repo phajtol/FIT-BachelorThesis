@@ -42,7 +42,7 @@ class AdminPresenter extends SecuredPresenter {
         $this->drawPublicationUnconfirmed();
     }
 
-    public function actionReference() {
+    public function renderReference() {
       $this->template->references = $this->referenceModel->findUnconfirmedWithPublication();
 
 
@@ -201,7 +201,11 @@ class AdminPresenter extends SecuredPresenter {
     public function handleConfirm($id, $reference_id) {
         $this->referenceModel->confirm($id, $reference_id);
         $this->flashMessage("Reference confirmed.");
-        $this->redirect("this");
+        if ($this->isAjax()) {
+            $this->redrawControl("references");
+        } else {
+            $this->redirect("this");
+        }
     }
 
     public function handleRefuse($id) {
