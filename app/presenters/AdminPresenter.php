@@ -217,4 +217,11 @@ class AdminPresenter extends SecuredPresenter {
             $this->redirect("this");
         }
     }
+
+    public function handleProcess() {
+        $count = $this->referenceModel->process();
+        $this->flashMessage($count." reference processed.");
+        $this->redirect("this");
+    }
+
 }

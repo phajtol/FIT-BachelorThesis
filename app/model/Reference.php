@@ -36,7 +36,8 @@ class Reference extends Base {
                 $this->insert(array("text" => $data,
                     "publication_id" => $publication_id,
                     "submitter_id" => $submitter_id,
-                    "title" => $parser->getTitle()));
+                    "title" => $parser->getTitle(),
+                    "processed" => new \DateTime()));
             }
             $counter++;
         }
@@ -73,5 +74,18 @@ class Reference extends Base {
         $arr[] = $arr2;
       }
       return $arr;
+    }
+
+    public function process() {
+        $counter = 0;
+        $references = $this->database->fetchAll("select * from reference where reference_id is null order by processed limit 50;");
+        foreach ($references as $reference) {
+            $parser = new ReferenceParser($reference->text);
+            $parser->parse();
+            $arr = ['id' => $reference->id, 'title' => $parser->getTitle(), 'processed' => new \DateTime()];
+            $this->update($arr);
+            $counter++;
+        }
+        return $counter;
     }
 }
