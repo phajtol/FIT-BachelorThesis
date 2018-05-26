@@ -128,10 +128,23 @@ class ReferenceParserTest extends Tester\TestCase
             Assert::equal($parser->year, 1997);
         }
 
+        function testParser13() {
+            $string = "R. L. Ashenhurst. The decomposition of switching functions. Computation Lab Harvard University Vol. 29 pp.74-116 1959.";
+            $parser = new \App\Helpers\ReferenceParser($string);
+            $parser->parse();
+            Assert::equal($parser->authors, array('R. L. Ashenhurst'));
+            Assert::equal($parser->title, "The decomposition of switching functions");
+            Assert::equal($parser->year, 1959);
+        }
 
-
-
-
+        function testParser14() {
+            $string = "Berkeley Logic Synthesis and Verification Group. ABC: A system for sequential synthesis and verification. http://www.eecs.berkeley.edu/alanmi/abc/";
+            $parser = new \App\Helpers\ReferenceParser($string);
+            $parser->parse();
+            Assert::equal($parser->authors, array('Berkeley Logic Synthesis and Verification Group'));
+            Assert::equal($parser->title, "ABC: A system for sequential synthesis and verification");
+            Assert::equal($parser->year, null);
+        }
 
 }
 

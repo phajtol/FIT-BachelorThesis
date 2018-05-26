@@ -36,6 +36,18 @@ class ReferenceParser extends Nette\Object {
             if (!empty($parts[1])) {
                 $this->title = trim($parts[1]);
             }
+        } elseif (strstr($this->text, ".")) {
+            $parts = explode(".", $this->text);
+            $longest = "";
+            $length = 0;
+            foreach ($parts as $i => $part) {
+                if (strlen($part)>$length) {
+                    $longest = $part;
+                    $length = strlen($part);
+                }
+            }
+            $this->title = trim($longest);
+            $this->authors[] = strstr($this->text, ".".$longest, true);
         }
 
         preg_match('|\d\d\d\d|', $this->text, $years);
