@@ -70,6 +70,11 @@ class Reference extends Base {
         }
         $arr2['publication1'] = $publication1;
         $arr2['publication2'] = $publication2;
+        $data = $this->publicationModel->getAllPubInfo($publication2);
+
+        $arr2['publication2_all_info']= $data['pubCit'];
+        $arr2['publication2_all_info']['author_array'] = $data['pubCit_author_array'];
+        $arr2['publication2_all_info']['author'] = $data['pubCit_author'];
         $arr2['reference'] = $reference;
         $arr[] = $arr2;
       }

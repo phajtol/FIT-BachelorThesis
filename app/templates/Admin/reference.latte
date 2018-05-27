@@ -18,27 +18,24 @@
             {$reference['publication1']['title']}
           </a>
         </th>
-        <td  class="col-md-8" colspan="4">
+        <td  class="col-md-8" >
           {$reference['reference']['text']}
+        </td>
+        <td class="col-md-2" rowspan="2">
+          <a n:href="confirm! $reference['reference']['id'], $reference['publication2']['id']" class="btn btn-block btn-success ajax">
+            <span class="glyphicon glyphicon-ok"></span>
+          </a>
+          <a n:href="refuse! $reference['reference']['id']" class="btn btn-block btn-danger ajax">
+            <span class="glyphicon glyphicon-remove"></span>
+          </a>
+          <a n:href="Publication:showpub $reference['publication2']['id']" class="btn btn-block btn-info" target="_blank">
+            <span class="glyphicon glyphicon-link"></span>
+          </a>
         </td>
       </tr>
       <tr>
-        <td class="col-md-2">
-          {$authorsByPubId[$reference['publication2']->id]|authors}
-        </td>
-        <th class="col-md-2">
-          <a n:href=":Publication:showpub $reference['publication2']['id']" >
-            {$reference['publication2']['title']}
-          </a>
-        </th>
-        <td class="col-md-2">{$reference['publication2']->issue_year}</td>
-        <td class="col-md-2">
-          <a n:href="confirm! $reference['reference']['id'], $reference['publication2']['id']" class="btn btn-success ajax">
-            <span class="glyphicon glyphicon-ok"></span>
-          </a>
-          <a n:href="refuse! $reference['reference']['id']" class="btn btn-danger ajax">
-            <span class="glyphicon glyphicon-remove"></span>
-          </a>
+        <td>
+          {include '../Publication/@ieee.latte', pubCit => $reference['publication2_all_info']}
         </td>
       </tr>
     {/foreach}
