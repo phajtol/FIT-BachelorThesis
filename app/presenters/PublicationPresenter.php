@@ -1155,7 +1155,7 @@ class PublicationPresenter extends SecuredPresenter {
 
     public function renderShowPub() {
 
-        $data = $this->publicationModel->getAllPubInfo($this->publication, $this->authorModel, $this->functions, $this->filesModel, $this->user->id, $this->user->isInRole('admin'));
+        $data = $this->publicationModel->getAllPubInfo($this->publication);
 
         $publication = $data['publication'];
 

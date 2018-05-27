@@ -12,9 +12,18 @@ class Publication extends Base {
 
     protected $authorModel;
 
-    public function __construct(Author $authorModel, \Nette\Database\Context $db) {
+    protected $functions;
+
+    protected $filesModel;
+
+    protected $user;
+
+    public function __construct(Files $filesModel, \Nette\Security\User $user, Author $authorModel, \Nette\Database\Context $db) {
         parent::__construct($db);
         $this->authorModel = $authorModel;
+        $this->user = $user;
+        $this->filesModel = $filesModel;
+        $this->functions = new \App\Helpers\Functions();
     }
 
     public function findAllByKw($params) {
@@ -87,8 +96,9 @@ class Publication extends Base {
         }
     }
 
-    public function getAllPubInfo($publicationCopy, $authorService, $functions, $files, $userId, $isAdmin) {
-
+    public function getAllPubInfo($publicationCopy) {
+        $userId = $this->user->getId();
+        $isAdmin = $this->user->isInRole("admin");
         $publication = $publicationCopy->toArray();
         $publication['location'] = '';
 
@@ -100,17 +110,17 @@ class Publication extends Base {
 
         $categories = $this->database->table('categories_has_publication')->where(array('publication_id' => $publicationCopy->id));
         $group = $this->database->table('group_has_publication')->where(array('publication_id' => $publicationCopy->id));
-        $authors = $authorService->getAuthorsNamesByPubId($publicationCopy->id);
+        $authors = $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id);
 
         // bibtex
-        $authorString = $authorService->getAuthorsNamesByPubId($publicationCopy->id, ' and ');
+        $authorString = $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id, ' and ');
         $publication['author'] = "";
         if ($authorString) {
             $publication['author'] = $authorString;
         }
 
         // endnote, refworks
-        $authorArray = $authorService->getAuthorsNamesByPubId($publicationCopy->id, null, 'endnote');
+        $authorArray = $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id, null, 'endnote');
         $publication['author_array'] = array();
         if ($authorArray) {
             $publication['author_array'] = $authorArray;
@@ -150,16 +160,16 @@ class Publication extends Base {
 
             $publication['from'] = '0000-00-00' ? '' : $conferenceYear['w_from'];
             $publication['from'] = '0000-00-00' ? '' : $conferenceYear['w_to'];
-            $publication['month_eng'] = $functions->month_eng($publication['month']);
-            $publication['month_cze'] = $functions->month_cze($publication['month']);
+            $publication['month_eng'] = $this->functions->month_eng($publication['month']);
+            $publication['month_cze'] = $this->functions->month_cze($publication['month']);
 
             $conferenceYearPublisher = $this->database->table('publisher')->get($conferenceYear['publisher_id']);
         } else {
             $publication['year'] = $publication['issue_year'];
             $publication['month'] = $publication['issue_month'];
 
-            $publication['month_eng'] = $functions->month_eng($publication['month']);
-            $publication['month_cze'] = $functions->month_cze($publication['month']);
+            $publication['month_eng'] = $this->functions->month_eng($publication['month']);
+            $publication['month_cze'] = $this->functions->month_cze($publication['month']);
         }
 
 
@@ -193,13 +203,13 @@ class Publication extends Base {
             'citations' => $citations,
             'conferenceYear' => $conferenceYearOriginal,
             'conferenceYearPublisher' => $conferenceYearPublisher,
-            'files' => $files->prepareFiles($publicationCopy->id),
+            'files' => $this->filesModel->prepareFiles($publicationCopy->id),
             'annotationAdded' => false,
             'annotationEdited' => false,
             'annotationDeleted' => false,
             'pubCit' => $publication,
-            'pubCit_author_array' => $authorService->getAuthorsNamesByPubIdPure($publicationCopy->id),
-            'pubCit_author' => $authorService->getAuthorsNamesByPubId($publicationCopy->id, ', '),
+            'pubCit_author_array' => $this->authorModel->getAuthorsNamesByPubIdPure($publicationCopy->id),
+            'pubCit_author' => $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id, ', '),
         );
     }
 
