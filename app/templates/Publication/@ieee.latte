@@ -1,7 +1,3 @@
-<div class="form-group">
-<h2 class="col-sm-3 control-label"><small>IEEE</small></h2>
-<div class="col-sm-9">
-    <p class="form-control-static">
     {if count($pubCit['author_array']) >= 4}
            {$pubCit['author_array'][0]['initials']} {$pubCit['author_array'][0]['surname']} et al.
        {elseif count($pubCit['author_array']) < 4 && count($pubCit['author_array']) != 0}
@@ -56,6 +52,3 @@
        {if $pubCit['pub_type']=='unpublished'}
            "{$pubCit['title']}"{if $pubCit['note']}, {$pubCit['note']}{/if}{if $pubCit['month']}, {$pubCit['month']}{/if}{if $pubCit['year']}, {$pubCit['year']}{/if}.
        {/if}
-    </p>
-</div>
-</div>

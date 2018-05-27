@@ -1,7 +1,3 @@
-<div class="form-group">
-<h2 class="col-sm-3 control-label"><small>ČSN ISO 690</small></h2>
-<div class="col-sm-9">
-    <p class="form-control-static">
     {if count($pubCit['author_array']) >= 4}
  {strtoupper($pubCit['author_array'][0]['surname'])}, {$pubCit['author_array'][0]['middlename']} {$pubCit['author_array'][0]['name']} et al.
 {elseif count($pubCit['author_array']) < 4 && count($pubCit['author_array']) != 0}
@@ -56,6 +52,3 @@
 {if $pubCit['pub_type']=='unpublished'}
 {if $pubCit['year']}, {$pubCit['year']}{/if}{if $pubCit['url']}, URL <{$pubCit['url']}>{/if}{if $pubCit['note']}, {$pubCit['note']}{/if}.
 {/if}
-    </p>
-</div>
-</div>

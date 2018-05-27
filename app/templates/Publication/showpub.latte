@@ -701,11 +701,32 @@
                         <h1 class="col-sm-3 control-label">Exports</h1>
                     </div>
                     <hr>
-                    {include '@csn_iso_690.latte'}
+                    <div class="form-group">
+                      <h2 class="col-sm-3 control-label"><small>ČSN ISO 690</small></h2>
+                      <div class="col-sm-9">
+                        <p class="form-control-static">
+                          {include '@csn_iso_690.latte'}
+                        </p>
+                      </div>
+                    </div>
                     <hr>
-                    {include '@apa.latte'}
+                    <div class="form-group">
+                      <h2 class="col-sm-3 control-label"><small>APA</small></h2>
+                      <div class="col-sm-9">
+                        <p class="form-control-static">
+                            {include '@apa.latte'}
+                        </p>
+                      </div>
+                    </div>
                     <hr>
-                    {include '@ieee.latte'}
+                    <div class="form-group">
+                      <h2 class="col-sm-3 control-label"><small>IEEE</small></h2>
+                      <div class="col-sm-9">
+                        <p class="form-control-static">
+                          {include '@ieee.latte'}
+                        </p>
+                      </div>
+                    </div>
                     <hr>
                     <div class="form-group">
                         <h2 class="col-sm-3 control-label"><small>Bibtex</small></h2>
