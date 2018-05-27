@@ -13,12 +13,13 @@
   <table class="table">
     {foreach $references as $reference}
       <tr>
-        <th  class="col-md-4" rowspan=2>
+        <td  class="col-md-4" rowspan=2>
           <a n:href=":Publication:showpub $reference['publication1']['id']" >
-            {$reference['publication1']['title']}
+            {include '../Publication/@ieee.latte', pubCit =>  $reference['publication1_all_info']}
           </a>
-        </th>
+        </td>
         <td  class="col-md-8" >
+          Reference:
           {$reference['reference']['text']}
         </td>
         <td class="col-md-2" rowspan="2">
@@ -28,14 +29,14 @@
           <a n:href="refuse! $reference['reference']['id']" class="btn btn-block btn-danger ajax">
             <span class="glyphicon glyphicon-remove"></span>
           </a>
-          <a n:href="Publication:showpub $reference['publication2']['id']" class="btn btn-block btn-info" target="_blank">
-            <span class="glyphicon glyphicon-link"></span>
-          </a>
         </td>
       </tr>
       <tr>
         <td>
-          {include '../Publication/@ieee.latte', pubCit => $reference['publication2_all_info']}
+          Suggested:
+          <a n:href="Publication:showpub $reference['publication2']['id']" target="_blank">
+            {include '../Publication/@ieee.latte', pubCit => $reference['publication2_all_info']}
+          </a>
         </td>
       </tr>
     {/foreach}
