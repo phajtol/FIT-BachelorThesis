@@ -113,7 +113,7 @@
 							{include #stdFormElement, itemName => "abbreviation"}
 
 							{var $isbn_count = $form['isbn_count']->getValue()}
-							<div id="addnew-isbn" class="isbn-items" >
+							<div id="addnew-journal-isbn" class="isbn-items" >
 							{for $name=0;$name<($isbn_count-1);$name++}
 								{include #isbnFormElement}
 							{/for}
