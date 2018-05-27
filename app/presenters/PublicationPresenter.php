@@ -454,7 +454,10 @@ class PublicationPresenter extends SecuredPresenter {
             if ($pub_type == 'article' && !isset($this->publication['journal_id'])) {
                 $journalForm = $this['journalCrud']['journalForm']; /** @var $journalForm \App\CrudComponents\Journal\JournalForm */
                 $journalForm['name']->setDefaultValue(isset($journal) ? $journal : '');
-                $journalForm['issn']->setDefaultValue(isset($issn) ? $issn : '');
+                if (!empty($issn)) {
+                    $journalForm['isbn_count']->setValue(1);
+                    $journalForm['isbn'][0]['isbn']->setDefaultValue(isset($issn) ? $issn : '');
+                }
             }
 
             if ($pub_type != 'inproceedings' && $pub_type != 'proceedings' && !isset($this->publication['publisher_id'])) {
