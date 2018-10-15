@@ -76,7 +76,7 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 		$this->addText('web', 'Web')->addRule($this::MAX_LENGTH, 'Web address is way too long', 500)
 			->addCondition(self::FILLED)->addRule(self::URL, 'Web of conference must be a valid URL');
 
-		$this->addHidden('isbn_count');
+		$this->addHidden('isbn_count', '0');
 		$cont = $this->addContainer("isbn");
 
 		$this->addText('doi', 'DOI')->addRule($this::MAX_LENGTH, 'DOI is way too long', 100);
