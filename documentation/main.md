@@ -22,9 +22,9 @@ Stránky odkiaľ stiahnúť server, databázu alebo komplet:
 * Apache: <https://httpd.apache.org/>
 * MySQL: <https://www.mysql.com>
 
-### Konfigurácia
+### Nastavenie
 
-V konfigurácii webového servera nastavíme _DocumentRoot_ na zložku `www` z naklonovaného _git_ repozitára. Na databázovom serveri vytvoríme novú databázu a údaje o databáze zapíšeme do súboru `app/config/config.local.neon` v _git_ repozitári aby sa aplikácia vedela do databázy pripojiť.
+V konfigurácii webového servera nastavíme _DocumentRoot_ na zložku `www` z naklonovaného _git_ repozitára. Na databázovom serveri vytvoríme novú databázu a údaje o databáze zapíšeme do súboru `app/config/config.local.neon` v _git_ repozitári aby sa aplikácia vedela do databázy pripojiť. Uistime sa že do zložiek `log` a `temp` môžeme zapisovať. 
 
 ### Otestovanie funkčnosti
 
