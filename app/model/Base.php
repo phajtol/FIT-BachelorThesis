@@ -4,7 +4,9 @@ namespace App\Model;
 
 use Nette;
 
-class Base extends \Nette\Object {
+class Base {
+
+    use Nette\SmartObject;
 
     /** @var Nette\Database\Context */
     public $database;

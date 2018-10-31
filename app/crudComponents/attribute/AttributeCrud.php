@@ -30,7 +30,10 @@ class AttributeCrud extends BaseCrudComponent {
 		\Nette\Security\User $loggedUser, \App\Model\Attribute $attributeModel, \App\Model\AttribStorage $attribStorageModel,
 		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
 	) {
-		parent::__construct($parent, $name);
+        parent::__construct();
+        if ($parent) {
+            $parent->addComponent($this, $name);
+        }
 
 		$this->addDefaultTemplateVars(array(
 			'attributeAdded' => false                     ,

@@ -19,7 +19,8 @@ class PublicationCategoryAddSubForm extends PublicationCategoryAddForm {
 
 		// parent category id
 		$this->addHidden('categories_id')
-			->addRule(\Nette\Application\UI\Form::INTEGER);
+			->addRule(\Nette\Application\UI\Form::INTEGER)
+            ->setRequired(false);
 	}
 
 }

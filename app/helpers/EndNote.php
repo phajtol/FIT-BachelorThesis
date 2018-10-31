@@ -15,7 +15,9 @@ use Nette;
  *
  * @author JOHNi
  */
-class EndNote extends Nette\Object {
+class EndNote {
+
+    use Nette\SmartObject;
 
   private $pub;
   private $definition;

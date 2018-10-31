@@ -550,10 +550,12 @@ class ConferencePresenter extends SecuredPresenter {
 
 		$conferenceCategoriesInput = $form->addText('conference_categories', 'Conference categories')
 			->addRule(\PublicationFormRules::CATEGORIES, 'Valid categories list is required')
+            ->setRequired(false)
 			->setValue($this->conferenceCategoryFilter ? $this->conferenceCategoryFilter : '');
 
 		$acmCategoriesInput = $form->addText('acm_categories', 'ACM categories')
 			->addRule(\PublicationFormRules::CATEGORIES, 'Valid categories list is required')
+            ->setRequired(false)
 			->setValue($this->acmCategoryFilter ? $this->acmCategoryFilter : '');
 
 		// todo later

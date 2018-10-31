@@ -16,7 +16,8 @@ class PublisherAddForm extends PublisherForm {
 
 		$this["name"]->addRule(function($name) use ($publisherModel){
 			if($publisherModel->findOneByName($name->value)) return false; else return true;
-		}, "Name already exists.", $parent);
+		}, "Name already exists.", $parent)
+        ->setRequired('Name is required.');
 	}
 
 }

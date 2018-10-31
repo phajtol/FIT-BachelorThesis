@@ -17,15 +17,17 @@ class JournalForm extends \App\Forms\BaseForm {
 			->setRequired('Name is required.');
 
 		$this->addText('abbreviation', 'Abbreviation')
-			->addRule($this::MAX_LENGTH, 'Abbreviation is way too long', 100);
+			->addRule($this::MAX_LENGTH, 'Abbreviation is way too long', 100)
+            ->setRequired(false);
 
-		$this->addHidden('isbn_count');
+		$this->addHidden('isbn_count', '0');
 		$cont = $this->addContainer("isbn");
 
 		$this->addIsbn();
 
 		$this->addText('doi', 'DOI')
-			->addRule($this::MAX_LENGTH, 'DOI is way too long', 100);
+			->addRule($this::MAX_LENGTH, 'DOI is way too long', 100)
+            ->setRequired(false);
 
 
 		$this->addCloseButton('cancel', 'Cancel');

@@ -34,7 +34,10 @@ class JournalCrud extends BaseCrudComponent {
 		\App\Model\JournalIsbn $journalIsbn,
 		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
 	) {
-		parent::__construct($parent, $name);
+        parent::__construct();
+        if ($parent) {
+            $parent->addComponent($this, $name);
+        }
 
 		$this->addDefaultTemplateVars(array(
 			'journalAdded'      =>  false,
@@ -67,6 +70,7 @@ class JournalCrud extends BaseCrudComponent {
 		unset($formValues['isbn_count']);
 
 		if (empty($formValues['id'])) {
+		    unset($formValues['id']);
 			$record = $this->journalModel->insert($formValues);
 			$this->template->journalAdded = true;
 			$this->onAdd($record);

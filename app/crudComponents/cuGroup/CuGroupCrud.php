@@ -150,7 +150,7 @@ class CuGroupCrud extends BaseCrudComponent {
 		$rels = $this->submitterHasCuGroupModel->getAllByCuGroupId($id);
 
 		foreach($rels as $rel) {
-			foreach($rel->related('submitter') as $user) $users[] = $user;
+			foreach($rel->related('submitter') as $submitter) $users[] = $submitter;
 		}
 
 		$this->template->usersRelatedToCuGroup = $users;

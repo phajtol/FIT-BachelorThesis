@@ -2,15 +2,17 @@
 
 namespace App\Services\Authenticators;
 
-use Nette,
-	Nette\Utils\Strings;
+use Nette;
+use Nette\Utils\Strings;
 
 
 /**
  * Users management.
  */
-class LoginPassAuthenticator extends Nette\Object implements Nette\Security\IAuthenticator
+class LoginPassAuthenticator implements Nette\Security\IAuthenticator
 {
+
+    use Nette\SmartObject;
 
 	/**
 	 * @var \App\Model\AuthLoginPassword

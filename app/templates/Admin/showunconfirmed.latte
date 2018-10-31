@@ -49,7 +49,7 @@
                             </tr>
                         </thead>
                         <tbody n:snippet="publicationShowAllRecords">
-                            {var $_form = $presenter['adminShowUnconfirmedForm']}
+                            {var $form = $presenter['adminShowUnconfirmedForm']}
                             {foreach $records as $record}
                                 <tr>
                                     <td><a n:href="Publication:showpub, $record->id">{$record->title}</a></td>

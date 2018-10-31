@@ -30,7 +30,11 @@ abstract class CategoryCrud extends BaseCrudComponent {
 	public $onAddSub;
 
 	public function __construct($entityName, \Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
-		parent::__construct($parent, $name);
+        parent::__construct();
+        if ($parent) {
+            $parent->addComponent($this, $name);
+        }
+
 		$this->entityName = $entityName;
 
 		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent){

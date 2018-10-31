@@ -31,25 +31,30 @@ class UserForm extends BaseForm implements \App\Forms\IMixtureForm {
 
 		// todo nl nickname \n login
 		$this->addText('nickname', "Nickname (login)")->setRequired('Nickname is required.')
-			->addRule($this::MAX_LENGTH, 'Nickname is way too long', 100)->setRequired('Nickname is required.');
+			->addRule($this::MAX_LENGTH, 'Nickname is way too long', 100);
 
 		$requiredFieldsOnLoginPass[] =
-			$this->addText('name', 'Name')->addRule($this::MAX_LENGTH, 'Name is way too long.', 50);
+			$this->addText('name', 'Name')
+                ->addRule($this::MAX_LENGTH, 'Name is way too long.', 50)
+                ->setRequired('Name is required.');
 
 		$requiredFieldsOnLoginPass[] =
-			$this->addText('surname', 'Surname')->addRule($this::MAX_LENGTH, 'Surname is way too long.', 100);
+			$this->addText('surname', 'Surname')
+                ->addRule($this::MAX_LENGTH, 'Surname is way too long.', 100)
+                ->setRequired('Surname is required.');
 
 		$emailField = $this->addText('email', 'E-mail')
 				->addRule($this::EMAIL, 'E-mail is not in correct form.')
-				->addRule($this::MAX_LENGTH, 'Email is way too long.', 200);
+				->addRule($this::MAX_LENGTH, 'Email is way too long.', 200)
+                ->setRequired('E-mail is required.');
 
 		$requiredFieldsOnLoginPass[] = $emailField;
 		$requiredFieldsOnShibboleth[] = $emailField;
 
 		if ($loggedUser->isInRole('admin')) {
-			$this->addCheckboxList(
-				'roles', 'Rights', $availableRoles
-			)->addRule(PublicationFormRules::AT_LEAST_ONE_CHECKED, "At least one role must be checked!");
+			$this->addCheckboxList('roles', 'Rights', $availableRoles)
+                ->addRule(PublicationFormRules::AT_LEAST_ONE_CHECKED, "At least one role must be checked!")
+                ->setRequired('At least one role must be checked.');
 		}
 
 		// todo add description for auth_type field - see below

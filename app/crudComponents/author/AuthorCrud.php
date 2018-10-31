@@ -31,7 +31,10 @@ class AuthorCrud extends BaseCrudComponent {
 		\Nette\Security\User $loggedUser, \App\Model\Submitter $submitterModel, \App\Model\Author $authorModel, \App\Model\AuthorHasPublication $authorHasPublicationModel,
 		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
 	) {
-		parent::__construct($parent, $name);
+        parent::__construct();
+        if ($parent) {
+            $parent->addComponent($this, $name);
+        }
 
 		$this->addDefaultTemplateVars(array(
 			'authorAdded' => false,

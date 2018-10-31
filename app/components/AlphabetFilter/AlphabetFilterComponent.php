@@ -8,6 +8,8 @@
 
 namespace App\Components\AlphabetFilter;
 
+use Nette\Reflection\ClassType;
+
 /**
  * @persistent
  */
@@ -32,13 +34,13 @@ class AlphabetFilterComponent extends \Nette\Application\UI\Control {
 	public $onFilter;
 
 	public function __construct(\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
-		parent::__construct($parent, $name);
+		parent::__construct();
 
 		$this->ajaxRequest = false;
 
-		$reflection = $this->getReflection();
-		$dir = dirname($reflection->getFileName());
-		$this->templateFile = $dir . DIRECTORY_SEPARATOR . $reflection->getShortName() . '.latte';
+		$reflection = new ClassType($this);
+		$dir = dirname($reflection->fileName);
+		$this->templateFile = $dir . DIRECTORY_SEPARATOR . $reflection->shortName . '.latte';
 
 		$this->onFilter = array();
 	}

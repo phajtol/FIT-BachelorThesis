@@ -19,7 +19,8 @@ class ConferenceCategoryAddSubForm extends ConferenceCategoryAddForm {
 
 		// parent category id
 		$this->addHidden('parent_id')
-			->addRule(\Nette\Application\UI\Form::INTEGER);
+			->addRule(\Nette\Application\UI\Form::INTEGER)
+            ->setRequired(true);
 	}
 
 }

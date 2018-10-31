@@ -2,7 +2,9 @@
 
 use Nette\Application\UI;
 
-class HomepageSearchForm extends Nette\Object {
+class HomepageSearchForm {
+
+    use \Nette\SmartObject;
 
     private $database;
 

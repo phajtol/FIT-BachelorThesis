@@ -9,7 +9,12 @@
 namespace App\Helpers;
 
 
-class SortingControlFactory extends \Nette\Object implements \NasExt\Controls\ISortingControlFactory {
+use Nette\Reflection\ClassType;
+use Nette\SmartObject;
+
+class SortingControlFactory implements \NasExt\Controls\ISortingControlFactory {
+
+    use SmartObject;
 
 	/**
 	 * @var \Nette\Http\IRequest
@@ -37,7 +42,8 @@ class SortingControlFactory extends \Nette\Object implements \NasExt\Controls\IS
 	public function create(array $columns, $defaultColumn, $defaultSort)
 	{
 		$sc = new \NasExt\Controls\SortingControl($columns, $defaultColumn, $defaultSort, $this->httpRequest, $this->httpResponse);
-		$sc->templateFile =  dirname($this->getReflection()->getFileName()) . "/../templates/helpers/CustomSortingControl.latte";
+		$reflection = new ClassType($this);
+		$sc->templateFile =  dirname($reflection->fileName) . "/../templates/helpers/CustomSortingControl.latte";
 		return $sc;
 	}
 

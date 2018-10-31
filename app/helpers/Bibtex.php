@@ -8,7 +8,9 @@ use Nette;
  * Helping class for bibtex validation
  *
  */
-abstract class Bibtex extends Nette\Object {
+abstract class Bibtex {
+
+    use Nette\SmartObject;
 
   protected $pub_type;
   protected $report;

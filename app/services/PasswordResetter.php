@@ -10,8 +10,11 @@ namespace App\Services;
 
 
 use Nette\Mail\Message;
+use Nette\SmartObject;
 
-class PasswordResetter extends \Nette\Object {
+class PasswordResetter {
+
+    use SmartObject;
 
 	/**
 	 * @var \Nette\Mail\IMailer

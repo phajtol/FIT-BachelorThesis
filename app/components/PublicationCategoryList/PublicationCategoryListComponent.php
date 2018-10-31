@@ -34,7 +34,10 @@ class PublicationCategoryListComponent extends \App\Components\CategoryList\Cate
 
 		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
 
-		parent::__construct($parent, $name);
+        parent::__construct();
+        if ($parent) {
+            $parent->addComponent($this, $name);
+        }
 
 		$this->loggedUser = $loggedUser;
 		$this->publicationCategoryModel = $publicationCategoryModel;

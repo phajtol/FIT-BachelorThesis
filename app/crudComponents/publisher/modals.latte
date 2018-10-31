@@ -125,7 +125,10 @@
             </div>
             <div class="modal-body">
                 {snippet publisherRelated}
-                    {if count($publisherRelated_publication) && count($publisherRelated_conference_year)}
+                    {if $publisherRelated_publication &&
+                        $publisherRelated_conference_year &&
+                        count($publisherRelated_publication) &&
+                        count($publisherRelated_conference_year)}
                         {if count($publisherRelated_publication)}
                             <h5><strong>Publications</strong></h5>
                             <ul n:foreach="$publisherRelated_publication as $rel">

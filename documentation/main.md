@@ -24,7 +24,7 @@ Stránky odkiaľ stiahnúť server, databázu alebo komplet:
 
 ### Nastavenie
 
-V konfigurácii webového servera nastavíme _DocumentRoot_ na zložku `www` z naklonovaného _git_ repozitára. Na databázovom serveri vytvoríme novú databázu a údaje o databáze zapíšeme do súboru `app/config/config.local.neon` v _git_ repozitári aby sa aplikácia vedela do databázy pripojiť. Uistime sa že do zložiek `log` a `temp` môžeme zapisovať. 
+V konfigurácii webového servera nastavíme _DocumentRoot_ na zložku `www` z naklonovaného _git_ repozitára. Na databázovom serveri vytvoríme novú databázu a údaje o databáze zapíšeme do súboru `app/config/config.local.neon` v _git_ repozitári aby sa aplikácia vedela do databázy pripojiť. Uistime sa že do zložiek `log` a `temp` môžeme zapisovať.
 
 ### Otestovanie funkčnosti
 
@@ -49,6 +49,10 @@ Import databázy môžeme spraviť cez CLI, v tom prípade použijeme príkaz `m
 ## Deploy na server
 
 Na serveri je v zložke s aplikáciou inicializovaný _git_ repozitár napojený na školský _GitLab_ a v ňom projekt PubConf. Repozitár je na branchi _master_, neodporúčam to meniť. Deploy po novom commite do mastera teda spravíme jednoduchým príkazom `git pull`. Podobne pomocou _gitu_ môžeme vrátiť zmeny ak by bolo treba.
+
+### Vymazanie cache
+
+Po deployi novej verzie sa hodí vymazať cache aby neostali súbory zo staršej verzie. To spravíme na serveri zavolaním skriptu `sudo ./deletecache.sh` v priečinku `/usr/local/PubConf`, heslo zadáme pre užívateľa PubConf.
 
 ## Nástroje
 

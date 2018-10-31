@@ -1,15 +1,16 @@
 <?php
 
 use Nette\Application\UI,
-    Nette\ComponentModel\IContainer,
-    Nette\Diagnostics\Debugger;
+    Nette\ComponentModel\IContainer;
 
 class AdminShowUnconfirmedForm extends UI\Form {
 
     public function __construct(IContainer $parent = NULL, $name = NULL) {
-        parent::__construct($parent, $name);
+        parent::__construct();
+        if ($parent) {
+            $parent->addComponent($this, $name);
+        }
 
-        Debugger::fireLog('AdminShowUnconfirmedForm');
         foreach ($parent->records as $record) {
             $this->addCheckbox('confirm_' . $record->id, '');
         }

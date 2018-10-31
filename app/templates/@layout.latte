@@ -46,7 +46,7 @@
         <meta name="description" content="">
         <meta name="robots" content="{$robots}" n:ifset="$robots">
 
-        <title>{block title|striptags|upper}Webová databáze {if $PU}publikací{/if}{if $CU}{if $PU} & {/if}konferencí{/if}{/block}</title>
+        <title>{block title|striptags|stripHtml|upper}Webová databáze {if $PU}publikací{/if}{if $CU}{if $PU} & {/if}konferencí{/if}{/block}</title>
 
         <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/screen.css">
         <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/bootstrap.css">

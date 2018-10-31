@@ -15,7 +15,9 @@ use Nette;
  *
  * @author JOHNi
  */
-class RefWorks extends Nette\Object {
+class RefWorks {
+
+    use Nette\SmartObject;
 
   private $pub;
   private $definition;

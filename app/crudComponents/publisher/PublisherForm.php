@@ -22,7 +22,9 @@ abstract class PublisherForm extends \App\Forms\BaseForm {
 			->addRule($this::MAX_LENGTH, 'Name is way too long', 500)
 			->setRequired('Name is required.');
 
-		$this->addText('address', 'Address')->addRule($this::MAX_LENGTH, 'Address is way too long', 500);
+		$this->addText('address', 'Address')
+            ->addRule($this::MAX_LENGTH, 'Address is way too long', 500)
+            ->setRequired('Address is required.');
 
 		$this->addCloseButton('cancel', 'Cancel');
 		$this->addSubmit('send', 'Done');

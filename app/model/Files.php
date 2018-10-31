@@ -4,7 +4,9 @@ namespace App\Model;
 
 use Nette;
 
-class Files extends Nette\Object {
+class Files {
+
+    use Nette\SmartObject;
 
     public $dirPath;
 

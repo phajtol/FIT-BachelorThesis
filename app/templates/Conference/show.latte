@@ -77,7 +77,7 @@
 				{if $CU && $parentConferenceYear}
 					{capture $value}<a n:href="Conference:show $parentConferenceYear->id" target="_blank">{$parentConferenceYear->name}{if $parentConferenceYear->w_year} ({$parentConferenceYear->w_year}){/if}</a>{/capture}
 					{include #conferenceYearInfo, caption => 'Workshop at', noescape => 'true'}
-					{?unset($value)}
+					{php unset($value)}
 				{/if}
 
 				{include #conferenceYearInfo, key => 'abbreviation', caption => 'Abbreviation'}
@@ -86,37 +86,37 @@
 
 				{capture $value}{$conferenceYear->w_from|ldate}{/capture}
 				{include #conferenceYearInfo, caption => 'From'}
-				{?unset($value)}
+				{php unset($value)}
 
 				{capture $value}{$conferenceYear->w_to|ldate}{/capture}
 				{include #conferenceYearInfo, caption => 'To'}
-				{?unset($value)}
+				{php unset($value)}
 
 				{if $CU}
 					{capture $value}{$conferenceYear->deadline|ldate}{/capture}
 					<div n:class="$deadlineNotify ? deadline-alert">
 						{include #conferenceYearInfo, caption => 'Deadline'}
 					</div>
-					{?unset($value)}
+					{php unset($value)}
 
 					{capture $value}{$conferenceYear->notification|ldate}{/capture}
 					<div n:class="$notificationNotify ? deadline-alert">
 						{include #conferenceYearInfo, caption => 'Notification date'}
 					</div>
-					{?unset($value)}
+					{php unset($value)}
 
 					{capture $value}{$conferenceYear->finalversion|ldate}{/capture}
 					<div n:class="$finalversionNotify ? deadline-alert">
 						{include #conferenceYearInfo, caption => 'Final version date'}
 					</div>
-					{?unset($value)}
+					{php unset($value)}
 				{/if}
 
 				{include #conferenceYearInfo, key => 'location', caption => 'Location'}
 
 				{capture $value}{if $conferenceYear->web}<a href="{$conferenceYear->web}" target="_blank">{$conferenceYear->web}</a>{else}-{/if}{/capture}
 				{include #conferenceYearInfo, caption => 'Web', noescape => 'true'}
-				{?unset($value)}
+				{php unset($value)}
 
 				{include #conferenceYearInfo, key => 'description', caption => 'Description'}
 
@@ -130,7 +130,7 @@
 						{/if}
 					{/capture}
 					{include #conferenceYearInfo, caption => 'ACM categories'}
-					{?unset($value)}
+					{php unset($value)}
 
 					{* conference categories *}
 					{capture $value}
@@ -141,7 +141,7 @@
 						{/if}
 					{/capture}
 					{include #conferenceYearInfo, caption => 'Conference categories'}
-					{?unset($value)}
+					{php unset($value)}
 
 					{* indexes *}
 					{capture $value}
@@ -152,7 +152,7 @@
 						{/if}
 					{/capture}
 					{include #conferenceYearInfo, caption => 'Is indexed at'}
-					{?unset($value)}
+					{php unset($value)}
 				{/if}
 
 				{if $PU && 1==0}
@@ -162,10 +162,10 @@
 						</div>
 						{capture $value}{$publisher->name}{/capture}
 							{include #conferenceYearInfo, caption => 'Name'}
-						{?unset($value)}
+						{php unset($value)}
 						{capture $value}{$publisher->address}{/capture}
 							{include #conferenceYearInfo, caption => 'Address'}
-						{?unset($value)}
+						{php unset($value)}
 					{/if}
 
 					{include #conferenceYearInfo, key => 'issn', caption => 'ISSN'}

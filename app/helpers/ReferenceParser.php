@@ -5,7 +5,10 @@ namespace App\Helpers;
 use Nette;
 
 
-class ReferenceParser extends Nette\Object {
+class ReferenceParser {
+
+    use Nette\SmartObject;
+
     private $text;
     private $authors;
     private $title;

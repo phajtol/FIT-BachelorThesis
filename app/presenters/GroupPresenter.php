@@ -79,7 +79,6 @@ class GroupPresenter extends SecuredPresenter {
             }
 
             if (!isset($this->template->records)) {
-                Debugger::fireLog('--aaaaaaaaaa');
 
                 $this->records = $this->groupModel->findAllByKw($params);
                 if($starred) $this->records->where(':submitter_has_group.submitter_id = ?', $this->user->id);
@@ -92,8 +91,9 @@ class GroupPresenter extends SecuredPresenter {
 
 
 
-                $this->vp = new \VisualPaginator($this, 'vp');
-                $paginator = $this->vp->getPaginator();
+                $vp = new \VisualPaginator();
+                $this->addComponent($vp, 'vp');
+                $paginator = $vp->getPaginator();
                 $paginator->itemsPerPage = $this->itemsPerPageDB;
                 $paginator->itemCount = $this->records->count("*");
 
@@ -151,10 +151,6 @@ class GroupPresenter extends SecuredPresenter {
 
 
     public function handleSetFavouriteGroup($id) {
-
-        Debugger::fireLog('handleSetFavouriteGroup(' . $id . ')');
-
-
         $this->submitterHasGroupModel->insert(array(
             'group_id' => $id,
             'submitter_id' => $this->user->id
@@ -170,8 +166,6 @@ class GroupPresenter extends SecuredPresenter {
     }
 
     public function handleUnsetFavouriteGroup($id) {
-
-        Debugger::fireLog('handleUnsetFavouriteGroup(' . $id . ')');
 
         $record = $this->submitterHasGroupModel->findOneBy(array(
             'group_id' => $id,

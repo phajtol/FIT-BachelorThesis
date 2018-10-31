@@ -240,8 +240,8 @@ $(document).ready(function() {
 						{include #isbnFormElement}
 					{/for}
 					<div n:snippet="last_isbn" data-ajax-append>
-						{var $_form = $conferenceYearForm}
-						{var $isbn_count = $_form['isbn_count']->getValue()}
+						{var $form = $conferenceYearForm}
+						{var $isbn_count = $form['isbn_count']->getValue()}
 						{if ($isbn_count>0)}
 							{var $name = $isbn_count-1}
 							{include #isbnFormElement}
@@ -251,8 +251,8 @@ $(document).ready(function() {
 						<label class="col-sm-2 control-label">ISBN/ISSN</label>
 						<div class="col-sm-1">
 							{snippet add_isbn}
-								{var $_form = $conferenceYearForm}
-								{var $isbn_count = $_form['isbn_count']->getValue()}
+								{var $form = $conferenceYearForm}
+								{var $isbn_count = $form['isbn_count']->getValue()}
 								<a n:href="addIsbn! $isbn_count+1" class="ajax btn btn-success" title="Add ISBN">
 										<span class="glyphicon glyphicon-plus"></span>
 								</a>
@@ -270,7 +270,7 @@ $(document).ready(function() {
 							{label publisher_id, class => "col-sm-2 control-label" /}
 							<div class="col-sm-6">
 								{snippet conferenceYearForm-publisher_id}
-									{var $_form = $conferenceYearForm}
+									{var $form = $conferenceYearForm}
 									{input publisher_id, class => "form-control"}
 								{/snippet}
 							</div>
@@ -314,7 +314,7 @@ $(document).ready(function() {
 					{input send, class => "btn btn-primary"}
 				</div>
 				{snippet isbn_count}
-					{var $_form = $conferenceYearForm}
+					{var $form = $conferenceYearForm}
 					{input isbn_count}
 				{/snippet}
 				{/form}

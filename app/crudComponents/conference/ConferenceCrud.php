@@ -244,8 +244,15 @@ class ConferenceCrud extends BaseCrudComponent {
 
 	public function createComponentMergeConferencesForm() {
 		$form = new \App\Forms\BaseForm();
-		$form->addHidden('source_conference_id')->addRule(\Nette\Forms\Form::INTEGER)->setValue($this->conferenceId);
-		$form->addHidden('target_conference_id')->addRule(\Nette\Forms\Form::INTEGER);
+		$form->addHidden('source_conference_id')
+            ->addRule(\Nette\Forms\Form::INTEGER)
+            ->setValue($this->conferenceId)
+            ->setRequired(true);
+
+		$form->addHidden('target_conference_id')
+            ->addRule(\Nette\Forms\Form::INTEGER)
+            ->setRequired(true);
+
 		$form->addText('target_conference_name', 'Target conference'); // for typeahead
 		$form->addSubmit('send', 'Move this conference');
 		$form->setModal(true);

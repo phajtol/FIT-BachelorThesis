@@ -9,7 +9,11 @@
 namespace App\Model;
 
 
-class ShibbolethParams extends \Nette\Object {
+use Nette\SmartObject;
+
+class ShibbolethParams {
+
+    use SmartObject;
 
 	protected $params;
 

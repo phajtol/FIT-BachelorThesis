@@ -1227,7 +1227,7 @@ class PublicationPresenter extends SecuredPresenter {
 
 
         $_this = $this;
-        $this->template->registerHelper('template', function($text) use ($_this) {
+        $this->template->getLatte()->addFilter('template', function($text) use ($_this) {
             $template = new Nette\Templating\Template();
             $template->control = $template->_control = $_this;
             $template->presenter = $template->_presenter = $_this->getPresenter(FALSE);

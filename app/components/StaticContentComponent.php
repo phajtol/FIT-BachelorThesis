@@ -15,7 +15,8 @@ class StaticContentComponent extends \Nette\Application\UI\Control {
 
 	public function __construct($templateFile, \Nette\ComponentModel\IContainer $parent = NULL, $name = NULL)
 	{
-		parent::__construct($parent, $name);
+        parent::__construct();
+        $parent->addComponent($this, $name);
 		$this->templateFile = $templateFile;
 	}
 

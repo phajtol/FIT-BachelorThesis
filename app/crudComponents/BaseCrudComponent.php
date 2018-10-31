@@ -11,6 +11,7 @@ namespace App\CrudComponents;
 
 use App\Components\BaseControl;
 use Nette\Application\UI\Multiplier;
+use Nette\Reflection\ClassType;
 
 abstract class BaseCrudComponent extends BaseControl implements IBaseCrudComponent {
 
@@ -43,7 +44,8 @@ abstract class BaseCrudComponent extends BaseControl implements IBaseCrudCompone
 
 		$this->fillTemplateWithAllowedActions($this->template);
 
-		$this->template->setFile(dirname($this->getReflection()->getFileName())  . '/modals.latte');
+		$reflection = new ClassType($this);
+		$this->template->setFile(dirname($reflection->fileName)  . '/modals.latte');
 		$this->template->render();
 	}
 
@@ -81,7 +83,8 @@ abstract class BaseCrudComponent extends BaseControl implements IBaseCrudCompone
 
 	public function createComponentControls(){
 		$parent = $this;
-		$templateFile = dirname($this->getReflection()->getFileName()) . '/controls.latte';
+		$reflection = new ClassType($this);
+		$templateFile = dirname($reflection->fileName) . '/controls.latte';
 
 		$callbacks = $this->onControlsCreate;
 

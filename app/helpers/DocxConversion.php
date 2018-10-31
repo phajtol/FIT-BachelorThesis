@@ -2,9 +2,11 @@
 
 namespace App\Helpers;
 
-use Nette;
+use Nette\SmartObject;
 
-class DocxConversion extends Nette\Object {
+class DocxConversion {
+
+    use SmartObject;
 
     private $filename;
 
@@ -20,12 +22,12 @@ class DocxConversion extends Nette\Object {
         foreach ($lines as $thisline) {
             $pos = strpos($thisline, chr(0x00));
             if (($pos !== FALSE) || (strlen($thisline) == 0)) {
-                $outtext .= $thisline . " "; 
+                $outtext .= $thisline . " ";
             } else {
                 $outtext .= $thisline . " ";
             }
         }
-        
+
         $outtext = preg_replace("/[^a-zA-Z0-9\s\,\.\-\n\r\t@\/\_\(\)]/", "", $outtext);
         echo $outtext;
         return $outtext;

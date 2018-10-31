@@ -4,7 +4,9 @@ namespace App\Model;
 
 use Nette;
 
-class Help extends Nette\Object {
+class Help {
+
+    use Nette\SmartObject;
 
     public $arrayHelp;
 

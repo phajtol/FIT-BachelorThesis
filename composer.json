@@ -15,8 +15,8 @@
 		}
 	],
 	"require": {
-		"php": ">= 5.3.7",
-		"nette/nette": "~2.3.0",
+		"php": ">= 7.2.0",
+		"nette/nette": "~2.4.0",
 		"dg/adminer-custom": "1.*",
 		"foglcz/ldap-authenticator": "~1.2",
 		"nasext/sorting-control": "~3.0",

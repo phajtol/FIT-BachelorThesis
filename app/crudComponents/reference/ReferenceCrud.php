@@ -34,7 +34,8 @@ class ReferenceCrud extends \App\CrudComponents\BaseCrudComponent {
 		\Nette\Security\User $loggedUser, \App\Model\Publication $publicationModel, \App\Model\Reference $referenceModel,
 		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
 	) {
-		parent::__construct($parent, $name);
+        parent::__construct();
+        $parent->addComponent($this, $name);
 
 		$this->addDefaultTemplateVars(array(
 			'entityAdded'   =>  false,

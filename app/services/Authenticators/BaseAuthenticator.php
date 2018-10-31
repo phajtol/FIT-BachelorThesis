@@ -10,13 +10,15 @@ namespace App\Services\Authenticators;
 
 
 use App\Interfaces\IAuthMethodTranslator;
-use Nette\Object;
 use Nette\Security\AuthenticationException;
 use Nette\Security\IAuthenticator;
 use Nette\Security\IIdentity;
+use Nette\SmartObject;
 
 
-class BaseAuthenticator extends Object implements  IAuthenticator, IAuthMethodTranslator {
+class BaseAuthenticator implements  IAuthenticator, IAuthMethodTranslator {
+
+    use SmartObject;
 
 	const DEFAULT_ROLE = 'reader';
 

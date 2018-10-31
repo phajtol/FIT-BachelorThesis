@@ -18,7 +18,8 @@ class CuGroupAddForm extends CuGroupForm {
 			if($cuGroupModel->findOneByName($nameField->getValue())){
 				return false;
 			} else return true;
-		}, "Conference user group with such name already exists.", $this);
+		}, "Conference user group with such name already exists.", $this)
+        ->setRequired('Name is required.');
 	}
 
 }

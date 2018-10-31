@@ -48,40 +48,55 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 		$this->addDate('w_from', 'From');
 		$this->addDate('w_to', 'To');
 
-		$this->addDate('deadline', 'Deadline')->addRule(function($deadlineEl) {
+		$this->addDate('deadline', 'Deadline')
+            ->addRule(function($deadlineEl) {
 			$deadlineDate = $deadlineEl->getValueTransformed();
 			$fromDate = $this['w_from']->getValueTransformed();
 			if($deadlineDate && $fromDate && $deadlineDate > $fromDate) {
 				return false;
 			} else return true;
-		}, 'Deadline must be before the start of the conference!');
+		}, 'Deadline must be before the start of the conference!')
+            ->setRequired(true);
 
-		$this->addDate('notification', 'Notification')->addRule(function($notificationEl) {
+		$this->addDate('notification', 'Notification')
+            ->addRule(function($notificationEl) {
 			$notificationDate = $notificationEl->getValueTransformed();
 			$fromDate = $this['w_from']->getValueTransformed();
 			if($notificationDate && $fromDate && $notificationDate > $fromDate) {
 				return false;
 			} else return true;
-		}, 'Notification date must be before the start of the conference!');
+		}, 'Notification date must be before the start of the conference!')
+            ->setRequired(true);
 
-		$this->addDate('finalversion', 'Final version')->addRule(function($finalversionEl) {
+		$this->addDate('finalversion', 'Final version')
+            ->addRule(function($finalversionEl) {
 			$finalversionDate = $finalversionEl->getValueTransformed();
 			$fromDate = $this['w_from']->getValueTransformed();
 			if($finalversionDate && $fromDate && $finalversionDate > $fromDate) {
 				return false;
 			} else return true;
-		}, 'Final version date must be before the start of the conference!');
+		}, 'Final version date must be before the start of the conference!')
+            ->setRequired(true);
 
-		$this->addText('location', 'Location')->addRule($this::MAX_LENGTH, 'Name is way too long', 500);
-		$this->addText('web', 'Web')->addRule($this::MAX_LENGTH, 'Web address is way too long', 500)
-			->addCondition(self::FILLED)->addRule(self::URL, 'Web of conference must be a valid URL');
+		$this->addText('location', 'Location')
+            ->addRule($this::MAX_LENGTH, 'Name is way too long', 500)
+            ->setRequired(true);
+
+		$this->addText('web', 'Web')
+            ->addRule($this::MAX_LENGTH, 'Web address is way too long', 500)
+            ->addRule(self::URL, 'Web of conference must be a valid URL')
+            ->setRequired(true);
 
 		$this->addHidden('isbn_count', '0');
 		$cont = $this->addContainer("isbn");
 
-		$this->addText('doi', 'DOI')->addRule($this::MAX_LENGTH, 'DOI is way too long', 100);
+		$this->addText('doi', 'DOI')
+            ->addRule($this::MAX_LENGTH, 'DOI is way too long', 100)
+            ->setRequired(true);
 
-		$this->addTextArea('description', 'Description', 6, 8)->addRule($this::MAX_LENGTH, 'Description is way too long', 1000);
+		$this->addTextArea('description', 'Description', 6, 8)
+            ->addRule($this::MAX_LENGTH, 'Description is way too long', 1000)
+            ->setRequired(true);
 
 		$this->addSelect('publisher_id', 'Publisher', $publishers)->setPrompt(' ------- ');//->setRequired('Publisher is required.');
 

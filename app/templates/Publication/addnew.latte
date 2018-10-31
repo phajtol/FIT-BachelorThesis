@@ -318,7 +318,7 @@
 
         // GROUPS Update
         {foreach $selectedGroups as $grp}
-            $("#jqxGroup").jqxTree('checkItem',  $("li#{!$grp['group_id']}")[0], true);
+            $("#jqxGroup").jqxTree('checkItem',  $("li#{$grp['group_id']|noescape}")[0], true);
         {/foreach}
 
 
@@ -570,12 +570,12 @@
 
 
                                     {snippet publicationSpringerForm-data}
-                                    {var $_form = $presenter['publicationSpringerForm']}
+                                    {var $form = $presenter['publicationSpringerForm']}
 
                                     <div class="form-group required">
                                     {label data_springer, class => "col-sm-2 control-label" /}
                                     <div class="col-sm-8">
-                                        {input data_springer, class => form-control} <span class=error n:ifcontent>{$_form['data_springer']->error}</span>
+                                        {input data_springer, class => form-control} <span class=error n:ifcontent>{$form['data_springer']->error}</span>
                                     </div>
                                     </div>
                                     {ifset $springerMessage}
@@ -636,7 +636,7 @@
                     <div class="form-group">
                     <label class="col-sm-2 control-label">Imported definition</label>
                     <div class="col-sm-8">
-                        <p class="bg-success">{!$definition}</p>
+                        <p class="bg-success">{$definition|noescape}</p>
                     </div>
                     </div>
                 {/if}
@@ -646,8 +646,8 @@
                     <label class="col-sm-2 control-label">Imported data from springer</label>
                     <div class="col-sm-8">
                         <p class="bg-success">
-                            {foreach $springer as $id => $value}
-                                {$id} => {dump $value}
+                            {foreach $springer as $i => $value}
+                                {$i} => {dump $value}
                             {/foreach}
                         </p>
                     </div>
@@ -733,10 +733,10 @@
 
                 <div id="addnew-conference" class="form-group hidden">
                     {snippet publicationAddNewForm-conference}
-                        {var $_form = $presenter['publicationAddNewForm']}
+                        {var $form = $presenter['publicationAddNewForm']}
                         {label conference, class => "col-sm-2 control-label" /}
                         <div class="col-sm-6">
-                            {input conference, class => form-control} <span class=error n:ifcontent>{$_form['conference']->error}</span>
+                            {input conference, class => form-control} <span class=error n:ifcontent>{$form['conference']->error}</span>
                         </div>
                     {/snippet}
                     <div class="col-sm-4" n:snippet="conferenceControls">
@@ -752,7 +752,7 @@
 
 
 
-                {snippet conferenceInfo, class => hidden}
+                {snippet conferenceInfo}
                     {if $conferenceInfo}
                         {if $conferenceInfo['name']}
                         <div class="form-group">
@@ -795,10 +795,10 @@
 
                 <div id="addnew-conferenceYear" class="form-group hidden">
                     {snippet publicationAddNewForm-conference_year_id}
-                        {var $_form = $presenter['publicationAddNewForm']}
+                        {var $form = $presenter['publicationAddNewForm']}
                         {label conference_year_id, class => "col-sm-2 control-label" /}
                         <div class="col-sm-6">
-                            {input conference_year_id, class => form-control} <span class=error n:ifcontent>{$_form['conference_year_id']->error}</span>
+                            {input conference_year_id, class => form-control} <span class=error n:ifcontent>{$form['conference_year_id']->error}</span>
                         </div>
                         {if $conferenceInfo}
                             <div class="col-sm-4">
@@ -963,8 +963,8 @@
                         {label publisher_id, class => "col-sm-2 control-label" /}
                         <div class="col-sm-7">
                             {snippet publicationAddNewForm-publisher_id}
-                                {var $_form = $presenter['publicationAddNewForm']}
-                                {input publisher_id, class => "form-control"} <span class=error n:ifcontent>{$_form['publisher_id']->error}</span>
+                                {var $form = $presenter['publicationAddNewForm']}
+                                {input publisher_id, class => "form-control"} <span class=error n:ifcontent>{$form['publisher_id']->error}</span>
                             {/snippet}
                         </div>
                         <div class="col-sm-3" n:snippet="publisherControls">
@@ -1003,8 +1003,8 @@
                     {label journal_id, class => "col-sm-2 control-label" /}
                     <div class="col-sm-7">
                         {snippet publicationAddNewForm-journal_id}
-                             {var $_form = $presenter['publicationAddNewForm']}
-                             {input journal_id, class => "form-control"} <span class=error n:ifcontent>{$_form['journal_id']->error}</span>
+                             {var $form = $presenter['publicationAddNewForm']}
+                             {input journal_id, class => "form-control"} <span class=error n:ifcontent>{$form['journal_id']->error}</span>
                         {/snippet}
                     </div>
                     <div class="col-sm-3" n:snippet="journalControls">
@@ -1098,18 +1098,18 @@
                 </div>
 
                 {snippet issueDate}
-                    {var $_form = $presenter['publicationAddNewForm']}
+                    {var $form = $presenter['publicationAddNewForm']}
                     <div id="addnew-issue_year" class="form-group">
                         {label issue_year, class => "col-sm-2 control-label" /}
                         <div class="col-sm-8">
-                            {input issue_year, class => "form-control"} <span class=error n:ifcontent>{$_form['issue_year']->error}</span>
+                            {input issue_year, class => "form-control"} <span class=error n:ifcontent>{$form['issue_year']->error}</span>
                         </div>
                     </div>
 
                     <div id="addnew-issue_month" class="form-group">
                         {label issue_month, class => "col-sm-2 control-label" /}
                         <div class="col-sm-8">
-                            {input issue_month, class => "form-control"} <span class=error n:ifcontent>{$_form['issue_month']->error}</span>
+                            {input issue_month, class => "form-control"} <span class=error n:ifcontent>{$form['issue_month']->error}</span>
                         </div>
                     </div>
                 {/snippet}
@@ -1272,10 +1272,10 @@
                             <div class="col-sm-7">
                                 <p class="form-control-static">
 
-    {var $_form = $presenter['publicationAddNewForm']}
+    {var $form = $presenter['publicationAddNewForm']}
 		{ifset $values}
 			<h2>Recieved data</h2>
-			{? $fields = array("upload"); }
+			{php $fields = array("upload"); }
 			{foreach $fields AS $field}
 			<b>{=count($values[$field])}</b> recieved files through <b>{$field}</b> field.
 			<table>
@@ -1315,7 +1315,7 @@
 				<input type="submit" name="tlacitko" value="Back to form">
 			</form>
 		{else}
-			{input upload} <span class=error n:ifcontent>{$_form['upload']->error}</span>
+			{input upload} <span class=error n:ifcontent>{$form['upload']->error}</span>
 		{/ifset}
              </p>
                             </div>

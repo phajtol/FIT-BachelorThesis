@@ -142,10 +142,11 @@ class BaseForm extends \Nette\Application\UI\Form {
 		}, $message . " Please submit the form AGAIN to confirm the action.");
 	}
 
-	/**
-	 * for trivial forms that don't require custom rendering
-	 */
-	public function render(){
+    /**
+     * for trivial forms that don't require custom rendering
+     * @param array $args
+     */
+	public function render(...$args){
 
 		// modal behaviour
 		if($this->isModal) {

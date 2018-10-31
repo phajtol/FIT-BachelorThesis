@@ -121,12 +121,12 @@
 								</tr>
 							</thead>
 							<tbody>
-								{foreach $usersRelatedToCuGroup as $user}
+								{foreach $usersRelatedToCuGroup as $i}
 									<tr>
-										<td>{$user->nickname}</td>
-										<td>{$user->name}</td>
-										<td>{$user->surname}</td>
-										<td>{$user->email}</td>
+										<td>{$i->nickname}</td>
+										<td>{$i->name}</td>
+										<td>{$i->surname}</td>
+										<td>{$i->email}</td>
 									</tr>
 								{/foreach}
 							</tbody>
