@@ -43,7 +43,10 @@ class Author extends Base {
     }
 
     public function getAuthorsNamesByPubId($pubId, $sep = null, $type = null) {
-        $authors = $this->database->table('author_has_publication')->where(array('publication_id' => $pubId))->order("priority ASC");
+        $authors = $this->database->table('author_has_publication')
+            ->select('author.name, author.surname, author.middlename, author.id')
+            ->where('publication_id', $pubId)
+            ->order("priority ASC");
         $authorsTemp = array();
         $authorsMerged = '';
 
@@ -51,18 +54,18 @@ class Author extends Base {
             case "endnote":
             case "refworks":
                 foreach ($authors as $author) {
-                    $authorsTemp[$author->author->id] = $author->author->surname . ', ' . ($author->author->name) . ($author->author->middlename ? ' ' . $author->author->middlename : '');
+                    $authorsTemp[$author['id']] = $author['surname'] . ', ' . ($author['name']) . ($author['middlename'] ? ' ' . $author['middlename'] : '');
                 }
                 break;
             case "bibtex":
                 foreach ($authors as $author) {
-                    $authorsTemp[$author->author->id] = $author->author->surname . ' ' . ($author->author->middlename ? $author->author->middlename . ' ' : '') . ($author->author->name);
+                    $authorsTemp[$author['id']] = $author['surname'] . ' ' . ($author['middlename'] ? $author['middlename'] . ' ' : '') . ($author['name']);
                 }
                 break;
 
             default:
                 foreach ($authors as $author) {
-                    $authorsTemp[$author->author->id] = $author->author->surname . ', ' . ($author->author->name) . ($author->author->middlename ? ', ' . $author->author->middlename : '');
+                    $authorsTemp[$author['id']] = $author['surname'] . ', ' . ($author['name']) . ($author['middlename'] ? ', ' . $author['middlename'] : '');
                 }
         }
 
@@ -80,15 +83,19 @@ class Author extends Base {
     }
 
     public function getAuthorsNamesByPubIdPure($pubId) {
-        $authors = $this->database->table('author_has_publication')->where(array('publication_id' => $pubId))->order("priority ASC");
+        $authors = $this->database->table('author_has_publication')
+            ->select('author.name, author.surname, author.middlename, author.id')
+            ->where('publication_id', $pubId)
+            ->order("priority ASC");
         $authorsTemp = array();
 
         foreach ($authors as $author) {
             $authorsTemp[] = array(
-                'surname' => $author->author->surname,
-                'middlename' => $author->author->middlename,
-                'name' => $author->author->name,
-                'initials' => mb_substr($author->author->name, 0, 1) . '. ' . ($author->author->middlename ? mb_substr($author->author->middlename, 0, 1) . '. ' : ''),
+                'surname' => $author['surname'],
+                'middlename' => $author['middlename'],
+                'name' => $author['name'],
+                'initials' => mb_substr($author['name'], 0, 1) . '. ' .
+                    ($author['middlename'] ? mb_substr($author['middlename'], 0, 1) . '. ' : '')
             );
         }
         return $authorsTemp;
