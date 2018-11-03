@@ -4,7 +4,9 @@ namespace App\Helpers;
 
 use Nette;
 
-class EndNoteRefWorksParser extends Nette\Object {
+class EndNoteRefWorksParser {
+
+    use Nette\SmartObject;
 
   public $inputText;
   public $defType;

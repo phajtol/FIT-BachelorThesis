@@ -4,7 +4,9 @@ namespace App\Helpers;
 
 use Nette;
 
-class Lexan extends Nette\Object {
+class Lexan {
+
+    use Nette\SmartObject;
 
     public $text;
     public $symbol; //lexical symbol

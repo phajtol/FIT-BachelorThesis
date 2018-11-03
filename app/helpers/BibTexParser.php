@@ -6,7 +6,9 @@ use Nette;
 
 define('DEBUG', false);
 
-class BibTexParser extends Nette\Object {
+class BibTexParser {
+
+    use Nette\SmartObject;
 
     public $lexan;
     public $elem; //lexical element of type LexElem

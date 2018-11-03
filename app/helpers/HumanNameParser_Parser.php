@@ -15,7 +15,9 @@ namespace App\Helpers;
 
 use Nette;
 
-class HumanNameParser_Parser extends Nette\Object {
+class HumanNameParser_Parser {
+
+    use Nette\SmartObject;
 
     private $name;
     private $leadingInit;

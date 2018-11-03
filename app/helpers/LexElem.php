@@ -10,7 +10,9 @@ namespace App\Helpers;
 
 use Nette;
 
-class LexElem extends Nette\Object {
+class LexElem {
+
+    use Nette\SmartObject;
 
     public $symbol;
     public $sattribute;

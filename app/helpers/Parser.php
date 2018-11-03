@@ -6,7 +6,9 @@ use Nette;
 
 define('DEBUG', false);
 
-class Parser extends Nette\Object {
+class Parser {
+
+    use Nette\SmartObject;
 
     public $lexan;
     public $elem; //lexical element of type LexElem
