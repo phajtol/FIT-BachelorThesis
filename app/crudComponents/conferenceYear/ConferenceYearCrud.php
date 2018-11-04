@@ -224,6 +224,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 
     		if (empty($formValues['id'])) {
     			$this->template->conferenceYearAdded = true;
+    			unset($formValues['id']);
     			$record = $this->conferenceYearModel->insert($formValues);
     		} else {
     			unset($formValues['publisher_id']);

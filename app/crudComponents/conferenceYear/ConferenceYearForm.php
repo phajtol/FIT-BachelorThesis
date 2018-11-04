@@ -56,7 +56,7 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 				return false;
 			} else return true;
 		}, 'Deadline must be before the start of the conference!')
-            ->setRequired(true);
+            ->setRequired(false);
 
 		$this->addDate('notification', 'Notification')
             ->addRule(function($notificationEl) {
@@ -66,7 +66,7 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 				return false;
 			} else return true;
 		}, 'Notification date must be before the start of the conference!')
-            ->setRequired(true);
+            ->setRequired(false);
 
 		$this->addDate('finalversion', 'Final version')
             ->addRule(function($finalversionEl) {
@@ -76,7 +76,7 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 				return false;
 			} else return true;
 		}, 'Final version date must be before the start of the conference!')
-            ->setRequired(true);
+            ->setRequired(false);
 
 		$this->addText('location', 'Location')
             ->addRule($this::MAX_LENGTH, 'Name is way too long', 500)

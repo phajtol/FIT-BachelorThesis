@@ -30,8 +30,9 @@ class UserForm extends BaseForm implements \App\Forms\IMixtureForm {
 		 */
 
 		// todo nl nickname \n login
-		$this->addText('nickname', "Nickname (login)")->setRequired('Nickname is required.')
-			->addRule($this::MAX_LENGTH, 'Nickname is way too long', 100);
+		$this->addText('nickname', "Nickname (login)")
+			->addRule($this::MAX_LENGTH, 'Nickname is way too long', 100)
+            ->setRequired('Nickname is required.');
 
 		$requiredFieldsOnLoginPass[] =
 			$this->addText('name', 'Name')
@@ -63,7 +64,8 @@ class UserForm extends BaseForm implements \App\Forms\IMixtureForm {
 		 *  Shibboleth ~ all user credentials will be deleted
 		 *  Login as password ~ new credentials will be activated and will be emailed to user
 		 */
-		$authTypeField = $this->addRadioList('auth_type', 'Authentication type', $availableAuthTypes)->setRequired('Auth type is required');
+		$authTypeField = $this->addRadioList('auth_type', 'Authentication type', $availableAuthTypes)
+            ->setRequired('Auth type is required');
 
 		$this->addMultiSelect('cu_groups', 'Conference user groups', $availableCuGroups);
 
