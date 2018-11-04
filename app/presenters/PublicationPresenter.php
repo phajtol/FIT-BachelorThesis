@@ -588,10 +588,8 @@ class PublicationPresenter extends SecuredPresenter {
 
         // rozlisovat ADD, EDIT (id), smazat vsechny kategorie a vytvorit nove!!, u EDIT skryt IMPORT
 
-        Debugger::fireLog('actionAddNew()');
         $params = $this->getHttpRequest()->getQuery();
         $this->publicationId = $id;
-        Debugger::fireLog($params);
 
         $this->publication = array();
         if ($id) {
@@ -709,7 +707,7 @@ class PublicationPresenter extends SecuredPresenter {
                 $this->template->conferenceInfo = $this->conferenceModel->find($this->publication['conference']);
             }
         }
-        $this->template->_form = $this['publicationAddNewForm'];
+        $this->template->getLatte()->addProvider('formsStack', [$this['publicationAddNewForm']]);
 
         $this->template->id = $id;
     }
@@ -1636,7 +1634,7 @@ class PublicationPresenter extends SecuredPresenter {
     }
 
     public function handleShowConferenceInfo($conferenceId) {
-        $this->drawAllowed = false;
+        $this->drawAllowed = true;
 
         $this->selectedConferenceId = $conferenceId;
 
