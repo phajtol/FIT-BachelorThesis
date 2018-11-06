@@ -38,11 +38,11 @@
                 <tr n:foreach="$results as $result">
                     <td>
             <h4>
-                <a n:href="Publication:showpub, $result['id']">{!$result['title']}</a>
+                <a n:href="Publication:showpub, $result['id']">{$result['title']|noescape}</a>
                 <span class="text-muted"> ({$result['pub_type']}{if $result['issue_year']}, {if $result['issue_month']}{$result['issue_month']}/{/if}{$result['issue_year']}{/if})</span>
             </h4>
             <p><strong>Authors:</strong>
-                {!$result['authors']}
+                {$result['authors']|noescape}
             </p>
             <p class="text-success"><strong>Categories:</strong>
                         {foreach $result['categories'] as $category}

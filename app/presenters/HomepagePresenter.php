@@ -82,8 +82,9 @@ class HomepagePresenter extends SecuredPresenter {
       }
     }
 
-    $this->vp = new \VisualPaginator($this, 'vp');
-    $paginator = $this->vp->getPaginator();
+    $vp = new \VisualPaginator();
+    $this->addComponent($vp, 'vp');
+    $paginator = $vp->getPaginator();
     $paginator->itemsPerPage = $this->itemsPerPageDB;
     $paginator->itemCount = $itemCount['length'];
 
@@ -285,8 +286,9 @@ class HomepagePresenter extends SecuredPresenter {
     }
 
 
-    $this->vp = new \VisualPaginator($this, 'vp');
-    $paginator = $this->vp->getPaginator();
+    $vp = new \VisualPaginator();
+    $this->addComponent($vp, 'vp');
+    $paginator = $vp->getPaginator();
     $paginator->itemsPerPage = $this->itemsPerPageDB;
     $paginator->itemCount = $itemCount['length'];
 
