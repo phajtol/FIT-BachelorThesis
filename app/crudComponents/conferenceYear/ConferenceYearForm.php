@@ -80,23 +80,23 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 
 		$this->addText('location', 'Location')
             ->addRule($this::MAX_LENGTH, 'Name is way too long', 500)
-            ->setRequired(true);
+            ->setRequired(false);
 
 		$this->addText('web', 'Web')
             ->addRule($this::MAX_LENGTH, 'Web address is way too long', 500)
             ->addRule(self::URL, 'Web of conference must be a valid URL')
-            ->setRequired(true);
+            ->setRequired(false);
 
 		$this->addHidden('isbn_count', '0');
 		$cont = $this->addContainer("isbn");
 
 		$this->addText('doi', 'DOI')
             ->addRule($this::MAX_LENGTH, 'DOI is way too long', 100)
-            ->setRequired(true);
+            ->setRequired(false);
 
 		$this->addTextArea('description', 'Description', 6, 8)
             ->addRule($this::MAX_LENGTH, 'Description is way too long', 1000)
-            ->setRequired(true);
+            ->setRequired(false);
 
 		$this->addSelect('publisher_id', 'Publisher', $publishers)->setPrompt(' ------- ');//->setRequired('Publisher is required.');
 
