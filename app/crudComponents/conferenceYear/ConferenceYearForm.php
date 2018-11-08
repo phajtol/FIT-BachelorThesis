@@ -78,16 +78,17 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 		}, 'Final version date must be before the start of the conference!')
             ->setRequired(false);
 
-		$this->addText('location', 'Location')
+        $this->addText('location', 'Location')
             ->addRule($this::MAX_LENGTH, 'Name is way too long', 500)
             ->setRequired(false);
 
-		$this->addText('web', 'Web')
+        $this->addText('web', 'Web')
+            ->setRequired(false)
             ->addRule($this::MAX_LENGTH, 'Web address is way too long', 500)
-            ->addRule(self::URL, 'Web of conference must be a valid URL')
-            ->setRequired(false);
+            ->addCondition($this::FILLED)
+                ->addRule(self::URL, 'Web of conference must be a valid URL');
 
-		$this->addHidden('isbn_count', '0');
+        $this->addHidden('isbn_count', '0');
 		$cont = $this->addContainer("isbn");
 
 		$this->addText('doi', 'DOI')

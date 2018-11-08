@@ -485,8 +485,9 @@ class HomepagePresenter extends SecuredPresenter {
       $itemCount = $this->publicationModel->getAllPubs_Categories_AND($categories, $sort);
     }
 
-    $this->vp = new \VisualPaginator($this, 'vp');
-    $paginator = $this->vp->getPaginator();
+    $vp = new \VisualPaginator();
+    $this->addComponent($vp, 'vp');
+    $paginator = $vp->getPaginator();
     $paginator->itemsPerPage = $this->itemsPerPageDB;
     $paginator->itemCount = $itemCount['length'];
 
@@ -534,8 +535,9 @@ class HomepagePresenter extends SecuredPresenter {
 
     $itemCount = $this->publicationModel->getAllPubs_no_params($categories, $sort);
 
-    $this->vp = new \VisualPaginator($this, 'vp');
-    $paginator = $this->vp->getPaginator();
+    $vp = new \VisualPaginator();
+    $this->addComponent($vp, 'vp');
+    $paginator = $vp->getPaginator();
     $paginator->itemsPerPage = $this->itemsPerPageDB;
     $paginator->itemCount = $itemCount['length'];
 
