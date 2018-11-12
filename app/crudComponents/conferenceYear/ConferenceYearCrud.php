@@ -269,6 +269,9 @@ class ConferenceYearCrud extends BaseCrudComponent {
     $form->onError[] = function(ConferenceYearForm $form) {
         $this->redrawControl('conferenceYearForm');
     };
+
+        $this->template->getLatte()->addProvider('formsStack', [$form]);
+
     return $form;
 	}
 
