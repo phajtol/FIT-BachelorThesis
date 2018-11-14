@@ -46,7 +46,7 @@
         <meta name="description" content="">
         <meta name="robots" content="{$robots}" n:ifset="$robots">
 
-        <title>{block title|striptags|stripHtml|upper}Webová databáze {if $PU}publikací{/if}{if $CU}{if $PU} & {/if}konferencí{/if}{/block}</title>
+        <title>{block title|striptags|stripHtml}Publications & conferences database{/block}</title>
 
         <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/screen.css">
         <link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/bootstrap.css">
@@ -136,7 +136,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" n:href="Homepage:default">Webová databáze {if $PU}publikací{/if}{if $CU}{if $PU} & {/if}konferencí{/if}</a>
+                        <a class="navbar-brand" n:href="Homepage:default">Publications & conferences database</a>
                     </div>
 
                     <div class="navbar-collapse collapse">

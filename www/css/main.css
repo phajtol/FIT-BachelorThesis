@@ -159,3 +159,9 @@ body.pu-only .CU {
 .grey{
    background-color:#f8f8f8;
 }
+
+@media screen and (max-width: 400px) {
+    .navbar-brand {
+        font-size: 13px;
+    }
+}

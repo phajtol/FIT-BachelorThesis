@@ -4,8 +4,7 @@ namespace App\Presenters;
 
 use Nette,
     App\Model,
-    \VisualPaginator,
-    Nette\Diagnostics\Debugger;
+    \VisualPaginator;
 
 class AdminPresenter extends SecuredPresenter {
 
@@ -36,7 +35,6 @@ class AdminPresenter extends SecuredPresenter {
     }
 
     public function actionShowUnconfirmed($sort, $order, $keywords) {
-        Debugger::fireLog('actionShowUnconfirmed');
         $this->drawAllowed = false;
         $this->template->publicationDeleted = false;
         $this->drawPublicationUnconfirmed();
