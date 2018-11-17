@@ -45,10 +45,8 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 
 		$this->addYear('w_year', 'Year');
 
-		$this->addDate('w_from', 'From');
-		$this->addDate('w_to', 'To');
 
-		$this->addDate('deadline', 'Deadline')
+        $this->addDate('deadline', 'Submission deadline')
             ->addRule(function($deadlineEl) {
 			$deadlineDate = $deadlineEl->getValueTransformed();
 			$fromDate = $this['w_from']->getValueTransformed();
@@ -77,6 +75,9 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 			} else return true;
 		}, 'Final version date must be before the start of the conference!')
             ->setRequired(false);
+
+        $this->addDate('w_from', 'From');
+        $this->addDate('w_to', 'To');
 
         $this->addText('location', 'Location')
             ->addRule($this::MAX_LENGTH, 'Name is way too long', 500)

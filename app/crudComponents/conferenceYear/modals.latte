@@ -169,31 +169,6 @@ $(document).ready(function() {
 						</div>
 					{/ifset}
 
-
-					{ifset $form['w_from']}
-						<div class="form-group">
-							{label w_from, class => "col-sm-2 control-label" /}
-							<div class="col-sm-9">
-								<div class="input-group date">
-									{input w_from, class => "form-control"} <span class=error n:ifcontent>{$form['w_from']->error}</span>
-									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-								</div>
-							</div>
-						</div>
-					{/ifset}
-
-					{ifset $form['w_to']}
-						<div class="form-group">
-							{label w_to, class => "col-sm-2 control-label" /}
-							<div class="col-sm-9">
-								<div class="input-group date">
-									{input w_to, class => "form-control"} <span class=error n:ifcontent>{$form['w_to']->error}</span>
-									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-								</div>
-							</div>
-						</div>
-					{/ifset}
-
 					{ifset $form['deadline']}
 						<div class="form-group">
 							{label deadline, class => "col-sm-2 control-label" /}
@@ -229,6 +204,30 @@ $(document).ready(function() {
 							</div>
 						</div>
 					{/ifset}
+
+					 {ifset $form['w_from']}
+						 <div class="form-group">
+							 {label w_from, class => "col-sm-2 control-label" /}
+							 <div class="col-sm-9">
+								 <div class="input-group date">
+									 {input w_from, class => "form-control"} <span class=error n:ifcontent>{$form['w_from']->error}</span>
+									 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								 </div>
+							 </div>
+						 </div>
+					 {/ifset}
+
+					 {ifset $form['w_to']}
+						 <div class="form-group">
+							 {label w_to, class => "col-sm-2 control-label" /}
+							 <div class="col-sm-9">
+								 <div class="input-group date">
+									 {input w_to, class => "form-control"} <span class=error n:ifcontent>{$form['w_to']->error}</span>
+									 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								 </div>
+							 </div>
+						 </div>
+					 {/ifset}
 
 					{include #stdFormElement, itemName => "location"}
 

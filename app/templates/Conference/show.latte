@@ -84,18 +84,10 @@
 
 				{include #conferenceYearInfo, key => 'w_year', caption => 'Year'}
 
-				{capture $value}{$conferenceYear->w_from|ldate}{/capture}
-				{include #conferenceYearInfo, caption => 'From'}
-				{php unset($value)}
-
-				{capture $value}{$conferenceYear->w_to|ldate}{/capture}
-				{include #conferenceYearInfo, caption => 'To'}
-				{php unset($value)}
-
 				{if $CU}
 					{capture $value}{$conferenceYear->deadline|ldate}{/capture}
 					<div n:class="$deadlineNotify ? deadline-alert">
-						{include #conferenceYearInfo, caption => 'Deadline'}
+						{include #conferenceYearInfo, caption => 'Submission deadline'}
 					</div>
 					{php unset($value)}
 
@@ -111,6 +103,14 @@
 					</div>
 					{php unset($value)}
 				{/if}
+
+				{capture $value}{$conferenceYear->w_from|ldate}{/capture}
+				{include #conferenceYearInfo, caption => 'From'}
+				{php unset($value)}
+
+				{capture $value}{$conferenceYear->w_to|ldate}{/capture}
+				{include #conferenceYearInfo, caption => 'To'}
+				{php unset($value)}
 
 				{include #conferenceYearInfo, key => 'location', caption => 'Location'}
 
