@@ -47,7 +47,8 @@ class TagCrud extends \App\CrudComponents\BaseCrudComponent {
           $formValues['submitter_id'] = intval($this->loggedUser->id);
 
           if (empty($formValues['id'])) {
-        			$this->template->tagAdded = true;
+              $this->template->tagAdded = true;
+              unset($formValues['id']);
               $record = $this->tagModel->insert($formValues);
               $this->onAdd($record);
       		} else {
@@ -63,6 +64,7 @@ class TagCrud extends \App\CrudComponents\BaseCrudComponent {
       	      $this->redrawControl('tagForm');
       		}
       };
+      return $form;
 	}
 
 	public function handleDelete($id) {
