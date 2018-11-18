@@ -11,6 +11,7 @@ namespace App\CrudComponents\User;
 
 use App\Forms\BaseForm;
 use App\Services\Authenticators\BaseAuthenticator;
+use Nette\Forms\Form;
 use Nette\Security\User;
 use PublicationFormRules;
 
@@ -55,7 +56,7 @@ class UserForm extends BaseForm implements \App\Forms\IMixtureForm {
 		if ($loggedUser->isInRole('admin')) {
 			$this->addCheckboxList('roles', 'Rights', $availableRoles)
                 ->addRule(PublicationFormRules::AT_LEAST_ONE_CHECKED, "At least one role must be checked!")
-                ->setRequired('At least one role must be checked.');
+                ->setRequired(false);
 		}
 
 		// todo add description for auth_type field - see below

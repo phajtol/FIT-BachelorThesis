@@ -1,7 +1,6 @@
 <?php
 
-use Nette\Diagnostics\Debugger,
-    App\Helpers;
+use App\Helpers;
 
 class PublicationFormRules {
 

@@ -157,6 +157,11 @@ class UserCrudComponent extends BaseCrudComponent {
                     $this->submitterModel, $this, $name);
             $this->reduceForm($form);
 
+        $form->onValidate[] = function (UserAddForm $form) {
+            if (count($form['roles']->value) === 0) {
+                $form['roles']->addError('At least one role must be checked');
+            }
+        };
             $form->onError[] = function(){
                     $this->redrawControl('userAddForm');
             };
@@ -195,6 +200,11 @@ class UserCrudComponent extends BaseCrudComponent {
 			$this->submitterModel, $this, $name);
 		$this->reduceForm($form);
 
+		$form->onValidate[] = function (UserEditForm $form) {
+		    if (count($form['roles']->value) === 0) {
+		        $form['roles']->addError('At least one role must be checked');
+            }
+        };
 		$form->onError[] = function(){
 			$this->redrawControl('userEditForm');
 		};
