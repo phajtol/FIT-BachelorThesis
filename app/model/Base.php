@@ -60,7 +60,6 @@ class Base {
      */
     public function findOneBy(array $by)
     {
-        bdump($by);
         return $this->findAllBy($by)->limit(1)->fetch();
     }
 
