@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 2.4.2015
- * Time: 22:23
- */
 
 namespace App\Factories;
+
+use App\Components\ConferenceCategoryList\ConferenceCategoryListComponent;
 
 
 interface IConferenceCategoryListFactory {
@@ -14,6 +10,6 @@ interface IConferenceCategoryListFactory {
 	/**
 	 * @return \App\Components\ConferenceCategoryList\ConferenceCategoryListComponent
 	 */
-	public function create();
+	public function create(): ConferenceCategoryListComponent;
 
 }

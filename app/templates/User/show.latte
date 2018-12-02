@@ -126,9 +126,11 @@
                             <div class="col-sm-9">
                                 <p class="form-control-static">
 
-                                    <button type="button" id="changePasswordButton" class="btn btn-primary" data-toggle="modal" data-target="#ChangePasswordModal" title="Change Password">
-                                        <span class="glyphicon glyphicon-lock"></span>
-                                    </button>
+                                    {if isset($userPasswordChangeFormEnabled)}
+                                        <button type="button" id="changePasswordButton" class="btn btn-primary" data-toggle="modal" data-target="#ChangePasswordModal" title="Change Password">
+                                            <span class="glyphicon glyphicon-lock"></span>
+                                        </button>
+                                    {/if}
 
                                     {if $user->isInRole('admin') || $user->isInRole('submitter')}
                                         <button type="button" id="relatedUserButton" class="btn btn-default" data-toggle="modal" data-target="#UserRelatedModal" title="Associated Publications">
@@ -142,7 +144,7 @@
                 {/snippet}
 
 
-                {if userPasswordChangeFormEnabled}
+                {if $userPasswordChangeFormEnabled}
                     <div class="modal fade" id="ChangePasswordModal" tabindex="-1" role="dialog" aria-labelledby="ChangePasswordModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">

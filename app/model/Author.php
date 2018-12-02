@@ -2,6 +2,10 @@
 
 namespace App\Model;
 
+use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
+
+
 class Author extends Base {
 
     /**
@@ -10,44 +14,72 @@ class Author extends Base {
      */
     protected $tableName = 'author';
 
-    public function getAuthorsNames() {
+    /**
+     * @return array
+     */
+    public function getAuthorsNames(): array
+    {
         $authors = $this->database->table('author')->order("surname ASC, name ASC");
-        $authorsTemp = array();
+        $authorsTemp = [];
 
         foreach ($authors as $author) {
             $authorsTemp[$author->id] = $author->surname . ', ' . ($author->name) . ($author->middlename ? ', ' . $author->middlename : '');
         }
         // Příjmení, jméno, 2. jméno. Teď je to příjmení, 2. jméno, jméno.
+
         return $authorsTemp;
     }
 
-    public function formNames($surname, $middlename, $name) {
+    /**
+     * @param string $surname
+     * @param string $middlename
+     * @param string $name
+     * @return string
+     */
+    public function formNames(string $surname, string $middlename, string $name): string
+    {
         return $surname . ' ' . ($middlename ? $middlename . ' ' : '') . ($name) . ", ";
     }
 
-    public function deleteAssociatedRecords($authorId) {
+    /**
+     * @param int $authorId
+     */
+    public function deleteAssociatedRecords(int $authorId): void {
 
-        $related = $this->database->table('author_has_publication')->where(array("author_id" => $authorId));
+        $related = $this->database->table('author_has_publication')->where(["author_id" => $authorId]);
+        $record = $this->database->table('author')->get($authorId);
+
         foreach ($related as $rel) {
             $rel->delete();
         }
 
-        $record = $this->database->table('author')->get($authorId);
         if ($record) {
             $record->delete();
         }
     }
 
-    public function findAllByKw($keywords) {
+    /**
+     * @param $keywords
+     * @return \Nette\Database\Table\Selection
+     */
+    public function findAllByKw($keywords): Selection
+    {
         return $this->fetchAll()->where("surname LIKE ? OR name LIKE ? OR middlename LIKE ?", "%" . $keywords . "%", "%" . $keywords . "%", "%" . $keywords . "%");
     }
 
-    public function getAuthorsNamesByPubId($pubId, $sep = null, $type = null) {
+    /**
+     * @param int $pubId
+     * @param string|null $sep
+     * @param string|null $type
+     * @return array|string
+     */
+    public function getAuthorsNamesByPubId(int $pubId, string $sep = null, string $type = null)
+    {
         $authors = $this->database->table('author_has_publication')
             ->select('author.name, author.surname, author.middlename, author.id')
             ->where('publication_id', $pubId)
-            ->order("priority ASC");
-        $authorsTemp = array();
+            ->order('priority ASC');
+        $authorsTemp = [];
         $authorsMerged = '';
 
         switch ($type) {
@@ -57,6 +89,7 @@ class Author extends Base {
                     $authorsTemp[$author['id']] = $author['surname'] . ', ' . ($author['name']) . ($author['middlename'] ? ' ' . $author['middlename'] : '');
                 }
                 break;
+
             case "bibtex":
                 foreach ($authors as $author) {
                     $authorsTemp[$author['id']] = $author['surname'] . ' ' . ($author['middlename'] ? $author['middlename'] . ' ' : '') . ($author['name']);
@@ -82,27 +115,39 @@ class Author extends Base {
         return $authorsTemp;
     }
 
-    public function getAuthorsNamesByPubIdPure($pubId) {
+    /**
+     * @param int $pubId
+     * @return array
+     */
+    public function getAuthorsNamesByPubIdPure(int $pubId): array
+    {
         $authors = $this->database->table('author_has_publication')
             ->select('author.name, author.surname, author.middlename, author.id')
             ->where('publication_id', $pubId)
-            ->order("priority ASC");
-        $authorsTemp = array();
+            ->order('priority ASC');
+        $authorsTemp = [];
 
         foreach ($authors as $author) {
-            $authorsTemp[] = array(
+            $authorsTemp[] = [
                 'surname' => $author['surname'],
                 'middlename' => $author['middlename'],
                 'name' => $author['name'],
                 'initials' => mb_substr($author['name'], 0, 1) . '. ' .
                     ($author['middlename'] ? mb_substr($author['middlename'], 0, 1) . '. ' : '')
-            );
+            ];
         }
+
         return $authorsTemp;
     }
 
-    public function tryAllCombinations($name, $middlename, $surname) {
-
+    /**
+     * @param string $name
+     * @param string $middlename
+     * @param string $surname
+     * @return bool|false|\Nette\Database\Table\ActiveRow|Selection
+     */
+    public function tryAllCombinations(string $name, string $middlename, string $surname)
+    {
         $author = $this->database->table('author');
 
         if ($name) {
@@ -154,8 +199,14 @@ class Author extends Base {
         return false;
     }
 
-    public function getAuthorNameByAuthorName($name, $middlename, $surname) {
-
+    /**
+     * @param string $name
+     * @param string $middlename
+     * @param string $surname
+     * @return array|bool
+     */
+    public function getAuthorNameByAuthorName(string $name, string $middlename, string $surname)
+    {
         $author = $this->tryAllCombinations($name, $middlename, $surname);
         if (!$author) {
             $author = $this->tryAllCombinations($name, '', $surname);
@@ -166,23 +217,31 @@ class Author extends Base {
         }
 
         if ($author) {
-            return array('id' => $author->id, 'name' => $author->surname . ', ' . ($author->name) . ($author->middlename ? ', ' . $author->middlename : ''));
+            return [
+                'id' => $author->id,
+                'name' => $author->surname . ', ' . ($author->name) . ($author->middlename ? ', ' . $author->middlename : '')
+            ];
         }
+
         return false;
     }
 
-    public function getAuthorNameByAuthorName2($name, $middlename, $surname) {
-
-        /*
-          A B C
-          A C B
-          B A C
-          B C A
-          C B A
-          C A B
-         */
-
+    /**
+     * A B C
+     * A C B
+     * B A C
+     * B C A
+     * C B A
+     * C A B
+     * @param string $name
+     * @param string $middlename
+     * @param string $surname
+     * @return array|bool
+     */
+    public function getAuthorNameByAuthorName2(string $name, string $middlename, string $surname)
+    {
         $author = $this->database->table('author')->where('name', $name)->where('middlename', $middlename)->where('surname', $surname)->fetch();
+
         if (!$author) {
             $author = $this->database->table('author')->where('name', $name)->where('middlename', $surname)->where('surname', $middlename)->fetch();
         }
@@ -221,18 +280,38 @@ class Author extends Base {
         }
 
         if ($author) {
-            return array('id' => $author->id, 'name' => $author->surname . ' ' . ($author->middlename ? $author->middlename . ' ' : '') . ($author->name));
+            return [
+                'id' => $author->id,
+                'name' => $author->surname . ' ' . ($author->middlename ? $author->middlename . ' ' : '') . ($author->name)
+            ];
         }
+
         return false;
     }
 
-    public function getAuthorName($id) {
+    /**
+     * @param int $id
+     * @return string
+     */
+    public function getAuthorName(int $id): string
+    {
         $author = $this->database->table('author')->get($id);
         return $author->surname . ', ' . ($author->name) . ($author->middlename ? ', ' . $author->middlename : '');
     }
 
-    public function findOneByName($name, $middlename, $surname) {
-        return $this->findOneBy(array('name' => $name, 'middlename' => $middlename, 'surname' => $surname));
+    /**
+     * @param string $name
+     * @param string $middlename
+     * @param string $surname
+     * @return FALSE|\Nette\Database\Table\ActiveRow
+     */
+    public function findOneByName(string $name, string $middlename, string $surname)
+    {
+        return $this->findOneBy([
+            'name' => $name,
+            'middlename' => $middlename,
+            'surname' => $surname
+        ]);
     }
 
 

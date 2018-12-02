@@ -1,24 +1,19 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace App\Helpers;
 
 use Nette;
+
 
 class Functions {
 
     /**
      * Returns textual representation of month
-     *
      * @param string $month month as 2 digits
      * @return string
      */
-    public function month_cze($month) {
+    public function month_cze(string $month): string
+    {
         switch ($month) {
             case '01': return 'Leden';
             case '02': return 'Únor';
@@ -38,11 +33,11 @@ class Functions {
 
     /**
      * Returns textual representation of month
-     *
      * @param string $month month as 2 digits
      * @return string
      */
-    public function month_eng($month) {
+    public function month_eng(string $month): string
+    {
         switch ($month) {
             case '01': return 'January';
             case '02': return 'February';
@@ -62,11 +57,11 @@ class Functions {
 
     /**
      * Converts textual representation of month to digital
-     *
      * @param string $month
      * @return string digital month
      */
-    public function strmonth2nummonth($month) {
+    public function strmonth2nummonth(string $month): string
+    {
         $m = trim(strtolower($month));
         switch ($m) {
             case 'january': return '01';
@@ -100,11 +95,12 @@ class Functions {
 
     /**
      * Returns true if publication exists
-     *
      * @param PEAR::DB $db
      * @param string $title
+     * @return bool
      */
-    public function publiation_exists(&$db, $title) {
+    public function publiation_exists(&$db, string $title): bool
+    {
         $c = $db->getOne("SELECT count(*) FROM publication WHERE title = '$title'");
         if (PEAR::isError($c))
             throw new Exception($c->getMessage());
@@ -126,8 +122,10 @@ class Functions {
      * @param int $journal_id
      * @param int $conference2_id
      * @param int $conference_year_id
+     * @return string
      */
-    public function validate_counters(&$db, $authors, $categories, $publisher_id, $journal_id, $conference2_id, $conference_year_id) {
+    public function validate_counters(&$db, array $authors, array $categories, int $publisher_id, int $journal_id, int $conference2_id, int $conference_year_id): string
+    {
         $report = '';
         //authors
         if ($authors)

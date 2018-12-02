@@ -64,7 +64,7 @@ class ConferenceCategoryListComponent extends CategoryListComponent {
 	 *  - name - name of the record
 	 * @return array array('id' => .., 'parent_id' => .., 'name' => ..)
 	 */
-	protected function normalizeRecord($cat) {
+	protected function normalizeRecord($cat): array {
 		return array(
 			'id'		=>	$cat->id,
 			'name'		=>	$cat->name,
@@ -82,12 +82,13 @@ class ConferenceCategoryListComponent extends CategoryListComponent {
 		);
 	}
 
-	/**
-	 * This function implements moving the category in the tree (change parent)
-	 * @param $categoryId int Id of the category to be moved
-	 * @param $newParentCategoryId int Id of the new parent category
-	 */
-	protected function moveCategory($categoryId, $newParentCategoryId) {
+    /**
+     * This function implements moving the category in the tree (change parent)
+     * @param $categoryId int Id of the category to be moved
+     * @param $newParentCategoryId int Id of the new parent category
+     * @return int
+     */
+	protected function moveCategory(int $categoryId, int $newParentCategoryId): int {
 		return $this->conferenceCategoryModel->moveCategory($categoryId, $newParentCategoryId);
 	}
 

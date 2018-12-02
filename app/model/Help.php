@@ -8,11 +8,15 @@ class Help {
 
     use Nette\SmartObject;
 
+    /** @var array */
     public $arrayHelp;
 
-    public function __construct() {
-
-        $this->arrayHelp = array(
+    /**
+     * Help constructor.
+     */
+    public function __construct()
+    {
+        $this->arrayHelp = [
             "publicationAddNewForm" => "If you want to EDIT some field value, click on the EDIT button. The form for editing data will be displayed. "
             . "If you want to DELETE some field value, click the DELETE button. "
             . "To display a list of all publications of field value, click the ASSOCIATED PUBLICATIONS button. "
@@ -46,13 +50,15 @@ class Help {
             "springer" => "If you want to fetch some data from Springer, please fill in the form correctly, then click FETCH DATA button. "
             . "In the next step, select the data for import and click IMPORT DATA button.",
 
-        );
+        ];
     }
 
-    public function getHelp() {
+    /**
+     * @return array
+     */
+    public function getHelp(): array
+    {
         return $this->arrayHelp;
     }
 
 }
-
-?>

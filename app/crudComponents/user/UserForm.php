@@ -1,29 +1,36 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.4.2015
- * Time: 22:21
- */
 
 namespace App\CrudComponents\User;
 
 
 use App\Forms\BaseForm;
 use App\Services\Authenticators\BaseAuthenticator;
-use Nette\Forms\Form;
 use Nette\Security\User;
 use PublicationFormRules;
 
 class UserForm extends BaseForm implements \App\Forms\IMixtureForm {
 
-	public function __construct( User $loggedUser, $availableRoles, $availableCuGroups, $availableAuthTypes,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
 
+    /**
+     * UserForm constructor.
+     * @param User $loggedUser
+     * @param $availableRoles
+     * @param $availableCuGroups
+     * @param $availableAuthTypes
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(User $loggedUser,
+                                $availableRoles,
+                                $availableCuGroups,
+                                $availableAuthTypes,
+		                        \Nette\ComponentModel\IContainer $parent = NULL,
+                                string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
-		$requiredFieldsOnLoginPass = array();
-		$requiredFieldsOnShibboleth = array();
+		$requiredFieldsOnLoginPass = [];
+		$requiredFieldsOnShibboleth = [];
 
 		/**
 		 * @var $requiredFieldsOnLoginPass \Nette\Forms\Controls\TextBase[]
@@ -76,25 +83,31 @@ class UserForm extends BaseForm implements \App\Forms\IMixtureForm {
 
 		// add conditional validators
 		foreach($requiredFieldsOnLoginPass as $reqField) {
-			$reqField->addConditionOn($authTypeField, function($f) { return $f->value == BaseAuthenticator::AUTH_LOGIN_PASS ? true : false; })
+			$reqField->addConditionOn($authTypeField, function ($f) {
+			        return $f->value == BaseAuthenticator::AUTH_LOGIN_PASS;
+			    })
 				->setRequired(sprintf('%s is required', $reqField->label->getText()));
 		}
+
 		foreach($requiredFieldsOnShibboleth as $reqField) {
-			$reqField->addConditionOn($authTypeField, function($f) { return $f->value == BaseAuthenticator::AUTH_SHIBBOLETH ? true : false; })
+			$reqField->addConditionOn($authTypeField, function ($f) {
+			        return $f->value == BaseAuthenticator::AUTH_SHIBBOLETH;
+		    	})
 				->setRequired(sprintf('%s is required', $reqField->label->getText()));
 		}
 
 		$this->setModal(true);
 		$this->setAjax(true);
-
 		$this->setLabelsSize(3);
 	}
 
-	public function removeConferencePart() {
+	public function removeConferencePart(): void
+    {
 		unset($this['cu_groups']);
 	}
 
-	public function removePublicationPart() {
+	public function removePublicationPart(): void
+    {
 
 	}
 

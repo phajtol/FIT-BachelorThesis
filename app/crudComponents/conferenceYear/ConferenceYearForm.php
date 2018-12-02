@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 18.3.2015
- * Time: 1:49
- */
 
 namespace App\CrudComponents\ConferenceYear;
 
@@ -21,12 +15,27 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 
 	private $conferenceYearIsIndexedModel;
 
-	/**
-	 * @param array $publishers assoc [publisher_id => publisher_name, ..]
-	 * @param \Nette\ComponentModel\IContainer $parent
-	 * @param String $name
-	 */
-	public function __construct($conferenceId, $publishers, $documentIndexes, Conference $conferenceModel, ConferenceYear $conferenceYearModel , ConferenceYearIsIndexed $conferenceYearIsIndexedModel, \Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+    /**
+     * ConferenceYearForm constructor.
+     * @param int $conferenceId
+     * @param array $publishers - associative array [publisher_id => publisher_name, ..]
+     * @param $documentIndexes
+     * @param Conference $conferenceModel
+     * @param ConferenceYear $conferenceYearModel
+     * @param ConferenceYearIsIndexed $conferenceYearIsIndexedModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|null $name
+     * @throws \Exception
+     */
+	public function __construct(int $conferenceId,
+                                array $publishers,
+                                $documentIndexes,
+                                Conference $conferenceModel,
+                                ConferenceYear $conferenceYearModel,
+                                ConferenceYearIsIndexed $conferenceYearIsIndexedModel,
+                                \Nette\ComponentModel\IContainer $parent = NULL,
+                                string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 		$this->conferenceModel = $conferenceModel;
 		$this->conferenceYearModel = $conferenceYearModel;
@@ -45,35 +54,37 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 
 		$this->addYear('w_year', 'Year');
 
-
         $this->addDate('deadline', 'Submission deadline')
-            ->addRule(function($deadlineEl) {
-			$deadlineDate = $deadlineEl->getValueTransformed();
-			$fromDate = $this['w_from']->getValueTransformed();
-			if($deadlineDate && $fromDate && $deadlineDate > $fromDate) {
-				return false;
-			} else return true;
-		}, 'Deadline must be before the start of the conference!')
+            ->addRule(function ($deadlineEl) {
+			        $deadlineDate = $deadlineEl->getValueTransformed();
+			        $fromDate = $this['w_from']->getValueTransformed();
+			        if($deadlineDate && $fromDate && $deadlineDate > $fromDate) {
+				        return false;
+			        }
+			        return true;
+		        }, 'Deadline must be before the start of the conference!')
             ->setRequired(false);
 
 		$this->addDate('notification', 'Notification')
-            ->addRule(function($notificationEl) {
-			$notificationDate = $notificationEl->getValueTransformed();
-			$fromDate = $this['w_from']->getValueTransformed();
-			if($notificationDate && $fromDate && $notificationDate > $fromDate) {
-				return false;
-			} else return true;
-		}, 'Notification date must be before the start of the conference!')
+            ->addRule(function ($notificationEl) {
+			        $notificationDate = $notificationEl->getValueTransformed();
+			        $fromDate = $this['w_from']->getValueTransformed();
+			        if ($notificationDate && $fromDate && $notificationDate > $fromDate) {
+				        return false;
+			        }
+			        return true;
+		        }, 'Notification date must be before the start of the conference!')
             ->setRequired(false);
 
 		$this->addDate('finalversion', 'Final version')
-            ->addRule(function($finalversionEl) {
-			$finalversionDate = $finalversionEl->getValueTransformed();
-			$fromDate = $this['w_from']->getValueTransformed();
-			if($finalversionDate && $fromDate && $finalversionDate > $fromDate) {
-				return false;
-			} else return true;
-		}, 'Final version date must be before the start of the conference!')
+            ->addRule(function ($finalversionEl) {
+			        $finalversionDate = $finalversionEl->getValueTransformed();
+			        $fromDate = $this['w_from']->getValueTransformed();
+			        if ($finalversionDate && $fromDate && $finalversionDate > $fromDate) {
+				        return false;
+			        }
+			        return true;
+		        }, 'Final version date must be before the start of the conference!')
             ->setRequired(false);
 
         $this->addDate('w_from', 'From');
@@ -90,6 +101,7 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
                 ->addRule(self::URL, 'Web of conference must be a valid URL');
 
         $this->addHidden('isbn_count', '0');
+
 		$cont = $this->addContainer("isbn");
 
 		$this->addText('doi', 'DOI')
@@ -115,96 +127,134 @@ class ConferenceYearForm extends \App\Forms\BaseForm implements \App\Forms\IMixt
 		if (!empty($conferenceId)) {
 			$this->setConferenceId($conferenceId);
 		}
-
 	}
 
-	/**
-	 * @param $publishers array assoc [publisher_id => publisher_name, ..]
-	 */
-	public function setPublishers($publishers){
-		$listEl = $this["publisher_id"];
+    /**
+     * @param array $publishers - associative array: [publisher_id => publisher_name, ..]
+     */
+	public function setPublishers(array $publishers): void
+    {
+		$listEl = $this['publisher_id'];
 		/** @var $listEl \Nette\Forms\Controls\SelectBox */
 		$listEl->setItems($publishers);
 	}
 
-	public function removeConferencePart() {
-		$fields = array('deadline', 'notification', 'finalversion', 'document_indexes');
-		foreach($fields as $v) unset($this[$v]);
+    /**
+     *
+     */
+	public function removeConferencePart(): void
+    {
+		$fields = ['deadline', 'notification', 'finalversion', 'document_indexes'];
+		foreach ($fields as $v) {
+		    unset($this[$v]);
+        }
 	}
 
-	public function removePublicationPart() {
-		$fields = array('issn', 'doi', 'publisher_id', 'isbn');
-		foreach($fields as $v) unset($this[$v]);
+    /**
+     *
+     */
+	public function removePublicationPart(): void
+    {
+		$fields = ['issn', 'doi', 'publisher_id', 'isbn'];
+		foreach ($fields as $v) {
+		    unset($this[$v]);
+        }
 	}
 
-	public function setIsbnCount($count) {
+    /**
+     * @param int $count
+     */
+	public function setIsbnCount(int $count): void
+    {
 		$this['isbn_count']->setValue($count);
 	}
 
-	public function getIsbnCount() {
+    /**
+     * @return int
+     */
+	public function getIsbnCount(): int
+    {
 		return $this['isbn_count']->getValue();
 	}
 
-  public function setConferenceId($conferenceId) {
-			$conference = $this->conferenceModel->find($conferenceId);
-			if($conference) {
-				$fieldsToCopyFromConference = array('name', 'abbreviation');
-				$fieldsToCopyFromLastConferenceYear = array('location', 'web', 'description', 'publisher_id');
-				$datesToCopyFromLastConferenceYear = array('deadline', 'notification', 'finalversion', 'w_from', 'w_to');
+    /**
+     * @param int $conferenceId
+     * @throws \Exception
+     */
+    public function setConferenceId(int $conferenceId): void
+    {
+	    $conference = $this->conferenceModel->find($conferenceId);
 
-				foreach($fieldsToCopyFromConference as $f2c) {
-					if(isset($this[$f2c])) $this[$f2c]->setDefaultValue($conference->$f2c);
-				}
+	    if ($conference) {
+		    $fieldsToCopyFromConference = ['name', 'abbreviation'];
+			$fieldsToCopyFromLastConferenceYear = ['location', 'web', 'description', 'publisher_id'];
+			$datesToCopyFromLastConferenceYear = ['deadline', 'notification', 'finalversion', 'w_from', 'w_to'];
 
-				$lastConferenceYears = $this->conferenceYearModel->findAllByConferenceId($conference->id)->order('w_year DESC')->limit(1);
-				foreach($lastConferenceYears as $lastConferenceYear) {
-
-					foreach($fieldsToCopyFromLastConferenceYear as $f2c) {
-						if(isset($this[$f2c]))
-							$this[$f2c]->setDefaultValue($lastConferenceYear->$f2c);
-					}
-
-					$shiftDateInterval = new \DateInterval('P1Y');
-					foreach($datesToCopyFromLastConferenceYear as $d2c) {
-						if(isset($this[$d2c]) && $lastConferenceYear->$d2c)
-							$this[$d2c]->setDefaultValue($lastConferenceYear->$d2c->add($shiftDateInterval));
-					}
-
-					if(isset($this['document_indexes'])) {
-						$res = $this->conferenceYearIsIndexedModel->findAllByConferenceYearId($lastConferenceYear->id);
-						$isIndexedAt = [];
-						foreach ($res as $rec) $isIndexedAt[] = $rec->document_index_id;
-						$this['document_indexes']->setDefaultValue($isIndexedAt);
-					}
-
-					if(isset($this['w_year']) && $lastConferenceYear->w_year)
-						$this['w_year']->setDefaultValue($lastConferenceYear->w_year + 1);
-
-					break; // maybe, in the future, iterate all conference years and fill missing fields?
-				}
-				$this['conference_id']->setValue($conference->id);
-
+			foreach ($fieldsToCopyFromConference as $f2c) {
+			    if (isset($this[$f2c])) {
+			        $this[$f2c]->setDefaultValue($conference->$f2c);
+                }
 			}
+
+			$lastConferenceYears = $this->conferenceYearModel->findAllByConferenceId($conference->id)->order('w_year DESC')->limit(1);
+
+			foreach ($lastConferenceYears as $lastConferenceYear) {
+			    foreach($fieldsToCopyFromLastConferenceYear as $f2c) {
+				    if (isset($this[$f2c])) {
+                        $this[$f2c]->setDefaultValue($lastConferenceYear->$f2c);
+                    }
+			    }
+
+				$shiftDateInterval = new \DateInterval('P1Y');
+				foreach ($datesToCopyFromLastConferenceYear as $d2c) {
+				    if (isset($this[$d2c]) && $lastConferenceYear->$d2c) {
+                        $this[$d2c]->setDefaultValue($lastConferenceYear->$d2c->add($shiftDateInterval));
+                    }
+				}
+
+				if (isset($this['document_indexes'])) {
+				    $res = $this->conferenceYearIsIndexedModel->findAllByConferenceYearId($lastConferenceYear->id);
+					$isIndexedAt = [];
+
+					foreach ($res as $rec) {
+					    $isIndexedAt[] = $rec->document_index_id;
+                    }
+                    $this['document_indexes']->setDefaultValue($isIndexedAt);
+				}
+
+				if (isset($this['w_year']) && $lastConferenceYear->w_year) {
+                    $this['w_year']->setDefaultValue($lastConferenceYear->w_year + 1);
+                }
+
+				break; // maybe, in the future, iterate all conference years and fill missing fields?
+			}
+
+		    $this['conference_id']->setValue($conference->id);
+	    }
 	}
 
-	public function addIsbn() {
+    /**
+     *
+     */
+	public function addIsbn(): void
+    {
 		$count = $this['isbn_count']->getValue();
 		$cont = $this['isbn'];
 
-		for ($i=0;$i<$count;$i++) {
+		for ($i = 0; $i < $count; $i++) {
 			if (!empty($cont[$i])) {
 				continue;
 			}
+
 			$cont2 = $cont->addContainer($i);
-			$cont2->addText("isbn", "ISBN/ISSN")
-				->setRequired(false);
+			$cont2->addText("isbn", "ISBN/ISSN")->setRequired(false);
 			$cont2->addSelect("type", "Typ", ["ISBN" => "ISBN", "ISSN" => "ISSN"]);
+
 			if (empty($cont2['type']->getValue())) {
 				$cont2['type']->setValue("ISBN");
 			}
 
-			$cont2->addText("note", "Note")
-				->setRequired(false);
+			$cont2->addText("note", "Note")->setRequired(false);
 		}
 	}
 

@@ -11,40 +11,46 @@ namespace App\Model;
 
 class AcmCategory extends BaseCategory {
 
+    /** @var string */
 	protected $tableName = 'acm_category';
 
 	/**
-	 * @return string table name
+	 * @return string - table name
 	 */
-	protected function getTableName() {
+	protected function getTableName(): string
+    {
 		return "acm_category";
 	}
 
 	/**
-	 * @return string ID column name
+	 * @return string - ID column name
 	 */
-	protected function getIdColumnName() {
+	protected function getIdColumnName(): string
+    {
 		return "id";
 	}
 
 	/**
-	 * @return string parent record ID column name
+	 * @return string - parent record ID column name
 	 */
-	protected function getParentIdColumnName() {
+	protected function getParentIdColumnName(): string
+    {
 		return "parent_id";
 	}
 
 	/**
-	 * @return string category name column name
+	 * @return string - category name column name
 	 */
-	protected function getNameColumnName() {
+	protected function getNameColumnName(): string
+    {
 		return "name";
 	}
 
 	/**
-	 * @return array associated tables from which records will be deleted when category is deleted - array('assoc_table' => 'relation_column_name')
+	 * @return array - associated tables from which records will be deleted when category is deleted - array('assoc_table' => 'relation_column_name')
 	 */
-	protected function getRelatedTables() {
+	protected function getRelatedTables(): array
+    {
 		return array(
 			'conference_has_acm_category'	=>	'acm_category_id'
 		);

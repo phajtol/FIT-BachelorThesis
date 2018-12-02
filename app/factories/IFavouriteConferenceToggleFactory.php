@@ -1,21 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 7.4.2015
- * Time: 20:04
- */
 
 namespace App\Factories;
 
+use App\Components\FavouriteConferenceToggle\FavouriteConferenceToggleComponent;
 
 interface IFavouriteConferenceToggleFactory {
 
 	/**
-	 * @param $userId
-	 * @param $conferenceId
+	 * @param int $userId
+	 * @param int $conferenceId
 	 * @return \App\Components\FavouriteConferenceToggle\FavouriteConferenceToggleComponent
 	 */
-	public function create($userId, $conferenceId);
+	public function create(int $userId, int $conferenceId): FavouriteConferenceToggleComponent;
 
 }

@@ -14,54 +14,66 @@ use Nette\Mail\SendmailMailer;
  */
 abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
 
+    /** @var  */
     public $vp;
 
+    /** @var  */
     public $records;
+
+    /** @var bool */
     public $drawAllowed;
 
-    public $data = array();
+    /** @var array  */
+    public $data = [];
 
+    /** @var int */
     public $itemsPerPageDB;
 
     public $id; // historical meaning
 
+    /** @var  */
     protected $userSettings;
 
-
-    /**
-     * @var Model\UserSettings @inject
-     */
+    /** @var Model\UserSettings @inject */
     public $userSettingsModel;
 
-    /**
-     * @var Model\Publication @inject
-     */
+    /** @var Model\Publication @inject */
     public $publicationModel;
 
-    /**
-     * @var Model\Reference @inject
-     */
+    /** @var Model\Reference @inject */
     public $referenceModel;
 
-    protected function startup() {
+
+    /**
+     *
+     */
+    protected function startup(): void
+    {
         parent::startup();
 
         if ($this->getUser()->isLoggedIn()) {
-            $this->userSettings = $this->userSettingsModel->findOneBy(array('submitter_id' => $this->user->id));
+            $this->userSettings = $this->userSettingsModel->findOneBy(['submitter_id' => $this->user->id]);
             $this->itemsPerPageDB = $this->userSettings->pagination;
         }
 
-        $this->template->dirPathTemplate = "/storage/";
+        $this->template->dirPathTemplate = '/storage/';
 
         $this->template->presenterName = $this->name;
         $this->template->actionName = $this->action;
     }
 
-    protected function createComponentSearchForm($name) {
+    /**
+     * @param string $name
+     * @return \SearchForm
+     */
+    protected function createComponentSearchForm(string $name): \SearchForm
+    {
         $form = new \SearchForm($this, $name);
-        $form->onSuccess[] = function($form) {
+
+        $form->onSuccess[] = function ($form) {
             $this->presenter->redirect('this', (array) $form->getValues());
         };
+
         return $form;
     }
 }

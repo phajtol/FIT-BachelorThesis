@@ -1,17 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.5.2015
- * Time: 17:07
- */
 
 namespace App\Factories;
+
+use App\CrudComponents\Publisher\PublisherCrud;
 
 
 interface IPublisherCrudFactory {
 
 	/** @return \App\CrudComponents\Publisher\PublisherCrud */
-	public function create();
+	public function create(): PublisherCrud;
 
 }

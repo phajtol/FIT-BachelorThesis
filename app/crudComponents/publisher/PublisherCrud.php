@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 14.3.2015
- * Time: 23:02
- */
 
 namespace App\CrudComponents\Publisher;
-
 
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
@@ -27,9 +20,22 @@ class PublisherCrud extends BaseCrudComponent {
 	/** @var  \App\Model\Publication */
 	protected $publicationModel;
 
-	public function __construct(\Nette\Security\User $loggedUser, \App\Model\Publisher $publisherModel,
-								\App\Model\Publication $publicationModel, \App\Model\ConferenceYear $conferenceYearModel,
-								\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL)
+
+    /**
+     * PublisherCrud constructor.
+     * @param \Nette\Security\User $loggedUser
+     * @param \App\Model\Publisher $publisherModel
+     * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\ConferenceYear $conferenceYearModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(\Nette\Security\User $loggedUser,
+                                \App\Model\Publisher $publisherModel,
+								\App\Model\Publication $publicationModel,
+                                \App\Model\ConferenceYear $conferenceYearModel,
+								\Nette\ComponentModel\IContainer $parent = NULL,
+                                string $name = NULL)
 	{
         parent::__construct();
         if ($parent) {
@@ -50,83 +56,88 @@ class PublisherCrud extends BaseCrudComponent {
 		$this->publicationModel = $publicationModel;
 		$this->conferenceYearModel = $conferenceYearModel;
 
-		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent) {
+		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
 			$controlsComponent->addActionAvailable('showPublisherRelated');
 		};
 	}
 
-	public function createComponentPublisherAddForm(){
+    /**
+     * @return PublisherAddForm
+     */
+	public function createComponentPublisherAddForm(): PublisherAddForm
+    {
 		$form = new PublisherAddForm($this->publisherModel, $this, 'publisherAddForm');
-		$form->onSuccess[] = function(PublisherAddForm $form) {
 
-		$formValues = $form->getValues();
+        $form->onError[] = function (PublisherAddForm $form) {
+            $this->redrawControl('publisherAddForm');
+        };
 
-		unset($formValues['id']);
+        $form->onSuccess[] = function (PublisherAddForm $form) {
+		    $formValues = $form->getValues();
+		    unset($formValues['id']);
+		    $this->template->publisherAdded = true;
 
-		$this->template->publisherAdded = true;
+		    $formValues['submitter_id'] = $this->loggedUser->id;
 
+		    $record = $this->publisherModel->insert($formValues);
 
-		$formValues['submitter_id'] = $this->loggedUser->id;
+		    if (!$this->presenter->isAjax()) {
+			    $this->presenter->redirect('this');
+		    } else {
+			    $form->clearValues();
+			    $this->redrawControl('publisherAddForm');
+		    }
 
-		$record = $this->publisherModel->insert($formValues);
+		    $this->onAdd($record);
+		};
 
-		if (!$this->presenter->isAjax()) {
-			$this->presenter->redirect('this');
-		} else {
-			$form->clearValues();
-			$this->redrawControl('publisherAddForm');
-		}
-
-		$this->onAdd($record);
-            };
-            $form->onError[] = function($form) {
-                $this->redrawControl('publisherAddForm');
-            };
-            return $form;
+        return $form;
 	}
 
-	public function createComponentPublisherEditForm(){
-            $form = new PublisherEditForm($this, 'publisherEditForm');
-            $form->onSuccess[] = function(PublisherEditForm $form) {
+    /**
+     * @return PublisherEditForm
+     */
+	public function createComponentPublisherEditForm(): PublisherEditForm
+    {
+        $form = new PublisherEditForm($this, 'publisherEditForm');
 
-		$formValues = $form->getValues();
+        $form->onError[] = function (PublisherEditForm $form) {
+            $this->redrawControl('publisherEditForm');
+        };
 
-		$formValues['submitter_id'] = $this->loggedUser->id;
+        $form->onSuccess[] = function (PublisherEditForm $form) {
+            $formValues = $form->getValues();
+            $formValues['submitter_id'] = $this->loggedUser->id;
+            $this->publisherModel->update($formValues);
+            $this->template->publisherEdited = true;
 
+		    $row = $this->publisherModel->findOneById($formValues['id']);
 
-		$this->publisherModel->update($formValues);
+		    $form->setValues([]);
+		    $this->onEdit($row);
 
-		$this->template->publisherEdited = true;
+		    if(!$this->presenter->isAjax()) {
+			    $this->presenter->redirect('this');
+		    } else {
+			    $this->redrawControl('publisherEditForm');
+		    }
 
-		$row = $this->publisherModel->findOneById($formValues['id']);
+        };
 
-		$form->setValues(array());
+        return $form;
+    }
 
-		$this->onEdit($row);
-
-		if(!$this->presenter->isAjax()) {
-			$this->presenter->redirect('this');
-		} else {
-			$this->redrawControl('publisherEditForm');
-		}
-
-            };
-            $form->onError[] = function($form) {
-                $this->redrawControl('publisherEditForm');
-            };
-            return $form;
-        }
-
-	public function handleDelete($publisherId) {
-
+    /**
+     * @param int $publisherId
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleDelete(int $publisherId): void
+    {
 		$record = $this->publisherModel->find($publisherId);
 
 		if($record) {
-
 			$record->toArray();
-
 			$this->publisherModel->deleteWithAssociatedRecords($publisherId);
-
 			$this->template->publisherDeleted = true;
 
 			if (!$this->presenter->isAjax()) {
@@ -137,10 +148,13 @@ class PublisherCrud extends BaseCrudComponent {
 
 			$this->onDelete($record);
 		}
-
 	}
 
-	public function handleEdit($publisherId) {
+    /**
+     * @param int $publisherId
+     */
+	public function handleEdit(int $publisherId): void
+    {
 		$publisher = $this->publisherModel->find($publisherId);
 
 		$this["publisherEditForm"]->setDefaults($publisher); // set up new values
@@ -150,12 +164,14 @@ class PublisherCrud extends BaseCrudComponent {
 		}
 	}
 
-
-
-	public function handleShowPublisherRelated($publisherId) {
-		$publication = $this->publicationModel->findAllBy(array("publisher_id" => $publisherId));
-		$conferenceYear = $this->conferenceYearModel->findAllBy(array("publisher_id" => $publisherId));
-
+    /**
+     * @param int $publisherId
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleShowPublisherRelated(int $publisherId): void
+    {
+		$publication = $this->publicationModel->findAllBy(['publisher_id' => $publisherId]);
+		$conferenceYear = $this->conferenceYearModel->findAllBy(['publisher_id' => $publisherId]);
 		$this->template->publisherRelated_publication = $publication;
 		$this->template->publisherRelated_conference_year = $conferenceYear;
 

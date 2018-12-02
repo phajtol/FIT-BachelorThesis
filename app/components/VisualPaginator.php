@@ -13,9 +13,6 @@
  * @package    Nette Extras
  * @version    $Id: VisualPaginator.php 4 2009-07-14 15:22:02Z david@grudl.com $
  */
-/* use Nette\Application\Control; */
-
-/* use Nette\Paginator; */
 
 /**
  * Visual paginator control.
@@ -27,6 +24,7 @@
 use Nette\Application\UI\Control;
 use Nette\Utils\Paginator;
 
+
 class VisualPaginator extends Control {
 
     /** @var Paginator */
@@ -36,9 +34,9 @@ class VisualPaginator extends Control {
     public $page = 1;
 
     /**
-     * @return Nette\Paginator
+     * @return Paginator
      */
-    public function getPaginator() {
+    public function getPaginator(): Paginator {
         if (!$this->paginator) {
             $this->paginator = new Paginator;
         }
@@ -49,11 +47,13 @@ class VisualPaginator extends Control {
      * Renders paginator.
      * @return void
      */
-    public function render() {
+    public function render(): void
+    {
         $paginator = $this->getPaginator();
         $page = $paginator->page;
+
         if ($paginator->pageCount < 2) {
-            $steps = array($page);
+            $steps = [$page];
         } else {
             $arr = range(max($paginator->firstPage, $page - 3), min($paginator->lastPage, $page + 3));
             $count = 4;
@@ -75,8 +75,10 @@ class VisualPaginator extends Control {
      * Loads state informations.
      * @param  array
      * @return void
+     * @throws \Nette\Application\BadRequestException
      */
-    public function loadState(array $params) {
+    public function loadState(array $params): void
+    {
         parent::loadState($params);
         $this->getPaginator()->page = $this->page;
     }

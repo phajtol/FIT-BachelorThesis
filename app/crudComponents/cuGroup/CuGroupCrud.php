@@ -1,16 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.4.2015
- * Time: 2:51
- */
 
 namespace App\CrudComponents\CuGroup;
 
-
+use App\Components\ConferenceCategoryList\ConferenceCategoryListComponent;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
+
 
 class CuGroupCrud extends BaseCrudComponent {
 
@@ -26,18 +21,28 @@ class CuGroupCrud extends BaseCrudComponent {
 	/** @var \App\Factories\IConferenceCategoryListFactory */
 	protected $conferenceCategoryListFactory;
 
-	/**
-	 * @var \App\Model\CuGroupHasConferenceCategory
-	 */
+	/** @var \App\Model\CuGroupHasConferenceCategory */
 	protected $cuGroupHasConferenceCategoryModel;
 
 
+    /**
+     * CuGroupCrud constructor.
+     * @param \Nette\Security\User $loggedUser
+     * @param \App\Model\CuGroup $cuGroupModel
+     * @param \App\Model\SubmitterHasCuGroup $submitterHasCuGroupModel
+     * @param \App\Model\CuGroupHasConferenceCategory $cuGroupHasConferenceCategoryModel
+     * @param \App\Factories\IConferenceCategoryListFactory $conferenceCategoryListFactory
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
 	public function __construct(
-
-		\Nette\Security\User $loggedUser, \App\Model\CuGroup $cuGroupModel, \App\Model\SubmitterHasCuGroup $submitterHasCuGroupModel, \App\Model\CuGroupHasConferenceCategory $cuGroupHasConferenceCategoryModel,
+		\Nette\Security\User $loggedUser,
+        \App\Model\CuGroup $cuGroupModel,
+        \App\Model\SubmitterHasCuGroup $submitterHasCuGroupModel,
+        \App\Model\CuGroupHasConferenceCategory $cuGroupHasConferenceCategoryModel,
 		\App\Factories\IConferenceCategoryListFactory $conferenceCategoryListFactory,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
-	) {
+		\Nette\ComponentModel\IContainer $parent = NULL, string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
 		$this->cuGroupModel = $cuGroupModel;
@@ -47,73 +52,93 @@ class CuGroupCrud extends BaseCrudComponent {
 
 		$this->conferenceCategoryListFactory = $conferenceCategoryListFactory;
 
-		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent) {
+		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
 			$controlsComponent->addActionAvailable('showRelatedUsers');
 		};
 	}
 
-	public function createComponentCuGroupAddForm($name){
-            $form = new CuGroupAddForm($this->cuGroupModel, $this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('cuGroupAddForm');
-            };
-            $form->onSuccess[] = function(CuGroupAddForm $form) {
-                $formValues = $form->getValuesTransformed();
+    /**
+     * @param string $name
+     * @return CuGroupAddForm
+     */
+	public function createComponentCuGroupAddForm(string $name): CuGroupAddForm
+    {
+        $form = new CuGroupAddForm($this->cuGroupModel, $this, $name);
 
-		$conferenceCategories = $formValues['conference_categories'] ? explode(" ", $formValues['conference_categories']) : array();
-		unset($formValues['conference_categories']);
+        $form->onError[] = function () {
+            $this->redrawControl('cuGroupAddForm');
+        };
 
-		$record = $this->cuGroupModel->insert($formValues);
+        $form->onSuccess[] = function (CuGroupAddForm $form) {
+            $formValues = $form->getValuesTransformed();
 
-		if($record) {
-			$this->template->cuGroupAdded = true;
+		    $conferenceCategories = $formValues['conference_categories'] ? explode(" ", $formValues['conference_categories']) : [];
+		    unset($formValues['conference_categories']);
+		    $record = $this->cuGroupModel->insert($formValues);
 
-			$this->cuGroupHasConferenceCategoryModel->setAssociatedConferenceCategories($record->id, $conferenceCategories);
+		    if($record) {
+			    $this->template->cuGroupAdded = true;
+			    $this->cuGroupHasConferenceCategoryModel->setAssociatedConferenceCategories($record->id, $conferenceCategories);
 
-			if ($this->presenter->isAjax()) {
-				$form->clearValues();
-				$this->redrawControl('cuGroupAddForm');
-			} else $this->redirect('this');
+			    if ($this->presenter->isAjax()) {
+				    $form->clearValues();
+				    $this->redrawControl('cuGroupAddForm');
+			    } else {
+			        $this->redirect('this');
+                }
 
-			$this->onAdd($record);
-		}
-            };
+			    $this->onAdd($record);
+		    }
+        };
+
+        return $form;
 	}
 
-	public function createComponentCuGroupEditForm($name){
-            $form = new CuGroupEditForm($this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('cuGroupEditForm');
-            };
-            $form->onSuccess[] = function(CuGroupEditForm $form) {
-		$formValues = $form->getValuesTransformed();
+    /**
+     * @param string $name
+     * @return CuGroupEditForm
+     */
+	public function createComponentCuGroupEditForm(string $name): CuGroupEditForm
+    {
+        $form = new CuGroupEditForm($this, $name);
 
-		$conferenceCategories = $formValues['conference_categories'] ? explode(" ", $formValues['conference_categories']) : array();
-		unset($formValues['conference_categories']);
+        $form->onError[] = function () {
+            $this->redrawControl('cuGroupEditForm');
+        };
 
-		$this->cuGroupModel->update($formValues);
-		$record = $this->cuGroupModel->find($formValues['id']);
+        $form->onSuccess[] = function (CuGroupEditForm $form) {
+		    $formValues = $form->getValuesTransformed();
+		    $conferenceCategories = $formValues['conference_categories'] ? explode(" ", $formValues['conference_categories']) : [];
+		    unset($formValues['conference_categories']);
 
-		$this->cuGroupHasConferenceCategoryModel->setAssociatedConferenceCategories($record->id, $conferenceCategories);
+		    $this->cuGroupModel->update($formValues);
+		    $record = $this->cuGroupModel->find($formValues['id']);
+		    $this->cuGroupHasConferenceCategoryModel->setAssociatedConferenceCategories($record->id, $conferenceCategories);
+		    $this->template->cuGroupEdited = true;
 
-		$this->template->cuGroupEdited = true;
+		    if($this->presenter->isAjax()) {
+			    $this->redrawControl('cuGroupEditForm');
+		    } else {
+		        $this->redirect('this');
+            }
 
-		if($this->presenter->isAjax()) {
-			$this->redrawControl('cuGroupEditForm');
-		} else $this->redirect('this');
+		    $this->onEdit($record);
+        };
 
-		$this->onEdit($record);
-            };
+        return $form;
 	}
 
-	public function handleDelete($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleDelete(int $id): void
+    {
 		$record = $this->cuGroupModel->find($id);
+
 		if($record) {
-
 			$record->toArray(); // load the object to be passed to the callback
-
 			$this->cuGroupModel->deleteAssociatedRecords($id);
-
 			$this->template->cuGroupDeleted = true;
 
 			if (!$this->presenter->isAjax()) {
@@ -126,7 +151,12 @@ class CuGroupCrud extends BaseCrudComponent {
 		}
 	}
 
-	public function handleEdit($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleEdit(int $id): void
+    {
 		$cuGroup = $this->cuGroupModel->find($id);
 
 		$conference_categories_res = $this->cuGroupHasConferenceCategoryModel->findAllBy(array('cu_group_id' => $id));
@@ -141,16 +171,21 @@ class CuGroupCrud extends BaseCrudComponent {
 		} else {
 			$this->redrawControl('cuGroupEditForm');
 		}
-
 	}
 
-	public function handleShowRelatedUsers($id) {
-
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleShowRelatedUsers(int $id): void
+    {
 		$users = [];
 		$rels = $this->submitterHasCuGroupModel->getAllByCuGroupId($id);
 
-		foreach($rels as $rel) {
-			foreach($rel->related('submitter') as $submitter) $users[] = $submitter;
+		foreach ($rels as $rel) {
+			foreach ($rel->related('submitter') as $submitter) {
+			    $users[] = $submitter;
+            }
 		}
 
 		$this->template->usersRelatedToCuGroup = $users;
@@ -162,34 +197,50 @@ class CuGroupCrud extends BaseCrudComponent {
 		}
 	}
 
-	public function render() {
-
+    /**
+     *
+     */
+	public function render(): void
+    {
 		$this->template->addFormConferenceCategoriesElementId = $this['cuGroupAddForm']['conference_categories']->getHtmlId();
 		$this->template->editFormConferenceCategoriesElementId = $this['cuGroupEditForm']['conference_categories']->getHtmlId();
 
-		$this->addDefaultTemplateVars(array(
+		$this->addDefaultTemplateVars([
 			"cuGroupAdded" => false,
 			"cuGroupEdited" => false,
 			"cuGroupDeleted" => false,
-			"usersRelatedToCuGroup" => array()
-		));
+			"usersRelatedToCuGroup" => []
+		]);
 
 		parent::render();
 	}
 
+    /**
+     * @return ConferenceCategoryListComponent
+     */
+	public function createComponentConferenceCategoryListA(): ConferenceCategoryListComponent
+    {
+        return $this->createComponentConferenceCategoryList();
+    }
 
-	public function createComponentConferenceCategoryListA(){ return $this->createComponentConferenceCategoryList(); }
-	public function createComponentConferenceCategoryListE(){ return $this->createComponentConferenceCategoryList(); }
+    /**
+     * @return ConferenceCategoryListComponent
+     */
+	public function createComponentConferenceCategoryListE(): ConferenceCategoryListComponent
+    {
+        return $this->createComponentConferenceCategoryList();
+    }
 
-	protected function createComponentConferenceCategoryList(){
+    /**
+     * @return ConferenceCategoryListComponent
+     */
+	protected function createComponentConferenceCategoryList(): ConferenceCategoryListComponent
+    {
 		$c = $this->conferenceCategoryListFactory->create();
-
 		$c->setHasControls(true);
 		$c->setIsSelectable(true);
 		$c->setHasThreeStates(true);
-
 		$c->setHeight('250px');
-
 		return $c;
 	}
 

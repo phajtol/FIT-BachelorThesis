@@ -1,17 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 26.3.2015
- * Time: 19:50
- */
 
 namespace App\CrudComponents\Conference;
 
-
+use App\Components\AcmCategoryList\AcmCategoryListComponent;
+use App\Components\ButtonToggle\ButtonGroupComponent;
+use App\Components\ConferenceCategoryList\ConferenceCategoryListComponent;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
+use App\Forms\BaseForm;
+use NasExt\Controls\SortingControl;
 use Nette\Application\UI\Multiplier;
+
 
 class ConferenceCrud extends BaseCrudComponent {
 
@@ -49,10 +48,11 @@ class ConferenceCrud extends BaseCrudComponent {
 	/** @var  \App\Helpers\SortingControlFactory */
 	protected $sortingControlFactory;
 
-
+    /** @var array */
 	public $onCreateConferenceYearCrud = [];
-	public $onMergeConferences = [];
 
+	/** @var array */
+	public $onMergeConferences = [];
 
 	/** @persistent */
 	public $conferenceId = null;
@@ -61,14 +61,37 @@ class ConferenceCrud extends BaseCrudComponent {
 	public $onConferenceArchived;
 
 
+    /**
+     * ConferenceCrud constructor.
+     * @param \Nette\Security\User $loggedUser
+     * @param \App\Model\Conference $conferenceModel
+     * @param \App\Model\ConferenceYear $conferenceYearModel
+     * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\Publisher $publisherModel
+     * @param \App\Model\ConferenceHasAcmCategory $conferenceHasAcmCategoryModel
+     * @param \App\Model\ConferenceHasCategory $conferenceHasCategoryModel
+     * @param \App\Factories\IAcmCategoryListFactory $acmCategoryListFactory
+     * @param \App\Factories\IConferenceCategoryListFactory $conferenceCategoryListFactory
+     * @param \App\Factories\IConferenceYearCrudFactory $conferenceYearCrudFactory
+     * @param \App\Helpers\SortingControlFactory $sortingControlFactory
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
 	public function __construct(
-
-		\Nette\Security\User $loggedUser, \App\Model\Conference $conferenceModel, \App\Model\ConferenceYear $conferenceYearModel, \App\Model\Publication $publicationModel, \App\Model\Publisher $publisherModel,
-		\App\Model\ConferenceHasAcmCategory $conferenceHasAcmCategoryModel, \App\Model\ConferenceHasCategory $conferenceHasCategoryModel,
-		\App\Factories\IAcmCategoryListFactory $acmCategoryListFactory, \App\Factories\IConferenceCategoryListFactory $conferenceCategoryListFactory,
-		\App\Factories\IConferenceYearCrudFactory $conferenceYearCrudFactory, \App\Helpers\SortingControlFactory $sortingControlFactory ,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
-	) {
+		\Nette\Security\User $loggedUser,
+        \App\Model\Conference $conferenceModel,
+        \App\Model\ConferenceYear $conferenceYearModel,
+        \App\Model\Publication $publicationModel,
+        \App\Model\Publisher $publisherModel,
+		\App\Model\ConferenceHasAcmCategory $conferenceHasAcmCategoryModel,
+        \App\Model\ConferenceHasCategory $conferenceHasCategoryModel,
+		\App\Factories\IAcmCategoryListFactory $acmCategoryListFactory,
+        \App\Factories\IConferenceCategoryListFactory $conferenceCategoryListFactory,
+		\App\Factories\IConferenceYearCrudFactory $conferenceYearCrudFactory,
+        \App\Helpers\SortingControlFactory $sortingControlFactory ,
+		\Nette\ComponentModel\IContainer $parent = NULL,
+        string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
 		$this->conferenceModel = $conferenceModel;
@@ -96,14 +119,14 @@ class ConferenceCrud extends BaseCrudComponent {
 		$this->allowAction('showConferenceYears');
 		$this->allowAction('mergeConferences');
 
-		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent) use ($conferenceModel) {
+		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) use ($conferenceModel) {
 			$controlsComponent->addActionAvailable('showConferenceYears');
 			$controlsComponent->addActionAvailable('showRelatedPublications');
 			$controlsComponent->addActionAvailable('mergeConferences');
 
 			$conference = $conferenceModel->find($controlsComponent->getRecordId());
 
-			if($conference) {
+			if ($conference) {
 				$conferenceState = $conference->state;
 
 				$conferenceSTM = array(
@@ -111,24 +134,32 @@ class ConferenceCrud extends BaseCrudComponent {
 					'dead'      =>  'alive'
 				);
 
-				$controlsComponent->addTemplateVars(array(
+				$controlsComponent->addTemplateVars([
 					'conferenceState' => $conferenceState,
 					'nextConferenceState' => $conferenceSTM[$conferenceState],
 					'setConferenceStateLink' => $this->link('setConferenceState!', array($controlsComponent->getRecordId(), $conferenceSTM[$conferenceState]))
-				));
+				]);
 			}
 		};
 	}
 
-	protected function createComponentCPToggle() {
+    /**
+     * @return ButtonGroupComponent
+     */
+	protected function createComponentCPToggle(): ButtonGroupComponent
+    {
 		$c = parent::createComponentCPToggle();
-		$c->onActiveButtonChanged[] = function(){
+		$c->onActiveButtonChanged[] = function () {
 			$this->getPresenter()->redrawControl();
 		};
 		return $c;
 	}
 
-	public function createComponentConferenceYear() {
+    /**
+     * @return Multiplier
+     */
+	public function createComponentConferenceYear(): Multiplier
+    {
 
 		$parent = $this;
 
@@ -142,7 +173,7 @@ class ConferenceCrud extends BaseCrudComponent {
 
 			$c = $parent->conferenceYearCrudFactory->create($conferenceId);
 
-			$fnRedraw = function($record) use ($parent, $conferenceId) {
+			$fnRedraw = function ($record) use ($parent, $conferenceId) {
 				$this->loadConferenceYears();
 				$parent->redrawControl('conferenceYearsShowAllRecords');
 			};
@@ -160,90 +191,126 @@ class ConferenceCrud extends BaseCrudComponent {
 
 	}
 
-	public function createComponentConferenceAddForm($name){
-            $form = new ConferenceAddForm($this->conferenceModel, $this, $name);
-            $this->reduceForm($form);
-            $form->onError[] = function(){
-                    $this->redrawControl('conferenceAddForm');
-            };
-            $form->onSuccess[] = function(ConferenceAddForm $form) {
-		$formValues = $form->getValuesTransformed();
+    /**
+     * @param string $name
+     * @return ConferenceAddForm
+     */
+	public function createComponentConferenceAddForm(string $name): ConferenceAddForm
+    {
+        $form = new ConferenceAddForm($this->conferenceModel, $this, $name);
+        $this->reduceForm($form);
 
-		$formValues['submitter_id'] = $this->loggedUser->id;
+        $form->onError[] = function () {
+            $this->redrawControl('conferenceAddForm');
+        };
 
-		if(isset($form['acm_categories'])) {
-			$acm_categories = $formValues['acm_categories'] ? explode(" ", $formValues['acm_categories']) : array();
-			unset($formValues["acm_categories"]);
-		}
+        $form->onSuccess[] = function (ConferenceAddForm $form) {
+		    $formValues = $form->getValuesTransformed();
 
-		if(isset($form['conference_categories'])) {
-			$conference_categories = $formValues['conference_categories'] ? explode(" ", $formValues['conference_categories']) : array();
-			unset($formValues["conference_categories"]);
-		}
+		    $formValues['submitter_id'] = $this->loggedUser->id;
 
-		$record = $this->conferenceModel->insert($formValues);
+		    if (isset($form['acm_categories'])) {
+			    $acm_categories = $formValues['acm_categories'] ? explode(" ", $formValues['acm_categories']) : [];
+			    unset($formValues["acm_categories"]);
+		    }
 
-		if($record) {
-			$this->template->conferenceAdded = true;
+		    if (isset($form['conference_categories'])) {
+			    $conference_categories = $formValues['conference_categories'] ? explode(' ', $formValues['conference_categories']) : [];
+			    unset($formValues["conference_categories"]);
+		    }
 
-			$cy = $this->conferenceYearModel->insert(["w_year" => \date("Y"),
-													"conference_id" => $record->id,
-													"name" => $record->name,
-												  "abbreviation" => $record->abbreviation]);
+		    $record = $this->conferenceModel->insert($formValues);
 
-			if(isset($acm_categories)) $this->conferenceHasAcmCategoryModel->setAssociatedAcmCategories($record->id, $acm_categories);
-			if(isset($conference_categories)) $this->conferenceHasCategoryModel->setAssociatedConferenceCategories($record->id, $conference_categories);
+		    if ($record) {
+			    $this->template->conferenceAdded = true;
 
-			if ($this->presenter->isAjax()) {
-				$form->clearValues();
-				$this->redrawControl('conferenceAddForm');
-			} else $this->redirect('this');
+			    $cy = $this->conferenceYearModel->insert([
+			        "w_year" => \date("Y"),
+					"conference_id" => $record->id,
+					"name" => $record->name,
+					"abbreviation" => $record->abbreviation
+                ]);
 
-			$this->onAdd($record, $cy);
-		}
-            };
+			    if (isset($acm_categories)) {
+			        $this->conferenceHasAcmCategoryModel->setAssociatedAcmCategories($record->id, $acm_categories);
+                }
+			    if (isset($conference_categories)) {
+			        $this->conferenceHasCategoryModel->setAssociatedConferenceCategories($record->id, $conference_categories);
+                }
+
+			    if ($this->presenter->isAjax()) {
+				    $form->clearValues();
+				    $this->redrawControl('conferenceAddForm');
+			    } else {
+			        $this->redirect('this');
+                }
+
+			    $this->onAdd($record, $cy);
+		    }
+        };
+
+        return $form;
 	}
 
-	public function createComponentConferenceEditForm($name){
-            $form = new ConferenceEditForm($this, $name);
-            $this->reduceForm($form);
-            $form->onError[] = function(){
-                    $this->redrawControl('conferenceEditForm');
-            };
-            $form->onSuccess[] = function(ConferenceEditForm $form) {
-		$formValues = $form->getValuesTransformed();
+    /**
+     * @param string $name
+     * @return ConferenceEditForm
+     */
+	public function createComponentConferenceEditForm(string $name): ConferenceEditForm
+    {
+        $form = new ConferenceEditForm($this, $name);
+        $this->reduceForm($form);
 
-		$formValues['submitter_id'] = $this->loggedUser->id;
+        $form->onError[] = function () {
+            $this->redrawControl('conferenceEditForm');
+        };
 
-		if(isset($form['acm_categories'])) {
-			$acm_categories = $formValues['acm_categories'] ? explode(" ", $formValues['acm_categories']) : array();
-			unset($formValues["acm_categories"]);
-		}
+        $form->onSuccess[] = function (ConferenceEditForm $form) {
+		    $formValues = $form->getValuesTransformed();
 
-		if(isset($form['conference_categories'])) {
-			$conference_categories = $formValues['conference_categories'] ? explode(" ", $formValues['conference_categories']) : array();
-			unset($formValues["conference_categories"]);
-		}
+		    $formValues['submitter_id'] = $this->loggedUser->id;
 
-		$this->conferenceModel->update($formValues);
-		$record = $this->conferenceModel->find($formValues['id']);
+		    if (isset($form['acm_categories'])) {
+			    $acm_categories = $formValues['acm_categories'] ? explode(" ", $formValues['acm_categories']) : [];
+			    unset($formValues["acm_categories"]);
+		    }
 
-		$this->template->conferenceEdited = true;
+		    if (isset($form['conference_categories'])) {
+			    $conference_categories = $formValues['conference_categories'] ? explode(" ", $formValues['conference_categories']) : [];
+			    unset($formValues["conference_categories"]);
+		    }
 
-		if(isset($acm_categories)) $this->conferenceHasAcmCategoryModel->setAssociatedAcmCategories($record->id, $acm_categories);
-		if(isset($conference_categories)) $this->conferenceHasCategoryModel->setAssociatedConferenceCategories($record->id, $conference_categories);
+		    $this->conferenceModel->update($formValues);
+		    $record = $this->conferenceModel->find($formValues['id']);
 
-		if($this->presenter->isAjax()) {
-			$this->redrawControl('conferenceEditForm');
-		} else $this->redirect('this');
+		    $this->template->conferenceEdited = true;
 
-		$this->onEdit($record);
-            };
+		    if (isset($acm_categories)) {
+		        $this->conferenceHasAcmCategoryModel->setAssociatedAcmCategories($record->id, $acm_categories);
+            }
+		    if (isset($conference_categories)) {
+		        $this->conferenceHasCategoryModel->setAssociatedConferenceCategories($record->id, $conference_categories);
+            }
+
+		    if ($this->presenter->isAjax()) {
+			    $this->redrawControl('conferenceEditForm');
+		    } else {
+		        $this->redirect('this');
+            }
+
+		    $this->onEdit($record);
+        };
+
+        return $form;
 	}
 
+    /**
+     * @return BaseForm
+     */
+	public function createComponentMergeConferencesForm(): BaseForm
+    {
+		$form = new BaseForm();
 
-	public function createComponentMergeConferencesForm() {
-		$form = new \App\Forms\BaseForm();
 		$form->addHidden('source_conference_id')
             ->addRule(\Nette\Forms\Form::INTEGER)
             ->setValue($this->conferenceId)
@@ -255,15 +322,20 @@ class ConferenceCrud extends BaseCrudComponent {
 
 		$form->addText('target_conference_name', 'Target conference'); // for typeahead
 		$form->addSubmit('send', 'Move this conference');
+
 		$form->setModal(true);
 		$form->setAjax(true);
 
-		$form->onSuccess[] = function(\App\Forms\BaseForm $form){
+		$form->onSuccess[] = function (BaseForm $form) {
 			$source_conference = $this->conferenceModel->find($form['source_conference_id']->getValue());
 			$target_conference = $this->conferenceModel->find($form['target_conference_id']->getValue());
 
-			if(!$source_conference) throw new \Exception('Source connference not found');
-			if(!$target_conference) throw new \Exception('Target connference not found');
+			if (!$source_conference) {
+			    throw new \Exception('Source connference not found');
+            }
+			if (!$target_conference) {
+			    throw new \Exception('Target connference not found');
+            }
 
 			$source_conference->toArray(); // load the object to be passed to the callback
 
@@ -276,8 +348,14 @@ class ConferenceCrud extends BaseCrudComponent {
 		return $form;
 	}
 
-	public function handleDelete($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleDelete(int $id): void
+    {
 		$record = $this->conferenceModel->find($id);
+
 		if($record) {
 			$record->toArray(); // load the object to be passed to the callback
 
@@ -295,57 +373,75 @@ class ConferenceCrud extends BaseCrudComponent {
 		}
 	}
 
-	public function handleEdit($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleEdit(int $id): void
+    {
 		$conference = $this->conferenceModel->find($id);
 
 		// load acm categories
-		$acm_category_ids = array();
+		$acm_category_ids = [];
 		$acm_category_results = $this->conferenceHasAcmCategoryModel->findAllByConferenceId($id);
-		foreach($acm_category_results as $row) $acm_category_ids[] = $row['acm_category_id'];
 
-		if(isset($this['conferenceEditForm']['acm_categories']))
-			$this['conferenceEditForm']['acm_categories']->setValue(implode(' ', $acm_category_ids));
+		foreach ($acm_category_results as $row) {
+		    $acm_category_ids[] = $row['acm_category_id'];
+        }
+
+		if (isset($this['conferenceEditForm']['acm_categories'])) {
+            $this['conferenceEditForm']['acm_categories']->setValue(implode(' ', $acm_category_ids));
+        }
 
 		// load conference categories
-		$conference_category_ids = array();
+		$conference_category_ids = [];
 		$conference_category_results = $this->conferenceHasCategoryModel->findAllByConferenceId($id);
-		foreach($conference_category_results as $row) $conference_category_ids[] = $row['conference_category_id'];
+		foreach ($conference_category_results as $row) {
+		    $conference_category_ids[] = $row['conference_category_id'];
+        }
 
-		if(isset($this['conferenceEditForm']['conference_categories']))
-			$this['conferenceEditForm']['conference_categories']->setValue(implode(' ', $conference_category_ids));
+		if (isset($this['conferenceEditForm']['conference_categories'])) {
+            $this['conferenceEditForm']['conference_categories']->setValue(implode(' ', $conference_category_ids));
+        }
 
-		$this["conferenceEditForm"]->setDefaults($conference); // set up new values
+		$this['conferenceEditForm']->setDefaults($conference); // set up new values
 
 		if (!$this->presenter->isAjax()) {
 			$this->presenter->redirect('this');
 		} else {
 			$this->redrawControl('conferenceEditForm');
 		}
-
 	}
 
-
-	public function handleShowRelatedPublications($id) {
-		$ConferenceYearArray = array();
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleShowRelatedPublications(int $id): void
+    {
+		$ConferenceYearArray = [];
 		$counter = 0;
 		$counter2 = 0;
 
-		$conferenceRelated = $this->conferenceYearModel->findAllBy(array("conference_id" => $id))->order('w_year DESC');
+		$conferenceRelated = $this->conferenceYearModel->findAllBy(["conference_id" => $id])->order('w_year DESC');
 
 		foreach ($conferenceRelated as $row) {
 			$ConferenceYearArray[$counter] = $row->toArray();
 
-			$publications = $this->publicationModel->findAllBy(array("conference_year_id" => $row['id']));
-			$publicationsArray = array();
+			$publications = $this->publicationModel->findAllBy(["conference_year_id" => $row['id']]);
+			$publicationsArray = [];
+
 			foreach ($publications as $pub) {
 				$publicationsArray[$counter2]['title'] = $pub['title'];
 				$publicationsArray[$counter2]['id'] = $pub['id'];
 				$counter2++;
 			}
+
 			$counter2 = 0;
 			$ConferenceYearArray[$counter]['publication'] = $publicationsArray;
 			$counter++;
 		}
+
 		$this->template->publicationsRelatedToConference = $ConferenceYearArray;
 
 		if (!$this->presenter->isAjax()) {
@@ -355,39 +451,65 @@ class ConferenceCrud extends BaseCrudComponent {
 		}
 	}
 
-	public function handleShowConferenceYears($id){
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleShowConferenceYears(int $id): void
+    {
 		$this->conferenceId = $id;
 		$this->loadConferenceYears();
+
 		if($this->presenter->isAjax()) {
 			$this->redrawControl('conferenceYearsBase');
 			$this->redrawControl('conferenceYears');
-		} else $this->redirect('this');
+		} else {
+		    $this->redirect('this');
+        }
 	}
 
-	public function handleSetConferenceState($id, $state){
-		if(!in_array($state, array('alive', 'dead'))) return;
-		$this->conferenceModel->update(array(
+    /**
+     * @param int $id
+     * @param string $state
+     */
+	public function handleSetConferenceState(int $id, string $state): void
+    {
+		if (!in_array($state, ['alive', 'dead'])) {
+		    return;
+        }
+
+		$this->conferenceModel->update([
 			'id'        =>  $id,
 			'state'     =>  $state
-		));
-		$this["controls"][$id]->redrawControl();
+		]);
+		$this['controls'][$id]->redrawControl();
 		$this->onConferenceArchived($id, $state);
 	}
 
-	public function handleMergeConferences($id) {
-		if($this->isActionAllowed('mergeConferences')) {
+    /**
+     * @param int $id
+     */
+	public function handleMergeConferences(int $id): void
+    {
+		if ($this->isActionAllowed('mergeConferences')) {
 			$this->conferenceId = $id;
 			$this->redrawControl('mergeConferencesForm');
 		}
 	}
 
-	public function handleFindConferencesForTypeAhead($query) {
+    /**
+     * @param $query
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleFindConferencesForTypeAhead($query): void
+    {
 		$records = $this->conferenceModel->findAllByKw($query);
-		if($this->conferenceId) $records = $records->where('id != ?', $this->conferenceId);
-
+		if ($this->conferenceId) {
+		    $records = $records->where('id != ?', $this->conferenceId);
+        }
 		$records = $records->order('abbreviation ASC')->limit(20);
+		$toSend = [];
 
-		$toSend = array();
 		foreach($records as $rec) {
 			$toSend[] = $rec->toArray();
 		}
@@ -395,13 +517,20 @@ class ConferenceCrud extends BaseCrudComponent {
 		$this->presenter->sendResponse(new \Nette\Application\Responses\JsonResponse($toSend));
 	}
 
-	protected function loadConferenceYears(){
+    /**
+     *
+     */
+	protected function loadConferenceYears(): void
+    {
 		$this->template->conferenceYears = $this->conferenceYearModel->findAllByConferenceId($this->conferenceId)
 			->order($this['cYSorting']->getColumn() . ' ' . $this['cYSorting']->getSortDirection());
 		$this->template->conferenceId = $this->conferenceId;
 	}
 
-	public function render() {
+    /**
+     *
+     */
+	public function render(): void {
 
 		$this->template->addFormAcmCategoriesElementId = isset($this['conferenceAddForm']['acm_categories'])
 			? $this['conferenceAddForm']['acm_categories']->getHtmlId() : null;
@@ -415,27 +544,39 @@ class ConferenceCrud extends BaseCrudComponent {
 		$this->template->editFormConferenceCategoriesElementId = isset($this['conferenceEditForm']['conference_categories']) ?
 			$this['conferenceEditForm']['conference_categories']->getHtmlId() : null;
 
-		$this->addDefaultTemplateVars(array(
-			"conferenceAdded" => false,
-			"conferenceEdited" => false,
-			"conferenceDeleted" => false,
-			"publicationsRelatedToConference" => array(),
-			"conferenceYears" => array(),
-			"conferenceId" => $this->conferenceId
-		));
+		$this->addDefaultTemplateVars([
+			'conferenceAdded' => false,
+			'conferenceEdited' => false,
+			'conferenceDeleted' => false,
+			'publicationsRelatedToConference' => [],
+			'conferenceYears' => [],
+			'conferenceId' => $this->conferenceId
+		]);
 
 		parent::render();
 	}
 
-	public function createComponentAcmCategoryListA(){
+    /**
+     * @return AcmCategoryListComponent
+     */
+	public function createComponentAcmCategoryListA(): AcmCategoryListComponent
+    {
 		return $this->createAcmCategoryList();
 	}
 
-	public function createComponentAcmCategoryListE() {
+    /**
+     * @return AcmCategoryListComponent
+     */
+	public function createComponentAcmCategoryListE(): AcmCategoryListComponent
+    {
 		return $this->createAcmCategoryList();
 	}
 
-	protected function createAcmCategoryList () {
+    /**
+     * @return AcmCategoryListComponent
+     */
+	protected function createAcmCategoryList(): AcmCategoryListComponent
+    {
 		$c = $this->acmCategoryListFactory->create();
 		$c->setHeight(180);
 		$c->setWidth(375);
@@ -444,16 +585,27 @@ class ConferenceCrud extends BaseCrudComponent {
 		return $c;
 	}
 
-
-	public function createComponentConferenceCategoryListA(){
+    /**
+     * @return ConferenceCategoryListComponent
+     */
+	public function createComponentConferenceCategoryListA(): ConferenceCategoryListComponent
+    {
 		return $this->createConferenceCategoryList();
 	}
 
-	public function createComponentConferenceCategoryListE() {
+    /**
+     * @return ConferenceCategoryListComponent
+     */
+	public function createComponentConferenceCategoryListE(): ConferenceCategoryListComponent
+    {
 		return $this->createConferenceCategoryList();
 	}
 
-	protected function createConferenceCategoryList () {
+    /**
+     * @return ConferenceCategoryListComponent
+     */
+	protected function createConferenceCategoryList(): ConferenceCategoryListComponent
+    {
 		$c = $this->conferenceCategoryListFactory->create();
 		$c->setHeight(180);
 		$c->setWidth(375);
@@ -465,10 +617,10 @@ class ConferenceCrud extends BaseCrudComponent {
 	/**
 	 * @return \NasExt\Controls\SortingControl
 	 */
-	protected function createComponentCYSorting()
+	protected function createComponentCYSorting(): SortingControl
 	{
 		$tablePrefix = '';
-		$control = $this->sortingControlFactory->create( array(
+		$control = $this->sortingControlFactory->create([
 			'name' => $tablePrefix . 'name',
 			'abbreviation' => $tablePrefix . 'abbreviation',
 			'w_year' => $tablePrefix . 'w_year',
@@ -480,16 +632,16 @@ class ConferenceCrud extends BaseCrudComponent {
 			'location' => $tablePrefix . 'location',
 			'doi' => $tablePrefix . 'doi',
 			'publisher_id' => $tablePrefix . 'publisher_id'
-		),  'w_year', \NasExt\Controls\SortingControl::DESC);
+		],  'w_year', SortingControl::DESC);
 
 		$control->setAjaxRequest(true);
-		$control->onShort[] = function(){
+
+		$control->onShort[] = function () {
 			$this->loadConferenceYears();
 			$this->redrawControl();
 		};
 
 		return $control;
 	}
-
 
 }

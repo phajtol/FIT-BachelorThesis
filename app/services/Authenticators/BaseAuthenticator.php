@@ -26,32 +26,22 @@ class BaseAuthenticator implements  IAuthenticator, IAuthMethodTranslator {
 	const AUTH_LOGIN_PASS = 'login_pass';
 	const AUTH_SHIBBOLETH = 'shibboleth';
 
-	/**
-	 * @var LoginPassAuthenticator
-	 */
+	/** @var LoginPassAuthenticator */
 	protected $loginPassAuthenticator;
 
-	/**
-	 * @var \foglcz\LDAP\Authenticator
-	 */
+	/** @var \foglcz\LDAP\Authenticator */
 	protected $ldapAuthenticator = null;
 
 	/** @var \App\Model\AuthShibboleth */
 	protected $authShibbolethModel;
 
-	/**
-	 * @var \App\Model\AuthLdap
-	 */
+	/** @var \App\Model\AuthLdap */
 	protected $authLdapModel = null;
 
-	/**
-	 * @var \App\Model\Submitter
-	 */
+	/** @var \App\Model\Submitter */
 	protected $submitterModel;
 
-	/**
-	 * @var \App\Model\UserRole
-	 */
+	/** @var \App\Model\UserRole */
 	protected $userRoleModel;
 
 	/** @var  \App\Model\UserSettings */
@@ -66,10 +56,28 @@ class BaseAuthenticator implements  IAuthenticator, IAuthMethodTranslator {
 	/** @var  \App\Services\IdentityInitializer */
 	protected $identityInitializer;
 
-	function __construct(LoginPassAuthenticator $loginPassAuthenticator, \App\Model\Submitter $submitterModel, \App\Model\UserRole $userRoleModel,
-                     \App\Model\UserSettings $userSettingsModel, \App\Model\GeneralSettings $generalSettingsModel, \App\Services\PasswordResetter $passwordResetter,
-					\App\Model\AuthLdap $authLdapModel, \App\Model\AuthShibboleth $authShibbolethModel, \App\Services\IdentityInitializer $identityInitializer
-	)
+
+    /**
+     * BaseAuthenticator constructor.
+     * @param LoginPassAuthenticator $loginPassAuthenticator
+     * @param \App\Model\Submitter $submitterModel
+     * @param \App\Model\UserRole $userRoleModel
+     * @param \App\Model\UserSettings $userSettingsModel
+     * @param \App\Model\GeneralSettings $generalSettingsModel
+     * @param \App\Services\PasswordResetter $passwordResetter
+     * @param \App\Model\AuthLdap $authLdapModel
+     * @param \App\Model\AuthShibboleth $authShibbolethModel
+     * @param \App\Services\IdentityInitializer $identityInitializer
+     */
+	function __construct(LoginPassAuthenticator $loginPassAuthenticator,
+                         \App\Model\Submitter $submitterModel,
+                         \App\Model\UserRole $userRoleModel,
+                         \App\Model\UserSettings $userSettingsModel,
+                         \App\Model\GeneralSettings $generalSettingsModel,
+                         \App\Services\PasswordResetter $passwordResetter,
+                         \App\Model\AuthLdap $authLdapModel,
+                         \App\Model\AuthShibboleth $authShibbolethModel,
+                         \App\Services\IdentityInitializer $identityInitializer)
 	{
 		$this->loginPassAuthenticator = $loginPassAuthenticator;
 		$this->submitterModel = $submitterModel;
@@ -87,23 +95,24 @@ class BaseAuthenticator implements  IAuthenticator, IAuthMethodTranslator {
 	/**
 	 * @param \foglcz\LDAP\Authenticator $ldapAuthenticator
 	 */
-	public function setupLdap(\foglcz\LDAP\Authenticator $ldapAuthenticator)
+	public function setupLdap(\foglcz\LDAP\Authenticator $ldapAuthenticator): void
 	{
-		if($this->ldapAuthenticator !== null) return;
+		if ($this->ldapAuthenticator !== null) {
+		    return;
+        }
 
 		$this->ldapAuthenticator = $ldapAuthenticator;
 
-		$this->ldapAuthenticator->addSuccessHandler("id", function(\Toyota\Component\Ldap\Core\Manager $ldap, $userData){
+		$this->ldapAuthenticator->addSuccessHandler("id", function (\Toyota\Component\Ldap\Core\Manager $ldap, $userData){
 			$username = $userData['username'];
-
 			$authLdapEntity = $this->authLdapModel->findByLogin($username);
 
-			if($authLdapEntity) {	// user has logged in via ldap
+			if ($authLdapEntity) {	// user has logged in via ldap
 				return $authLdapEntity->submitter_id;
 			} else {	// this is first login via given ldap username
 				if(!isset($userData["userinfo"]) || empty($userData["userinfo"])) throw new \Exception("Cannot retrieve extended data from ldap");
 
-				$submitter = $this->submitterModel->findOneBy(array('nickname' => $username));
+				$submitter = $this->submitterModel->findOneBy(['nickname' => $username]);
 				if($submitter) {	// user yet found by nickname
 					$this->updateUserDetails($submitter->id, $userData["userinfo"]["email"], $userData["userinfo"]["name"], $userData["userinfo"]["surname"]);
 					$this->authLdapModel->associateToSubmitter($submitter->id, $username);
@@ -128,13 +137,12 @@ class BaseAuthenticator implements  IAuthenticator, IAuthMethodTranslator {
 	 * @return IIdentity
 	 * @throws AuthenticationException
 	 */
-	function authenticate(array $credentials) {
-
+	function authenticate(array $credentials): IIdentity
+    {
 		list($login, $pass) = $credentials;
 
-		if($this->loginPassAuthenticator->loginExists($login) !== false
-			|| $this->ldapAuthenticator === null
-		) {    // login-pass credentials exists, let's try auth
+		if($this->loginPassAuthenticator->loginExists($login) !== false || $this->ldapAuthenticator === null) {
+		    // login-pass credentials exists, let's try auth
 			$identity = $this->loginPassAuthenticator->authenticate($credentials);
 		} else {	 // login-pass credentials don't exist, let's try ldap
 			$identity = $this->ldapAuthenticator->authenticate($credentials);
@@ -184,32 +192,48 @@ class BaseAuthenticator implements  IAuthenticator, IAuthMethodTranslator {
 	}
 
 	public function updateUserDetails($user_id, $email, $name, $surname) {
-		return $this->submitterModel->update(array(
-				'id'		=>	$user_id,
-				'email'		=>	$email,
-				'name'		=>	$name,
-				'surname'	=>	$surname
-		));
+		return $this->submitterModel->update([
+		    'id'		=>	$user_id,
+            'email'		=>	$email,
+            'name'		=>	$name,
+            'surname'	=>	$surname
+		]);
 	}
 
 	/**
 	 * Get available authentication method for the given user
-	 * @param $userId
-	 * @return null|self::AUTH_*
+	 * @param int $userId
+	 * @return null|string
 	 */
-	public function getUserAuthenticationMethod($userId){
-		if($this->authLdapModel->findOneByUserId($userId)) return self::AUTH_LDAP;
-		if($this->authShibbolethModel->findOneByUserId($userId)) return self::AUTH_SHIBBOLETH;
-		if($this->loginPassAuthenticator->areCredentialsAvailableForUser($userId)) return self::AUTH_LOGIN_PASS;
+	public function getUserAuthenticationMethod(int $userId): ?string
+    {
+		if ($this->authLdapModel->findOneByUserId($userId)) {
+		    return self::AUTH_LDAP;
+        }
+		if ($this->authShibbolethModel->findOneByUserId($userId)) {
+		    return self::AUTH_SHIBBOLETH;
+        }
+		if($this->loginPassAuthenticator->areCredentialsAvailableForUser($userId)) {
+		    return self::AUTH_LOGIN_PASS;
+        }
 		return null;
 	}
 
-	public function setUserAuthenticationMethod($userId, $authMethod) {
-		if($authMethod == $this->getUserAuthenticationMethod($userId)) return true; // nothing to change
+    /**
+     * @param int $userId
+     * @param string $authMethod
+     * @return bool
+     * @throws \Exception
+     */
+	public function setUserAuthenticationMethod(int $userId, string $authMethod): bool
+    {
+		if ($authMethod == $this->getUserAuthenticationMethod($userId)) {
+		    return true;
+        } // nothing to change
 
 		$user = $this->submitterModel->findOneById($userId);
 
-		switch($authMethod) {
+		switch ($authMethod) {
 			case self::AUTH_LDAP:
 				$this->loginPassAuthenticator->deleteUserCredentials($user->id);
 				$this->authShibbolethModel->deleteFromSubmitter($user->id);
@@ -221,7 +245,6 @@ class BaseAuthenticator implements  IAuthenticator, IAuthMethodTranslator {
 				$this->authLdapModel->deleteFromSubmitter($user->id);
 				$this->authShibbolethModel->deleteFromSubmitter($user->id);
 				$this->passwordResetter->resetPassword($user, \Nette\Utils\Random::generate(10));
-
 				return true;
 				break;
 
@@ -253,22 +276,34 @@ class BaseAuthenticator implements  IAuthenticator, IAuthMethodTranslator {
 		return $ret;
 	}
 
-	public function translateAuthMethod($authMethod) {
-		$translation = array(
+    /**
+     * @param string|null $authMethod
+     * @return string|null
+     */
+	public function translateAuthMethod(?string $authMethod): ?string
+    {
+		$translation = [
 			self::AUTH_LOGIN_PASS   =>    "Password",
 			self::AUTH_LDAP         =>    "LDAP",
 			self::AUTH_SHIBBOLETH   =>    "Shibboleth"
-		);
-		if(isset($translation[$authMethod])) return $translation[$authMethod];
+		];
+
+		if (isset($translation[$authMethod])) {
+		    return $translation[$authMethod];
+        }
 		return $authMethod;
 	}
 
-	public function getAvailableAuthMethods() {
-		return array(
+    /**
+     * @return array
+     */
+	public function getAvailableAuthMethods(): array
+    {
+		return [
 			self::AUTH_LOGIN_PASS	=>	$this->translateAuthMethod(BaseAuthenticator::AUTH_LOGIN_PASS),
 			self::AUTH_SHIBBOLETH	=>	$this->translateAuthMethod(BaseAuthenticator::AUTH_SHIBBOLETH),
 			self::AUTH_LDAP		    =>	$this->translateAuthMethod(BaseAuthenticator::AUTH_LDAP)
-		);
+		];
 	}
 
 }

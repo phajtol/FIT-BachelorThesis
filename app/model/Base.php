@@ -15,10 +15,11 @@ class Base {
     protected $tableName;
 
     /**
-     * @param Nette\Database\Connection $db
+     * @param \Nette\Database\Context $db
      * @throws \Nette\InvalidStateException
      */
-    public function __construct(\Nette\Database\Context $db) {
+    public function __construct(\Nette\Database\Context $db)
+    {
         $this->database = $db;
 
         if ($this->tableName === NULL) {
@@ -27,7 +28,8 @@ class Base {
         }
     }
 
-    protected function getTable() {
+    protected function getTable(): Nette\Database\Table\Selection
+    {
         return $this->database->table($this->tableName);
     }
 
@@ -35,7 +37,8 @@ class Base {
      * Returns all the rows.
      * @return \Nette\Database\Table\Selection
      */
-    public function findAll() {
+    public function findAll(): Nette\Database\Table\Selection
+    {
         return $this->getTable();
     }
 
@@ -45,7 +48,8 @@ class Base {
      * @param array $by
      * @return \Nette\Database\Table\Selection
      */
-    public function findAllBy(array $by) {
+    public function findAllBy(array $by): Nette\Database\Table\Selection
+    {
         return $this->getTable()->where($by);
     }
 
@@ -54,7 +58,9 @@ class Base {
      * @param array $by
      * @return \Nette\Database\Table\ActiveRow|FALSE
      */
-    public function findOneBy(array $by) {
+    public function findOneBy(array $by)
+    {
+        bdump($by);
         return $this->findAllBy($by)->limit(1)->fetch();
     }
 
@@ -63,15 +69,18 @@ class Base {
      * @param int $id
      * @return \Nette\Database\Table\ActiveRow|FALSE
      */
-    public function find($id) {
+    public function find(int $id): Nette\Database\Table\ActiveRow
+    {
         return $this->getTable()->get($id);
     }
 
     /**
      * Upraví záznam
-     * @param array $data
+     * @param $data - must contain 'id'
+     * @return int - number of affected rows
      */
-    public function update($data) {
+    public function update($data): int
+    {
         return $this->findAllBy(array('id' => $data['id']))->update($data);
     }
 
@@ -80,18 +89,33 @@ class Base {
      * @param array $data
      * @return \Nette\Database\Table\ActiveRow
      */
-    public function insert($data) {
+    public function insert($data): Nette\Database\Table\ActiveRow
+    {
         return $this->getTable()->insert($data);
     }
 
-    public function insertMulti($array) {
-        if(!is_array($array)) throw new Nette\InvalidArgumentException('Given parameter for update must be an array');
-        if(!count($array)) return null;
+    /**
+     * @param $array
+     * @return Nette\Database\ResultSet|null
+     */
+    public function insertMulti($array): ?Nette\Database\ResultSet
+    {
+        if (!is_array($array)) {
+            throw new Nette\InvalidArgumentException('Given parameter for update must be an array');
+        }
+        if (!count($array)) {
+            return null;
+        }
+
         return $this->database->query('INSERT INTO ' . $this->tableName, $array);
     }
 
-    public function delete($id) {
-        $this->getTable()->where('id', $id)->delete();
+    /**
+     * @param int $id
+     * @return int
+     */
+    public function delete(int $id): int {
+        return $this->getTable()->where('id', $id)->delete();
     }
 
 
@@ -102,28 +126,43 @@ class Base {
      * @return \Nette\Database\Table\ActiveRow automatically found based on first "column => value" pair in $values
      * @link https://github.com/nette/web-addons.nette.org/blob/master/app/model/Table.php#L114
      */
-    public function createOrUpdate(array $values)
+    public function createOrUpdate($values): Nette\Database\Table\ActiveRow
     {
         $pairs = array();
         foreach ($values as $key => $value) {
             $pairs[] = "`$key` = ?"; // warning: SQL injection possible if $values infected!
         }
+
         $pairs = implode(', ', $pairs);
         $values = array_values($values);
+
         $this->database->queryArgs(
             'INSERT INTO `' . $this->tableName . '` SET ' . $pairs .
             ' ON DUPLICATE KEY UPDATE ' . $pairs, array_merge($values, $values)
         );
+
         return $this->findOneBy(func_get_arg(0));
     }
 
     // preserve compatibility
-    public function fetchAll(){
+    public function fetchAll(): Nette\Database\Table\Selection
+    {
         return $this->findAll();
     }
 
-    public function beginTransaction() { $this->database->beginTransaction(); }
-    public function commitTransaction() { $this->database->commit(); }
-    public function rollbackTransaction() { $this->database->rollback(); }
+    public function beginTransaction(): void
+    {
+        $this->database->beginTransaction();
+    }
+
+    public function commitTransaction(): void
+    {
+        $this->database->commit();
+    }
+
+    public function rollbackTransaction(): void
+    {
+        $this->database->rollback();
+    }
 
 }

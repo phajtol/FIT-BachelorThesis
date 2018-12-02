@@ -2,6 +2,10 @@
 
 namespace App\Model;
 
+
+use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
+
 class Annotation extends Base {
 
     /**
@@ -10,7 +14,13 @@ class Annotation extends Base {
      */
     protected $tableName = 'annotation';
 
-    public function getAnnotationTag($publication_id, $submitter_id) {
+    /**
+     * @param int $publication_id
+     * @param int $submitter_id
+     * @return int
+     */
+    public function getAnnotationTag(int $publication_id, int $submitter_id): int
+    {
 
         $indicator = 0;
         /* if ($this->database->table('annotation')->where(array('publication_id' => $publication_id, 'submitter_id' => $submitter_id))->fetch()) {
@@ -24,11 +34,24 @@ class Annotation extends Base {
         return $indicator;
     }
 
-    public function findAllForReaderOrSubmitter($publicationId, $userId) {
-        return $this->database->table('annotation')->where('publication_id', $publicationId)->where("submitter_id = ? OR global_scope = ?", $userId, 1)->order("id ASC");
+    /**
+     * @param int $publicationId
+     * @param int $userId
+     * @return \Nette\Database\Table\Selection
+     */
+    public function findAllForReaderOrSubmitter(int $publicationId, int $userId): Selection
+    {
+        return $this->database->table('annotation')
+            ->where('publication_id', $publicationId)
+            ->where("submitter_id = ? OR global_scope = ?", $userId, 1)
+            ->order("id ASC");
     }
 
-    public function deleteAssociatedRecords($annotationId) {
+    /**
+     * @param int $annotationId
+     */
+    public function deleteAssociatedRecords(int $annotationId): void
+    {
         $record = $this->database->table('annotation')->where('id', $annotationId);
 
         if ($record) {
@@ -36,7 +59,12 @@ class Annotation extends Base {
         }
     }
 
-    public function find($id){
+    /**
+     * @param int $id
+     * @return ActiveRow
+     */
+    public function find(int $id): ActiveRow
+    {
         return $this->findOneBy(array('id' => $id));
     }
 

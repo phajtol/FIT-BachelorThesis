@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 15.4.2015
- * Time: 17:04
- */
 
 namespace App\Factories;
+
+use App\CrudComponents\DocumentIndex\DocumentIndexCrud;
 
 
 interface IDocumentIndexCrudFactory {
@@ -14,6 +10,6 @@ interface IDocumentIndexCrudFactory {
 	/**
 	 * @return \App\CrudComponents\DocumentIndex\DocumentIndexCrud
 	 */
-	public function create();
+	public function create(): DocumentIndexCrud;
 
 }

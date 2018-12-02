@@ -1,16 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 7.4.2015
- * Time: 19:43
- */
 
 namespace App\Components\FavouriteConferenceToggle;
 
 
 class FavouriteConferenceToggleComponent extends \Nette\Application\UI\Control {
 
+    /** @var bool */
 	protected $ajaxRequest = true;
 
 	/** @var  string */
@@ -19,19 +14,37 @@ class FavouriteConferenceToggleComponent extends \Nette\Application\UI\Control {
 	/** @var  \App\Model\SubmitterFavouriteConference */
 	protected $submitterFavouriteConferenceModel;
 
+	/** @var int */
 	protected $userId;
 
+	/** @var int */
 	protected $conferenceId;
 
+	/** @var null */
 	protected $isFavourite = null;
 
+	/** @var bool */
 	protected $isSmall = true;
 
-	public $onMarkedAsFavourite = array();
+	/** @var Callback[]  */
+	public $onMarkedAsFavourite = [];
 
-	public function __construct(\App\Model\SubmitterFavouriteConference $submitterFavouriteConferenceModel, $userId, $conferenceId,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
 
+
+    /**
+     * FavouriteConferenceToggleComponent constructor.
+     * @param \App\Model\SubmitterFavouriteConference $submitterFavouriteConferenceModel
+     * @param int $userId
+     * @param int $conferenceId
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(\App\Model\SubmitterFavouriteConference $submitterFavouriteConferenceModel,
+                                int $userId,
+                                int $conferenceId,
+		                        \Nette\ComponentModel\IContainer $parent = NULL,
+                                string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
 		$this->submitterFavouriteConferenceModel = $submitterFavouriteConferenceModel;
@@ -41,25 +54,37 @@ class FavouriteConferenceToggleComponent extends \Nette\Application\UI\Control {
 		$reflection = $this->getReflection();
 		$dir = dirname($reflection->getFileName());
 		$this->templateFile = $dir . DIRECTORY_SEPARATOR . $reflection->getShortName() . '.latte';
-
 	}
 
-	public function setIsFavourite($isFavourite) {
+    /**
+     * @param bool $isFavourite
+     */
+	public function setIsFavourite(bool $isFavourite): void
+    {
 		$this->isFavourite = $isFavourite;
 	}
 
-	public function isFavourite(){
-		if($this->isFavourite === null) {
+    /**
+     * @return bool|null
+     */
+	public function isFavourite(): ?bool
+    {
+		if ($this->isFavourite === null) {
 			$this->isFavourite = $this->submitterFavouriteConferenceModel->isHisFavourite($this->userId, $this->conferenceId);
 		}
+
 		return $this->isFavourite;
 	}
 
-	public function render() {
+    /**
+     * @throws \Nette\Application\UI\InvalidLinkException
+     */
+	public function render(): void
+    {
 		$isFavourite = $this->isFavourite();
 
 		$this->template->isFavourite = $isFavourite;
-		$this->template->setFavouriteLink = $this->link('setFavourite!', array($isFavourite ? false : true));
+		$this->template->setFavouriteLink = $this->link('setFavourite!', [$isFavourite ? false : true]);
 		$this->template->isSmall = $this->isSmall;
 		$this->template->isFavourite = $this->isFavourite();
 		$this->template->ajaxRequest = $this->ajaxRequest;
@@ -68,7 +93,11 @@ class FavouriteConferenceToggleComponent extends \Nette\Application\UI\Control {
 		$this->template->render();
 	}
 
-	public function handleSetFavourite($markAsFavourite){
+    /**
+     * @param $markAsFavourite
+     */
+	public function handleSetFavourite($markAsFavourite)
+    {
 		$markAsFavourite = $markAsFavourite ? true : false;
 
 		if($markAsFavourite) {
@@ -76,29 +105,32 @@ class FavouriteConferenceToggleComponent extends \Nette\Application\UI\Control {
 		} else {
 			$this->submitterFavouriteConferenceModel->detachFavouriteConference($this->conferenceId, $this->userId);
 		}
+
 		$this->onMarkedAsFavourite($markAsFavourite);
 		$this->setIsFavourite($markAsFavourite);
 		$this->redrawControl('button');
 	}
 
 	/**
-	 * @param boolean $isSmall
+	 * @param bool $isSmall
 	 */
-	public function setIsSmall($isSmall) {
+	public function setIsSmall(bool $isSmall) {
 		$this->isSmall = $isSmall;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function isAjaxRequest() {
+	public function isAjaxRequest(): bool
+    {
 		return $this->ajaxRequest;
 	}
 
 	/**
 	 * @param boolean $ajaxRequest
 	 */
-	public function setAjaxRequest($ajaxRequest) {
+	public function setAjaxRequest(bool $ajaxRequest): void
+    {
 		$this->ajaxRequest = $ajaxRequest;
 	}
 

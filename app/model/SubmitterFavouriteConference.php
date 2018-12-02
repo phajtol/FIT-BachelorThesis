@@ -1,51 +1,76 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 7.4.2015
- * Time: 19:46
- */
 
 namespace App\Model;
+
+use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
 
 
 class SubmitterFavouriteConference extends Base {
 
+    /** @var string  */
 	protected $tableName = 'submitter_favourite_conference';
 
-
-	public function getAllByUserId($id){
+    /**
+     * @param int $id
+     * @return Selection
+     */
+	public function getAllByUserId(int $id): Selection
+    {
 		return $this->findAllBy(array('submitter_id' => $id));
 	}
 
-	public function associateFavouriteConference($conferenceId, $userId) {
+    /**
+     * @param int $conferenceId
+     * @param int $userId
+     * @return \Nette\Database\Table\ActiveRow
+     */
+	public function associateFavouriteConference(int $conferenceId, int $userId): ActiveRow
+    {
 		return $this->createOrUpdate(array(
 			'submitter_id'  => $userId,
 			'conference_id' =>  $conferenceId
 		));
 	}
 
-	public function detachFavouriteConference($conferenceId, $userId) {
-		return $this->findOneBy(array(
+    /**
+     * @param int $conferenceId
+     * @param int $userId
+     * @return int - affected rows in db
+     */
+	public function detachFavouriteConference(int $conferenceId, int $userId): int {
+		return $this->findOneBy([
 			'submitter_id'  => $userId,
 			'conference_id' =>  $conferenceId
-		))->delete();
+		])->delete();
 	}
 
-	public function isHisFavourite($userId, $conferenceId) {
+    /**
+     * @param int $userId
+     * @param int $conferenceId
+     * @return bool
+     */
+	public function isHisFavourite(int $userId, int $conferenceId): bool
+    {
 		return $this->findOneBy(array(
 			'submitter_id'  => $userId,
 			'conference_id' =>  $conferenceId
 		)) ? true : false;
 	}
 
-	public function getUserFavouriteConferencesIds($userId) {
+    /**
+     * @param int $userId
+     * @return array
+     */
+	public function getUserFavouriteConferencesIds(int $userId): array
+    {
 		$res = $this->findAllBy(array('submitter_id' => $userId));
 		$ids = array();
+
 		foreach($res as $rec){
 			$ids[] = $rec->conference_id;
 		}
+
 		return $ids;
 	}
-
 }

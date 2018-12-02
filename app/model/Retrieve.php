@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+
 class Retrieve extends Base {
 
     /**
@@ -10,8 +11,13 @@ class Retrieve extends Base {
      */
     protected $tableName = 'retrieve';
 
-    public function deleteByUserId($userId) {
-        $this->findAllBy(array('submitter_id' => $userId))->delete();
+    /**
+     * @param int $userId
+     * @return int - affected rows
+     */
+    public function deleteByUserId(int $userId): int
+    {
+        return $this->findAllBy(['submitter_id' => $userId])->delete();
     }
 
 }

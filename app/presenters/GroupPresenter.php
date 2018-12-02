@@ -2,10 +2,10 @@
 
 namespace App\Presenters;
 
-use Nette,
-    App\Model,
-    \VisualPaginator,
-    Nette\Diagnostics\Debugger;
+use App\Components\ButtonToggle\ButtonGroupComponent;
+use App\CrudComponents\Group\GroupCrud;
+use App\Model;
+
 
 class GroupPresenter extends SecuredPresenter {
 
@@ -21,18 +21,24 @@ class GroupPresenter extends SecuredPresenter {
     /** @var Model\SubmitterHasGroup @inject */
     public $submitterHasGroupModel;
 
-    public function createComponentCrud(){
+
+    /**
+     * @return \App\CrudComponents\Group\GroupCrud
+     */
+    public function createComponentCrud(): GroupCrud
+    {
         $c = $this->groupCrudFactory->create();
 
-        $c->onAdd[] = function($row){
+        $c->onAdd[] = function ($row) {
             $this->successFlashMessage("Group has been added successfully");
             $this->redrawControl('groupShowAll');
         };
-        $c->onDelete[] = function($row) {
+
+        $c->onDelete[] = function ($row) {
             $this->successFlashMessage("Group has been deleted successfully");
             $this->redrawControl('groupShowAll');
         };
-        $c->onEdit[] = function($row) {
+        $c->onEdit[] = function ($row) {
             $this->successFlashMessage("Group has been edited successfully");
             $this->redrawControl('groupShowAllRecords');
         };
@@ -40,24 +46,46 @@ class GroupPresenter extends SecuredPresenter {
         return $c;
     }
 
-
-    protected function startup() {
+    /**
+     * @throws \Nette\Application\AbortException
+     */
+    protected function startup(): void
+    {
         parent::startup();
     }
 
-    public function actionDefault() {
-
+    /**
+     *
+     */
+    public function actionDefault(): void
+    {
+        //wtf???
     }
 
-    public function renderDefault() {
-
+    /**
+     *
+     */
+    public function renderDefault(): void
+    {
+        //wtf??
     }
 
-    public function actionShowAll($sort, $order, $keywords, $filter) {
+    /**
+     * @param $sort
+     * @param $order
+     * @param $keywords
+     * @param $filter
+     */
+    public function actionShowAll($sort, $order, $keywords, $filter): void
+    {
         $this->drawAllowed = true;
     }
 
-    public function drawGroups($starred) {
+    /**
+     * @param $starred
+     */
+    public function drawGroups($starred): void
+    {
         if ($this->drawAllowed) {
             $params = $this->httpRequest->getQuery();
             $alphabet = range('A', 'Z');
@@ -79,17 +107,14 @@ class GroupPresenter extends SecuredPresenter {
             }
 
             if (!isset($this->template->records)) {
-
                 $this->records = $this->groupModel->findAllByKw($params);
                 if($starred) $this->records->where(':submitter_has_group.submitter_id = ?', $this->user->id);
-                $this->template->recordsStarred = array();
+                $this->template->recordsStarred = [];
 
-                $recordsStarredTemp = $this->submitterHasGroupModel->findAllBy(array('submitter_has_group.submitter_id' => $this->user->id));
+                $recordsStarredTemp = $this->submitterHasGroupModel->findAllBy(['submitter_has_group.submitter_id' => $this->user->id]);
                 foreach ($recordsStarredTemp as $record) {
                     $this->template->recordsStarred[] = $record->group_id;
                 }
-
-
 
                 $vp = new \VisualPaginator();
                 $this->addComponent($vp, 'vp');
@@ -122,7 +147,7 @@ class GroupPresenter extends SecuredPresenter {
                     $filter = $params['filter'];
                 } else $filter = null;
 
-                $params = array();
+                $params = [];
 
                 if (isset($keywords)) {
                     $params['keywords'] = $keywords;
@@ -143,18 +168,26 @@ class GroupPresenter extends SecuredPresenter {
         }
     }
 
-    public function renderShowAll() {
+    /**
+     *
+     */
+    public function renderShowAll(): void
+    {
         if ($this->drawAllowed) {
             $this->drawGroups($this['individualFilter']->getActiveButtonName() == 'starred');
         }
     }
 
-
-    public function handleSetFavouriteGroup($id) {
-        $this->submitterHasGroupModel->insert(array(
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+    public function handleSetFavouriteGroup(int $id): void
+    {
+        $this->submitterHasGroupModel->insert([
             'group_id' => $id,
             'submitter_id' => $this->user->id
-        ));
+        ]);
 
         $this->flashMessage('Operation has been completed successfully.', 'alert-success');
 
@@ -165,11 +198,16 @@ class GroupPresenter extends SecuredPresenter {
         }
     }
 
-    public function handleUnsetFavouriteGroup($id) {
-
-        $record = $this->submitterHasGroupModel->findOneBy(array(
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+    public function handleUnsetFavouriteGroup(int $id): void
+    {
+        $record = $this->submitterHasGroupModel->findOneBy([
             'group_id' => $id,
-            'submitter_id' => $this->user->id));
+            'submitter_id' => $this->user->id
+        ]);
 
         if ($record) {
             $record->delete();
@@ -184,20 +222,24 @@ class GroupPresenter extends SecuredPresenter {
         }
     }
 
-    public function createComponentIndividualFilter ( ) {
-        $c = new \App\Components\ButtonToggle\ButtonGroupComponent([
-            'all'     =>  array(
+    /**
+     * @return ButtonGroupComponent
+     */
+    public function createComponentIndividualFilter(): ButtonGroupComponent
+    {
+        $c = new ButtonGroupComponent([
+            'all'     =>  [
                 'caption'   =>  'All groups',
                 'icon'      =>  'list'
-            ),
-            'starred'      =>  array(
+            ],
+            'starred'      =>  [
                 'caption'   =>  'Starred groups',
                 'icon'      =>  'star'
-            ),
+            ],
         ], 'all');
 
-        $c->onActiveButtonChanged[] = function(){
-
+        $c->onActiveButtonChanged[] = function () {
+            //???
         };
 
         return $c;

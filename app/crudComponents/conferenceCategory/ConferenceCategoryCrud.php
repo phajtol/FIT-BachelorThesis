@@ -1,137 +1,170 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 2.4.2015
- * Time: 22:08
- */
 
 namespace App\CrudComponents\ConferenceCategory;
-
 
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
 
+
 class ConferenceCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 
 
-	/**
-	 * @var \App\Model\ConferenceCategory
-	 */
+	/** @var \App\Model\ConferenceCategory */
 	protected $conferenceCategoryModel;
 
-	/**
-	 * @var \App\Model\ConferenceHasCategory
-	 */
+	/** @var \App\Model\ConferenceHasCategory */
 	protected $conferenceHasCategoryModel;
 
-	/**
-	 * @var \Nette\Security\User
-	 */
+	/** @var \Nette\Security\User */
 	protected $loggedUser;
 
-
-
+    /**
+     * ConferenceCategoryCrud constructor.
+     * @param \Nette\Security\User $loggedUser
+     * @param \App\Model\ConferenceCategory $conferenceCategoryModel
+     * @param \App\Model\ConferenceHasCategory $conferenceHasCategoryModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
 	public function __construct(
 		\Nette\Security\User $loggedUser,
 		\App\Model\ConferenceCategory $conferenceCategoryModel,
 		\App\Model\ConferenceHasCategory $conferenceHasCategoryModel,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
-
-		parent::__construct("Conference category", $parent, $name);
+		\Nette\ComponentModel\IContainer $parent = NULL,
+        string $name = NULL)
+    {
+		parent::__construct('Conference category', $parent, $name);
 
 		$this->conferenceHasCategoryModel = $conferenceHasCategoryModel;
 		$this->conferenceCategoryModel = $conferenceCategoryModel;
 
-		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent) {
+		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
 			$controlsComponent->addActionAvailable('showRelatedConferences');
 		};
 	}
 
-	protected function attached($presenter) {
+    /**
+     * @param $presenter
+     * @throws \ReflectionException
+     */
+	protected function attached($presenter): void
+    {
 		parent::attached($presenter);
-		$this->template->conferencesRelatedToCategory = array();
+		$this->template->conferencesRelatedToCategory = [];
 	}
 
-
-	public function createComponentCategoryAddForm($name) {
+    /**
+     * @param string $name
+     * @return ConferenceCategoryAddForm
+     */
+	public function createComponentCategoryAddForm(string $name): ConferenceCategoryAddForm
+    {
 		$form = new ConferenceCategoryAddForm($this->conferenceCategoryModel, $this, $name);
-		$form->onError[] = function(){
+
+		$form->onError[] = function () {
 			$this->redrawControl('categoryAddForm');
 		};
-		$form->onSuccess[] = function(ConferenceCategoryAddForm $form){
-		$formValues = $form->getValuesTransformed();
 
-		$formValues['parent_id'] = NULL;
+		$form->onSuccess[] = function (ConferenceCategoryAddForm $form) {
+		    $formValues = $form->getValuesTransformed();
 
-		$record = $this->conferenceCategoryModel->insert($formValues);
+		    $formValues['parent_id'] = NULL;
 
-		if($record) {
-			$this->template->categoryAdded = true;
+		    $record = $this->conferenceCategoryModel->insert($formValues);
 
-			if ($this->presenter->isAjax()) {
-				$form->clearValues();
-				$this->redrawControl('categoryAddForm');
-			} else $this->redirect('this');
+		    if ($record) {
+			    $this->template->categoryAdded = true;
 
-			$this->onAdd($record);
-		}
-            };
+			    if ($this->presenter->isAjax()) {
+				    $form->clearValues();
+				    $this->redrawControl('categoryAddForm');
+			    } else {
+			        $this->redirect('this');
+                }
+
+			    $this->onAdd($record);
+		    }
+		};
+
+		return $form;
 	}
 
-	public function createComponentCategoryEditForm($name) {
-            $form = new ConferenceCategoryEditForm($this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('categoryEditForm');
-            };
-            $form->onSuccess[] = function(ConferenceCategoryEditForm $form) {
-		$formValues = $form->getValuesTransformed();
+    /**
+     * @param string $name
+     * @return ConferenceCategoryEditForm
+     */
+	public function createComponentCategoryEditForm(string $name): ConferenceCategoryEditForm
+    {
+        $form = new ConferenceCategoryEditForm($this, $name);
 
+        $form->onError[] = function () {
+            $this->redrawControl('categoryEditForm');
+        };
 
-		$this->conferenceCategoryModel->update($formValues);
-		$record = $this->conferenceCategoryModel->find($formValues['id']);
+        $form->onSuccess[] = function (ConferenceCategoryEditForm $form) {
+		    $formValues = $form->getValuesTransformed();
 
-		$this->template->categoryEdited = true;
+		    $this->conferenceCategoryModel->update($formValues);
+		    $record = $this->conferenceCategoryModel->find($formValues['id']);
 
-		if($this->presenter->isAjax()) {
-			$this->redrawControl('categoryEditForm');
-		} else $this->redirect('this');
+		    $this->template->categoryEdited = true;
 
-		$this->onEdit($record);
-            };
+		    if ($this->presenter->isAjax()) {
+			    $this->redrawControl('categoryEditForm');
+		    } else {
+		        $this->redirect('this');
+            }
+
+		    $this->onEdit($record);
+        };
+
+        return $form;
 	}
 
-	public function createComponentCategoryAddSubForm($name) {
-            $form = new ConferenceCategoryAddSubForm($this->conferenceCategoryModel, $this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('categoryAddSubForm');
-            };
-            $form->onSuccess[] = function(ConferenceCategoryAddSubForm $form) {
-		$formValues = $form->getValuesTransformed();
+    /**
+     * @param string $name
+     * @return ConferenceCategoryAddSubForm
+     */
+	public function createComponentCategoryAddSubForm(string $name): ConferenceCategoryAddSubForm
+    {
+        $form = new ConferenceCategoryAddSubForm($this->conferenceCategoryModel, $this, $name);
 
-		$record = $this->conferenceCategoryModel->insert($formValues);
+        $form->onError[] = function () {
+            $this->redrawControl('categoryAddSubForm');
+        };
 
-		if($record) {
-			$this->template->subcategoryAdded = true;
+        $form->onSuccess[] = function (ConferenceCategoryAddSubForm $form) {
+		    $formValues = $form->getValuesTransformed();
 
-			if ($this->presenter->isAjax()) {
-				$this->redrawControl('categoryAddSubForm');
-			} else $this->redirect('this');
+		    $record = $this->conferenceCategoryModel->insert($formValues);
+
+		    if ($record) {
+			    $this->template->subcategoryAdded = true;
+
+			    if ($this->presenter->isAjax()) {
+				    $this->redrawControl('categoryAddSubForm');
+			    } else {
+			        $this->redirect('this');
+                }
 
 			$this->onAddSub($record);
-		}
-            };
+		    }
+        };
+
+        return $form;
 	}
 
-
-    public function handleDelete($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+    public function handleDelete(int $id): void
+    {
 		$record = $this->conferenceCategoryModel->find($id);
+
 		if($record) {
-
 			$record->toArray(); // load the object to be passed to the callback
-
 			$this->conferenceCategoryModel->deleteCategoryTreeBranch($id);
-
 			$this->template->categoryDeleted = true;
 
 			if (!$this->presenter->isAjax()) {
@@ -144,10 +177,14 @@ class ConferenceCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 		}
 	}
 
-	public function handleEdit($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleEdit(int $id): void {
 		$conferenceCategory = $this->conferenceCategoryModel->find($id);
 
-		$this["categoryEditForm"]->setDefaults($conferenceCategory); // set up new values
+		$this['categoryEditForm']->setDefaults($conferenceCategory); // set up new values
 
 		if (!$this->presenter->isAjax()) {
 			$this->presenter->redirect('this');
@@ -156,10 +193,15 @@ class ConferenceCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 		}
 	}
 
-	public function handleAddSub($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleAddSub(int $id): void
+    {
 		$conferenceCategory = $this->conferenceCategoryModel->find($id);
 
-		$this["categoryAddSubForm"]["parent_id"]->setValue($id); // set up parent id
+		$this['categoryAddSubForm']['parent_id']->setValue($id); // set up parent id
 
 		if (!$this->presenter->isAjax()) {
 			$this->presenter->redirect('this');
@@ -168,14 +210,18 @@ class ConferenceCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 		}
 	}
 
-	public function handleShowRelatedConferences($id){
-
-		$result = array();
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleShowRelatedConferences(int $id): void
+    {
+		$result = [];
 		$categoriesBranchIds = $this->conferenceCategoryModel->getCategoriesTreeIds($id);
 
 		foreach ($categoriesBranchIds as $row) {
-			$categories = $this->conferenceHasCategoryModel->findAllBy(array("conference_category_id" => $row['id']));
-			array_push($result, array('categories' => $row, 'conference_has_category' => $categories));
+			$categories = $this->conferenceHasCategoryModel->findAllBy(["conference_category_id" => $row['id']]);
+			array_push($result, ['categories' => $row, 'conference_has_category' => $categories]);
 		}
 
 		$this->template->conferencesRelatedToCategory = $result;
@@ -186,6 +232,5 @@ class ConferenceCategoryCrud extends \App\CrudComponents\Category\CategoryCrud {
 			$this->redrawControl('conferencesRelatedToCategory');
 		}
 	}
-
 
 }

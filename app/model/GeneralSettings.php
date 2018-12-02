@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+
 class GeneralSettings extends Base {
 
     /**

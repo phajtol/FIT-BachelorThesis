@@ -20,26 +20,21 @@ class PublicationFormRules {
     const SCHOOL_REQUIRED = 'PublicationFormRules::validateSchool_IsRequired';
     const INSTITUTION_REQUIRED = 'PublicationFormRules::validateInstitution_IsRequired';
     const PUBLISHER_REQUIRED = 'PublicationFormRules::validatePublisher_IsRequired';
-
     const CONFERENCE_REQUIRED = 'PublicationFormRules::validateConference_IsRequired';
-
     const CONFERENCE_YEAR_REQUIRED = 'PublicationFormRules::validateConferenceYear_IsRequired';
-
     const NOTE_REQUIRED = 'PublicationFormRules::validateNote_IsRequired';
+
     const CATEGORIES_SET_DEFAULT_VALUES = 'PublicationFormRules::validateCategories_SetDefaultValues';
 
     const GROUP_SET_DEFAULT_VALUES = 'PublicationFormRules::validateGroup_SetDefaultValues';
-
-
-
 
     const SPRINGER_FETCH_DATA = 'PublicationFormRules::springerFetchData';
     const BIBTEX_VALIDATE_STRUCTURE = 'PublicationFormRules::validateBibtex';
     const ISBN_VALID_FORM = 'PublicationFormRules::isbnValidForm';
 
 
-    public static function validateJournal_IsRequired($item, $form) {
-
+    public static function validateJournal_IsRequired($item, $form): bool
+    {
         $requiredTypes = array(
             'article',
         );
@@ -51,8 +46,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validateAuthor_IsOptional($item, $form) {
-
+    public static function validateAuthor_IsOptional($item, $form): bool
+    {
         $conditionalTypes = array(
             'book',
             'inbook',
@@ -65,8 +60,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validateAuthor_IsRequired($item, $form) {
-
+    public static function validateAuthor_IsRequired($item, $form): bool
+    {
         $requiredTypes = array(
             'article',
             'inproceedings',
@@ -84,8 +79,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validateAuthor_SetDefaultValues($item, $parent) {
-
+    public static function validateAuthor_SetDefaultValues($item, $parent): bool
+    {
         $authors = array();
         if (!empty($item->value) || $item->value == "0") {
             $authors = explode(" ", $item->value);
@@ -102,10 +97,8 @@ class PublicationFormRules {
         return true;
     }
 
-
-
-    public static function validateEditor_IsOptional($item, $form) {
-
+    public static function validateEditor_IsOptional($item, $form): bool
+    {
         $conditionalTypes = array(
             'book',
             'inbook',
@@ -118,8 +111,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validateChapter_IsOptional($item, $form) {
-
+    public static function validateChapter_IsOptional($item, $form): bool
+    {
         $conditionalTypes = array(
             'inbook',
         );
@@ -131,8 +124,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validatePages_IsOptional($item, $form) {
-
+    public static function validatePages_IsOptional($item, $form): bool
+    {
         $conditionalTypes = array(
             'inbook',
         );
@@ -144,8 +137,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validateBooktitle_IsRequired($item, $form) {
-
+    public static function validateBooktitle_IsRequired($item, $form): bool
+    {
         $requiredTypes = array(
             'incollection',
         );
@@ -157,8 +150,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validateSchool_IsRequired($item, $form) {
-
+    public static function validateSchool_IsRequired($item, $form): bool
+    {
         $requiredTypes = array(
             'mastersthesis',
             'phdthesis',
@@ -171,8 +164,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validateInstitution_IsRequired($item, $form) {
-
+    public static function validateInstitution_IsRequired($item, $form): bool
+    {
         $requiredTypes = array(
             'techreport',
         );
@@ -184,8 +177,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validatePublisher_IsRequired($item, $form) {
-
+    public static function validatePublisher_IsRequired($item, $form):bool
+    {
         $requiredTypes = array(
             'book',
             'incollection',
@@ -199,10 +192,8 @@ class PublicationFormRules {
         return true;
     }
 
-
-
-    public static function validateConference_IsRequired($item, $form) {
-
+    public static function validateConference_IsRequired($item, $form): bool
+    {
         $requiredTypes = array(
             'inproceedings',
             'proceedings',
@@ -215,10 +206,9 @@ class PublicationFormRules {
         return true;
     }
 
-
     // mozna predelat - hodit do setdefaults
-    public static function validateConferenceYear_IsRequired($item, $parent) {
-
+    public static function validateConferenceYear_IsRequired($item, $parent): bool
+    {
         $formValues = $parent['publicationAddNewForm']->getHttpData();
 
         $requiredTypes = array(
@@ -229,7 +219,6 @@ class PublicationFormRules {
         if (in_array($formValues['pub_type'], $requiredTypes) && !$formValues['conference_year_id']) {
             return false;
         } elseif (in_array($formValues['pub_type'], $requiredTypes)) {
-
             $conferenceYears = $parent->conferenceYearModel->findAllBy(array('conference_id' => $formValues['conference']))->order("name ASC")->fetchPairs('id', 'name');
 
             $parent['publicationAddNewForm']['conference_year_id']->setItems($conferenceYears);
@@ -239,9 +228,8 @@ class PublicationFormRules {
         return true;
     }
 
-
-    public static function validateNote_IsRequired($item, $form) {
-
+    public static function validateNote_IsRequired($item, $form): bool
+    {
         $requiredTypes = array(
             'unpublished',
         );
@@ -253,9 +241,10 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function validateCategories_SetDefaultValues($item, $parent) {
-
+    public static function validateCategories_SetDefaultValues($item, $parent): bool
+    {
         $categories = array();
+
         if (!empty($item->value) || $item->value == "0") {
             $categories = explode(" ", $item->value);
         }
@@ -267,14 +256,13 @@ class PublicationFormRules {
         }
 
         $parent->template->selectedCategories = $selectedCategories;
-
         return true;
     }
 
-
-    public static function validateGroup_SetDefaultValues($item, $parent) {
-
+    public static function validateGroup_SetDefaultValues($item, $parent): bool
+    {
         $group = array();
+
         if (!empty($item->value) || $item->value == "0") {
             $group = explode(" ", $item->value);
         }
@@ -290,13 +278,11 @@ class PublicationFormRules {
         return true;
     }
 
-
-
-    public static function validateBibtex($item, $parent) {
-
+    public static function validateBibtex($item, $parent): bool
+    {
         if ($parent['publicationImportForm']['type']->value == 'bibtex') {
-
             $parser = new Helpers\BibTexParser($item->value);
+
             if ($parser->is_error()) {
                 $parent['publicationAddNewForm']->addError('Problems with structure of an imported definition');
                 return false;
@@ -306,8 +292,8 @@ class PublicationFormRules {
         return true;
     }
 
-    public static function isbnValidForm($item, $parent) {
-
+    public static function isbnValidForm($item, $parent): bool
+    {
         if ($item->value) {
             $regex = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i';
 
@@ -319,8 +305,6 @@ class PublicationFormRules {
 
         return true;
     }
-
-
 
     /*
       $types = array(
@@ -340,14 +324,16 @@ class PublicationFormRules {
       );
      */
 
-	public static function validateCheckboxList_AtLeastOneChecked($item) {
+	public static function validateCheckboxList_AtLeastOneChecked($item): bool
+    {
         if(!$item->value || empty($item->value) || !count($item->value)) {
             return false;
         }
         return true;
     }
 
-	public static function validateCategories($item) {
+	public static function validateCategories($item): bool
+    {
         if(strlen($item->value)) {
             $arr = explode(" ", $item->value);
             foreach ($arr as $v) {

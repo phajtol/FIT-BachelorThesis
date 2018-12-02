@@ -10,12 +10,18 @@ class CategoriesHasPublication extends Base {
      */
     protected $tableName = 'categories_has_publication';
 
+    /**
+     * @param $params
+     */
     public function findAllByKw($params) {
-        
+        //wtf?
     }
 
-    public function deleteAssociatedRecords($conferenceYearId) {
-        
+    /**
+     * @param $conferenceYearId
+     */
+    public function deleteAssociatedRecords(int $conferenceYearId): void {
+        //wtf?
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+
 class AuthorHasPublication extends Base {
 
     /**

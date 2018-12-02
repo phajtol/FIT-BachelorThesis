@@ -2,6 +2,10 @@
 
 namespace App\Model;
 
+use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
+
+
 class Journal extends Base {
 
     /**
@@ -10,15 +14,30 @@ class Journal extends Base {
      */
     protected $tableName = 'journal';
 
-    public function findAllByKw($kw) {
-        return $this->findAll()->where("name LIKE ? OR issn LIKE ? OR doi LIKE ? OR abbreviation LIKE ?", array('%' . $kw . '%', '%' . $kw . '%', '%' . $kw . '%', '%' . $kw . '%'));
+    /**
+     * @param string $kw
+     * @return \Nette\Database\Table\Selection
+     */
+    public function findAllByKw(string $kw): Selection
+    {
+        return $this->findAll()
+            ->where("name LIKE ? OR issn LIKE ? OR doi LIKE ? OR abbreviation LIKE ?", [
+                '%' . $kw . '%',
+                '%' . $kw . '%',
+                '%' . $kw . '%',
+                '%' . $kw . '%'
+            ]);
     }
 
-    public function deleteAssociatedRecords($journalId) {
+    /**
+     * @param int $journalId
+     */
+    public function deleteAssociatedRecords(int $journalId): void
+    {
+        $journal = $this->database->table('publication')->where(["journal_id" => $journalId]);
 
-        $journal = $this->database->table('publication')->where(array("journal_id" => $journalId));
         foreach ($journal as $jour) {
-            $jour->update(array('journal_id' => NULL));
+            $jour->update(['journal_id' => NULL]);
         }
 
         $record = $this->database->table('journal')->get($journalId);
@@ -28,9 +47,13 @@ class Journal extends Base {
         }
     }
 
-    public function getJournalsNames() {
-        $journals = $this->database->table('journal')->order("name ASC");
-        $journalsTemp = array();
+    /**
+     * @return array
+     */
+    public function getJournalsNames(): array
+    {
+        $journals = $this->database->table('journal')->order('name ASC');
+        $journalsTemp = [];
 
         foreach ($journals as $journal) {
             $journalsTemp[$journal->id] = $journal->name . ($journal->issn ? ", ISSN: $journal->issn" : '');
@@ -39,8 +62,13 @@ class Journal extends Base {
         return $journalsTemp;
     }
 
-    public function findOneByName($name) {
-        return $this->findOneBy(array("name" => $name));
+    /**
+     * @param string $name
+     * @return FALSE|\Nette\Database\Table\ActiveRow
+     */
+    public function findOneByName(string $name)
+    {
+        return $this->findOneBy(["name" => $name]);
     }
 
 }

@@ -1,16 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 18.3.2015
- * Time: 17:27
- */
 
 namespace App\CrudComponents\Author;
 
-
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
+
 
 class AuthorCrud extends BaseCrudComponent {
 
@@ -26,85 +20,126 @@ class AuthorCrud extends BaseCrudComponent {
 	/** @var \App\Model\Submitter */
 	protected $submitterModel;
 
-	public function __construct(
 
-		\Nette\Security\User $loggedUser, \App\Model\Submitter $submitterModel, \App\Model\Author $authorModel, \App\Model\AuthorHasPublication $authorHasPublicationModel,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
-	) {
+    /**
+     * AuthorCrud constructor.
+     * @param \Nette\Security\User $loggedUser
+     * @param \App\Model\Submitter $submitterModel
+     * @param \App\Model\Author $authorModel
+     * @param \App\Model\AuthorHasPublication $authorHasPublicationModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(
+		\Nette\Security\User $loggedUser,
+        \App\Model\Submitter $submitterModel,
+        \App\Model\Author $authorModel,
+        \App\Model\AuthorHasPublication $authorHasPublicationModel,
+		\Nette\ComponentModel\IContainer $parent = NULL,
+        string $name = NULL)
+    {
         parent::__construct();
         if ($parent) {
             $parent->addComponent($this, $name);
         }
 
-		$this->addDefaultTemplateVars(array(
+		$this->addDefaultTemplateVars([
 			'authorAdded' => false,
 			'authorEdited' => false,
 			'authorDeleted' => false,
-			'publicationsRelatedToAuthor' => array()
-		));
+			'publicationsRelatedToAuthor' => []
+		]);
 
 		$this->submitterModel = $submitterModel;
 		$this->authorModel = $authorModel;
 		$this->loggedUser = $loggedUser;
 		$this->authorHasPublicationModel = $authorHasPublicationModel;
 
-		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent) {
+		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
 			$controlsComponent->addActionAvailable('showRelatedPublications');
 		};
 	}
 
-	public function createComponentAuthorAddForm($name){
-            $form = new AuthorAddForm($this->submitterModel,$this->authorModel, $this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('authorAddForm');
-            };
-            $form->onSuccess[] = function(AuthorAddForm $form) {
-                $formValues = $form->getValuesTransformed();
+    /**
+     * @param string $name
+     * @return AuthorAddForm
+     */
+	public function createComponentAuthorAddForm(string $name): AuthorAddForm
+    {
+        $form = new AuthorAddForm($this->submitterModel,$this->authorModel, $this, $name);
 
-		$formValues['submitter_id'] = $this->loggedUser->id;
+        $form->onError[] = function () {
+            $this->redrawControl('authorAddForm');
+        };
 
-		$record = $this->authorModel->insert($formValues);
+        $form->onSuccess[] = function (AuthorAddForm $form) {
+            $formValues = $form->getValuesTransformed();
 
-		if($record) {
-			$this->template->authorAdded = true;
+		    $formValues['submitter_id'] = $this->loggedUser->id;
 
-			if ($this->presenter->isAjax()) {
-				$form->clearValues();
-				$this->redrawControl('authorAddForm');
-			} else $this->redirect('this');
+		    $record = $this->authorModel->insert($formValues);
 
-			$this->onAdd($record);
-		}
-            };
+		    if ($record) {
+			    $this->template->authorAdded = true;
+
+			    if ($this->presenter->isAjax()) {
+				    $form->clearValues();
+				    $this->redrawControl('authorAddForm');
+			    } else {
+			        $this->redirect('this');
+                }
+
+			    $this->onAdd($record);
+		    }
+        };
+
+        return $form;
 	}
 
-	public function createComponentAuthorEditForm($name){
-            $form = new AuthorEditForm($this->submitterModel,$this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('authorEditForm');
-            };
-            $form->onSuccess[] = function(AuthorEditForm $form) {
-                $formValues = $form->getValuesTransformed();
 
-		$formValues['submitter_id'] = $this->loggedUser->id;
+    /**
+     * @param string $name
+     * @return AuthorEditForm
+     */
+	public function createComponentAuthorEditForm(string $name): AuthorEditForm
+    {
+        $form = new AuthorEditForm($this->submitterModel,$this, $name);
 
-		$this->authorModel->update($formValues);
-		$record = $this->authorModel->find($formValues['id']);
+        $form->onError[] = function () {
+            $this->redrawControl('authorEditForm');
+        };
 
-		$this->template->authorEdited = true;
+        $form->onSuccess[] = function (AuthorEditForm $form) {
+            $formValues = $form->getValuesTransformed();
 
-		if($this->presenter->isAjax()) {
-			$this->redrawControl('authorEditForm');
-		} else $this->redirect('this');
+		    $formValues['submitter_id'] = $this->loggedUser->id;
 
-		$this->onEdit($record);
-            };
+		    $this->authorModel->update($formValues);
+		    $record = $this->authorModel->find($formValues['id']);
+
+		    $this->template->authorEdited = true;
+
+		    if($this->presenter->isAjax()) {
+			    $this->redrawControl('authorEditForm');
+		    } else {
+		        $this->redirect('this');
+            }
+
+		    $this->onEdit($record);
+        };
+
+        return $form;
 	}
 
-        public function handleDelete($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleDelete(int $id): void
+    {
 		$record = $this->authorModel->find($id);
-		if($record) {
 
+		if ($record) {
 			$record->toArray(); // load the object to be passed to the callback
 
 			$this->authorModel->deleteAssociatedRecords($id);
@@ -121,22 +156,29 @@ class AuthorCrud extends BaseCrudComponent {
 		}
 	}
 
-	public function handleEdit($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleEdit(int $id): void
+    {
 		$author = $this->authorModel->find($id);
 
-		$this["authorEditForm"]->setDefaults($author); // set up new values
+		$this['authorEditForm']->setDefaults($author); // set up new values
 
 		if (!$this->presenter->isAjax()) {
 			$this->presenter->redirect('this');
 		} else {
 			$this->redrawControl('authorEditForm');
 		}
-
 	}
 
-	public function handleShowRelatedPublications($id) {
-		$this->template->publicationsRelatedToAuthor =
-			$this->authorHasPublicationModel->findAllBy(array("author_id" => $id));
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleShowRelatedPublications(int $id): void {
+		$this->template->publicationsRelatedToAuthor = $this->authorHasPublicationModel->findAllBy(["author_id" => $id]);
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');
@@ -144,6 +186,5 @@ class AuthorCrud extends BaseCrudComponent {
 			$this->redrawControl('publicationsRelatedToAuthor');
 		}
 	}
-
 
 }

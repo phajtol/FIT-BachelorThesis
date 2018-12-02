@@ -10,12 +10,18 @@ class AttribStorage extends Base {
      */
     protected $tableName = 'attrib_storage';
 
+    /**
+     * @param $params
+     */
     public function findAllByKw($params) {
-        
+        //wtf?
     }
 
+    /**
+     * @param $Id
+     */
     public function deleteAssociatedRecords($Id) {
-        
+        //wtf?
     }
 
 }

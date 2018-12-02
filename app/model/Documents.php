@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+
 class Documents extends Base {
 
     /**
@@ -10,13 +11,22 @@ class Documents extends Base {
      */
     protected $tableName = 'documents';
 
-    public function delete($id) {
+    /**
+     * @param int $id
+     * @return int
+     */
+    public function delete(int $id): int
+    {
         $this->getTable()->where('publication_id', $id)->delete();
     }
 
-    public function update($data) {
-        return $this->findAllBy(array('publication_id' => $data['publication_id']))->update($data);
+    /**
+     * @param $data
+     * @return int
+     */
+    public function update($data): int
+    {
+        return $this->findAllBy(['publication_id' => $data['publication_id']])->update($data);
     }
-
 
 }

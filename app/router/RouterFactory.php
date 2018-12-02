@@ -2,10 +2,9 @@
 
 namespace App;
 
-use Nette,
-	Nette\Application\Routers\RouteList,
-	Nette\Application\Routers\Route,
-	Nette\Application\Routers\SimpleRouter;
+use Nette\Application\Routers\RouteList;
+use Nette\Application\Routers\Route;
+use Nette\Application\IRouter;
 
 
 /**
@@ -14,10 +13,10 @@ use Nette,
 class RouterFactory
 {
 
-	/**
-	 * @return \Nette\Application\IRouter
-	 */
-	public function createRouter()
+    /**
+     * @return IRouter
+     */
+	public function createRouter(): IRouter
 	{
 		$router = new RouteList();
 		//$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default', RouteList::SECURED);

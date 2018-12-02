@@ -16,10 +16,11 @@ trait SessionPersistence {
 	protected $__SESSION_SECTION = 'SessPers';
 
 
-	/**
-	 * Saves state information for all subcomponents to $this->globalState.
-	 * @return array
-	 */
+    /**
+     * Saves state information for all subcomponents to $this->globalState.
+     * @return array
+     * @throws \ReflectionException
+     */
 	protected function getGlobalState($forClass = NULL)
 	{
 		static $sinces = array();

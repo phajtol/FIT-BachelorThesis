@@ -2,6 +2,10 @@
 
 namespace App\Model;
 
+use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
+
+
 class ConferenceYear extends Base {
 
     /**
@@ -10,70 +14,108 @@ class ConferenceYear extends Base {
      */
     protected $tableName = 'conference_year';
 
+    /**
+     * @var string
+     */
     protected $conferenceTableName = 'conference';
 
-    public function getTableName(){
+    /**
+     * @return string
+     */
+    public function getTableName(): string
+    {
         return $this->tableName;
     }
 
-    public function findAllByKw($kw) {
+    /**
+     * @param string $kw
+     * @return \Nette\Database\Table\Selection
+     */
+    public function findAllByKw(string $kw): Selection
+    {
         $kwExpr = '%' . $kw . '%';
-        return $this->findAll()->where($this->tableName . ".name LIKE ? OR " .
-            $this->tableName . ".abbreviation LIKE ? OR " .
-            $this->tableName . ".location LIKE ? OR " .
-            $this->conferenceTableName . ".name LIKE ? OR " .
-            $this->conferenceTableName . ".abbreviation LIKE ?"
-        , array($kwExpr, $kwExpr, $kwExpr, $kwExpr, $kwExpr));
+
+        return $this->findAll()->where($this->tableName . '.name LIKE ? OR ' .
+            $this->tableName . '.abbreviation LIKE ? OR ' .
+            $this->tableName . '.location LIKE ? OR ' .
+            $this->conferenceTableName . '.name LIKE ? OR ' .
+            $this->conferenceTableName . '.abbreviation LIKE ?'
+        , [$kwExpr, $kwExpr, $kwExpr, $kwExpr, $kwExpr]);
     }
 
-    public function deleteAssociatedRecords($conferenceYearId) {
+    /**
+     * @param int $conferenceYearId
+     */
+    public function deleteAssociatedRecords($conferenceYearId): void
+    {
+        $workshops = $this->findAllBy(['parent_id' => $conferenceYearId]);
 
-        $workshops = $this->findAllBy(array('parent_id' => $conferenceYearId));
-        foreach($workshops as $workshop) $workshop->update(array('parent_id'    => NULL));
+        foreach ($workshops as $workshop) {
+            $workshop->update(['parent_id' => NULL]);
+        }
 
-        $this->database->table('conference_year_is_indexed')->where(array('conference_year_id' => $conferenceYearId))->delete();
+        $this->database->table('conference_year_is_indexed')
+            ->where(['conference_year_id' => $conferenceYearId])
+            ->delete();
 
-        $publications = $this->database->table('publication')->where(array("conference_year_id" => $conferenceYearId));
+        $publications = $this->database->table('publication')
+            ->where(["conference_year_id" => $conferenceYearId]);
+
         foreach ($publications as $pub) {
-            $pub->update(array('conference_year_id' => NULL));
+            $pub->update(['conference_year_id' => NULL]);
         }
 
         $conferenceYearTemp = $this->database->table('conference_year')->get($conferenceYearId);
+
         if ($conferenceYearTemp) {
             $conferenceYearTemp->delete();
         }
     }
 
-    public function findAllByConferenceId($conference_id) {
-        return $this->findAllBy(array('conference_id' => $conference_id));
+    /**
+     * @param int $conference_id
+     * @return Selection
+     */
+    public function findAllByConferenceId(int $conference_id): Selection
+    {
+        return $this->findAllBy(['conference_id' => $conference_id]);
     }
 
-    public function findOneById($id) {
-        return $this->findOneBy(array('id' => $id));
+    /**
+     * @param int $id
+     * @return FALSE|\Nette\Database\Table\ActiveRow
+     */
+    public function findOneById(int $id)
+    {
+        return $this->findOneBy(['id' => $id]);
     }
 
-    public function findOneByName($name) {
-        return $this->findOneBy(array('name' => $name));
+    /**
+     * @param string $name
+     * @return ActiveRow
+     */
+    public function findOneByName(string $name)
+    {
+        return $this->findOneBy(['name' => $name]);
     }
 
     /**
      * @param \Nette\Database\Table\Selection $sel
      * @return \Nette\Database\Table\Selection
      */
-    public function findOnlyLastYears(\Nette\Database\Table\Selection $sel){
+    public function findOnlyLastYears(Selection $sel): Selection
+    {
         $sel->group('`conference_year`.`conference_id`')
             ->select('`conference_year`.`conference_id` AS cf_id, max(`conference_year`.`w_year`) AS max_w_year');
-
         $sql = $sel->getSql();
+        $cfyIds = [];
 
         $res = $this->database->queryArgs("SELECT id FROM `" . $this->tableName . "` ft INNER JOIN (" . $sql . ") pt
             ON pt.max_w_year = ft.w_year AND pt.cf_id = ft.conference_id", $sel->getSqlBuilder()->getParameters());
 
-        $cfyIds = array();
         foreach($res->fetchAll() as $row) {
             $cfyIds[] = $row->id;
         }
-
 
         return $this->findAll()
             ->where('id IN ?', $cfyIds)
@@ -83,9 +125,17 @@ class ConferenceYear extends Base {
     }
 
     // merged
-    public function getConferenceYearForSelectbox($conferenceId) {
-        $conferenceYears = array();
-        $conferenceYearsTemp = $this->database->table('conference_year')->where(array("conference_id" => $conferenceId))->order("w_year ASC");
+
+    /**
+     * @param int|null $conferenceId
+     * @return array
+     */
+    public function getConferenceYearForSelectbox(?int $conferenceId): array
+    {
+        $conferenceYears = [];
+        $conferenceYearsTemp = $this->database->table('conference_year')
+            ->where(['conference_id' => $conferenceId])
+            ->order('w_year ASC');
 
         foreach ($conferenceYearsTemp as $c) {
             $conferenceYears[$c->id] = ($c->w_year ? $c->w_year . ' (' . $c->name . ')' : $c->name);

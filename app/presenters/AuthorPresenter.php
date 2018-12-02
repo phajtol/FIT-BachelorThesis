@@ -2,8 +2,10 @@
 
 namespace App\Presenters;
 
-use Nette,
-    App\Model;
+use App\Components\AlphabetFilter\AlphabetFilterComponent;
+use App\CrudComponents\Author\AuthorCrud;
+use App\Model;
+use NasExt\Controls\SortingControl;
 
 class AuthorPresenter extends SecuredPresenter {
 
@@ -12,31 +14,47 @@ class AuthorPresenter extends SecuredPresenter {
 
     /** @var Model\AuthorHasPublication @inject */
     public $authorHasPublicationModel;
-    public function createComponentAlphabetFilter($name) {
-        $c = new \App\Components\AlphabetFilter\AlphabetFilterComponent($this, $name);
-        $c->setAjaxRequest(true)->onFilter[] = function($filter) use ($name) {
-            if ($this->isAjax()) $this->redrawControl('authorShowAll');
+
+
+    /**
+     * @param string $name
+     * @return AlphabetFilterComponent
+     * @throws \ReflectionException
+     */
+    public function createComponentAlphabetFilter(string $name): AlphabetFilterComponent
+    {
+        $c = new AlphabetFilterComponent($this, $name);
+
+        $c->setAjaxRequest(true)->onFilter[] = function ($filter) use ($name) {
+            if ($this->isAjax()) {
+                $this->redrawControl('authorShowAll');
+            }
         };
+
         return $c;
     }
 
-    public function createComponentCrud(){
-        $c = new \App\CrudComponents\Author\AuthorCrud(
+
+    /**
+     * @return AuthorCrud
+     */
+    public function createComponentCrud(): AuthorCrud{
+        $c = new AuthorCrud(
             $this->user,$this->submitterModel, $this->authorModel, $this->authorHasPublicationModel,
             $this, 'crud'
         );
 
-        $c->onAdd[] = function($row){
+        $c->onAdd[] = function ($row) {
             $this->successFlashMessage(sprintf("Author %s has been added successfully", $row->name . " " . $row->surname));
             $this->redrawControl('authorShowAll');
         };
-        $c->onDelete[] = function($row) {
+        $c->onDelete[] = function ($row) {
             $this->successFlashMessage(sprintf("Author %s has been deleted successfully", $row->name . " " . $row->surname));
             $this->redrawControl('authorShowAll');
         };
-        $c->onEdit[] = function($row) {
+        $c->onEdit[] = function ($row) {
             $this->successFlashMessage(sprintf("Author %s has been edited successfully", $row->name . " " . $row->surname));
-            $this->template->records = array($this->authorModel->find($row->id));
+            $this->template->records = [$this->authorModel->find($row->id)];
             $this->redrawControl('authorShowAllRecords');
         };
 
@@ -44,10 +62,13 @@ class AuthorPresenter extends SecuredPresenter {
     }
 
 
-    public function renderShowAll($keywords = null) {
-        if(!$this->template->records) {    // can be loaded only single one in case of edit
+    /**
+     * @param null $keywords
+     */
+    public function renderShowAll($keywords = null): void {
+        if (!$this->template->records) {    // can be loaded only single one in case of edit
             if ($keywords !== null) {
-                $this["searchForm"]->setDefaults(array('keywords' => $keywords));
+                $this["searchForm"]->setDefaults(['keywords' => $keywords]);
                 $this->records = $this->authorModel->findAllByKw($keywords);
             } else {
                 $this->records = $this->authorModel->findAll();
@@ -58,12 +79,12 @@ class AuthorPresenter extends SecuredPresenter {
             $alphabetFilter = $this["alphabetFilter"];
             /** @var $alphabetFilter \App\Components\AlphabetFilter\AlphabetFilterComponent */
 
-            if($alphabetFilter->getFilter()) $this->records->where('(surname LIKE ? OR surname LIKE ?)', $alphabetFilter->getFilter() . '%', strtolower($alphabetFilter->getFilter()) . "%");
+            if ($alphabetFilter->getFilter()) {
+                $this->records->where('(surname LIKE ? OR surname LIKE ?)', $alphabetFilter->getFilter() . '%', strtolower($alphabetFilter->getFilter()) . "%");
+            }
 
             $this->records->order($sorting->getColumn() . ' ' . $sorting->getSortDirection());
-
             $this->setupRecordsPaginator();
-
             $this->template->records = $this->records;
         }
     }
@@ -72,14 +93,14 @@ class AuthorPresenter extends SecuredPresenter {
     /**
      * @return \NasExt\Controls\SortingControl
      */
-    protected function createComponentSorting()
+    protected function createComponentSorting(): SortingControl
     {
-        $control = $this->sortingControlFactory->create( array(
+        $control = $this->sortingControlFactory->create([
             'name' => 'name',
             'middlename' => 'middlename',
             'surname' => 'surname',
             'user' => 'user.surname'
-        ),  'surname', \NasExt\Controls\SortingControl::ASC);
+        ],  'surname', SortingControl::ASC);
 
         return $control;
     }

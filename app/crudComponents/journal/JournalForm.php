@@ -1,14 +1,22 @@
 <?php
 
-
 namespace App\CrudComponents\Journal;
 
 
 class JournalForm extends \App\Forms\BaseForm {
 
+    /** @var \App\Model\Journal */
 	protected $journalModel;
 
-	public function __construct(\App\Model\Journal $journalModel, \Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+
+    /**
+     * JournalForm constructor.
+     * @param \App\Model\Journal $journalModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(\App\Model\Journal $journalModel, \Nette\ComponentModel\IContainer $parent = NULL, string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 		$this->journalModel = $journalModel;
 
@@ -33,38 +41,53 @@ class JournalForm extends \App\Forms\BaseForm {
 		$this->addCloseButton('cancel', 'Cancel');
 		$this->addSubmit('send', 'Done');
 
-
 		$this->addHidden('id');
+
 
 		$this->setModal(true);
 		$this->setAjax(true);
 
 		$id = $this['id']->getValue();
 		if (empty($id)) {
-			$this['name']->addRule(function($nameField) use ($journalModel) {
-				if($journalModel->findOneByName($nameField->getValue())){
+			$this['name']->addRule(function ($nameField) use ($journalModel) {
+				if ($journalModel->findOneByName($nameField->getValue())){
 					return false;
-				} else return true;
+				} else {
+				    return true;
+                }
 			}, "Journal already exists.", $this);
 		}
 	}
 
-	public function setIsbnCount($count) {
+    /**
+     * @param int $count
+     */
+	public function setIsbnCount(int $count): void
+    {
 		$this['isbn_count']->setValue($count);
 	}
 
-	public function getIsbnCount() {
+    /**
+     * @return int
+     */
+	public function getIsbnCount(): int
+    {
 		return $this['isbn_count']->getValue();
 	}
 
-	public function addIsbn() {
+	/**
+     *
+     */
+	public function addIsbn(): void
+    {
 		$count = $this['isbn_count']->getValue();
 		$cont = $this['isbn'];
 
-		for ($i=0;$i<$count;$i++) {
+		for ($i = 0; $i < $count; $i++) {
 			if (!empty($cont[$i])) {
 				continue;
 			}
+
 			$cont2 = $cont->addContainer($i);
 			$cont2->addText("isbn", "ISBN/ISSN")
 				->setRequired(false);

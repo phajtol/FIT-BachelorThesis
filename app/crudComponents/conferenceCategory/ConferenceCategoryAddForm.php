@@ -1,28 +1,30 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 2.4.2015
- * Time: 22:12
- */
 
 namespace App\CrudComponents\ConferenceCategory;
 
 
 class ConferenceCategoryAddForm extends ConferenceCategoryForm {
 
+    /**
+     * ConferenceCategoryAddForm constructor.
+     * @param \App\Model\ConferenceCategory $conferenceCategoryModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
 	public function __construct(
 		\App\Model\ConferenceCategory $conferenceCategoryModel,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
-
+		\Nette\ComponentModel\IContainer $parent = NULL,
+        string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
-		$this['name']->addRule(function($nameField, $form) use ($conferenceCategoryModel) {
-			if($conferenceCategoryModel->findOneByName($nameField->value)){
+		$this['name']->addRule(function ($nameField, $form) use ($conferenceCategoryModel) {
+			if ($conferenceCategoryModel->findOneByName($nameField->value)) {
 				return false;
-			} else return true;
+			} else {
+			    return true;
+            }
 		}, "Record with such name already exists.", $this);
-
 	}
 
 }

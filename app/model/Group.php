@@ -2,6 +2,10 @@
 
 namespace App\Model;
 
+use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
+
+
 class Group extends Base {
 
     /**
@@ -10,9 +14,14 @@ class Group extends Base {
      */
     protected $tableName = 'group';
 
-    public function findAllByKw($params) {
-
+    /**
+     * @param array $params
+     * @return \Nette\Database\Table\Selection
+     */
+    public function findAllByKw(array $params): Selection
+    {
         $records = $this->database->table('group');
+
         if (isset($params['keywords'])) {
             $records = $records->where("name LIKE ?", "%" . $params['keywords'] . "%");
         }
@@ -24,28 +33,36 @@ class Group extends Base {
         return $records;
     }
 
-    public function deleteAssociatedRecords($groupId) {
+    /**
+     * @param int $groupId
+     */
+    public function deleteAssociatedRecords(int $groupId): void
+    {
+        $related = $this->database->table('group_has_publication')->where(["group_id" => $groupId]);
+        $related2 = $this->database->table('submitter_has_group')->where(["group_id" => $groupId]);
+        $record = $this->database->table('group')->get($groupId);
 
-        $related = $this->database->table('group_has_publication')->where(array("group_id" => $groupId));
         foreach ($related as $rel) {
             $rel->delete();
         }
 
-        $related2 = $this->database->table('submitter_has_group')->where(array("group_id" => $groupId));
         foreach ($related2 as $rel) {
             $rel->delete();
         }
 
-        $record = $this->database->table('group')->get($groupId);
         if ($record) {
             $record->delete();
         }
     }
 
-    public function findOneByName($name) {
-        return $this->findOneBy(array(
+    /**
+     * @param string $name
+     * @return FALSE|\Nette\Database\Table\ActiveRow
+     */
+    public function findOneByName(string $name)
+    {
+        return $this->findOneBy([
             'name'  =>  $name
-        ));
+        ]);
     }
-
 }

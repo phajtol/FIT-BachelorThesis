@@ -1,10 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 28.3.2015
- * Time: 16:51
- */
+
+namespace App\CrudComponents\Category;
+
+use App\Components\StaticContentComponent;
+use App\CrudComponents\BaseCrudComponent;
+use App\CrudComponents\BaseCrudControlsComponent;
+use ReflectionMethod;
+
 
 /**
  * this is an abstract component.
@@ -14,14 +16,6 @@
  *	- controls template could define special block - {block #extraControls}...{/block}
  *	- modals template could define special block - {block #extraModals}...{/block}
  */
-
-namespace App\CrudComponents\Category;
-
-
-use App\CrudComponents\BaseCrudComponent;
-use App\CrudComponents\BaseCrudControlsComponent;
-use ReflectionMethod;
-
 abstract class CategoryCrud extends BaseCrudComponent {
 
 	protected $entityName;
@@ -29,7 +23,15 @@ abstract class CategoryCrud extends BaseCrudComponent {
 	/** @var array */
 	public $onAddSub;
 
-	public function __construct($entityName, \Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+
+    /**
+     * CategoryCrud constructor.
+     * @param $entityName
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct($entityName, \Nette\ComponentModel\IContainer $parent = NULL, string $name = NULL)
+    {
         parent::__construct();
         if ($parent) {
             $parent->addComponent($this, $name);
@@ -37,19 +39,24 @@ abstract class CategoryCrud extends BaseCrudComponent {
 
 		$this->entityName = $entityName;
 
-		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent){
+		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
 			$controlsComponent->addTemplateVars(array(
 				"entityName" 			=> $this->entityName,
 				"baseTemplateFilename"	=>  $this->getBaseControlsTemplateFilename()
 			));
 
-			$controlsComponent->addActionAvailable("addSub");
+			$controlsComponent->addActionAvailable('addSub');
 		};
 
 		$this->onAddSub = [];
 	}
 
-	protected function attached($presenter) {
+    /**
+     * @param $presenter
+     * @throws \ReflectionException
+     */
+	protected function attached($presenter): void
+    {
 		parent::attached($presenter);
 
 		$this->template->categoryAdded = false;
@@ -61,42 +68,69 @@ abstract class CategoryCrud extends BaseCrudComponent {
 		$this->template->baseTemplateFilename = $this->getBaseModalsTemplateFilename();
 	}
 
-
-	public function createComponentAddButton() {
+    /**
+     * @return StaticContentComponent
+     * @throws \ReflectionException
+     */
+	public function createComponentAddButton(): StaticContentComponent
+    {
 		$c = parent::createComponentAddButton();
 		$c->template->entityName = $this->entityName;
 		$c->template->baseTemplateFilename = $this->getBaseAddTemplateFilename();
+		return $c;
 	}
 
-	protected function getBaseModalsTemplateFilename(){
+    /**
+     * @return string
+     * @throws \ReflectionException
+     */
+	protected function getBaseModalsTemplateFilename(): string
+    {
 		return $this->getBaseTemplatePath() . DIRECTORY_SEPARATOR . "modals.latte";
 	}
 
-	protected function getBaseControlsTemplateFilename(){
+    /**
+     * @return string
+     * @throws \ReflectionException
+     */
+	protected function getBaseControlsTemplateFilename(): string
+    {
 		return $this->getBaseTemplatePath() . DIRECTORY_SEPARATOR . "controls.latte";
 	}
 
-	protected function getBaseAddTemplateFilename(){
+    /**
+     * @return string
+     * @throws \ReflectionException
+     */
+	protected function getBaseAddTemplateFilename(): string
+    {
 		return $this->getBaseTemplatePath() . DIRECTORY_SEPARATOR . "add.latte";
 	}
 
-	/**
-	 * This function returns the path of template storage related to the base component
-	 * Ex.: /var/www/.../crudComponents/category/controls.latte, where category component is abstract
-	 * It will be used to include the base template by the abstract class (category) children
-	 * Children then can define specific blocks and then include the base template
-	 * @return string
-	 */
-	protected final function getBaseTemplatePath(){
+    /**
+     * This function returns the path of template storage related to the base component
+     * Ex.: /var/www/.../crudComponents/category/controls.latte, where category component is abstract
+     * It will be used to include the base template by the abstract class (category) children
+     * Children then can define specific blocks and then include the base template
+     * @return string
+     * @throws \ReflectionException
+     */
+	protected final function getBaseTemplatePath(): string
+    {
 		$rm = new ReflectionMethod($this, __FUNCTION__);
 		return dirname($rm->getFileName());
 	}
 
-	public abstract function createComponentCategoryAddForm($name);
-	public abstract function createComponentCategoryEditForm($name);
-	public abstract function createComponentCategoryAddSubForm($name);
-	public abstract function handleDelete($id);
-	public abstract function handleEdit($id);
-	public abstract function handleAddSub($id);
+	public abstract function createComponentCategoryAddForm(string $name);
+
+	public abstract function createComponentCategoryEditForm(string $name);
+
+	public abstract function createComponentCategoryAddSubForm(string $name);
+
+	public abstract function handleDelete(int $id): void;
+
+	public abstract function handleEdit(int $id): void;
+
+	public abstract function handleAddSub(int $id): void;
 
 }

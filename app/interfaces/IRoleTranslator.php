@@ -16,6 +16,6 @@ interface IRoleTranslator {
 	 * @param $roleId string
 	 * @return string
 	 */
-	public function translateRole($roleId);
+	public function translateRole(string $roleId): string;
 
 }

@@ -1,19 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 18.3.2015
- * Time: 16:46
- */
 
 namespace App\Forms\Controls;
-
 
 use Nette\Utils\DateTime;
 
 class DateTimeInput extends \Nette\Forms\Controls\TextInput {
 
-	public function __construct($label = NULL) {
+	public function __construct(string $label = NULL) {
 		parent::__construct($label, null);
 
 		$this->getControlPrototype()->addClass('datetime');

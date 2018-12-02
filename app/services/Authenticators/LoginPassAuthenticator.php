@@ -73,36 +73,56 @@ class LoginPassAuthenticator implements Nette\Security\IAuthenticator
 	}
 
 
-	/**
-	 * Fixes caps lock accidentally turned on.
-	 * @return string
-	 */
-	private static function removeCapsLock($password)
+    /**
+     * Fixes caps lock accidentally turned on.
+     * @param string $password
+     * @return string
+     */
+	private static function removeCapsLock($password): string
 	{
 		return $password === Strings::upper($password)
 			? Strings::lower($password)
 			: $password;
 	}
-  public function associateLoginPasswordToUser($user_id, $login, $password) {
-    $this->authLoginPasswordModel->associateToUser(
-      $user_id,
-      $login,
-      \password_hash($password, PASSWORD_BCRYPT)
-    );
-  }
 
+    /**
+     * @param $user_id
+     * @param $login
+     * @param $password
+     */
+    public function associateLoginPasswordToUser($user_id, $login, $password): void
+    {
+        $this->authLoginPasswordModel->associateToUser($user_id, $login, \password_hash($password, PASSWORD_BCRYPT));
+    }
 
-	public function generateRandomPassword($length = 8) {
+    /**
+     * @param int $length
+     * @return string
+     */
+	public function generateRandomPassword(int $length = 8): string
+    {
 		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		return Nette\Utils\Random::generate($length, $characters);
 	}
 
-	public function areCredentialsAvailableForUser($userId) {
-		if($this->authLoginPasswordModel->findOneByUserId($userId)) return true;
-		else return false;
+    /**
+     * @param int $userId
+     * @return bool
+     */
+	public function areCredentialsAvailableForUser(int $userId): bool
+    {
+		if ($this->authLoginPasswordModel->findOneByUserId($userId)) {
+		    return true;
+        } else {
+		    return false;
+        }
 	}
 
-	public function deleteUserCredentials($userId) {
+    /**
+     * @param int $userId
+     */
+	public function deleteUserCredentials(int $userId): void
+    {
 		$this->authLoginPasswordModel->findAllByUserId($userId)->delete();
 	}
 

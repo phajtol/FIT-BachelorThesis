@@ -17,17 +17,21 @@ use Nette\Security\Permission;
 
 class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
 
+    /** @var array */
     protected $rolesAvailable;
 
+    /**
+     * Acl constructor.
+     */
     public function __construct() {
 
-        $this->rolesAvailable = array(
+        $this->rolesAvailable = [
                 "admin"                 =>  "Admin",
                 "reader"                =>  "Publication reader",
                 "submitter"             =>  "Publication submitter",
                 "conference-user"       =>  "Conference user",
                 "conference-moderator"  =>  "Conference moderator"
-        );
+        ];
 
         // ROLES
         $this->addRole('guest');
@@ -37,7 +41,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addRole('conference-user', 'guest');
         $this->addRole('conference-moderator', 'conference-user');
 
-        $this->addRole('admin', array('submitter', 'conference-moderator'));
+        $this->addRole('admin', ['submitter', 'conference-moderator']);
 
 
         // RESOURCES
@@ -219,12 +223,24 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         // akci logs atp
     }
 
-    public function translateRole($roleId)
+    /**
+     * @param string $roleId
+     * @return string
+     */
+    public function translateRole(string $roleId): string
     {
-        if(isset($this->rolesAvailable[$roleId])) return $this->rolesAvailable[$roleId]; else return $roleId;
+        if (isset($this->rolesAvailable[$roleId])) {
+            return $this->rolesAvailable[$roleId];
+        } else {
+            return $roleId;
+        }
     }
 
-    public function getAvailableRoles(){
+    /**
+     * @return array
+     */
+    public function getAvailableRoles(): array
+    {
         return $this->rolesAvailable;
     }
 

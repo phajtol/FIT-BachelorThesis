@@ -1,17 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.5.2015
- * Time: 12:16
- */
 
 namespace App\Factories;
 
+use App\CrudComponents\PublicationTag\PublicationTagCrud;
 
 interface IPublicationTagCrudFactory {
 
-	/** @return \App\CrudComponents\PublicationTag\PublicationTagCrud */
-	public function create($publicationId);
+    /**
+     * @param int $publicationId
+     * @return \App\CrudComponents\PublicationTag\PublicationTagCrud
+     */
+	public function create(int $publicationId): PublicationTagCrud;
 
 }

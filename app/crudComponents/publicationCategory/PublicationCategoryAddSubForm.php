@@ -1,20 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 28.3.2015
- * Time: 17:40
- */
 
 namespace App\CrudComponents\PublicationCategory;
 
 
 class PublicationCategoryAddSubForm extends PublicationCategoryAddForm {
 
-	public function __construct(
-		\App\Model\Categories $publicationCategoryModel,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
-
+    /**
+     * PublicationCategoryAddSubForm constructor.
+     * @param \App\Model\Categories $publicationCategoryModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(\App\Model\Categories $publicationCategoryModel, \Nette\ComponentModel\IContainer $parent = NULL, string $name = NULL)
+    {
 		parent::__construct($publicationCategoryModel, $parent, $name);
 
 		// parent category id

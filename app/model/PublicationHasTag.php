@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+
 class PublicationHasTag extends Base {
 
     /**
@@ -10,8 +11,12 @@ class PublicationHasTag extends Base {
      */
     protected $tableName = 'publication_has_tag';
 
-    public function deleteByTagId($id) {
-      $this->getTable()->where(['tag_id' => $id ])->delete();
+    /**
+     * @param int $id
+     * @return int
+     */
+    public function deleteByTagId(int $id): int
+    {
+        return $this->getTable()->where(['tag_id' => $id ])->delete();
     }
-
 }

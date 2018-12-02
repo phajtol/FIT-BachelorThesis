@@ -2,34 +2,67 @@
 
 namespace App\Presenters;
 
-use Nette,
-    App\Model,
-    Nette\Diagnostics\Debugger,
-    App\Helpers;
+use App\Components\AlphabetFilter\AlphabetFilterComponent;
+use App\Components\ButtonToggle\ButtonGroupComponent;
+use App\Components\PublicationCategoryList\PublicationCategoryListComponent;
+use App\CrudComponents\Annotation\AnnotationCrud;
+use App\CrudComponents\Attribute\AttributeCrud;
+use App\CrudComponents\Author\AuthorCrud;
+use App\CrudComponents\Citation\CitationCrud;
+use App\CrudComponents\Conference\ConferenceCrud;
+use App\CrudComponents\ConferenceYear\ConferenceYearCrud;
+use App\CrudComponents\Group\GroupCrud;
+use App\CrudComponents\Journal\JournalCrud;
+use App\CrudComponents\PublicationTag\PublicationTagCrud;
+use App\CrudComponents\Publisher\PublisherCrud;
+use App\CrudComponents\Reference\ReferenceCrud;
+use App\Forms\BaseForm;
+use Nette;
+use App\Model;
+use App\Helpers;
+
 
 class PublicationPresenter extends SecuredPresenter {
 
+    /** @var array */
     public $types;
+
     public $authors;
+
     public $publishers;
+
     public $conferencesYears;
+
     public $allPubs;
+
     public $currentAuthorsString;
+
     public $currentCategoriesString;
 
     public $files;
+
     public $group;
+
     public $attributes;
+
     public $attribStorage;
 
-
-
+    /** @var array */
     public $publication;
+
+    /** @var array */
     public $conferences;
+
+    /** @var array */
     public $conferenceYears;
+
     public $journals;
+
     public $pdfParser;
+
+    /** @var string */
     public $fulltext;
+
     public $functions;
 
     //--
@@ -138,6 +171,7 @@ class PublicationPresenter extends SecuredPresenter {
 
     // --
 
+    /** @var int */
     protected $publicationId;
 
     protected $selectedPublisherId;
@@ -157,22 +191,30 @@ class PublicationPresenter extends SecuredPresenter {
     // --
 
 
-
-    public function __construct() {
+    /**
+     * PublicationPresenter constructor.
+     */
+    public function __construct()
+    {
         $this->functions = new Helpers\Functions();
     }
 
-    protected function startup() {
+
+    /**
+     * @throws Nette\Application\AbortException
+     */
+    protected function startup(): void
+    {
         parent::startup();
         $this->fulltext = '';
 
-        $this->publication = array();
-        $this->conferences = array();
-        $this->conferencesYears = array();
+        $this->publication = [];
+        $this->conferences = [];
+        $this->conferencesYears = [];
 
         $this->drawAllowed = false;
 
-        $this->types = array(
+        $this->types = [
             'misc' => 'Misc (other kinds of publication)',
             'book' => 'Book (a published book)',
             'article' => 'Article (an article from a magazine or a journal)',
@@ -186,40 +228,70 @@ class PublicationPresenter extends SecuredPresenter {
             'mastersthesis' => 'Mastersthesis (master thesis)',
             'phdthesis' => 'Phdthesis (Ph.D. thesis)',
             'unpublished' => 'Unpublished (an unpublished article, book, thesis, etc.)'
-        );
+        ];
     }
-    public function beforeRender() {
+
+
+    /**
+     *
+     */
+    public function beforeRender(): void
+    {
         parent::beforeRender();
-        $recordsStarredTemp = $this->submitterHasPublicationModel->findAllBy(array('submitter_id' => $this->user->id));
-        $this->template->recordsStarred = array();
+        $recordsStarredTemp = $this->submitterHasPublicationModel->findAllBy(['submitter_id' => $this->user->id]);
+        $this->template->recordsStarred = [];
 
         foreach ($recordsStarredTemp as $record) {
             $this->template->recordsStarred[] = $record->publication_id;
         }
     }
-    public function actionDefault() {
+
+
+    /**
+     *
+     */
+    public function actionDefault(): void
+    {
 
     }
 
-    public function renderDefault() {
+
+    /**
+     *
+     */
+    public function renderDefault(): void
+    {
 
     }
 
-    public function createComponentAlphabetFilter($name) {
-      $c = new \App\Components\AlphabetFilter\AlphabetFilterComponent($this, $name);
-      $c->setAjaxRequest(false);
-      $c->onFilter[] = function(){
-        $this->resetPagination();
-      };
-      return $c;
+
+    /**
+     * @param string $name
+     * @return \App\Components\AlphabetFilter\AlphabetFilterComponent
+     * @throws \ReflectionException
+     */
+    public function createComponentAlphabetFilter(string $name): AlphabetFilterComponent
+    {
+        $c = new AlphabetFilterComponent($this, $name);
+
+        $c->setAjaxRequest(false);
+        $c->onFilter[] = function () {
+            $this->resetPagination();
+        };
+
+        return $c;
     }
 
-    protected function createComponentPublicationImportForm($name) {
+
+    /**
+     * @param string $name
+     * @return \PublicationImportForm
+     */
+    protected function createComponentPublicationImportForm(string $name): \PublicationImportForm
+    {
         $form = new \PublicationImportForm($this, $name);
+
         $form->onSuccess[] = function(\PublicationImportForm $form) {
-
-            Debugger::fireLog('publicationImportFormSucceeded');
-
             $formValues = $form->getValues();
 
             $definitionTemplate = preg_replace('/\r+/', '<br />', $formValues['definition']);
@@ -239,17 +311,16 @@ class PublicationPresenter extends SecuredPresenter {
                 $parser->readLines();
                 $fields = $parser->getFields();
                 $pub_type = isset($fields['pub_type']) ? $fields['pub_type'] : 'misc';
-                $authors = isset($fields['authors']) ? $fields['authors'] : array();
+                $authors = isset($fields['authors']) ? $fields['authors'] : [];
             } elseif ($formValues['type'] == "refworks") {
                 $parser = new Helpers\EndNoteRefWorksParser($formValues['definition'], 'refworks');
                 $parser->readLines();
                 $fields = $parser->getFields();
                 $pub_type = isset($fields['pub_type']) ? $fields['pub_type'] : 'misc';
-                $authors = isset($fields['authors']) ? $fields['authors'] : array();
+                $authors = isset($fields['authors']) ? $fields['authors'] : [];
             }
 
-
-            $selectedAuthors = array();
+            $selectedAuthors = [];
 
             foreach ($authors as $author) {
                 $tempAuthor = $this->authorModel->getAuthorNameByAuthorName($author['name'], $author['middlename'], $author['surname']);
@@ -261,7 +332,6 @@ class PublicationPresenter extends SecuredPresenter {
             $this->template->selectedAuthors = $selectedAuthors;
 
             if ($pub_type == 'inproceedings' || $pub_type == 'proceedings') {
-
                 $isbn = "";
                 $location = "";
                 $conference = "";
@@ -275,9 +345,7 @@ class PublicationPresenter extends SecuredPresenter {
                 }
 
                 if ($conference_year_id) {
-
                     $selectedConferenceYear = $this->conferenceYearModel->find($conference_year_id);
-
                     $this->selectedConferenceYearId = $conference_year_id;
                     $this->selectedConferenceId = $selectedConferenceYear->conference_id;
 
@@ -508,75 +576,119 @@ class PublicationPresenter extends SecuredPresenter {
         return $form;
     }
 
-    protected function createComponentReferenceCrud($name) {
-        $c = new \App\CrudComponents\Reference\ReferenceCrud($this->publicationId, $this->getUser(), $this->publicationModel, $this->referenceModel, $this, $name);
-        //$c = $this->referenceCrudFactory->create($this->publicationId);
-        if(!$this->publicationId) $c->disallowAction('add');
-        $cbFn = function(){
-            $references = $this->referenceModel->findAllBy(array('publication_id' => $this->publication->id))->order("id ASC");
 
+    /**
+     * @param string $name
+     * @return \App\CrudComponents\Reference\ReferenceCrud
+     */
+    protected function createComponentReferenceCrud(string $name): ReferenceCrud
+    {
+        $c = new ReferenceCrud($this->publicationId, $this->getUser(), $this->publicationModel, $this->referenceModel, $this, $name);
+        //$c = $this->referenceCrudFactory->create($this->publicationId);
+
+        if (!$this->publicationId) {
+            $c->disallowAction('add');
+        }
+
+        $cbFn = function () {
+            $references = $this->referenceModel->findAllBy(['publication_id' => $this->publication->id])->order("id ASC");
 
             $this->template->references = $references;
 
             $this->successFlashMessage('Operation has been completed successfully.');
             $this->redrawControl('publicationReferencesData');
         };
+
         $c->onAdd[] = $cbFn;
         $c->onDelete[] = $cbFn;
         $c->onEdit[] = $cbFn;
+
         return $c;
     }
 
-    protected function createComponentCitationCrud($name) {
+    /**
+     * @param string $name
+     * @return \App\CrudComponents\Citation\CitationCrud
+     */
+    protected function createComponentCitationCrud(string $name): CitationCrud
+    {
         $c = $this->citationCrudFactory->create($this->publicationId);
-        if(!$this->publicationId) $c->disallowAction('add');
-        $cbFn = function(){
+        if (!$this->publicationId) {
+            $c->disallowAction('add');
+        }
+
+        $cbFn = function () {
             $this->successFlashMessage('Operation has been completed successfully.');
             $this->redrawControl('citationsShowAllRecords');
         };
+
         $c->onAdd[] = $cbFn;
         $c->onDelete[] = $cbFn;
         $c->onEdit[] = $cbFn;
+
         return $c;
     }
 
 
-    protected function createComponentAnnotationCrud(){
+    /**
+     * @return \App\CrudComponents\Annotation\AnnotationCrud
+     */
+    protected function createComponentAnnotationCrud(): AnnotationCrud
+    {
         $c = $this->annotationCrudFactory->create($this->publicationId);
-        if(!$this->publicationId) $c->disallowAction('add');
-        $cbFn = function(){
+
+        if (!$this->publicationId) {
+            $c->disallowAction('add');
+        }
+
+        $cbFn = function () {
             if ($this->user->isInRole('admin')) {
-                $annotations = $this->annotationModel->findAllBy(array('publication_id' => $this->publication->id))->order("id ASC");
+                $annotations = $this->annotationModel->findAllBy(['publication_id' => $this->publication->id])->order("id ASC");
             } else {
                 $annotations = $this->annotationModel->findAllForReaderOrSubmitter($this->publication->id, $this->user->id);
             }
 
             $this->template->annotations = $annotations;
-
             $this->successFlashMessage('Operation has been completed successfully.');
             $this->redrawControl('publicationAnnotationData');
         };
+
         $c->onAdd[] = $cbFn;
         $c->onDelete[] = $cbFn;
         $c->onEdit[] = $cbFn;
+
         return $c;
     }
 
-    protected function createComponentPublicationTagCrud(){
+    /**
+     * @return \App\CrudComponents\PublicationTag\PublicationTagCrud
+     */
+    protected function createComponentPublicationTagCrud(): PublicationTagCrud
+    {
         $c = $this->publicationTagCrudFactory->create($this->publicationId);
-        if(!$this->publicationId) $c->disallowAction('add');
-        $cbFn = function(){
+
+        if (!$this->publicationId) {
+            $c->disallowAction('add');
+        }
+
+        $cbFn = function () {
             $this->successFlashMessage('Operation has been completed successfully.');
             $this->redrawControl('publicationTagData');
         };
+
         $c->onAdd[] = $cbFn;
         $c->onDelete[] = $cbFn;
         $c->onEdit[] = $cbFn;
+
         return $c;
     }
 
 
-    public function handleAddIsbn($count) {
+    /**
+     * @param int $count
+     */
+    public function handleAddIsbn(int $count): void
+    {
       $this['publicationAddNewForm']['isbn_count']->setValue($count);
       $this->redrawControl('isbn_count');
 
@@ -584,14 +696,19 @@ class PublicationPresenter extends SecuredPresenter {
       $this->redrawControl("last_isbn");
     }
 
-    public function actionAddNew($id) {
 
+    /**
+     * @param int $id
+     * @throws Nette\Application\BadRequestException
+     */
+    public function actionAddNew(?int $id): void
+    {
         // rozlisovat ADD, EDIT (id), smazat vsechny kategorie a vytvorit nove!!, u EDIT skryt IMPORT
-
         $params = $this->getHttpRequest()->getQuery();
         $this->publicationId = $id;
 
-        $this->publication = array();
+        $this->publication = [];
+
         if ($id) {
             $this->publication = $this->publicationModel->find($id)->toArray();
             $title = "Edit Publication";
@@ -622,28 +739,22 @@ class PublicationPresenter extends SecuredPresenter {
 
         $this->loadJournals();
         $this->loadPublishers();
-
         $this->loadConferences();
-
-        $this->conferenceYears = array();
-
+        $this->conferenceYears = [];
         $this->authors = $this->authorModel->getAuthorsNames();
-
         $this->loadAttributes();
-
         $this->group = $this->groupModel->findAll()->order('name ASC');
-
         // ===========================================
-        $selectedGroups = array();
-        $selectedAuthors = array();
-        $files = array();
+        $selectedGroups = [];
+        $selectedAuthors = [];
+        $files = [];
 
         if ($id) {
             $selectedAuthors = $this->authorModel->getAuthorsNamesByPubId($id);
             $selectedConferenceYear = false;
-            $this->attribStorage = $this->attribStorageModel->findAllBy(array("publication_id" => $id));
+            $this->attribStorage = $this->attribStorageModel->findAllBy(["publication_id" => $id]);
 
-            $selectedGroups = $this->groupHasPublicationModel->findAllBy(array('publication_id' => $id));
+            $selectedGroups = $this->groupHasPublicationModel->findAllBy(['publication_id' => $id]);
 
             if (isset($this->publication['conference_year_id'])) {
                 $selectedConferenceYear = $this->conferenceYearModel->find($this->publication['conference_year_id']);
@@ -653,34 +764,29 @@ class PublicationPresenter extends SecuredPresenter {
                 $this->loadConferenceYears();
             }
 
-            $selectedCategories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
-            $selCatIds = array();
-            foreach($selectedCategories as $selectedCategory) $selCatIds[] = $selectedCategory->id;
+            $selectedCategories = $this->categoriesHasPublicationModel->findAllBy(['publication_id' => $id]);
+            $selCatIds = [];
+            foreach($selectedCategories as $selectedCategory) {
+                $selCatIds[] = $selectedCategory->id;
+            }
             $this['publicationAddNewForm']['categories']->setDefaultValue(implode(' ', $selCatIds));
 
         }
-
         // ===========================================
-
         $this->template->selectedAuthors = $selectedAuthors;
         $this->template->selectedGroups = $selectedGroups;
         if (!$id) {
             $this->template->files = $files;
         }
         $this->template->fileDeleted = false;
-        //
         $this->template->publication = $this->publication;
         $this->template->authors = $this->authors;
         $this->template->title = $title;
-        //
         $this->template->attributeInfo = false;
-
         $this->template->groupTree = $this->group;
-        //
 
         if ($id) {
             unset($this->publication['isbn']);
-
             $this['publicationAddNewForm']->setDefaults($this->publication);
 
             foreach ($this->attribStorage as $atSt) {
@@ -707,54 +813,54 @@ class PublicationPresenter extends SecuredPresenter {
                 $this->template->conferenceInfo = $this->conferenceModel->find($this->publication['conference']);
             }
         }
-        $this->template->getLatte()->addProvider('formsStack', [$this['publicationAddNewForm']]);
 
+        $this->template->getLatte()->addProvider('formsStack', [$this['publicationAddNewForm']]);
         $this->template->id = $id;
     }
 
-    public function renderAddNew() {
-      $this->template->isbn_count = $this['publicationAddNewForm']['isbn_count']->getValue();
-      $count = $this['publicationAddNewForm']['isbn_count']->getValue()+1;
-      $cont = $this['publicationAddNewForm']['isbn'];
 
-      for ($i=0;$i<$count;$i++) {
-        $cont2 = $cont->addContainer($i);
-        $cont2->addText("isbn", "ISBN/ISSN")
-          ->setRequired(false);
-        $cont2->addSelect("type", "Typ", ["ISBN" => "ISBN", "ISSN" => "ISSN"]);
-        $cont2->addText("note", "Poznámka")
-          ->setRequired(false);
-      }
-      if ($this->publicationId) {
-        $isbn = $this->publicationIsbnModel->findAllBy(["publication_id" => $this->publicationId]);
-        $i = 0;
-        foreach ($isbn as $row) {
-          $cont[$i]['isbn']->setDefaultValue($row['isbn']);
-          $cont[$i]['type']->setDefaultValue($row['type']);
-          $cont[$i]['note']->setDefaultValue($row['note']);
-          $i++;
+    /**
+     *
+     */
+    public function renderAddNew(): void
+    {
+        $this->template->isbn_count = $this['publicationAddNewForm']['isbn_count']->getValue();
+        $count = $this['publicationAddNewForm']['isbn_count']->getValue() + 1;
+        $cont = $this['publicationAddNewForm']['isbn'];
+
+        for ($i = 0; $i < $count; $i++) {
+            $cont2 = $cont->addContainer($i);
+            $cont2->addText("isbn", "ISBN/ISSN")->setRequired(false);
+            $cont2->addSelect("type", "Typ", ["ISBN" => "ISBN", "ISSN" => "ISSN"]);
+            $cont2->addText("note", "Poznámka")->setRequired(false);
         }
-      }
+
+        if ($this->publicationId) {
+            $isbn = $this->publicationIsbnModel->findAllBy(["publication_id" => $this->publicationId]);
+            $i = 0;
+            foreach ($isbn as $row) {
+                $cont[$i]['isbn']->setDefaultValue($row['isbn']);
+                $cont[$i]['type']->setDefaultValue($row['type']);
+                $cont[$i]['note']->setDefaultValue($row['note']);
+                $i++;
+            }
+        }
 
         if (!isset($this->template->files) && $this->publicationId) {
             $this->template->files = $this->filesModel->prepareFiles($this->publicationId);
         }
 
         $this->template->selectedPublisherId = $this->selectedPublisherId;
-        $this->template->publisherInfo = !$this->selectedPublisherId ? null :
-                $this->publisherModel->find($this->selectedPublisherId);
+        $this->template->publisherInfo = !$this->selectedPublisherId ? null : $this->publisherModel->find($this->selectedPublisherId);
 
         $this->template->selectedJournalId = $this->selectedJournalId;
-        $this->template->journalInfo = !$this->selectedJournalId ? null :
-            $this->journalModel->find($this->selectedJournalId);
+        $this->template->journalInfo = !$this->selectedJournalId ? null : $this->journalModel->find($this->selectedJournalId);
 
         $this->template->selectedConferenceId = $this->selectedConferenceId;
-        $this->template->conferenceInfo = !$this->selectedConferenceId ? null :
-            $this->conferenceModel->find($this->selectedConferenceId);
+        $this->template->conferenceInfo = !$this->selectedConferenceId ? null : $this->conferenceModel->find($this->selectedConferenceId);
 
         $this->template->selectedConferenceYearId = $this->selectedConferenceYearId;
-        $this->template->conferenceYearInfo = !$this->selectedConferenceYearId ? null :
-            $this->conferenceYearModel->find($this->selectedConferenceYearId);
+        $this->template->conferenceYearInfo = !$this->selectedConferenceYearId ? null : $this->conferenceYearModel->find($this->selectedConferenceYearId);
 
         $this->template->selectedGroupId = !$this->selectedGroupId ? null : $this->selectedGroupId;
 
@@ -762,27 +868,48 @@ class PublicationPresenter extends SecuredPresenter {
 
         $this->template->attributes = $this->attributes;
 
-        if(!isset($this->template->authorDeleted)) $this->template->authorDeleted = false;
+        if (!isset($this->template->authorDeleted)) {
+            $this->template->authorDeleted = false;
+        }
 
-        if(!isset($this->template->groupDeleted)) $this->template->groupDeleted = false;
-        if(!isset($this->template->groupEdited)) $this->template->groupEdited = false;
-        if(!isset($this->template->groupAdded)) $this->template->groupAdded = false;
+        if (!isset($this->template->groupDeleted)) {
+            $this->template->groupDeleted = false;
+        }
+        if (!isset($this->template->groupEdited)) {
+            $this->template->groupEdited = false;
+        }
+        if (!isset($this->template->groupAdded)) {
+            $this->template->groupAdded = false;
+        }
 
-        if(!isset($this->template->authorDeleted)) $this->template->authorDeleted = false;
-        if(!isset($this->template->authorEdited)) $this->template->authorEdited = false;
-        if(!isset($this->template->authorAdded)) $this->template->authorAdded = false;
+        if (!isset($this->template->authorDeleted)) {
+            $this->template->authorDeleted = false;
+        }
+        if (!isset($this->template->authorEdited)) {
+            $this->template->authorEdited = false;
+        }
+        if (!isset($this->template->authorAdded)) {
+            $this->template->authorAdded = false;
+        }
     }
 
-    protected function createComponentConferenceYearCrud() {
+
+    /**
+     * @return \App\CrudComponents\ConferenceYear\ConferenceYearCrud
+     */
+    protected function createComponentConferenceYearCrud(): ConferenceYearCrud
+    {
         $c = $this->conferenceYearCrudFactory->create($this->selectedConferenceId ? $this->selectedConferenceId : 0);
-        $c->onAdd[] = function($row){
+
+        $c->onAdd[] = function ($row) {
             $this->loadConferenceYears(true);
             $this->redrawControl('publicationAddNewForm-conference_year_id');
             $this['publicationAddNewForm']['conference_year_id']->setValue($row->id);
             $this->handleShowConferenceYearInfo($row->id);
             $this->redrawControl('conferenceYearInfo');
         };
-        $c->onEdit[] = function($row) {
+
+        $c->onEdit[] = function ($row) {
             $this->loadConferenceYears(true);
             $this->redrawControl('publicationAddNewForm-conference_year_id');
             $this->selectedConferenceId = $row->conference_id;
@@ -791,40 +918,50 @@ class PublicationPresenter extends SecuredPresenter {
             $this->handleShowConferenceYearInfo($row->id);
             $this->redrawControl('conferenceYearInfo');
         };
-        $c->onDelete[] = function($row) {
+
+        $c->onDelete[] = function ($row) {
             $this->loadConferenceYears(true);
             $this->redrawControl('publicationAddNewForm-conference_year_id');
             $this['publicationAddNewForm']['conference_year_id']->setValue(null);
             $this->handleShowConferenceYearInfo(0);
             $this->redrawControl('conferenceYearInfo');
         };
+
         return $c;
     }
 
-    public function createComponentPublicationAddNewForm($parent=null, $name=null) {
+    /**
+     * @param null $parent
+     * @param null $name
+     * @return \App\Forms\BaseForm
+     */
+    public function createComponentPublicationAddNewForm($parent = null, $name = null): BaseForm
+    {
+        if (!$this->journals) {
+            $this->loadJournals();
+        }
+        if (!$this->publishers) {
+            $this->loadPublishers();
+        }
+        if (!$this->conferences) {
+            $this->loadConferences();
+        }
+        if (!$this->conferenceYears) {
+            $this->loadConferenceYears();
+        }
+        if (!$this->attributes) {
+            $this->loadAttributes();
+        }
 
-
-        if(!$this->journals) $this->loadJournals();
-        if(!$this->publishers) $this->loadPublishers();
-        if(!$this->conferences) $this->loadConferences();
-        if(!$this->conferenceYears) $this->loadConferenceYears();
-        if(!$this->attributes) $this->loadAttributes();
-
-        $form = $this->publicationAddNewFormFactory->create(
-                $this->publicationId, $this->selectedConferenceId, $this->types, $this, function($form) {
-
+        $onFormSuccess = function ($form) {
             $this->publicationModel->beginTransaction();
-
             $documentsObjectCreatedId = null;
 
             try {
                 $data = $form->getValuesTransformed();
                 $formValues = $form->getValuesTransformed();
-
                 $values = $form->getHttpData();
                 $formValues['conference_year_id'] = $values['conference_year_id'];
-
-                Debugger::fireLog('publicationAddNewFormSucceeded()');
 
                 unset($formValues['categories']);
                 unset($formValues['group']);
@@ -842,7 +979,6 @@ class PublicationPresenter extends SecuredPresenter {
                 }
 
                 $formValues = $this->publicationModel->prepareFormData($formValues);
-
                 unset($formValues['attributes']);
                 unset($formValues['isbn']);
                 unset($formValues['isbn_count']);
@@ -855,19 +991,19 @@ class PublicationPresenter extends SecuredPresenter {
                     $record = $this->publicationModel->insert($formValues);
                 }
 
-
                 if ($form->values->id) {
-                    $authorHasPublication = $this->authorHasPublicationModel->findAllBy(array("publication_id" => $form->values->id));
+                    $authorHasPublication = $this->authorHasPublicationModel->findAllBy(["publication_id" => $form->values->id]);
+
                     foreach ($authorHasPublication as $item) {
                         $item->delete();
                     }
 
-                    $categoriesHasPublication = $this->categoriesHasPublicationModel->findAllBy(array("publication_id" => $form->values->id));
+                    $categoriesHasPublication = $this->categoriesHasPublicationModel->findAllBy(["publication_id" => $form->values->id]);
                     foreach ($categoriesHasPublication as $item) {
                         $item->delete();
                     }
 
-                    $groupHasPublication = $this->groupHasPublicationModel->findAllBy(array("publication_id" => $form->values->id));
+                    $groupHasPublication = $this->groupHasPublicationModel->findAllBy(["publication_id" => $form->values->id]);
                     foreach ($groupHasPublication as $item) {
                         $item->delete();
                     }
@@ -879,7 +1015,6 @@ class PublicationPresenter extends SecuredPresenter {
 
                 // $queueId = uniqid();
                 // Přesumene uploadované soubory
-
 
                 foreach ($form->values->upload as $file) {
                     $extractedText = '';
@@ -915,15 +1050,14 @@ class PublicationPresenter extends SecuredPresenter {
                     $this->fulltext .= "--- " . $file->getName() . " ---\n" . $extractedText . "\n\n\n";
                 }
 
-
                 if ($form->values->id) {
                     $document = $this->documentsModel->find($form->values->id);
                 }
                 if (!empty($document)) {
-                            $doc_a = $document->toArray();
-                            $doc_a['title'] = $form->values->title;
-                            $doc_a['content'] .= $this->fulltext;
-                            $this->documentsModel->find($form->values->id)->update($doc_a);
+                    $doc_a = $document->toArray();
+                    $doc_a['title'] = $form->values->title;
+                    $doc_a['content'] .= $this->fulltext;
+                    $this->documentsModel->find($form->values->id)->update($doc_a);
                 } else {
                     $this->documentsModel->insert(array(
                         'publication_id' => $record->id,
@@ -933,9 +1067,9 @@ class PublicationPresenter extends SecuredPresenter {
                     $documentsObjectCreatedId = $record->id;
                 }
 
-                $authors = array();
-                $categories = array();
-                $group = array();
+                $authors = [];
+                $categories = [];
+                $group = [];
 
                 if (!empty($form->values->authors) || $form->values->authors == "0") {
                     $authors = explode(" ", $form->values->authors);
@@ -948,34 +1082,34 @@ class PublicationPresenter extends SecuredPresenter {
                 }
 
                 foreach ($categories as $key => $value) {
-                    $this->categoriesHasPublicationModel->insert(array(
+                    $this->categoriesHasPublicationModel->insert([
                         'categories_id' => $value,
                         'publication_id' => $record->id
-                    ));
+                    ]);
                 }
 
                 foreach ($group as $key => $value) {
-                    $this->groupHasPublicationModel->insert(array(
+                    $this->groupHasPublicationModel->insert([
                         'group_id' => $value,
                         'publication_id' => $record->id
-                    ));
+                    ]);
                 }
 
 
                 if ($form->values->pub_type != "proceedings") {
                     foreach ($authors as $key => $value) {
-                        $this->authorHasPublicationModel->insert(array(
+                        $this->authorHasPublicationModel->insert([
                             'author_id' => $value,
                             'publication_id' => $record->id,
                             'priority' => $key
-                        ));
+                        ]);
                     }
                 }
 
                 // ATTRIBUTES
 
                 if ($form->values->id) {
-                    $attribStorage = $this->attribStorageModel->findAllBy(array("publication_id" => $form->values->id));
+                    $attribStorage = $this->attribStorageModel->findAllBy(["publication_id" => $form->values->id]);
                     foreach ($attribStorage as $item) {
                         $item->delete();
                     }
@@ -983,38 +1117,38 @@ class PublicationPresenter extends SecuredPresenter {
 
                 foreach ($this->attributes as $attrib) {
                     if (!empty($values['attributes'][$attrib->id])) {
-                        $this->attribStorageModel->insert(array(
+                        $this->attribStorageModel->insert([
                             'publication_id' => $record->id,
                             'attributes_id' => $attrib->id,
                             'submitter_id' => $this->user->id,
                             'value' => $values['attributes'][$attrib->id],
-                        ));
+                        ]);
                     }
                 }
 
                 $this->publicationIsbnModel->findAllBy(["publication_id" => $record->id])
-                                  ->delete();
+                    ->delete();
 
                 if (!empty($values['isbn'])) {
-                  foreach ($values['isbn'] as $isbn) {
-                    if (empty($isbn['isbn']) && empty($isbn['note']) ) {
-                      continue;
+                    foreach ($values['isbn'] as $isbn) {
+                        if (empty($isbn['isbn']) && empty($isbn['note']) ) {
+                            continue;
+                        }
+                        $this->publicationIsbnModel->insert(["publication_id" => $record->id,
+                            "isbn" => $isbn['isbn'],
+                            "type" => $isbn['type'],
+                            "note" => $isbn['note']]);
                     }
-                    $this->publicationIsbnModel->insert(["publication_id" => $record->id,
-                                              "isbn" => $isbn['isbn'],
-                                              "type" => $isbn['type'],
-                                              "note" => $isbn['note']]);
-                  }
                 }
 
                 $this->publicationModel->commitTransaction();
-
                 $this->flashMessage('Operation has been completed successfullly.', 'alert-success');
 
             } catch (\Exception $e) {
                 $this->publicationModel->rollbackTransaction();
-                if($documentsObjectCreatedId)
+                if($documentsObjectCreatedId) {
                     $this->documentsModel->delete($documentsObjectCreatedId);
+                }
                 throw $e;
             }
 
@@ -1023,27 +1157,45 @@ class PublicationPresenter extends SecuredPresenter {
             } else {
                 $this->redrawControl();
             }
-        });
+        };
+
+
+        $form = $this->publicationAddNewFormFactory->create($this->publicationId, $this->selectedConferenceId, $this->types, $this, $onFormSuccess);
 
         return $form;
     }
 
-    public function pdfExtractor($newFilePath) {
+
+    /**
+     * @param string $newFilePath
+     * @return mixed
+     */
+    public function pdfExtractor(string $newFilePath)
+    {
         $pdf = $this->pdfParser->parseFile($newFilePath);
         $text = $pdf->getText();
         return $text;
     }
 
-    public function pdfExtractorFirstPage($newFilePath) {
+
+    /**
+     * @param string $newFilePath
+     * @return mixed
+     */
+    public function pdfExtractorFirstPage(string $newFilePath)
+    {
         $pdf = $this->pdfParser->parseFile($newFilePath);
         $pages = $pdf->getPages();
         return $pages[0]->getText();
     }
 
-    public function handleDeleteFile($fileId) {
 
-        Debugger::fireLog("handleDeleteFile($fileId)");
-
+    /**
+     * @param int|null $fileId
+     * @throws Nette\Application\AbortException
+     */
+    public function handleDeleteFile(?int $fileId): void
+    {
         $files = $this->filesModel->prepareFiles($this->publicationId);
 
         if (is_file($files[$fileId]['path'])) {
@@ -1062,12 +1214,25 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function actionShowAll($sort, $order, $keywords, $filter) {
+
+    /**
+     * @param $sort
+     * @param $order
+     * @param $keywords
+     * @param $filter
+     */
+    public function actionShowAll($sort, $order, $keywords, $filter): void
+    {
         $this->drawAllowed = true;
         $this->template->publicationDeleted = false;
     }
 
-    public function renderShowAll() {
+
+    /**
+     *
+     */
+    public function renderShowAll(): void
+    {
         if ($this->drawAllowed) {
             $starred = $this['individualFilter']->getActiveButtonName() == 'starred';
             $my = $this['individualFilter']->getActiveButtonName() == 'my';
@@ -1075,12 +1240,15 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function drawPublications($starred = false, $my = false) {
-        Debugger::fireLog('drawPublications');
 
+    /**
+     * @param bool $starred
+     * @param bool $my
+     */
+    public function drawPublications(bool $starred = false, bool $my = false): void
+    {
         /** @var $alphabetFilter \App\Components\AlphabetFilter\AlphabetFilterComponent */
-  			$alphabetFilter = $this["alphabetFilter"];
-
+        $alphabetFilter = $this["alphabetFilter"];
         $params = $this->getHttpRequest()->getQuery();
 
         if (!isset($params['sort'])) {
@@ -1126,7 +1294,8 @@ class PublicationPresenter extends SecuredPresenter {
             }
         }
 
-        $authorsByPubId = array();
+        $authorsByPubId = [];
+
         foreach($this->template->records as $rec) {
             /** @var $rec Nette\Database\Table\ActiveRow */
             foreach($rec->related('author_has_publication')->order('priority ASC') as $authHasPub) {
@@ -1135,29 +1304,45 @@ class PublicationPresenter extends SecuredPresenter {
                 $authorsByPubId[$rec->id][] = $author;
             }
         }
-        $this->template->authorsByPubId = $authorsByPubId;
 
+        $this->template->authorsByPubId = $authorsByPubId;
         $this->redrawControl('publicationShowAll');
     }
 
-    protected function createComponentPublicationShowAllSearchForm($name) {
+
+    /**
+     * @param string $name
+     * @return \PublicationShowAllSearchForm
+     */
+    protected function createComponentPublicationShowAllSearchForm(string $name): \PublicationShowAllSearchForm
+    {
         $form = new \PublicationShowAllSearchForm($this, $name);
         return $form;
     }
 
-    public function actionShowPub($id) {
+
+    /**
+     * @param int|null $id
+     * @throws Nette\Application\BadRequestException
+     */
+    public function actionShowPub(?int $id): void
+    {
         $this->publication = $this->publicationModel->find($id);
 
         if (!$this->publication) {
             $this->error('Publication not found');
         }
+
         $this->publicationId = $id;
     }
 
-    public function renderShowPub() {
 
+    /**
+     *
+     */
+    public function renderShowPub(): void
+    {
         $data = $this->publicationModel->getAllPubInfo($this->publication);
-
         $publication = $data['publication'];
 
         // bibtex
@@ -1178,7 +1363,6 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->bibtexDefinition = $bibtexDefinition;
         $this->template->endnoteDefinition = $endnoteDefinition;
         $this->template->refworksDefinition = $refworksDefinition;
-
         $this->template->attributes = $data['attributes'];
         $this->template->publication = $this->publication;
         $this->template->journal = $data['journal'];
@@ -1200,9 +1384,9 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->pubCit['author_array'] = $data['pubCit_author_array'];
         $this->template->pubCit['author'] = $data['pubCit_author'];
         $this->template->types = $this->types;
+        $authorsByPubId = [];
 
-        $authorsByPubId = array();
-        foreach($this->template->references as $rec) {
+        foreach ($this->template->references as $rec) {
             if (empty($rec->reference_id)) {
                 continue;
             }
@@ -1213,7 +1397,8 @@ class PublicationPresenter extends SecuredPresenter {
                 $authorsByPubId[$rec->reference->id][] = $author;
             }
         }
-        foreach($this->template->citations as $rec) {
+
+        foreach ($this->template->citations as $rec) {
             /** @var $rec Nette\Database\Table\ActiveRow */
             foreach($rec->publication->related('author_has_publication')->order('priority ASC') as $authHasPub) {
                 $author = $authHasPub->ref('author');
@@ -1221,9 +1406,8 @@ class PublicationPresenter extends SecuredPresenter {
                 $authorsByPubId[$rec->publication->id][] = $author;
             }
         }
+
         $this->template->authorsByPubId = $authorsByPubId;
-
-
         $_this = $this;
         $this->template->getLatte()->addFilter('template', function($text) use ($_this) {
             $template = new Nette\Templating\Template();
@@ -1252,7 +1436,7 @@ class PublicationPresenter extends SecuredPresenter {
         });
 
         if ($this->user->isInRole('admin')) {
-            $tags = $this->tagModel->findAllBy(array(':publication_has_tag.publication_id' => $this->publication->id))->order("id ASC");
+            $tags = $this->tagModel->findAllBy([':publication_has_tag.publication_id' => $this->publication->id])->order("id ASC");
         } else {
             $tags = $this->tagModel->findAllForReaderOrSubmitter($this->publication->id, $this->user->id);
         }
@@ -1265,12 +1449,14 @@ class PublicationPresenter extends SecuredPresenter {
     // ====================================================================
 
 
-    public function handleDeletePublication($publicationId) {
-
-        Debugger::fireLog('handleDeletePublication(' . $publicationId . ')');
-
+    /**
+     * @param int|null $publicationId
+     * @throws Nette\Application\AbortException
+     * @throws Nette\Application\BadRequestException
+     */
+    public function handleDeletePublication(?int $publicationId): void
+    {
         $this->drawAllowed = true;
-
         $publication = $this->publicationModel->find($publicationId);
 
         if (!$publication) {
@@ -1279,8 +1465,6 @@ class PublicationPresenter extends SecuredPresenter {
 
         $this->filesModel->deleteFiles($publicationId);
         $this->publicationModel->deleteAssociatedRecords($publicationId);
-
-
         $this->template->publicationInfo = false;
         $this->template->publicationDeleted = true;
         // $this->template->publicationId = $publicationId;
@@ -1295,9 +1479,15 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function handleDeleteReference($referenceId) {
-         $this->drawAllowed = true;
 
+    /**
+     * @param int $referenceId
+     * @throws Nette\Application\AbortException
+     * @throws Nette\Application\BadRequestException
+     */
+    public function handleDeleteReference(int $referenceId): void
+    {
+        $this->drawAllowed = true;
         $reference = $this->referenceModel->find($referenceId);
 
         if (!$reference) {
@@ -1305,7 +1495,6 @@ class PublicationPresenter extends SecuredPresenter {
         }
 
         $this->referenceModel->delete($referenceId);
-
         $this->template->referenceDeleted = true;
 
         if (!$this->presenter->isAjax()) {
@@ -1315,18 +1504,19 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('deleteReference');
             $this->redrawControl('referenceShowAllRecords');
         }
-
     }
 
-    public function handleSetFavouritePub($favorite_id) {
 
-        Debugger::fireLog('handleSetFavouritePub(' . $favorite_id . ')');
-
-        $this->submitterHasPublicationModel->insert(array(
+    /**
+     * @param int $favorite_id
+     * @throws Nette\Application\AbortException
+     */
+    public function handleSetFavouritePub(int $favorite_id): void
+    {
+        $this->submitterHasPublicationModel->insert([
             'publication_id' => $favorite_id,
             'submitter_id' => $this->user->id
-        ));
-
+        ]);
 
         if (!$this->presenter->isAjax()) {
             $this->flashMessage('Operation has been completed successfully.', 'alert-success');
@@ -1336,11 +1526,17 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function handleUnsetFavouritePub($favorite_id) {
 
-        $record = $this->submitterHasPublicationModel->findOneBy(array(
+    /**
+     * @param int $favorite_id
+     * @throws Nette\Application\AbortException
+     */
+    public function handleUnsetFavouritePub(int $favorite_id): void
+    {
+        $record = $this->submitterHasPublicationModel->findOneBy([
             'publication_id' => $favorite_id,
-            'submitter_id' => $this->user->id));
+            'submitter_id' => $this->user->id
+        ]);
 
         if ($record) {
             $record->delete();
@@ -1359,19 +1555,29 @@ class PublicationPresenter extends SecuredPresenter {
 
     // --
 
-    protected function createComponentPublicationCategoryList(){
+    /**
+     * @return \App\Components\PublicationCategoryList\PublicationCategoryListComponent
+     */
+    protected function createComponentPublicationCategoryList(): PublicationCategoryListComponent
+    {
         $c = $this->publicationCategoryListFactory->create();
+
         $c->setIsSelectable(true);
         $c->setHasThreeStates(false);
         $c->setHasControls(true);
+
         return $c;
     }
 
-    public function createComponentPublisherCrud(){
+
+    /**
+     * @return \App\CrudComponents\Publisher\PublisherCrud
+     */
+    public function createComponentPublisherCrud(): PublisherCrud
+    {
         $publisherCrud  = $this->publisherCrudFactory->create();
 
-
-        $publisherCrud->onAdd[] = function($record) {
+        $publisherCrud->onAdd[] = function ($record) {
             $this->handleShowPublisherInfo($record->id);
             $this->loadPublishers(true);
             $this["publicationAddNewForm"]["publisher_id"]->setValue($record->id);
@@ -1381,7 +1587,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('publisherInfo');
         };
 
-        $publisherCrud->onDelete[] = function($record) {
+        $publisherCrud->onDelete[] = function ($record) {
             $this->handleShowPublisherInfo($record->id);
             $this->loadPublishers(true);
             $this["publicationAddNewForm"]["publisher_id"]->setValue(null);
@@ -1391,7 +1597,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('publisherInfo');
         };
 
-        $publisherCrud->onEdit[] = function($record)  {
+        $publisherCrud->onEdit[] = function ($record)  {
             $this->handleShowPublisherInfo($record->id);
             $this->loadPublishers(true);
             $this["publicationAddNewForm"]["publisher_id"]->setValue($record->id);
@@ -1403,10 +1609,14 @@ class PublicationPresenter extends SecuredPresenter {
     }
 
 
-    public function createComponentJournalCrud(){
+    /**
+     * @return \App\CrudComponents\Journal\JournalCrud
+     */
+    public function createComponentJournalCrud(): JournalCrud
+    {
         $journalCrud  = $this->journalCrudFactory->create();
 
-        $journalCrud->onAdd[] = function($record) {
+        $journalCrud->onAdd[] = function ($record) {
             $this->handleShowJournalInfo($record->id);
             $this->loadJournals(true);
             $this["publicationAddNewForm"]["journal_id"]->setValue($record->id);
@@ -1416,7 +1626,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('journalInfo');
         };
 
-        $journalCrud->onDelete[] = function($record) {
+        $journalCrud->onDelete[] = function ($record) {
             $this->handleShowJournalInfo($record->id);
             $this->loadJournals(true);
             $this["publicationAddNewForm"]["journal_id"]->setValue(null);
@@ -1426,7 +1636,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('journalInfo');
         };
 
-        $journalCrud->onEdit[] = function($record)  {
+        $journalCrud->onEdit[] = function ($record)  {
             $this->handleShowJournalInfo($record->id);
             $this->loadJournals(true);
             $this["publicationAddNewForm"]["journal_id"]->setValue($record->id);
@@ -1438,10 +1648,14 @@ class PublicationPresenter extends SecuredPresenter {
     }
 
 
-    public function createComponentConferenceCrud(){
+    /**
+     * @return \App\CrudComponents\Conference\ConferenceCrud
+     */
+    public function createComponentConferenceCrud(): ConferenceCrud
+    {
         $conferenceCrud  = $this->conferenceCrudFactory->create();
 
-        $conferenceCrud->onAdd[] = function($record) {
+        $conferenceCrud->onAdd[] = function ($record) {
             $this->handleShowConferenceInfo($record->id);
             $this->loadConferences(true);
             $this["publicationAddNewForm"]["conference"]->setValue($record->id);
@@ -1452,7 +1666,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('conferenceInfo');
         };
 
-        $conferenceCrud->onDelete[] = function($record) {
+        $conferenceCrud->onDelete[] = function ($record) {
             $this->handleShowConferenceInfo($record->id);
             $this->loadConferences(true);
             $this["publicationAddNewForm"]["conference"]->setValue(null);
@@ -1463,7 +1677,7 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('conferenceInfo');
         };
 
-        $conferenceCrud->onEdit[] = function($record)  {
+        $conferenceCrud->onEdit[] = function ($record)  {
             $this->handleShowConferenceInfo($record->id);
             $this->loadConferences(true);
             $this["publicationAddNewForm"]["conference"]->setValue($record->id);
@@ -1471,9 +1685,8 @@ class PublicationPresenter extends SecuredPresenter {
             $this->redrawControl('conferenceInfo');
         };
 
-        $conferenceCrud->onCreateConferenceYearCrud[] = function(\App\CrudComponents\ConferenceYear\ConferenceYearCrud &$c) {
-
-            $fnRedraw = function() use ($c) {
+        $conferenceCrud->onCreateConferenceYearCrud[] = function (ConferenceYearCrud &$c) {
+            $fnRedraw = function () use ($c) {
                 $this->selectedConferenceId = $c->getConferenceId();
 
                 $this->loadConferenceYears(true);
@@ -1489,20 +1702,25 @@ class PublicationPresenter extends SecuredPresenter {
         return $conferenceCrud;
     }
 
-    public function createComponentAttributeCrud(){
+
+    /**
+     * @return \App\CrudComponents\Attribute\AttributeCrud
+     */
+    public function createComponentAttributeCrud(): AttributeCrud
+    {
         $attributeCrud  = $this->attributeCrudFactory->create();
 
-        $attributeCrud->onAdd[] = function($record) {
+        $attributeCrud->onAdd[] = function ($record) {
             $this->loadAttributes(true);
             $this->redrawControl('attributeShowAllRecords');
         };
 
-        $attributeCrud->onDelete[] = function($record) {
+        $attributeCrud->onDelete[] = function ($record) {
             $this->loadAttributes(true);
             $this->redrawControl('attributeShowAllRecords');
         };
 
-        $attributeCrud->onEdit[] = function($record)  {
+        $attributeCrud->onEdit[] = function ($record) {
             $this->loadAttributes(true);
             $this->redrawControl('attributeShowAllRecords');
         };
@@ -1510,20 +1728,25 @@ class PublicationPresenter extends SecuredPresenter {
         return $attributeCrud;
     }
 
-    public function createComponentGroupCrud(){
+
+    /**
+     * @return \App\CrudComponents\Group\GroupCrud
+     */
+    public function createComponentGroupCrud(): GroupCrud
+    {
         $c = $this->groupCrudFactory->create();
 
-        $c->onAdd[] = function($record) {
+        $c->onAdd[] = function ($record) {
             $this->template->groupAdded = $record;
             $this->redrawControl('groupAdded');
         };
 
-        $c->onEdit[] = function($record) {
+        $c->onEdit[] = function ($record) {
             $this->template->groupEdited = $record;
             $this->redrawControl('groupEdited');
         };
 
-        $c->onDelete[] = function($record) {
+        $c->onDelete[] = function ($record) {
             $this->template->groupDeleted = $record;
             $this->redrawControl('groupDeleted');
         };
@@ -1531,21 +1754,25 @@ class PublicationPresenter extends SecuredPresenter {
         return $c;
     }
 
-    public function createComponentAuthorCrud() {
 
+    /**
+     * @return \App\CrudComponents\Author\AuthorCrud
+     */
+    public function createComponentAuthorCrud(): AuthorCrud
+    {
         $c = $this->authorCrudFactory->create();
 
-        $c->onAdd[] = function($record) {
+        $c->onAdd[] = function ($record) {
             $this->template->authorAdded = $record;
             $this->redrawControl('authorAdded');
         };
 
-        $c->onEdit[] = function($record) {
+        $c->onEdit[] = function ($record) {
             $this->template->authorEdited = $record;
             $this->redrawControl('authorEdited');
         };
 
-        $c->onDelete[] = function($record) {
+        $c->onDelete[] = function ($record) {
             $this->template->authorDeleted = $record;
             $this->redrawControl('authorDeleted');
         };
@@ -1556,47 +1783,85 @@ class PublicationPresenter extends SecuredPresenter {
 
     // =======================   DATA LOADERS    =======================
 
-    protected function loadPublishers($updateDependencies = false){
+    /**
+     * @param bool $updateDependencies
+     */
+    protected function loadPublishers(bool $updateDependencies = false): void
+    {
         $this->publishers =  $this->publisherModel->findAll()->order("name ASC")->fetchPairs('id', 'name');
-        if($updateDependencies) {
-            if(isset($this['publicationAddNewForm'])) $this['publicationAddNewForm']['publisher_id']->setItems($this->publishers);
+
+        if ($updateDependencies) {
+            if (isset($this['publicationAddNewForm'])) {
+                $this['publicationAddNewForm']['publisher_id']->setItems($this->publishers);
+            }
         }
     }
 
-    protected function loadJournals($updateDependencies = false){
+
+    /**
+     * @param bool $updateDependencies
+     */
+    protected function loadJournals(bool $updateDependencies = false): void
+    {
         $this->journals =  $this->journalModel->findAll()->order("name ASC")->fetchPairs('id', 'name');
-        if($updateDependencies) {
-            if(isset($this['publicationAddNewForm'])) $this['publicationAddNewForm']['journal_id']->setItems($this->journals);
+
+        if ($updateDependencies) {
+            if (isset($this['publicationAddNewForm'])) {
+                $this['publicationAddNewForm']['journal_id']->setItems($this->journals);
+            }
         }
     }
 
-    protected function loadConferences($updateDependencies = false){
+
+    /**
+     * @param bool $updateDependencies
+     */
+    protected function loadConferences(bool $updateDependencies = false): void
+    {
         $this->conferences = $this->conferenceModel->getConferenceForSelectbox();
-        if($updateDependencies) {
-            if(isset($this['publicationAddNewForm'])) $this['publicationAddNewForm']['conference']->setItems($this->conferences);
+
+        if ($updateDependencies) {
+            if (isset($this['publicationAddNewForm'])) {
+                $this['publicationAddNewForm']['conference']->setItems($this->conferences);
+            }
         }
     }
 
-    protected function loadConferenceYears($updateDependencies = false){
-        if($this->selectedConferenceId) {
+
+    /**
+     * @param bool $updateDependencies
+     */
+    protected function loadConferenceYears(bool $updateDependencies = false): void
+    {
+        if ($this->selectedConferenceId) {
             $this->conferenceYears = $this->conferenceYearModel->getConferenceYearForSelectbox($this->selectedConferenceId);
             if ($updateDependencies) {
-                if (isset($this['publicationAddNewForm'])) $this['publicationAddNewForm']['conference_year_id']->setItems($this->conferenceYears);
+                if (isset($this['publicationAddNewForm'])) {
+                    $this['publicationAddNewForm']['conference_year_id']->setItems($this->conferenceYears);
+                }
             }
-        } else $this->conferenceYears = [];
+        } else {
+            $this->conferenceYears = [];
+        }
     }
 
-    protected function loadAttributes($updateDependencies = false){
+
+    /**
+     * @param bool $updateDependencies
+     */
+    protected function loadAttributes(bool $updateDependencies = false): void
+    {
         $this->attributes =  $this->attributeModel->findAll()->order("name ASC");
+
         if($updateDependencies) {
             $cont = $this['publicationAddNewForm']['attributes'];
             foreach ($this->attributes as $attribute) {
-              $label = $attribute->name . ' (' . $attribute->description . ')';
-              if (empty($cont[$attribute->id])) {
-                $cont->addText($attribute->id, $label);
-              } else {
-                $cont[$attribute->id]->caption = $label;
-              }
+                $label = $attribute->name . ' (' . $attribute->description . ')';
+                if (empty($cont[$attribute->id])) {
+                    $cont->addText($attribute->id, $label);
+                } else {
+                    $cont[$attribute->id]->caption = $label;
+                }
             }
         }
     }
@@ -1605,10 +1870,13 @@ class PublicationPresenter extends SecuredPresenter {
 
     // ==============================       SIGNALS        ===============================
 
-    public function handleShowPublisherInfo($publisherId) {
-
+    /**
+     * @param int|null $publisherId
+     * @throws Nette\Application\AbortException
+     */
+    public function handleShowPublisherInfo(?int $publisherId): void
+    {
         $this->drawAllowed = false;
-
         $this->selectedPublisherId = $publisherId;
 
         if (!$this->isAjax()) {
@@ -1619,10 +1887,14 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function handleShowJournalInfo($journalId) {
 
+    /**
+     * @param int|null $journalId
+     * @throws Nette\Application\AbortException
+     */
+    public function handleShowJournalInfo(?int $journalId): void
+    {
         $this->drawAllowed = false;
-
         $this->selectedJournalId = $journalId;
 
         if (!$this->isAjax()) {
@@ -1633,13 +1905,16 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function handleShowConferenceInfo($conferenceId) {
+
+    /**
+     * @param int|null $conferenceId
+     * @throws Nette\Application\AbortException
+     */
+    public function handleShowConferenceInfo(?int $conferenceId): void
+    {
         $this->drawAllowed = true;
-
         $this->selectedConferenceId = $conferenceId;
-
         $this->selectedConferenceYearId = null;
-
         $this->loadConferenceYears(true);
 
         if (!$this->isAjax()) {
@@ -1654,11 +1929,15 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function handleShowConferenceYearInfo($conferenceYearId) {
+
+    /**
+     * @param int|null $conferenceYearId
+     * @throws Nette\Application\AbortException
+     */
+    public function handleShowConferenceYearInfo(?int $conferenceYearId): void
+    {
         $this->drawAllowed = false;
-
         $this->selectedConferenceYearId = $conferenceYearId;
-
         $conferenceYearInfo =  $this->conferenceYearModel->find($conferenceYearId);
 
         if (!empty($conferenceYearInfo['w_year'])) {
@@ -1678,7 +1957,13 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function handleSelectGroup($groupId) {
+
+    /**
+     * @param int|null $groupId
+     * @throws Nette\Application\AbortException
+     */
+    public function handleSelectGroup(?int $groupId): void
+    {
         $this->drawAllowed = false;
         $this->selectedGroupId = $groupId;
 
@@ -1689,7 +1974,13 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function handleSelectAuthor($authorId) {
+
+    /**
+     * @param int|null $authorId
+     * @throws Nette\Application\AbortException
+     */
+    public function handleSelectAuthor(?int $authorId): void
+    {
         $this->drawAllowed = false;
         $this->selectedAuthorId = $authorId;
 
@@ -1702,10 +1993,13 @@ class PublicationPresenter extends SecuredPresenter {
 
     // moved from basepresenter (what a mess!)
 
-    public function handleSetConfirmed($id) {
-
-        $this->publicationModel->update(array('id' => $id, 'confirmed' => 1));
-
+    /**
+     * @param int $id
+     * @throws Nette\Application\AbortException
+     */
+    public function handleSetConfirmed(int $id): void
+    {
+        $this->publicationModel->update(['id' => $id, 'confirmed' => 1]);
         $this->flashMessage('Operation has been completed successfully.', 'alert-success');
 
         if (!$this->presenter->isAjax()) {
@@ -1715,10 +2009,14 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function handleSetUnConfirmed($id) {
 
-        $this->publicationModel->update(array('id' => $id, 'confirmed' => 0));
-
+    /**
+     * @param int $id
+     * @throws Nette\Application\AbortException
+     */
+    public function handleSetUnConfirmed(int $id): void
+    {
+        $this->publicationModel->update(['id' => $id, 'confirmed' => 0]);
         $this->flashMessage('Operation has been completed successfully.', 'alert-success');
 
         if (!$this->presenter->isAjax()) {
@@ -1728,36 +2026,39 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    protected function createComponentPublicationSpringerForm($name) {
+
+    /**
+     * @param string $name
+     * @return \PublicationSpringerForm
+     */
+    protected function createComponentPublicationSpringerForm(string $name): \PublicationSpringerForm
+    {
         $form = new \PublicationSpringerForm($this, $name);
-        $form->onSuccess[] = function(\PublicationSpringerForm $form) {
-
-            Debugger::fireLog('publicationSpringerFormSucceeded');
-
+        $form->onSuccess[] = function (\PublicationSpringerForm $form) {
             $values = $form->getHttpData();
 
             if (!array_key_exists("data_springer", $values)) {
                 $this->presenter->redirect('this');
             }
 
-
             $data = $this->springerService->fetchData($values['id_springer'], $values['type_springer'], false);
             $dataArr = $data['array'];
             $data = $data['object'];
 
             if ($data) {
-
                 $this->publication = $this->springerService->parseData($data[$values['data_springer']]);
+                $result = [];
 
-
-                $result = array();
                 foreach ($this->publication['creators'] as $author) {
                     $parser = new Helpers\HumanNameParser_Parser($bodytag = str_replace(".", ". ", $author->creator));
-                    $result[] = array('name' => $parser->getFirst(), 'middlename' => $parser->getMiddle(), 'surname' => $parser->getLast());
+                    $result[] = [
+                        'name' => $parser->getFirst(),
+                        'middlename' => $parser->getMiddle(),
+                        'surname' => $parser->getLast()
+                    ];
                 }
 
-
-                $selectedAuthors = array();
+                $selectedAuthors = [];
 
                 foreach ($result as $author) {
                     $tempAuthor = $this->authorModel->getAuthorNameByAuthorName($author['name'], $author['middlename'], $author['surname']);
@@ -1772,26 +2073,29 @@ class PublicationPresenter extends SecuredPresenter {
             }
 
             $this['publicationAddNewForm']->setDefaults($this->publication);
-
-
             $this->flashMessage('Operation has been completed successfully.', 'alert-success');
         };
+
         return $form;
     }
 
-    public function handleFetchFromSpringer($idSpringer, $typeSpringer) {
 
-        Debugger::fireLog("handleFetchFromSpringer($idSpringer, $typeSpringer)");
-
+    /**
+     * @param $idSpringer
+     * @param $typeSpringer
+     * @throws Nette\Application\AbortException
+     */
+    public function handleFetchFromSpringer($idSpringer, $typeSpringer): void
+    {
         $radioArray = $this->springerService->fetchData($idSpringer, $typeSpringer);
 
         if ($radioArray && count($radioArray)) {
             $this["publicationSpringerForm"]["data_springer"]->setItems($radioArray); // set up new values
             $this->flashMessage('Operation has been completed successfully.', 'alert-success');
-            $this->template->springerMessage = array('status' => 'success', 'message' => 'Data fetched successfully, please select specific data for importing from RadioBox above!');
+            $this->template->springerMessage = ['status' => 'success', 'message' => 'Data fetched successfully, please select specific data for importing from RadioBox above!'];
         } else {
-            $this["publicationSpringerForm"]["data_springer"]->setItems(array()); // set up new values
-            $this->template->springerMessage = array('status' => 'danger', 'message' => 'No data found, please try again with different input!');
+            $this["publicationSpringerForm"]["data_springer"]->setItems([]); // set up new values
+            $this->template->springerMessage = ['status' => 'danger', 'message' => 'No data found, please try again with different input!'];
         }
 
 
@@ -1802,28 +2106,32 @@ class PublicationPresenter extends SecuredPresenter {
         }
     }
 
-    public function createComponentIndividualFilter ( ) {
-        $c = new \App\Components\ButtonToggle\ButtonGroupComponent([
-            'all'     =>  array(
+
+    /**
+     * @return \App\Components\ButtonToggle\ButtonGroupComponent
+     */
+    public function createComponentIndividualFilter(): ButtonGroupComponent
+    {
+        $c = new ButtonGroupComponent([
+            'all'     =>  [
                 'caption'   =>  'All publications',
                 'icon'      =>  'list'
-            ),
-            'starred'      =>  array(
+            ],
+            'starred'      =>  [
                 'caption'   =>  'Starred publications',
                 'icon'      =>  'star'
-            ),
-            'my'            => array(
+            ],
+            'my'            => [
                 'caption'   => 'My publications',
                 'icon'      => 'user'
-            )
+            ]
         ], 'all');
 
-        $c->onActiveButtonChanged[] = function(){
+        $c->onActiveButtonChanged[] = function () {
             $this->resetPagination();
         };
 
         return $c;
     }
-
 
 }

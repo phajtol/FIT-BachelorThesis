@@ -2,55 +2,47 @@
 
 namespace App\Forms;
 
-
-use App\Forms\BaseForm;
 use App\Model;
-use Nette\Application\UI,
-    Nette\ComponentModel\IContainer;
-use Nette\Forms\Controls\TextInput;
+
 
 class PublicationAddNewFormFactory {
 
-    /**
-     * @var Model\AttribStorage
-     */
+    /** @var Model\AttribStorage */
     protected $attribStorageModel;
 
-    /**
-     * @var Model\Publisher
-     */
+    /** @var Model\Publisher */
     protected $publisherModel;
 
-    /**
-     * @var Model\Journal
-     */
+    /** @var Model\Journal */
     protected $journalModel;
 
-    /**
-     * @var Model\Conference
-     */
+    /** @var Model\Conference */
     protected $conferenceModel;
 
-    /**
-     * @var Model\ConferenceYear
-     */
+    /** @var Model\ConferenceYear */
     protected $conferenceYearModel;
 
-    /**
-     * @var Model\Attribute
-     */
+    /** @var Model\Attribute */
     protected $attributeModel;
 
-    /**
-     * @var Model\Publication
-     */
+    /** @var Model\Publication */
     protected $publicationModel;
 
-    /**
-     * @var Model\PublicationIsbn
-     */
+    /** @var Model\PublicationIsbn */
     protected $publicationIsbnModel;
 
+
+    /**
+     * PublicationAddNewFormFactory constructor.
+     * @param Model\AttribStorage $attribStorageModel
+     * @param Model\Publisher $publisherModel
+     * @param Model\Journal $journalModel
+     * @param Model\Conference $conferenceModel
+     * @param Model\ConferenceYear $conferenceYearModel
+     * @param Model\Attribute $attributeModel
+     * @param Model\Publication $publicationModel
+     * @param Model\PublicationIsbn $publicationIsbnModel
+     */
     public function __construct(Model\AttribStorage $attribStorageModel,
                                 Model\Publisher $publisherModel,
                                 Model\Journal $journalModel,
@@ -58,8 +50,8 @@ class PublicationAddNewFormFactory {
                                 Model\ConferenceYear $conferenceYearModel,
                                 Model\Attribute $attributeModel,
                                 Model\Publication $publicationModel,
-                                Model\PublicationIsbn $publicationIsbnModel) {
-
+                                Model\PublicationIsbn $publicationIsbnModel)
+    {
         $this->attribStorageModel = $attribStorageModel;
         $this->publisherModel = $publisherModel;
         $this->journalModel = $journalModel;
@@ -70,18 +62,33 @@ class PublicationAddNewFormFactory {
         $this->publicationIsbnModel = $publicationIsbnModel;
       }
 
-      public function create($publication_id = null, $selectedConferenceId, $typesOfPublication, $parent, $onSuccess) {
+    /**
+     * @param null $publication_id
+     * @param $selectedConferenceId
+     * @param $typesOfPublication
+     * @param $parent
+     * @param $onSuccess
+     * @return BaseForm
+     */
+      public function create($publication_id = null, $selectedConferenceId, $typesOfPublication, $parent, $onSuccess): BaseForm
+      {
 
         $form = new BaseForm();
 
-        $form->addText('title', 'Title')->addRule($form::MAX_LENGTH, 'Title is way too long', 500)->setRequired('Title is required.');
+        $form->addText('title', 'Title')
+            ->addRule($form::MAX_LENGTH, 'Title is way too long', 500)
+            ->setRequired('Title is required.');
+
         if (!$publication_id) {
           $that = $this;
-            $form['title']->addRule(function($item) use ($that) {
-                if($that->publicationModel->findOneBy(array('title' => $item->value))) return false;
+            $form['title']->addRule(function ($item) use ($that) {
+                if ($that->publicationModel->findOneBy(['title' => $item->value])) {
+                    return false;
+                }
                 return true;
             }, "Title already exists.", $parent);
         }
+
         $form->addTextArea('abstract', 'Abstract', 6, 8)
             ->addRule($form::MAX_LENGTH, 'Abstract is way too long', 20000)
             ->setRequired(false);
@@ -99,10 +106,10 @@ class PublicationAddNewFormFactory {
             ->setRequired(false);
 
         $form->addText('authors')
-                ->addRule(\PublicationFormRules::AUTHOR_REQUIRED, "Author(s) is/are required.", $form)
-                ->addRule(\PublicationFormRules::AUTHOR_OPTIONAL, "Select Author(s) or fill Editor.", $form)
-                ->addRule(\PublicationFormRules::AUTHOR_SET_DEFAULT_VALUES, "-", $parent)
-                ->setRequired(false);
+            ->addRule(\PublicationFormRules::AUTHOR_REQUIRED, "Author(s) is/are required.", $form)
+            ->addRule(\PublicationFormRules::AUTHOR_OPTIONAL, "Select Author(s) or fill Editor.", $form)
+            ->addRule(\PublicationFormRules::AUTHOR_SET_DEFAULT_VALUES, "-", $parent)
+            ->setRequired(false);
 
         $form->addText('volume', 'Volume')
             ->addRule($form::MAX_LENGTH, 'Volume is way too long', 50)
@@ -113,7 +120,8 @@ class PublicationAddNewFormFactory {
             ->setRequired(false);
 
         $form->addText('chapter', 'Chapter')
-            ->addRule($form::MAX_LENGTH, 'Chapter is way too long', 200)->addRule(\PublicationFormRules::CHAPTER_OPTIONAL, "Fill Chapter or Pages.", $form)
+            ->addRule($form::MAX_LENGTH, 'Chapter is way too long', 200)
+            ->addRule(\PublicationFormRules::CHAPTER_OPTIONAL, "Fill Chapter or Pages.", $form)
             ->setRequired(false);
 
         $form->addText('pages', 'Pages')
@@ -175,10 +183,11 @@ class PublicationAddNewFormFactory {
 
 
         if ($publication_id) {
-          $count = $this->publicationIsbnModel->findAllBy(["publication_id" => $publication_id])->count('*');
+            $count = $this->publicationIsbnModel->findAllBy(["publication_id" => $publication_id])->count('*');
         } else {
-          $count = 1;
+            $count = 1;
         }
+
         $form->addHidden('isbn_count')
           ->setDefaultValue($count);
         $cont = $form->addContainer("isbn");
@@ -215,6 +224,7 @@ class PublicationAddNewFormFactory {
 
         $attributes = $this->attributeModel->findAll()->order("name ASC");
         $cont = $form->addContainer("attributes");
+
         foreach ($attributes as $atrib) {
             $cont->addText($atrib->id, $atrib->name . ' (' . $atrib->description . ')')
                 ->setRequired(false);
@@ -233,13 +243,14 @@ class PublicationAddNewFormFactory {
             ->setValidationScope(NULL)->onClick[] = function () use ($parent) {
                 $parent->redirect('Publication:showall');
             };
+
         $form->addSubmit('send', 'Done');
 
-        $form->onSuccess[] = function($form) use ($onSuccess) {
-          $onSuccess($form);
+        $form->onSuccess[] = function ($form) use ($onSuccess) {
+            $onSuccess($form);
         };
 
         return $form;
-
     }
+
 }

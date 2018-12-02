@@ -2,6 +2,11 @@
 
 namespace App\Model;
 
+
+use Nette\ArrayHash;
+use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
+
 class Publication extends Base {
 
     /**
@@ -10,15 +15,20 @@ class Publication extends Base {
      */
     protected $tableName = 'publication';
 
+    /** @var Author */
     protected $authorModel;
 
+    /** @var \App\Helpers\Functions */
     protected $functions;
 
+    /** @var Files */
     protected $filesModel;
 
+    /** @var \Nette\Security\User */
     protected $user;
 
-    public function __construct(Files $filesModel, \Nette\Security\User $user, Author $authorModel, \Nette\Database\Context $db) {
+    public function __construct(Files $filesModel, \Nette\Security\User $user, Author $authorModel, \Nette\Database\Context $db)
+    {
         parent::__construct($db);
         $this->authorModel = $authorModel;
         $this->user = $user;
@@ -26,8 +36,13 @@ class Publication extends Base {
         $this->functions = new \App\Helpers\Functions();
     }
 
-    public function findAllByKw($params) {
+    /**
+     * @param array $params
+     * @return Selection
+     */
+    public function findAllByKw(array $params): Selection {
         $records = $this->database->table('publication');
+
         if (isset($params['keywords'])) {
             $records = $records->where("title LIKE ?", "%" . $params['keywords'] . "%");
         }
@@ -39,96 +54,121 @@ class Publication extends Base {
         return $records;
     }
 
-    public function findAllUnconfirmedByKw($params) {
-        return $this->database->table('publication')->where(array('confirmed' => 0))->where("title LIKE ?", "%" . $params['keywords'] . "%")->order($params['sort'] . ' ' . $params['order']);
+    /**
+     * @param array $params
+     * @return Selection
+     */
+    public function findAllUnconfirmedByKw(array $params): Selection
+    {
+        return $this->database->table('publication')
+            ->where(['confirmed' => 0])
+            ->where('title LIKE ?', '%' . $params['keywords'] . '%')
+            ->order($params['sort'] . ' ' . $params['order']);
     }
 
-    public function findAllUnconfirmed($params) {
-        return $this->database->table('publication')->where(array('confirmed' => 0))->order($params['sort'] . ' ' . $params['order']);
+    /**
+     * @param array $params
+     * @return Selection
+     */
+    public function findAllUnconfirmed(array $params): Selection
+    {
+        return $this->database->table('publication')->where(['confirmed' => 0])->order($params['sort'] . ' ' . $params['order']);
     }
 
-    /** @return Nette\Database\Table\ActiveRow */
-    public function countUnConfirmed() {
-        return $this->database->table('publication')->where(array('confirmed' => 0))->count('*');
+    /**
+     * @return int
+     */
+    public function countUnConfirmed(): int
+    {
+        return $this->database->table('publication')->where(['confirmed' => 0])->count('*');
     }
 
-    public function deleteAssociatedRecords($publicationId) {
+    /**
+     * @param int $publicationId
+     */
+    public function deleteAssociatedRecords(int $publicationId): void
+    {
+        $annotation = $this->database->table('annotation')->where(['publication_id' => $publicationId]);
+        $authorHasPublication = $this->database->table('author_has_publication')->where(['publication_id' => $publicationId]);
+        $categoriesHasPublication = $this->database->table('categories_has_publication')->where(['publication_id' => $publicationId]);
+        $submitterHasPublication = $this->database->table('submitter_has_publication')->where(['publication_id' => $publicationId]);
+        $documents = $this->database->table('documents')->where(['publication_id' => $publicationId]);
+        $attribStorage = $this->database->table('attrib_storage')->where(['publication_id' => $publicationId]);
+        $groupHasPublication = $this->database->table('group_has_publication')->where(['publication_id' => $publicationId]);
+        $publication = $this->database->table('publication')->get($publicationId);
 
-        $annotation = $this->database->table('annotation')->where(array("publication_id" => $publicationId));
         foreach ($annotation as $item) {
             $item->delete();
         }
 
-        $authorHasPublication = $this->database->table('author_has_publication')->where(array("publication_id" => $publicationId));
         foreach ($authorHasPublication as $item) {
             $item->delete();
         }
 
-        $categoriesHasPublication = $this->database->table('categories_has_publication')->where(array("publication_id" => $publicationId));
         foreach ($categoriesHasPublication as $item) {
             $item->delete();
         }
 
-        $documents = $this->database->table('documents')->where(array("publication_id" => $publicationId));
         foreach ($documents as $item) {
             $item->delete();
         }
 
-        $submitterHasPublication = $this->database->table('submitter_has_publication')->where(array("publication_id" => $publicationId));
         foreach ($submitterHasPublication as $item) {
             $item->delete();
         }
 
-        $attribStorage = $this->database->table('attrib_storage')->where(array("publication_id" => $publicationId));
         foreach ($attribStorage as $attrib) {
             $attrib->delete();
         }
 
-        $groupHasPublication = $this->database->table('group_has_publication')->where(array("publication_id" => $publicationId));
         foreach ($groupHasPublication as $item) {
             $item->delete();
         }
 
-
-        $publication = $this->database->table('publication')->get($publicationId);
         if ($publication) {
             $publication->delete();
         }
     }
 
-    public function getAllPubInfo($publicationCopy) {
+    /**
+     * @param $publicationCopy
+     * @return array
+     */
+    public function getAllPubInfo($publicationCopy): array
+    {
         $userId = $this->user->getId();
-        $isAdmin = $this->user->isInRole("admin");
+        $isAdmin = $this->user->isInRole('admin');
         $publication = $publicationCopy->toArray();
         $publication['location'] = '';
 
         $journal = $this->database->table('journal')->get($publicationCopy->journal_id);
         unset($publication['journal_id']);
+
         if ($journal) {
             $publication['journal'] = $journal->name;
         }
 
-        $categories = $this->database->table('categories_has_publication')->where(array('publication_id' => $publicationCopy->id));
-        $group = $this->database->table('group_has_publication')->where(array('publication_id' => $publicationCopy->id));
+        $categories = $this->database->table('categories_has_publication')->where(['publication_id' => $publicationCopy->id]);
+        $group = $this->database->table('group_has_publication')->where(['publication_id' => $publicationCopy->id]);
         $authors = $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id);
 
         // bibtex
         $authorString = $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id, ' and ');
-        $publication['author'] = "";
+        $publication['author'] = '';
         if ($authorString) {
             $publication['author'] = $authorString;
         }
 
         // endnote, refworks
         $authorArray = $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id, null, 'endnote');
-        $publication['author_array'] = array();
+        $publication['author_array'] = [];
         if ($authorArray) {
             $publication['author_array'] = $authorArray;
         }
 
         $publisher = $this->database->table('publisher')->get($publicationCopy->publisher_id);
         unset($publication['publisher_id']);
-        $publication['publisher'] = "";
+        $publication['publisher'] = '';
         if ($publisher) {
             $publication['publisher'] = $publisher->name;
             $publication['publisher_address'] = $publisher->address;
@@ -147,7 +187,7 @@ class Publication extends Base {
         $conferenceYearOriginal = $this->database->table('conference_year')->get($publicationCopy->conference_year_id);
         $conferenceYearPublisher = '';
 
-        $publication['isbn'] = $publicationCopy->related("publication_isbn");
+        $publication['isbn'] = $publicationCopy->related('publication_isbn');
 
         if ($conferenceYearOriginal) {
             $conferenceYear = $conferenceYearOriginal->toArray();
@@ -187,9 +227,9 @@ class Publication extends Base {
             $publication['pages_end'] = is_array($pages) && count($pages) == 2 ? preg_replace("/[^0-9]/", "", $pages[1]) : $publication['pages'];
         }
 
-        $attributes = $this->database->table('attrib_storage')->where(array("publication_id" => $publicationCopy->id));
+        $attributes = $this->database->table('attrib_storage')->where(["publication_id" => $publicationCopy->id]);
 
-        return array(
+        return [
             'attributes' => $attributes,
             'publication' => $publication,
             'journal' => $journal,
@@ -210,18 +250,26 @@ class Publication extends Base {
             'pubCit' => $publication,
             'pubCit_author_array' => $this->authorModel->getAuthorsNamesByPubIdPure($publicationCopy->id),
             'pubCit_author' => $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id, ', '),
-        );
+        ];
     }
 
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getLength() {
-        return $this->database->query('
-          SELECT COUNT(publication.id) as length FROM publication
-         ')->fetch();
+    /**
+     * @return ActiveRow
+     */
+    public function getLength(): ActiveRow
+    {
+        return $this->database->query('SELECT COUNT(publication.id) as length FROM publication')->fetch();
     }
 
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs($submitterId, $limit, $offset, $sort) {
+    /**
+     * @param int $submitterId
+     * @param int $limit
+     * @param int $offset
+     * @param string $sort
+     * @return ActiveRow
+     */
+    public function getAllPubs(int $submitterId, int $limit, int $offset, string $sort): ActiveRow
+    {
         // spatne - zobrazuje to min vysledku, musim pres vnoreny select
         return $this->database->query('
           SELECT publication.*, submitter_has_publication.submitter_id as submitter_favouriter_id FROM publication
@@ -233,8 +281,15 @@ class Publication extends Base {
           ', $submitterId, $limit, $offset)->fetchAll();
     }
 
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_OR($keywords, $categories, $sort, $limit = null, $offset = null) {
+    /**
+     * @param $keywords
+     * @param $categories
+     * @param $sort
+     * @param null $limit
+     * @param null $offset
+     * @return ActiveRow
+     */
+    public function getAllPubs_FullText_OR($keywords, $categories, $sort, $limit = null, $offset = null): ActiveRow {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery($limit, $sort);
         $selectQuery = $this->getSelectQueryOR($limit);
@@ -1063,7 +1118,11 @@ class Publication extends Base {
       $formValues['organization'] = NULL;
      */
 
-    public function setMisc($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setMisc(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash {
         $formValues['volume'] = NULL;
         $formValues['number'] = NULL;
         $formValues['chapter'] = NULL;
@@ -1082,7 +1141,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setBook($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setBook(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['chapter'] = NULL;
         $formValues['address'] = NULL;
         $formValues['booktitle'] = NULL;
@@ -1097,7 +1161,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setArticle($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setArticle(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['chapter'] = NULL;
         $formValues['editor'] = NULL;
         $formValues['edition'] = NULL;
@@ -1114,7 +1183,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setInproceedings($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setInproceedings(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['editor'] = NULL;
         $formValues['edition'] = NULL;
         $formValues['address'] = NULL;
@@ -1129,7 +1203,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function seProceedings($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function seProceedings(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['chapter'] = NULL;
         $formValues['editor'] = NULL;
         $formValues['edition'] = NULL;
@@ -1145,7 +1224,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setIncollection($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setIncollection(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['editor'] = NULL;
         $formValues['address'] = NULL;
         $formValues['school'] = NULL;
@@ -1159,7 +1243,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setInbook($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setInbook(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['address'] = NULL;
         $formValues['booktitle'] = NULL;
         $formValues['school'] = NULL;
@@ -1173,7 +1262,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setBooklet($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setBooklet(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['volume'] = NULL;
         $formValues['number'] = NULL;
         $formValues['chapter'] = NULL;
@@ -1191,7 +1285,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setManual($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setManual(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['volume'] = NULL;
         $formValues['number'] = NULL;
         $formValues['chapter'] = NULL;
@@ -1208,7 +1307,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setTechreport($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setTechreport(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['volume'] = NULL;
         $formValues['chapter'] = NULL;
         $formValues['editor'] = NULL;
@@ -1224,7 +1328,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setMastersthesis($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setMastersthesis(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['volume'] = NULL;
         $formValues['number'] = NULL;
         $formValues['chapter'] = NULL;
@@ -1242,7 +1351,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setPhdthesis($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setPhdthesis(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['volume'] = NULL;
         $formValues['number'] = NULL;
         $formValues['chapter'] = NULL;
@@ -1260,7 +1374,12 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function setUnpublished($formValues) {
+    /**
+     * @param \Nette\Utils\ArrayHash $formValues
+     * @return \Nette\Utils\ArrayHash
+     */
+    public function setUnpublished(\Nette\Utils\ArrayHash $formValues): \Nette\Utils\ArrayHash
+    {
         $formValues['volume'] = NULL;
         $formValues['number'] = NULL;
         $formValues['chapter'] = NULL;
@@ -1280,36 +1399,63 @@ class Publication extends Base {
         return $formValues;
     }
 
-    public function getPairs() {
+    /**
+     * @return array
+     */
+    public function getPairs(): array
+    {
         $params = [];
+        $arr = [];
         $params['sort'] = 'title';
         $params['order'] = 'ASC';
-
         $all = $this->findAllByKw($params);
-        $arr = array();
+
         foreach ($all as $one) {
             $arr[$one->id] = $one->title;
         }
+
         return $arr;
     }
-    public function getPairsForReference($publication_id, $text_reference_id = null) {
+
+    /**
+     * @param int $publication_id
+     * @param int|null $text_reference_id
+     * @return array
+     */
+    public function getPairsForReference(int $publication_id, ?int $text_reference_id = null): array
+    {
+        $arr = [];
+        $idNot = $this->database->table('reference')
+            ->select('reference_id')
+            ->where('publication_id = ?', $publication_id)
+            ->where('reference_id IS NOT NULL');
+
         $query = $this->database->table('publication')
-                ->where('id != ?',$publication_id)
-                ->where("id NOT", $this->database->table("reference")->select('reference_id')->where("publication_id=?",$publication_id)->where("reference_id IS NOT NULL"));
-        $reference = $this->database->fetch("SELECT * FROM reference where id=?;",$text_reference_id);
+            ->where('id != ?',$publication_id)
+            ->where('id NOT', $idNot);
+
+        $reference = $this->database->fetch('SELECT * FROM reference where id = ?;', $text_reference_id);
+
         if (empty($text_reference_id)) {
-                $publications = $query->order("title");
+            $publications = $query->order("title");
         } else {
-                $publications = $query->order("MATCH(title) AGAINST (? IN BOOLEAN MODE) DESC",$reference->title);
+            $publications = $query->order('MATCH(title) AGAINST (? IN BOOLEAN MODE) DESC' , $reference->title);
         }
-        $arr = array();
+
         foreach ($publications as $one) {
-            $authors = $this->authorModel->getAuthorsNamesByPubId($one->id, "; ");
-            $arr[$one->id] = $one->title." (".$authors."; id: ".$one->id.")";
+            $authors = $this->authorModel->getAuthorsNamesByPubId($one->id, '; ');
+            $arr[$one->id] = $one->title . ' (' . $authors . '; id: ' . $one->id . ')';
         }
+
         return $arr;
     }
-    public function findAllByUserId($id) {
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function findAllByUserId(int $id): array
+    {
       return $this->database->fetchAll("SELECT p.* FROM publication p
                                         JOIN author_has_publication ap ON (p.id = ap.publication_id)
                                         JOIN author a ON (ap.author_id = a.id)

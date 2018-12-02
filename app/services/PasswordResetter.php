@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 1.5.2015
- * Time: 14:48
- */
 
 namespace App\Services;
 

@@ -1,29 +1,37 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 2.4.2015
- * Time: 16:32
- */
 
 namespace App\Components;
 
 
 class BaseControl extends \Nette\Application\UI\Control {
 
+    /** @var array */
 	protected $defaultTemplateVars = [];
 
-	protected function addDefaultTemplateVar($var, $value) {
-		$this->defaultTemplateVars = array_merge($this->defaultTemplateVars, array($var => $value));
+    /**
+     * @param $var
+     * @param $value
+     */
+	protected function addDefaultTemplateVar($var, $value): void
+    {
+		$this->defaultTemplateVars = array_merge($this->defaultTemplateVars, [$var => $value]);
 	}
 
-	protected function addDefaultTemplateVars($array) {
+    /**
+     * @param array $array
+     */
+	protected function addDefaultTemplateVars(array $array): void
+    {
 		$this->defaultTemplateVars = array_merge($this->defaultTemplateVars, $array);
 	}
 
-	public function render() {
+    /**
+     *
+     */
+	public function render(): void
+    {
 		foreach($this->defaultTemplateVars as $k => $v) {
-			if(!isset($this->template->$k)) {
+			if (!isset($this->template->$k)) {
 				$this->template->$k = $v;
 			}
 		}

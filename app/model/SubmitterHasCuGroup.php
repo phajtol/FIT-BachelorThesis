@@ -1,24 +1,32 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.4.2015
- * Time: 2:16
- */
 
 namespace App\Model;
+
+use Nette\Database\Table\Selection;
 
 
 class SubmitterHasCuGroup extends Base {
 
+    /** @var string */
 	protected $tableName = 'submitter_has_cu_group';
 
-	public function getAllByCuGroupId($id) {
-		return $this->findAllBy(array('cu_group_id' => $id));
+
+    /**
+     * @param int $id
+     * @return Selection
+     */
+	public function getAllByCuGroupId(int $id): Selection
+    {
+		return $this->findAllBy(['cu_group_id' => $id]);
 	}
 
-	public function getAllByUserId($id){
-		return $this->findAllBy(array('submitter_id' => $id));
+    /**
+     * @param int $id
+     * @return Selection
+     */
+	public function getAllByUserId(int $id): Selection
+    {
+		return $this->findAllBy(['submitter_id' => $id]);
 	}
 
 

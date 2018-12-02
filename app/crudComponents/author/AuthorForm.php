@@ -1,17 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 18.3.2015
- * Time: 20:07
- */
 
 namespace App\CrudComponents\Author;
 
 
 abstract class AuthorForm extends \App\Forms\BaseForm {
 
-	public function __construct(\App\Model\Submitter $submitter,\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+    /**
+     * AuthorForm constructor.
+     * @param \App\Model\Submitter $submitter
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(\App\Model\Submitter $submitter,\Nette\ComponentModel\IContainer $parent = NULL, string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
 		$this->addText('name', 'Name')

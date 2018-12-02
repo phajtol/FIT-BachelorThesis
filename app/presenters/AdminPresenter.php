@@ -2,9 +2,9 @@
 
 namespace App\Presenters;
 
-use Nette,
-    App\Model,
-    \VisualPaginator;
+use Nette;
+use App\Model;
+
 
 class AdminPresenter extends SecuredPresenter {
 
@@ -18,61 +18,93 @@ class AdminPresenter extends SecuredPresenter {
     public $generalSettingsModel;
 
 
-    protected function startup() {
+    /**
+     * @throws Nette\Application\AbortException
+     */
+    protected function startup(): void
+    {
         parent::startup();
     }
 
-    public function actionDefault() {
+    /**
+     *
+     */
+    public function actionDefault(): void
+    {
 
     }
 
-    public function renderDefault() {
+    /**
+     *
+     */
+    public function renderDefault(): void
+    {
     }
 
-    public function handleConfirmReference($reference_id, $publication_id) {
+    /**
+     * @param int $reference_id
+     * @param int $publication_id
+     * @throws Nette\Application\AbortException
+     */
+    public function handleConfirmReference(int $reference_id, int $publication_id): void
+    {
         $this->referenceModel->confirm($publication_id, $reference_id);
         $this->redirect("this");
     }
 
-    public function actionShowUnconfirmed($sort, $order, $keywords) {
+    /**
+     * @param $sort
+     * @param $order
+     * @param $keywords
+     */
+    public function actionShowUnconfirmed($sort, $order, $keywords): void
+    {
         $this->drawAllowed = false;
         $this->template->publicationDeleted = false;
         $this->drawPublicationUnconfirmed();
     }
 
-    public function renderReference() {
+    /**
+     *
+     */
+    public function renderReference(): void
+    {
       $this->template->references = $this->referenceModel->findUnconfirmedWithPublication();
+      $authorsByPubId = [];
 
-
-      $authorsByPubId = array();
-      foreach($this->template->references as $rec) {
+      foreach ($this->template->references as $rec) {
           /** @var $rec Nette\Database\Table\ActiveRow */
-          foreach($rec['publication2']->related('author_has_publication')->order('priority ASC') as $authHasPub) {
+          foreach ($rec['publication2']->related('author_has_publication')->order('priority ASC') as $authHasPub) {
               $author = $authHasPub->ref('author');
-              if(!isset($authorsByPubId[$rec['publication2']->id])) $authorsByPubId[$rec['publication2']->id] = [];
+              if (!isset($authorsByPubId[$rec['publication2']->id])) {
+                  $authorsByPubId[$rec['publication2']->id] = [];
+              }
               $authorsByPubId[$rec['publication2']->id][] = $author;
           }
       }
+
       $this->template->authorsByPubId = $authorsByPubId;
     }
 
-    protected function createComponentAdminShowUnconfirmedForm($name) {
+    /**
+     * @param string $name
+     * @return \AdminShowUnconfirmedForm
+     */
+    protected function createComponentAdminShowUnconfirmedForm(string $name): \AdminShowUnconfirmedForm
+    {
         $form = new \AdminShowUnconfirmedForm($this, $name);
-        $form->onSuccess[] = function(\AdminShowUnconfirmedForm $form) {
 
-            Debugger::fireLog('adminShowUnconfirmedFormSucceeded()');
-
+        $form->onSuccess[] = function (\AdminShowUnconfirmedForm $form) {
             $formValues = $form->getValues();
 
             foreach ($formValues as $key => $value) {
                 $name = explode('_', $key);
                 if ($value == 'TRUE') {
-                    $this->publicationModel->update(array('id' => $name[1], 'confirmed' => 1));
+                    $this->publicationModel->update(['id' => $name[1], 'confirmed' => 1]);
                 }
             }
 
             $this->drawAllowed = true;
-
             $this->flashMessage('Operation has been completed successfully.', 'alert-success');
 
             if (!$this->presenter->isAjax()) {
@@ -82,26 +114,30 @@ class AdminPresenter extends SecuredPresenter {
                 $this->redrawControl('flashMessages');
             }
         };
+
         return $form;
     }
 
-    public function actionSettings() {
+    /**
+     *
+     */
+    public function actionSettings(): void
+    {
         $this->template->generalSettingsEdited = false;
-        $this->template->generalSettings = $this->generalSettingsModel->findOneBy(array('id' => 1));
+        $this->template->generalSettings = $this->generalSettingsModel->findOneBy(['id' => 1]);
     }
 
-    protected function createComponentPublicationEditGeneralSettingsForm($name) {
+    /**
+     * @param string $name
+     * @return \PublicationAddNewGeneralSettingsForm
+     */
+    protected function createComponentPublicationEditGeneralSettingsForm(string $name): \PublicationAddNewGeneralSettingsForm
+    {
         $form = new \PublicationAddNewGeneralSettingsForm($this, $name);
-        $form->onSuccess[] = function(\PublicationAddNewGeneralSettingsForm $form) {
 
-            Debugger::fireLog('publicationEditGeneralSettingsFormSucceeded');
-
+        $form->onSuccess[] = function (\PublicationAddNewGeneralSettingsForm $form): void {
             $formValues = $form->getValues();
-
             $this->drawAllowed = false;
-
-            Debugger::fireLog($form->values->id);
-            Debugger::fireLog($this->action);
 
             $this->generalSettingsModel->update($formValues);
 
@@ -115,25 +151,29 @@ class AdminPresenter extends SecuredPresenter {
             if (!$this->presenter->isAjax()) {
                 $this->presenter->redirect('this');
             } else {
-                $form->setValues(array(), TRUE);
+                $form->setValues([], TRUE);
                 $this->redrawControl('publicationEditGeneralSettingsForm');
                 $this->redrawControl('settingsShowSettings');
                 $this->redrawControl('flashMessages');
             }
         };
-        $form->onError[] = function($form) {
+
+        $form->onError[] = function ($form): void {
             $this->redrawControl('publicationEditGeneralSettingsForm');
         };
+
         return $form;
     }
 
-    public function handleEditGeneralSettings() {
-
+    /**
+     * @throws Nette\Application\AbortException
+     */
+    public function handleEditGeneralSettings(): void
+    {
         $this->drawAllowed = false;
+        $generalSettings = $this->generalSettingsModel->findOneBy(['id' => 1]);
 
-        $generalSettings = $this->generalSettingsModel->findOneBy(array('id' => 1));
-
-        $this["publicationEditGeneralSettingsForm"]->setDefaults($generalSettings); // set up new values
+        $this['publicationEditGeneralSettingsForm']->setDefaults($generalSettings); // set up new values
 
         if (!$this->presenter->isAjax()) {
             $this->presenter->redirect('this');
@@ -142,9 +182,11 @@ class AdminPresenter extends SecuredPresenter {
         }
     }
 
-    public function drawPublicationUnconfirmed() {
-
-        Debugger::fireLog('drawPublicationUnconfirmed');
+    /**
+     *
+     */
+    public function drawPublicationUnconfirmed(): void
+    {
         $params = $this->getHttpRequest()->getQuery();
 
         if (!isset($params['sort'])) {
@@ -156,7 +198,6 @@ class AdminPresenter extends SecuredPresenter {
         }
 
         if (!isset($this->template->records)) {
-            Debugger::fireLog('--bbbbb');
             if (isset($params['keywords'])) {
                 $this->records = $this->publicationModel->findAllUnconfirmedByKw($params);
             } else {
@@ -196,30 +237,47 @@ class AdminPresenter extends SecuredPresenter {
         $this->redrawControl('publicationShowAll');
     }
 
-    public function handleConfirm($id, $reference_id) {
+    /**
+     * @param int $id
+     * @param int $reference_id
+     * @throws Nette\Application\AbortException
+     */
+    public function handleConfirm(int $id, int $reference_id): void
+    {
         $this->referenceModel->confirm($id, $reference_id);
+
         if ($this->isAjax()) {
-            $this->redrawControl("references");
+            $this->redrawControl('references');
         } else {
-            $this->flashMessage("Reference confirmed.");
+            $this->flashMessage('Reference confirmed.');
             $this->redirect("this");
         }
     }
 
-    public function handleRefuse($id) {
+    /**
+     * @param int $id
+     * @throws Nette\Application\AbortException
+     */
+    public function handleRefuse(int $id): void
+    {
         $this->referenceModel->refuse($id);
+
         if ($this->isAjax()) {
-            $this->redrawControl("references");
+            $this->redrawControl('references');
         } else {
-            $this->flashMessage("Reference refused.");
-            $this->redirect("this");
+            $this->flashMessage('Reference refused.');
+            $this->redirect('this');
         }
     }
 
-    public function handleProcess() {
+    /**
+     * @throws Nette\Application\AbortException
+     */
+    public function handleProcess(): void
+    {
         $count = $this->referenceModel->process();
-        $this->flashMessage($count." reference processed.");
-        $this->redirect("this");
+        $this->flashMessage($count . ' reference processed.');
+        $this->redirect('this');
     }
 
 }

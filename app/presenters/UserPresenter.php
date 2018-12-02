@@ -11,51 +11,34 @@ use Nette\Mail\SendmailMailer;
 
 class UserPresenter extends SecuredPresenter {
 
-    /**
-     * @var \App\Services\Authenticators\LoginPassAuthenticator @inject
-     */
+    /** @var \App\Services\Authenticators\LoginPassAuthenticator @inject */
     public $loginPassAuthenticator;
 
-    /**
-     * @var Model\Submitter @inject
-     */
+    /** @var Model\Submitter @inject */
     public $submitterModel;
 
-    /**
-     * @var Model\Annotation @inject
-     */
+    /** @var Model\Annotation @inject */
     public $annotationModel;
 
-    /**
-     * @var Model\UserSettings @inject
-     */
+    /** @var Model\UserSettings @inject */
     public $userSettingsModel;
 
-    /**
-     * @var Model\Publication @inject
-     */
+    /** @var Model\Publication @inject */
     public $publicationModel;
 
-    /**
-     * @var Model\Tag @inject
-     */
+    /** @var Model\Tag @inject */
     public $tagModel;
 
-    /**
-     * @var \App\Services\Authenticators\BaseAuthenticator @inject
-     */
+    /** @var \App\Services\Authenticators\BaseAuthenticator @inject */
     public $baseAuthenticator;
 
-    /**
-     * @var \App\Factories\IAnnotationCrudFactory @inject
-     */
+    /** @var \App\Factories\IAnnotationCrudFactory @inject */
     public $annotationCrudFactory;
 
-    /**
-     * @var \App\Factories\ITagCrudFactory @inject
-     */
+    /** @var \App\Factories\ITagCrudFactory @inject */
     public $tagCrudFactory;
 
+    /** @var bool */
     protected $userPasswordChangeFormEnabled = false;
 
 
@@ -64,19 +47,35 @@ class UserPresenter extends SecuredPresenter {
      *
      * @see Nette\Application\Presenter#startup()
      */
-    protected function startup() {
+    protected function startup(): void
+    {
         parent::startup();
     }
 
-    public function actionDefault() {
+    /**
+     *
+     */
+    public function actionDefault(): void
+    {
 
     }
 
-    public function renderDefault() {
+    /**
+     *
+     */
+    public function renderDefault(): void
+    {
 
     }
 
-    public function actionShow($sort, $order, $keywords) {
+    /**
+     * @param $sort
+     * @param $order
+     * @param $keywords
+     * @throws Nette\Application\BadRequestException
+     */
+    public function actionShow($sort, $order, $keywords): void
+    {
 
         $this->drawAllowed = true;
 
@@ -90,6 +89,8 @@ class UserPresenter extends SecuredPresenter {
 
         $this->userPasswordChangeFormEnabled =
             ($this->baseAuthenticator->getUserAuthenticationMethod($this->user->id) == \App\Services\Authenticators\BaseAuthenticator::AUTH_LOGIN_PASS);
+
+        bdump($this->baseAuthenticator->getUserAuthenticationMethod($this->user->id));
 
         $submitter = $this->submitterModel->find($this->user->id);
 
@@ -120,33 +121,39 @@ class UserPresenter extends SecuredPresenter {
         $this->template->publicationDeleted = false;
     }
 
-    protected function createComponentUserPasswordChangeForm($name) {
+    /**
+     * @param $name
+     * @return \UserPasswordChangeForm
+     */
+    protected function createComponentUserPasswordChangeForm($name): \UserPasswordChangeForm
+    {
         $user = $this->submitterModel->find($this->user->id);
 
         $form = new \UserPasswordChangeForm($this->loginPassAuthenticator, $user, $this, $name);
-        if($this->userPasswordChangeFormEnabled) {
-            $form->onSuccess[] = function(\UserPasswordChangeForm $form) {
+
+        if ($this->userPasswordChangeFormEnabled) {
+            $form->onSuccess[] = function (\UserPasswordChangeForm $form) {
 
                 $user = $this->submitterModel->find($this->user->id);
-
                 $this->loginPassAuthenticator->associateLoginPasswordToUser($this->user->id, $user->nickname, $form['pass']->getValue());
 
                 $this->flashMessage('Your Password has been changed successfully.', 'alert-success');
-
                 $this->template->passwordChanged = true;
 
                 if (!$this->presenter->isAjax()) {
                     $this->presenter->redirect('this');
                 } else {
-                    $form->setValues(array(), TRUE);
+                    $form->clearValues();
                     $this->redrawControl('userPasswordChangeForm');
                     $this->redrawControl('flashMessages');
                 }
             };
-            $form->onError[] = function($form) {
+
+            $form->onError[] = function ($form) {
                 $this->redrawControl('userPasswordChangeForm');
             };
         }
+
         return $form;
     }
 

@@ -1,20 +1,26 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.5.2015
- * Time: 11:54
- */
 
 namespace App\CrudComponents\PublicationTag;
 
 
 class PublicationTagForm extends \App\Forms\BaseForm {
 
-	public function __construct(\App\Model\Tag $tagModel, $loggedUser, \Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+    /**
+     * PublicationTagForm constructor.
+     * @param \App\Model\Tag $tagModel
+     * @param \Nette\Security\User $loggedUser
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(
+	    \App\Model\Tag $tagModel,
+        \Nette\Security\User $loggedUser,
+        \Nette\ComponentModel\IContainer $parent = NULL,
+        string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
-    $this->addSelect("tag_id", "Tag", $tagModel->getPairs($loggedUser->id));
+        $this->addSelect('tag_id', 'Tag', $tagModel->getPairs($loggedUser->id));
 
 		$this->addCloseButton('cancel', 'Cancel');
 		$this->addSubmit('send', 'Done');
@@ -23,7 +29,6 @@ class PublicationTagForm extends \App\Forms\BaseForm {
 
 		$this->setModal(true);
 		$this->setAjax(true);
-
 	}
 
 }

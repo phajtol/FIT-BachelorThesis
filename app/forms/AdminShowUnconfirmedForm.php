@@ -5,7 +5,13 @@ use Nette\Application\UI,
 
 class AdminShowUnconfirmedForm extends UI\Form {
 
-    public function __construct(IContainer $parent = NULL, $name = NULL) {
+    /**
+     * AdminShowUnconfirmedForm constructor.
+     * @param IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+    public function __construct(IContainer $parent = NULL, string $name = NULL)
+    {
         parent::__construct();
         if ($parent) {
             $parent->addComponent($this, $name);
@@ -21,5 +27,3 @@ class AdminShowUnconfirmedForm extends UI\Form {
     }
 
 }
-
-?>

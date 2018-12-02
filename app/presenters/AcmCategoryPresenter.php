@@ -1,22 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 31.3.2015
- * Time: 16:49
- */
 
 namespace App\Presenters;
+
+use App\Components\AcmCategoryList\AcmCategoryListComponent;
 
 
 class AcmCategoryPresenter extends SecuredPresenter {
 
-	/**
-	 * @var \App\Factories\IAcmCategoryListFactory @inject
-	 */
+	/** @var \App\Factories\IAcmCategoryListFactory @inject */
 	public $acmCategoryListFactory;
 
-	public function createComponentAcmCategoryList($name){
+    /**
+     * @return \App\Components\AcmCategoryList\AcmCategoryListComponent
+     */
+	public function createComponentAcmCategoryList(): AcmCategoryListComponent
+    {
 		$c = $this->acmCategoryListFactory->create();
 		$c->setHasControls(true);
 		$c->setHasDnD(true);

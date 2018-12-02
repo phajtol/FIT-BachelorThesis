@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.4.2015
- * Time: 3:05
- */
 
 namespace App\Factories;
+
+use App\CrudComponents\CuGroup\CuGroupCrud;
 
 
 interface ICuGroupCrudFactory {
@@ -14,6 +10,6 @@ interface ICuGroupCrudFactory {
 	/**
 	 * @return \App\CrudComponents\CuGroup\CuGroupCrud
 	 */
-	public function create();
+	public function create(): CuGroupCrud;
 
 }

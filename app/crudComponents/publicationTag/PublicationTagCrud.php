@@ -12,72 +12,100 @@ class PublicationTagCrud extends \App\CrudComponents\BaseCrudComponent {
 	/** @var  \App\Model\PublicationHasTag */
 	protected $publicationHasTagModel;
 
-  /** @var  \App\Model\Tag */
+    /** @var  \App\Model\Tag */
 	protected $tagModel;
 
+	/** @var int */
 	protected $publicationId;
 
+
+    /**
+     * PublicationTagCrud constructor.
+     * @param int $publicationId
+     * @param \Nette\Security\User $loggedUser
+     * @param \App\Model\Tag $tagModel
+     * @param \App\Model\PublicationHasTag $publicationHasTagModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
 	public function __construct(
-		$publicationId,
-		\Nette\Security\User $loggedUser, \App\Model\Tag $tagModel,
-    \App\Model\PublicationHasTag $publicationHasTagModel,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
-	) {
+		int $publicationId,
+		\Nette\Security\User $loggedUser,
+        \App\Model\Tag $tagModel,
+        \App\Model\PublicationHasTag $publicationHasTagModel,
+		\Nette\ComponentModel\IContainer $parent = NULL,
+        string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
-		$this->addDefaultTemplateVars(array(
+		$this->addDefaultTemplateVars([
 			'publicationTagAdded'   =>  false,
 			'publicationTagEdited'  =>  false,
 			'publicationTagDeleted' =>  false,
-		));
+		]);
 
 		$this->publicationId = $publicationId;
 		$this->publicationHasTagModel = $publicationHasTagModel;
-    $this->tagModel = $tagModel;
+        $this->tagModel = $tagModel;
 		$this->loggedUser = $loggedUser;
 
-		$this->onControlsCreate[] = function(\App\CrudComponents\BaseCrudControlsComponent &$controlsComponent) {
+		$this->onControlsCreate[] = function (\App\CrudComponents\BaseCrudControlsComponent &$controlsComponent) {
 			//
 		};
 	}
 
-	public function createComponentPublicationTagForm($name){
-            $form = new PublicationTagForm($this->tagModel, $this->loggedUser, $this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('publicationTagForm');
-            };
-            $form->onSuccess[] = function(PublicationTagForm $form) {
-		if(!$this->isActionAllowed('add')) return;
+    /**
+     * @param string $name
+     * @return PublicationTagForm
+     */
+	public function createComponentPublicationTagForm(string $name): PublicationTagForm
+    {
+        $form = new PublicationTagForm($this->tagModel, $this->loggedUser, $this, $name);
 
-		$formValues = $form->getValuesTransformed();
+        $form->onError[] = function () {
+            $this->redrawControl('publicationTagForm');
+        };
 
-		$formValues['publication_id'] = $this->publicationId;
+        $form->onSuccess[] = function (PublicationTagForm $form) {
+		    if (!$this->isActionAllowed('add')) {
+		        return;
+            }
 
-		$record = $this->publicationHasTagModel->insert($formValues);
+		    $formValues = $form->getValuesTransformed();
+		    $formValues['publication_id'] = $this->publicationId;
+		    $record = $this->publicationHasTagModel->insert($formValues);
 
-		if($record) {
-			$this->template->publicationTagAdded = true;
+		    if($record) {
+			    $this->template->publicationTagAdded = true;
 
-			if ($this->presenter->isAjax()) {
-				$form->clearValues();
-				$this->redrawControl('publicationTagForm');
-			} else $this->redirect('this');
+			    if ($this->presenter->isAjax()) {
+				    $form->clearValues();
+				    $this->redrawControl('publicationTagForm');
+			    } else {
+			        $this->redirect('this');
+                }
 
-			$this->onAdd($record);
-		}
-            };
+			    $this->onAdd($record);
+		    }
+        };
 
+        return $form;
 	}
 
-	public function handleDelete($id) {
-		if(!$this->isActionAllowed('delete')) return;
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleDelete(int $id): void
+    {
+		if (!$this->isActionAllowed('delete')) {
+		    return;
+        }
 
 		$records = $this->publicationHasTagModel->findAllBy(["tag_id" => $id]);
 
 		if($records) {
-
 			$this->publicationHasTagModel->deleteByTagId($id);
-
 			$this->template->publicationTagDeleted = true;
 
 			if (!$this->presenter->isAjax()) {
@@ -90,9 +118,12 @@ class PublicationTagCrud extends \App\CrudComponents\BaseCrudComponent {
 		}
 	}
 
-  public function handleEdit($id) {
-
-  }
-
+    /**
+     * @param int $id
+     */
+    public function handleEdit(int $id): void
+    {
+        //wtf
+    }
 
 }

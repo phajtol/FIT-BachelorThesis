@@ -1,19 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 31.3.2015
- * Time: 16:44
- */
 
 namespace App\CrudComponents\AcmCategory;
 
 
 class AcmCategoryAddSubForm extends AcmCategoryAddForm {
 
+    /**
+     * AcmCategoryAddSubForm constructor.
+     * @param \App\Model\AcmCategory $acmCategoryModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
 	public function __construct(
 		\App\Model\AcmCategory $acmCategoryModel,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+		\Nette\ComponentModel\IContainer $parent = NULL,
+        string $name = NULL) {
 
 		parent::__construct($acmCategoryModel, $parent, $name);
 

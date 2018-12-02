@@ -2,6 +2,10 @@
 
 namespace App\Model;
 
+use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
+
+
 class Attributes extends Base {
 
     /**
@@ -10,25 +14,40 @@ class Attributes extends Base {
      */
     protected $tableName = 'attributes';
 
-    public function findAllByKw($kw) {
-        return $this->database->table('attributes')->where("name LIKE ? OR description LIKE ?", "%" . $kw . "%", "%" . $kw . "%");
+    /**
+     * @param string $kw
+     * @return \Nette\Database\Table\Selection
+     */
+    public function findAllByKw(string $kw): Selection
+    {
+        return $this->database->table('attributes')
+            ->where('name LIKE ? OR description LIKE ?', '%' . $kw . '%', '%' . $kw . '%');
     }
 
-    public function deleteAssociatedRecords($attributeId) {
+    /**
+     * @param int $attributeId
+     */
+    public function deleteAssociatedRecords(int $attributeId): void {
 
-        $attribute = $this->database->table('attrib_storage')->where(array("attributes_id" => $attributeId));
+        $attribute = $this->database->table('attrib_storage')->where(['attributes_id' => $attributeId]);
+        $record = $this->database->table('attributes')->get($attributeId);
+
         foreach ($attribute as $attrib) {
             $attrib->delete();
         }
 
-        $record = $this->database->table('attributes')->get($attributeId);
         if ($record) {
             $record->delete();
         }
     }
 
-    public function findOneByName($name) {
-        return $this->findOneBy(array('name' => $name));
+    /**
+     * @param string $name
+     * @return FALSE|\Nette\Database\Table\ActiveRow
+     */
+    public function findOneByName(string $name)
+    {
+        return $this->findOneBy(['name' => $name]);
     }
 
 }

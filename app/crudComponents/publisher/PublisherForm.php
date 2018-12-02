@@ -1,17 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 15.3.2015
- * Time: 20:35
- */
 
 namespace App\CrudComponents\Publisher;
 
 
 abstract class PublisherForm extends \App\Forms\BaseForm {
 
-	public function __construct(\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL)
+    /**
+     * PublisherForm constructor.
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(\Nette\ComponentModel\IContainer $parent = NULL, string $name = NULL)
 	{
 		parent::__construct($parent, $name);
 
@@ -28,7 +27,6 @@ abstract class PublisherForm extends \App\Forms\BaseForm {
 
 		$this->addCloseButton('cancel', 'Cancel');
 		$this->addSubmit('send', 'Done');
-
 	}
 
 }

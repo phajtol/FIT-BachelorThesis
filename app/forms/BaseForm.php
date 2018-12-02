@@ -1,23 +1,35 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 14.3.2015
- * Time: 21:16
- */
 
 namespace App\Forms;
 
 
+use App\Forms\Controls\DateInput;
+use App\Forms\Controls\DateTimeInput;
+use App\Forms\Controls\MonthInput;
+use App\Forms\Controls\YearInput;
+use Nette\Forms\Controls\Button;
+use Nette\Forms\Controls\MultiSelectBox;
+use Nette\Forms\Controls\SubmitButton;
+
 class BaseForm extends \Nette\Application\UI\Form {
 
+    /** @var bool */
 	protected $isModal = false;
+
+	/** @var bool */
 	protected $isAjax = false;
 
+	/** @var int */
 	protected $labelsSize = 2;
 
 
-	public function __construct(\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+    /**
+     * BaseForm constructor.
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(\Nette\ComponentModel\IContainer $parent = NULL, string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 		$this->addProtection('Security token has expired, please submit the form again.');
 	}
@@ -25,25 +37,36 @@ class BaseForm extends \Nette\Application\UI\Form {
 	/**
 	 * @return int
 	 */
-	public function getLabelsSize() {
+	public function getLabelsSize(): int
+    {
 		return $this->labelsSize;
 	}
 
 	/**
 	 * @param int $labelsSize
 	 */
-	public function setLabelsSize($labelsSize) {
+	public function setLabelsSize(int $labelsSize): void
+    {
 		$this->labelsSize = $labelsSize;
 	}
 
-
-	public function addSubmit($name, $caption = NULL)
+    /**
+     * @param string $name
+     * @param string|NULL $caption
+     * @return \Nette\Forms\Controls\SubmitButton
+     */
+    public function addSubmit($name, $caption = NULL)
 	{
 		$control = parent::addSubmit($name, $caption);
 		$control->getControlPrototype()->addClass('btn-primary');
 		return $control;
 	}
 
+    /**
+     * @param string$name
+     * @param string|NULL $caption
+     * @return Button
+     */
 	public function addCloseButton($name, $caption = NULL)
 	{
 		$control = parent::addButton($name, $caption);
@@ -51,23 +74,51 @@ class BaseForm extends \Nette\Application\UI\Form {
 		return $control;
 	}
 
-	public function addDate($name, $caption = NULL) {
-		return $this[$name] = new \App\Forms\Controls\DateInput($caption);
+    /**
+     * @param string $name
+     * @param string|NULL $caption
+     * @return DateInput
+     */
+	public function addDate($name, $caption = NULL)
+    {
+		return $this[$name] = new DateInput($caption);
 	}
 
-	public function addDateTime($name, $caption = NULL) {
-		return $this[$name] = new \App\Forms\Controls\DateTimeInput($caption);
+    /**
+     * @param string $name
+     * @param string|NULL $caption
+     * @return DateTimeInput
+     */
+	public function addDateTime($name, $caption = NULL)
+    {
+		return $this[$name] = new DateTimeInput($caption);
 	}
 
-	public function addYear($name, $caption = NULL) {
-		return $this[$name] = new \App\Forms\Controls\YearInput($caption);
+    /**
+     * @param string $name
+     * @param string|NULL $caption
+     * @return YearInput
+     */
+	public function addYear($name, $caption = NULL)
+    {
+		return $this[$name] = new YearInput($caption);
 	}
 
-	public function addMonth($name, $caption = NULL) {
-		return $this[$name] = new \App\Forms\Controls\MonthInput($caption);
+    /**
+     * @param string $name
+     * @param string|NULL $caption
+     * @return MonthInput
+     */
+	public function addMonth($name, $caption = NULL)
+    {
+		return $this[$name] = new MonthInput($caption);
 	}
 
-
+    /**
+     * @param string $name
+     * @param string|NULL $caption
+     * @return Button
+     */
 	public function addButton($name, $caption = NULL)
 	{
 		$control = parent::addButton($name, $caption);
@@ -75,21 +126,41 @@ class BaseForm extends \Nette\Application\UI\Form {
 		return $control;
 	}
 
-	public function addMultiSelect($name, $label = NULL, array $items = NULL, $size = NULL) {
+    /**
+     * @param string $name
+     * @param string|NULL $label
+     * @param array|NULL $items
+     * @param int|NULL $size
+     * @return MultiSelectBox
+     */
+	public function addMultiSelect($name, $label = NULL, array $items = NULL, $size = NULL)
+    {
 		$c = parent::addMultiSelect($name, $label, $items, $size);
 		$c->getControlPrototype()->addClass('select-multiple');
 		return $c;
 	}
 
-	public function setModal($modal = true){
+    /**
+     * @param bool $modal
+     */
+	public function setModal(bool $modal = true): void
+    {
 		$this->isModal = $modal;
 	}
 
-	public function setAjax($ajax = true) {
+    /**
+     * @param bool $ajax
+     */
+	public function setAjax(bool $ajax = true): void
+    {
 		$this->isAjax = $ajax;
 	}
 
-	public function clearValues() {
+    /**
+     *
+     */
+	public function clearValues(): void
+    {
 		$this->setValues(array(), true);
 	}
 
@@ -99,8 +170,10 @@ class BaseForm extends \Nette\Application\UI\Form {
 	 * @param bool $asArray
 	 * @return array|\Nette\Utils\ArrayHash
 	 */
-	public function getValuesTransformed($asArray = FALSE) {
-		$values = $asArray ? array() : new \Nette\Utils\ArrayHash;
+	public function getValuesTransformed(bool $asArray = FALSE)
+    {
+		$values = $asArray ? [] : new \Nette\Utils\ArrayHash;
+
 		foreach ($this->getComponents() as $name => $control) {
 			if( substr($name, 0, 2) == '__' ) continue;
 
@@ -118,11 +191,18 @@ class BaseForm extends \Nette\Application\UI\Form {
 				}
 			}
 		}
+
 		return $values;
 	}
 
-	public function getValues($asArray = FALSE) {
+    /**
+     * @param bool $asArray
+     * @return array|\Nette\Utils\ArrayHash
+     */
+	public function getValues($asArray = FALSE)
+    {
 		$values = parent::getValues($asArray);
+
 		foreach($values as $k => $v) {
 			if(substr($k, 0, 2) == '__') unset($values[$k]);
 		}
@@ -156,7 +236,7 @@ class BaseForm extends \Nette\Application\UI\Form {
 			// divide controls into groups
 			foreach($this->getControls() as $control){
 				/** @var $control \Nette\Forms\Controls\BaseControl */
-				if($control instanceof \Nette\Forms\Controls\Button) {
+				if($control instanceof Button) {
 					$buttonGroup->add($control);
 				} else $mainGroup->add($control);
 			}
@@ -187,7 +267,7 @@ class BaseForm extends \Nette\Application\UI\Form {
 
 			/** @var $control \Nette\Forms\Controls\BaseControl */
 
-			if ($control instanceof \Nette\Forms\Controls\Button) {
+			if ($control instanceof Button) {
 				$control->getControlPrototype()->addClass('btn');
 			} elseif ($control instanceof \Nette\Forms\Controls\TextBase || $control instanceof \Nette\Forms\Controls\SelectBox || $control instanceof \Nette\Forms\Controls\MultiSelectBox) {
 				$control->getControlPrototype()->addClass('form-control');

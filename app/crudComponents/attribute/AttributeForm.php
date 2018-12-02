@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 27.3.2015
- * Time: 23:05
- */
 
 namespace App\CrudComponents\Attribute;
 
@@ -12,7 +6,8 @@ namespace App\CrudComponents\Attribute;
 class AttributeForm extends \App\Forms\BaseForm {
 
 
-	public function __construct(\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+	public function __construct(\Nette\ComponentModel\IContainer $parent = NULL, string $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
 		$this->addText('name', 'Name')
@@ -25,7 +20,9 @@ class AttributeForm extends \App\Forms\BaseForm {
 			->setRequired('Description is required.')
 			->addRule($this::MAX_LENGTH, 'Description is way too long', 200);
 
-		$this->addRadioList('confirmed', 'Visibility', array('0' => 'Private', '1' => 'Global'))->setDefaultValue('0')->setRequired('Visibility is required.');
+		$this->addRadioList('confirmed', 'Visibility', ['0' => 'Private', '1' => 'Global'])
+            ->setDefaultValue('0')
+            ->setRequired('Visibility is required.');
 
 		$this->addCloseButton('cancel', 'Cancel');
 		$this->addSubmit('send', 'Done');
@@ -33,6 +30,5 @@ class AttributeForm extends \App\Forms\BaseForm {
 		$this->setModal(true);
 		$this->setAjax(true);
 	}
-
 
 }

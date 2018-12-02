@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 27.3.2015
- * Time: 23:11
- */
 
 namespace App\CrudComponents\Attribute;
 
@@ -25,85 +19,121 @@ class AttributeCrud extends BaseCrudComponent {
 	protected $attribStorageModel;
 
 
+    /**
+     * AttributeCrud constructor.
+     * @param \Nette\Security\User $loggedUser
+     * @param \App\Model\Attribute $attributeModel
+     * @param \App\Model\AttribStorage $attribStorageModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
 	public function __construct(
-
-		\Nette\Security\User $loggedUser, \App\Model\Attribute $attributeModel, \App\Model\AttribStorage $attribStorageModel,
-		\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
-	) {
+		\Nette\Security\User $loggedUser,
+        \App\Model\Attribute $attributeModel,
+        \App\Model\AttribStorage $attribStorageModel,
+		\Nette\ComponentModel\IContainer $parent = NULL,
+        string $name = NULL)
+    {
         parent::__construct();
         if ($parent) {
             $parent->addComponent($this, $name);
         }
 
-		$this->addDefaultTemplateVars(array(
-			'attributeAdded' => false                     ,
-			'attributeEdited' => false                    ,
-			'attributeDeleted' => false                   ,
-			'publicationsRelatedToAttribute' => array()
-		));
+		$this->addDefaultTemplateVars([
+			'attributeAdded' => false,
+			'attributeEdited' => false,
+			'attributeDeleted' => false,
+			'publicationsRelatedToAttribute' => []
+		]);
 
 		$this->attributeModel = $attributeModel;
 		$this->attribStorageModel = $attribStorageModel;
 		$this->loggedUser = $loggedUser;
 
-		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent) {
+		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
 			$controlsComponent->addActionAvailable('showRelatedPublications');
 		};
 	}
 
-	public function createComponentAttributeAddForm($name){
-            $form = new AttributeAddForm($this->attributeModel, $this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('attributeAddForm');
-            };
-            $form->onSuccess[] = function(AttributeAddForm $form) {
+    /**
+     * @param $name
+     * @return AttributeAddForm
+     */
+	public function createComponentAttributeAddForm (string $name): AttributeAddForm
+    {
+        $form = new AttributeAddForm($this->attributeModel, $this, $name);
+
+        $form->onError[] = function () {
+            $this->redrawControl('attributeAddForm');
+        };
+
+        $form->onSuccess[] = function(AttributeAddForm $form) {
             $formValues = $form->getValuesTransformed();
 
-		$formValues['submitter_id'] = $this->loggedUser->id;
+		    $formValues['submitter_id'] = $this->loggedUser->id;
 
-		$record = $this->attributeModel->insert($formValues);
+		    $record = $this->attributeModel->insert($formValues);
 
-		if($record) {
-			$this->template->attributeAdded = true;
+		    if ($record) {
+			    $this->template->attributeAdded = true;
 
-			if ($this->presenter->isAjax()) {
-				$form->clearValues();
-				$this->redrawControl('attributeAddForm');
-			} else $this->redirect('this');
+			    if ($this->presenter->isAjax()) {
+				    $form->clearValues();
+				    $this->redrawControl('attributeAddForm');
+			    } else {
+			        $this->redirect('this');
+                }
 
-			$this->onAdd($record);
-		}
-            };
-         
+			    $this->onAdd($record);
+		    }
+        };
+
+        return $form;
 	}
 
-	public function createComponentAttributeEditForm($name){
-            $form = new AttributeEditForm($this, $name);
-            $form->onError[] = function(){
-                    $this->redrawControl('attributeEditForm');
-            };
-            $form->onSuccess[] = function(AttributeEditForm $form) {
-                $formValues = $form->getValuesTransformed();
+    /**
+     * @param string $name
+     * @return AttributeEditForm
+     */
+	public function createComponentAttributeEditForm(string $name): AttributeEditForm
+    {
+        $form = new AttributeEditForm($this, $name);
 
-		$formValues['submitter_id'] = $this->loggedUser->id;
+        $form->onError[] = function () {
+            $this->redrawControl('attributeEditForm');
+        };
 
-		$this->attributeModel->update($formValues);
-		$record = $this->attributeModel->find($formValues['id']);
+        $form->onSuccess[] = function (AttributeEditForm $form) {
+            $formValues = $form->getValuesTransformed();
 
-		$this->template->attributeEdited = true;
+		    $formValues['submitter_id'] = $this->loggedUser->id;
 
-		if($this->presenter->isAjax()) {
-			$this->redrawControl('attributeEditForm');
-		} else $this->redirect('this');
+		    $this->attributeModel->update($formValues);
+		    $record = $this->attributeModel->find($formValues['id']);
 
-		$this->onEdit($record);
-            };
+		    $this->template->attributeEdited = true;
+
+		    if ($this->presenter->isAjax()) {
+			    $this->redrawControl('attributeEditForm');
+		    } else {
+		        $this->redirect('this');
+            }
+
+		    $this->onEdit($record);
+        };
+
+        return $form;
 	}
 
-	public function handleDelete($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleDelete(int $id): void
+    {
 		$record = $this->attributeModel->find($id);
-		if($record) {
 
+		if($record) {
 			$record->toArray(); // load the object to be passed to the callback
 
 			$this->attributeModel->deleteAssociatedRecords($id);
@@ -120,10 +150,15 @@ class AttributeCrud extends BaseCrudComponent {
 		}
 	}
 
-	public function handleEdit($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleEdit(int $id): void
+    {
 		$attribute = $this->attributeModel->find($id);
 
-		$this["attributeEditForm"]->setDefaults($attribute); // set up new values
+		$this['attributeEditForm']->setDefaults($attribute); // set up new values
 
 		if (!$this->presenter->isAjax()) {
 			$this->presenter->redirect('this');
@@ -133,9 +168,14 @@ class AttributeCrud extends BaseCrudComponent {
 
 	}
 
-	public function handleShowRelatedPublications($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleShowRelatedPublications(int $id): void
+    {
 		$this->template->publicationsRelatedToAttribute =
-			$this->attribStorageModel->findAllBy(array("attributes_id" => $id));
+			$this->attribStorageModel->findAllBy(["attributes_id" => $id]);
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');

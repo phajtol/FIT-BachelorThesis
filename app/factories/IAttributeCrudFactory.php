@@ -1,17 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.5.2015
- * Time: 21:28
- */
 
 namespace App\Factories;
+
+use App\CrudComponents\Attribute\AttributeCrud;
 
 
 interface IAttributeCrudFactory {
 
 	/** @return \App\CrudComponents\Attribute\AttributeCrud */
-	public function create();
+	public function create(): AttributeCrud;
 
 }

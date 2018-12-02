@@ -1,34 +1,41 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 2.4.2015
- * Time: 22:07
- */
 
 namespace App\Model;
+
+use Nette\Database\Table\Selection;
 
 
 class ConferenceHasCategory extends Base {
 
+    /** @var string */
 	protected $tableName = 'conference_has_category';
 
-	public function findAllByConferenceId($conferenceId) {
+    /**
+     * @param int $conferenceId
+     * @return \Nette\Database\Table\Selection
+     */
+	public function findAllByConferenceId(int $conferenceId): Selection
+    {
 		return $this->findAllBy(array('conference_id' => $conferenceId));
 	}
 
-	public function setAssociatedConferenceCategories($conference_id, $category_ids) {
-		$this->fetchAll()->where('conference_id = ?', $conference_id)->delete();
+    /**
+     * @param int $conference_id
+     * @param array $category_ids
+     */
+	public function setAssociatedConferenceCategories(int $conference_id, array $category_ids): void
+    {
+        if (!count($category_ids)) {
+            return;
+        }
+        $this->fetchAll()->where('conference_id = ?', $conference_id)->delete();
+        $arr = [];
 
-		if(!count($category_ids)) return;
-
-		$arr = [];
-
-		foreach($category_ids as $category_id){
-			$arr[] = array(
+		foreach ($category_ids as $category_id) {
+			$arr[] = [
 				'conference_id'				=>	$conference_id,
 				'conference_category_id'	=>	$category_id
-			);
+			];
 		}
 
 		$this->insertMulti($arr);

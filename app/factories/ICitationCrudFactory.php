@@ -2,10 +2,14 @@
 
 namespace App\Factories;
 
+use App\CrudComponents\Citation\CitationCrud;
 
 interface ICitationCrudFactory {
 
-	/** @return \App\CrudComponents\Citation\CitationCrud */
-	public function create($publicationId);
+    /**
+     * @param int $publicationId
+     * @return \App\CrudComponents\Citation\CitationCrud
+     */
+	public function create(int $publicationId): CitationCrud;
 
 }

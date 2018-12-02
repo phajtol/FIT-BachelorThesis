@@ -2,12 +2,8 @@
 
 namespace App\Model;
 
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 9.3.2015
- * Time: 18:31
- */
+use Nette\Database\Table\ActiveRow;
+
 
 class AuthLdap Extends Base {
 
@@ -21,29 +17,44 @@ class AuthLdap Extends Base {
 	const COLUMN_SUBMITTER_ID = 'submitter_id';
 
 	/**
-	 * @param $login
+	 * @param string $login
 	 * @return FALSE|\Nette\Database\Table\ActiveRow
 	 */
-	function findByLogin($login){
+	function findByLogin(string $login): ActiveRow
+    {
 		return $this->findOneBy(array(
 			self::COLUMN_LOGIN	=>	$login
 		));
 	}
 
-	function associateToSubmitter($submitter_id, $login){
+    /**
+     * @param int $submitter_id
+     * @param string $login
+     * @return ActiveRow
+     */
+	function associateToSubmitter(int $submitter_id, string $login): ActiveRow
+    {
 		return $this->insert(array(
 			self::COLUMN_SUBMITTER_ID 	=>	$submitter_id,
 			self::COLUMN_LOGIN 			=>	$login
 		));
 	}
 
-	function deleteFromSubmitter($userId) {
+    /**
+     * @param int $userId
+     * @return int
+     */
+	function deleteFromSubmitter(int $userId): int
+    {
 		return $this->findAllBy(array( self::COLUMN_SUBMITTER_ID  => $userId))->delete();
 	}
 
-	function findOneByUserId($userId) {
+    /**
+     * @param int $userId
+     * @return FALSE|ActiveRow
+     */
+	function findOneByUserId(int $userId)
+    {
 		return $this->findOneBy(array( self::COLUMN_SUBMITTER_ID  => $userId));
 	}
-
 }
-?>

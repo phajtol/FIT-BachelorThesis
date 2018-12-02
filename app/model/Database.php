@@ -12,7 +12,12 @@ class Database {
     /** @var Nette\Database\Context */
     public $database;
 
-    public function __construct(Nette\Database\Context $database) {
+    /**
+     * Database constructor.
+     * @param Nette\Database\Context $database
+     */
+    public function __construct(Nette\Database\Context $database)
+    {
         $this->database = $database;
     }
 

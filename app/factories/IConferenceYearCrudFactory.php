@@ -1,19 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 7.4.2015
- * Time: 18:46
- */
 
 namespace App\Factories;
+
+use App\CrudComponents\ConferenceYear\ConferenceYearCrud;
 
 
 interface IConferenceYearCrudFactory {
 
-	/**
-	 * @return \App\CrudComponents\ConferenceYear\ConferenceYearCrud
-	 */
-	public function create($conferenceId);
+    /**
+     * @param int $conferenceId
+     * @return \App\CrudComponents\ConferenceYear\ConferenceYearCrud
+     */
+	public function create(int $conferenceId): ConferenceYearCrud;
 
 }

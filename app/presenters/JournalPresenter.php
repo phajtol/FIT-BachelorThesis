@@ -1,36 +1,49 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 26.3.2015
- * Time: 13:06
- */
 
 namespace App\Presenters;
 
-use Nette,
-	App\Model;
+use App\Components\AlphabetFilter\AlphabetFilterComponent;
+use App\CrudComponents\Journal\JournalCrud;
+use App\Model;
+use NasExt\Controls\SortingControl;
+
 
 class JournalPresenter extends SecuredPresenter {
-  /** @var Model\Journal @inject */
-  public $journalModel;
 
-  /** @var Model\Publication @inject */
-  public $publicationModel;
+    /** @var Model\Journal @inject */
+    public $journalModel;
 
-  /** @var Model\JournalIsbn @inject */
-  public $journalIsbnModel;
+    /** @var Model\Publication @inject */
+    public $publicationModel;
 
-	public function createComponentAlphabetFilter($name) {
-		$c = new \App\Components\AlphabetFilter\AlphabetFilterComponent($this, $name);
-		$c->setAjaxRequest(true)->onFilter[] = function($filter) use ($name) {
-			if ($this->isAjax()) $this->redrawControl('journalShowAll');
+    /** @var Model\JournalIsbn @inject */
+    public $journalIsbnModel;
+
+
+    /**
+     * @param string $name
+     * @return \App\Components\AlphabetFilter\AlphabetFilterComponent
+     * @throws \ReflectionException
+     */
+    public function createComponentAlphabetFilter(string $name): AlphabetFilterComponent
+    {
+        $c = new AlphabetFilterComponent($this, $name);
+
+        $c->setAjaxRequest(true)->onFilter[] = function ($filter) use ($name) {
+			if ($this->isAjax()) {
+			    $this->redrawControl('journalShowAll');
+            }
 		};
+
 		return $c;
 	}
 
-	public function createComponentCrud(){
-		$c = new \App\CrudComponents\Journal\JournalCrud(
+    /**
+     * @return \App\CrudComponents\Journal\JournalCrud
+     */
+	public function createComponentCrud(): JournalCrud
+    {
+		$c = new JournalCrud(
 			$this->user,
 			$this->journalModel,
 			$this->publicationModel,
@@ -38,15 +51,17 @@ class JournalPresenter extends SecuredPresenter {
 			$this, 'crud'
 		);
 
-		$c->onAdd[] = function($row){
+		$c->onAdd[] = function ($row) {
 			$this->successFlashMessage(sprintf("Journal %s has been added successfully", $row->name));
 			$this->redrawControl('journalShowAll');
 		};
-		$c->onDelete[] = function($row) {
+
+		$c->onDelete[] = function ($row) {
 			$this->successFlashMessage(sprintf("Journal %s has been deleted successfully", $row->name));
 			$this->redrawControl('journalShowAll');
 		};
-		$c->onEdit[] = function($row) {
+
+		$c->onEdit[] = function ($row) {
 			$this->successFlashMessage(sprintf("Journal %s has been edited successfully", $row->name));
 			$this->template->records = array($this->journalModel->find($row->id));
 			$this->redrawControl('journalShowAllRecords');
@@ -55,11 +70,14 @@ class JournalPresenter extends SecuredPresenter {
 		return $c;
 	}
 
-
-	public function renderShowAll($keywords = null) {
+    /**
+     * @param null $keywords
+     */
+	public function renderShowAll($keywords = null): void
+    {
 		if(!$this->template->records) {    // can be loaded only single one in case of edit
 			if ($keywords !== null) {
-				$this["searchForm"]->setDefaults(array('keywords' => $keywords));
+				$this["searchForm"]->setDefaults(['keywords' => $keywords]);
 				$this->records = $this->journalModel->findAllByKw($keywords);
 			} else {
 				$this->records = $this->journalModel->findAll();
@@ -71,9 +89,7 @@ class JournalPresenter extends SecuredPresenter {
 			/** @var $alphabetFilter \App\Components\AlphabetFilter\AlphabetFilterComponent */
 
 			if($alphabetFilter->getFilter()) $this->records->where('(name LIKE ? OR name LIKE ?)', $alphabetFilter->getFilter() . '%', strtolower($alphabetFilter->getFilter()) . "%");
-
 			$this->records->order($sorting->getColumn() . ' ' . $sorting->getSortDirection());
-
 			$this->setupRecordsPaginator();
 
 			$this->template->records = $this->records;
@@ -84,13 +100,13 @@ class JournalPresenter extends SecuredPresenter {
 	/**
 	 * @return \NasExt\Controls\SortingControl
 	 */
-	protected function createComponentSorting()
+	protected function createComponentSorting(): SortingControl
 	{
-		$control = $this->sortingControlFactory->create( array(
+		$control = $this->sortingControlFactory->create([
 			'name' => 'name',
 			'doi'  => 'doi',
 			'abbreviation' => 'abbreviation'
-		),  'name', \NasExt\Controls\SortingControl::ASC);
+		],  'name', SortingControl::ASC);
 
 		return $control;
 	}

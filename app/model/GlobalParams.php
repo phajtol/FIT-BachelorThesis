@@ -1,31 +1,21 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.3.2015
- * Time: 11:49
- */
 
 namespace App\Model;
 
 
 class GlobalParams {
 
-    /**
-     * @var string public www address
-     */
+    /** @var string public www address */
     protected $public_www_address;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $adminEmailAddress;
 
 
     /**
      * @return string
      */
-    public function getPublicWWWAddress()
+    public function getPublicWWWAddress(): string
     {
         return $this->public_www_address;
     }
@@ -33,13 +23,19 @@ class GlobalParams {
     /**
      * @return string
      */
-    public function getAdminEmailAddress() {
+    public function getAdminEmailAddress(): string
+    {
         return $this->adminEmailAddress;
     }
 
     // --
 
-    function __construct($params) {
+    /**
+     * GlobalParams constructor.
+     * @param $params
+     */
+    function __construct($params)
+    {
         $vars = null;
 
         if(is_array($params)){

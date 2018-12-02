@@ -1,14 +1,20 @@
 <?php
 
-use Nette\Application\UI,
-    Nette\ComponentModel\IContainer;
+use Nette\Application\UI;
+use Nette\ComponentModel\IContainer;
 
 class PublicationAddNewUserSettingsForm extends UI\Form {
 
-    public function __construct(IContainer $parent = NULL, $name = NULL) {
+    /**
+     * PublicationAddNewUserSettingsForm constructor.
+     * @param IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+    public function __construct(IContainer $parent = NULL, string $name = NULL)
+    {
         parent::__construct($parent, $name);
 
-        $items = array();
+        $items = [];
         $counter = 0;
         for ($i = 0; $i < 20; $i++) {
             $counter +=5;
@@ -23,11 +29,11 @@ class PublicationAddNewUserSettingsForm extends UI\Form {
 
         //  $this->addText('pagination', 'Items per page');
         $this->addHidden('id');
+
         $this->addSubmit('send', 'Done');
+
         $this->getElementPrototype()->class('ajax');
         $this->addProtection('Security token has expired, please submit the form again.');
     }
 
 }
-
-?>

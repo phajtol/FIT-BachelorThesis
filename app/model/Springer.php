@@ -2,8 +2,6 @@
 
 namespace App\Model;
 
-use Nette\Diagnostics\Debugger;
-
 class Springer extends Base {
 
     /**
@@ -16,16 +14,12 @@ class Springer extends Base {
 
         // 10.1007/11527695_15
 
-        Debugger::fireLog("fetchData($id, $type)");
-
         $radioArray = array();
 
         $generalSettings = $this->database->table('general_settings')->where(array('id' => 1))->fetch();
 
         $url = 'http://api.springer.com/metadata/json/' . $type . '/' . $id . '?api_key=' . $generalSettings->spring_token;
         // http://api.springer.com/metadata/json/doi/10.1007/11527695_15?api_key=318191e1dc228af0c36214a7b7aee84e
-
-        Debugger::fireLog($url);
 
         $data = $this->curlDownload($url);
 
@@ -39,7 +33,6 @@ class Springer extends Base {
                     return array('object' => $decodedData->records, 'array' => $decodedDataArr['records']);
                 }
                 foreach ($decodedData->records as $record) {
-                    Debugger::fireLog($record->title);
 
                     $radioArray[] = $record->title;
                     // 10.1007/BF01201962

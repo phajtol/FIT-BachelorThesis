@@ -1,18 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 3.4.2015
- * Time: 23:20
- */
 
 namespace App\CrudComponents\User;
-
 
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
 use App\Helpers\Func;
 use App\Services\Authenticators\BaseAuthenticator;
+
 
 class UserCrudComponent extends BaseCrudComponent {
 
@@ -43,14 +37,31 @@ class UserCrudComponent extends BaseCrudComponent {
 	/** @var  BaseAuthenticator */
 	protected $baseAuthenticator;
 
-	function __construct(\Nette\Security\User $loggedUser, \App\Model\Acl $aclModel,
-						 \App\Model\CuGroup $cuGroupModel, \App\Model\SubmitterHasCuGroup $submitterHasCuGroupModel,
-						 \App\Model\Submitter $submitterModel, \App\Model\Publication $publicationModel,
+
+    /**
+     * UserCrudComponent constructor.
+     * @param \Nette\Security\User $loggedUser
+     * @param \App\Model\Acl $aclModel
+     * @param \App\Model\CuGroup $cuGroupModel
+     * @param \App\Model\SubmitterHasCuGroup $submitterHasCuGroupModel
+     * @param \App\Model\Submitter $submitterModel
+     * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\UserRole $userRoleModel
+     * @param BaseAuthenticator $baseAuthenticator
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param null $name
+     */
+	function __construct(\Nette\Security\User $loggedUser,
+                         \App\Model\Acl $aclModel,
+						 \App\Model\CuGroup $cuGroupModel,
+                         \App\Model\SubmitterHasCuGroup $submitterHasCuGroupModel,
+						 \App\Model\Submitter $submitterModel,
+                         \App\Model\Publication $publicationModel,
 						 \App\Model\UserRole $userRoleModel,
 						 BaseAuthenticator $baseAuthenticator,
-						 \Nette\ComponentModel\IContainer $parent = NULL, $name = NULL
-		) {
-
+						 \Nette\ComponentModel\IContainer $parent = NULL,
+                         $name = NULL)
+    {
 		parent::__construct($parent, $name);
 
 		$this->aclModel = $aclModel;
@@ -64,17 +75,21 @@ class UserCrudComponent extends BaseCrudComponent {
 
 		$this->onMessage = [];
 
-		$this->onControlsCreate[] = function(BaseCrudControlsComponent &$controlsComponent) {
+		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
 			$controlsComponent->addActionAvailable('showRelatedPublications');
 		};
 	}
 
-	public function handleDelete($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleDelete(int $id): void
+    {
 		$record = $this->submitterModel->find($id);
-		if($record) {
 
+		if ($record) {
 			$record->toArray(); // load the object to be passed to the callback
-
 			$this->submitterModel->deleteAssociatedRecords($id);
 
 			$this->template->userDeleted = true;
@@ -89,25 +104,33 @@ class UserCrudComponent extends BaseCrudComponent {
 		}
 	}
 
-
-	public function handleEdit($id) {
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleEdit(int $id): void
+    {
 		$submitter = $this->submitterModel->find($id);
-
-		$form = $this["userEditForm"];
+		$form = $this['userEditForm'];
 
 		// load cu groups
 		$cu_groups_res = $this->submitterHasCuGroupModel->getAllByUserId($id);
 		$cu_groups_ids = [];
-		foreach($cu_groups_res as $cu_group) {
+
+		foreach ($cu_groups_res as $cu_group) {
 			$cu_groups_ids[] = $cu_group->id;
 		}
-		$form["cu_groups"]->setValue($cu_groups_ids);
+
+		$form['cu_groups']->setValue($cu_groups_ids);
 
 		// load roles
 		$roles = $this->userRoleModel->findAllByUserId($id);
 		$roles_ids = [];
-		foreach($roles as $role) $roles_ids[] = $role->role;
-		$form["roles"]->setValue($roles_ids);
+
+		foreach ($roles as $role) {
+		    $roles_ids[] = $role->role;
+        }
+		$form['roles']->setValue($roles_ids);
 
 		// load auth type
 		$authMethod = $this->baseAuthenticator->getUserAuthenticationMethod($id);
@@ -123,25 +146,39 @@ class UserCrudComponent extends BaseCrudComponent {
 		}
 	}
 
-	protected function getAvailableRoles(){
+    /**
+     * @return array
+     */
+	protected function getAvailableRoles(): array
+    {
 		return $this->aclModel->getAvailableRoles();
 	}
 
-	protected function getAvailableCuGroups() {
+    /**
+     * @return array
+     */
+	protected function getAvailableCuGroups(): array
+    {
 		$res = $this->cuGroupModel->findAll()->order('name ASC');
-		$cuGroups = array();
-		foreach($res as $rec) $cuGroups[$rec->id] = $rec->name;
+		$cuGroups = [];
+
+		foreach ($res as $rec) {
+		    $cuGroups[$rec->id] = $rec->name;
+        }
+
 		return $cuGroups;
 	}
 
-	protected function saveUserRelated($user_id, $cu_groups_ids, $roles, $auth_type) {
-
+	protected function saveUserRelated($user_id, $cu_groups_ids, $roles, $auth_type)
+    {
 		// save cu groups
 		$this->submitterHasCuGroupModel->getAllByUserId($user_id)->delete();
 		$cu_group_insertion = array();
+
 		foreach($cu_groups_ids as $cu_group_id) {
 			$cu_group_insertion[] = array('submitter_id' => $user_id, 'cu_group_id' => $cu_group_id);
 		}
+
 		$this->submitterHasCuGroupModel->insertMulti($cu_group_insertion);
 
 		// save roles
@@ -149,55 +186,79 @@ class UserCrudComponent extends BaseCrudComponent {
 
 		// auth type
 		$this->baseAuthenticator->setUserAuthenticationMethod($user_id, $auth_type);
-
 	}
 
-	public function createComponentUserAddForm($name){
-            $form = new UserAddForm($this->loggedUser, $this->getAvailableRoles(), $this->getAvailableCuGroups(), $this->baseAuthenticator->getAvailableAuthMethods(),
-                    $this->submitterModel, $this, $name);
-            $this->reduceForm($form);
+    /**
+     * @param string $name
+     * @return UserAddForm
+     */
+	public function createComponentUserAddForm(string $name): UserAddForm
+    {
+        $form = new UserAddForm(
+            $this->loggedUser,
+            $this->getAvailableRoles(),
+            $this->getAvailableCuGroups(),
+            $this->baseAuthenticator->getAvailableAuthMethods(),
+            $this->submitterModel,
+            $this,
+            $name
+        );
+        $this->reduceForm($form);
 
         $form->onValidate[] = function (UserAddForm $form) {
             if (count($form['roles']->value) === 0) {
                 $form['roles']->addError('At least one role must be checked');
             }
         };
-            $form->onError[] = function(){
-                    $this->redrawControl('userAddForm');
-            };
-            $form->onSuccess[] = function(UserAddForm $form) {
-		$formValues = $form->getValuesTransformed();
 
-		$cu_groups = Func::getAndUnset($formValues, 'cu_groups');
-		$roles = Func::getAndUnset($formValues, 'roles');
-		$auth_type = Func::getAndUnset($formValues, 'auth_type');
+        $form->onError[] = function () {
+            $this->redrawControl('userAddForm');
+        };
 
-		Func::valOrNull($formValues, 'email');
+        $form->onSuccess[] = function (UserAddForm $form) {
+		    $formValues = $form->getValuesTransformed();
 
-		$newUserId = $this->baseAuthenticator->createNewUser($formValues['nickname'], BaseAuthenticator::DEFAULT_ROLE, $formValues['email'], $formValues['name'], $formValues['surname']);
+		    $cu_groups = Func::getAndUnset($formValues, 'cu_groups');
+		    $roles = Func::getAndUnset($formValues, 'roles');
+		    $auth_type = Func::getAndUnset($formValues, 'auth_type');
 
-		$record = $this->submitterModel->find($newUserId);
+		    Func::valOrNull($formValues, 'email');
+		    $newUserId = $this->baseAuthenticator->createNewUser($formValues['nickname'], BaseAuthenticator::DEFAULT_ROLE, $formValues['email'], $formValues['name'], $formValues['surname']);
+		    $record = $this->submitterModel->find($newUserId);
 
-		if($record) {
-			$this->saveUserRelated($record->id, $cu_groups, $roles, $auth_type);
+		    if ($record) {
+			    $this->saveUserRelated($record->id, $cu_groups, $roles, $auth_type);
+			    $this->template->userAdded = true;
 
-			$this->template->userAdded = true;
+			    if ($this->presenter->isAjax()) {
+				    $form->clearValues();
+				    $this->redrawControl('userAddForm');
+			    } else {
+                    $this->redirect('this');
+                }
 
-			if ($this->presenter->isAjax()) {
-				$form->clearValues();
-				$this->redrawControl('userAddForm');
-			} else {
-                            $this->redirect('this');
-                        }
+			    $this->onAdd($record);
+		    }
+        };
 
-			$this->onAdd($record);
-		}
-            };
+        return $form;
 	}
 
-	public function createComponentUserEditForm($name){
-		$form = new UserEditForm($this->loggedUser, $this->getAvailableRoles(), $this->getAvailableCuGroups(), $this->baseAuthenticator->getAvailableAuthMethods(),
-			$this->submitterModel, $this, $name);
+    /**
+     * @param string $name
+     * @return UserEditForm
+     */
+	public function createComponentUserEditForm(string $name): UserEditForm
+    {
+		$form = new UserEditForm(
+		    $this->loggedUser,
+            $this->getAvailableRoles(),
+            $this->getAvailableCuGroups(),
+            $this->baseAuthenticator->getAvailableAuthMethods(),
+			$this->submitterModel,
+            $this,
+            $name
+        );
 		$this->reduceForm($form);
 
 		$form->onValidate[] = function (UserEditForm $form) {
@@ -205,40 +266,47 @@ class UserCrudComponent extends BaseCrudComponent {
 		        $form['roles']->addError('At least one role must be checked');
             }
         };
-		$form->onError[] = function(){
+
+		$form->onError[] = function () {
 			$this->redrawControl('userEditForm');
 		};
+
 		$form->onSuccess[] = function(UserEditForm $form) {
+		    $formValues = $form->getValuesTransformed();
 
-		$formValues = $form->getValuesTransformed();
+		    $cu_groups = Func::getAndUnset($formValues, 'cu_groups');
+		    $roles = Func::getAndUnset($formValues, 'roles');
+		    $auth_type = Func::getAndUnset($formValues, 'auth_type');
 
-		$cu_groups = Func::getAndUnset($formValues, 'cu_groups');
-		$roles = Func::getAndUnset($formValues, 'roles');
-		$auth_type = Func::getAndUnset($formValues, 'auth_type');
+		    Func::valOrNull($formValues, 'email');
 
-		Func::valOrNull($formValues, 'email');
+		    $this->submitterModel->update($formValues);
 
-		$this->submitterModel->update($formValues);
+		    $this->saveUserRelated($formValues['id'], $cu_groups, $roles, $auth_type);
 
-		$this->saveUserRelated($formValues['id'], $cu_groups, $roles, $auth_type);
+		    $record = $this->submitterModel->find($formValues['id']);
 
-		$record = $this->submitterModel->find($formValues['id']);
+		    $this->template->userEdited = true;
 
-		$this->template->userEdited = true;
+		    if ($this->presenter->isAjax()) {
+			    $this->redrawControl('userEditForm');
+		    } else {
+                $this->redirect('this');
+		    }
 
-		if($this->presenter->isAjax()) {
-			$this->redrawControl('userEditForm');
-		} else {
-                    $this->redirect('this');
-                }
+		    $this->onEdit($record);
+		};
 
-		$this->onEdit($record);
-            };
+		return $form;
 	}
 
-	public function handleShowRelatedPublications($id){
-		$this->template->publicationsRelatedToUser =
-			$this->publicationModel->findAllBy(array("submitter_id" => $id));
+    /**
+     * @param int $id
+     * @throws \Nette\Application\AbortException
+     */
+	public function handleShowRelatedPublications(int $id): void
+    {
+		$this->template->publicationsRelatedToUser = $this->publicationModel->findAllBy(array("submitter_id" => $id));
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');
@@ -247,13 +315,17 @@ class UserCrudComponent extends BaseCrudComponent {
 		}
 	}
 
-	public function render() {
-		$this->addDefaultTemplateVars(array(
+    /**
+     *
+     */
+	public function render(): void
+    {
+		$this->addDefaultTemplateVars([
 			'userAdded'     =>  false,
 			'userEdited'    =>  false,
 			'userDeleted'   =>  false,
-			"publicationsRelatedToUser" =>  array()
-		));
+			"publicationsRelatedToUser" => []
+		]);
 
 		parent::render();
 	}

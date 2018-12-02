@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 29.3.2015
- * Time: 17:42
- */
 
 namespace App\Components\AlphabetFilter;
 
@@ -15,25 +9,28 @@ use Nette\Reflection\ClassType;
  */
 class AlphabetFilterComponent extends \Nette\Application\UI\Control {
 
-	/**
-	 * @persistent
-	 */
+	/** @persistent */
 	public $filter = null;
 
 	/** @var  string */
 	protected $templateFile;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var bool */
 	protected $ajaxRequest;
 
-	/**
-	 * @var Callback[]
-	 */
+	/** @var Callback[] */
 	public $onFilter;
 
-	public function __construct(\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+
+
+    /**
+     * AlphabetFilterComponent constructor.
+     * @param \Nette\ComponentModel\IContainer|null $parent
+     * @param null|string $name
+     * @throws \ReflectionException
+     */
+    public function __construct(?\Nette\ComponentModel\IContainer $parent = NULL, ?string $name = NULL)
+    {
 		parent::__construct();
 
 		$this->ajaxRequest = false;
@@ -42,20 +39,28 @@ class AlphabetFilterComponent extends \Nette\Application\UI\Control {
 		$dir = dirname($reflection->fileName);
 		$this->templateFile = $dir . DIRECTORY_SEPARATOR . $reflection->shortName . '.latte';
 
-		$this->onFilter = array();
+		$this->onFilter = [];
 	}
 
-
-	protected function generateFilters() {
-		$filters = array();
+    /**
+     * @return array
+     */
+	protected function generateFilters(): array
+    {
+		$filters = [];
 		$ch = ord('A');
+
 		while($ch <= ord('Z')) {
 			$filters[] = chr($ch);
 			$ch++;
 		}
+
 		return $filters;
 	}
 
+    /**
+     * @return null
+     */
 	public function getFilter() {
 		return $this->filter;
 	}
@@ -64,17 +69,25 @@ class AlphabetFilterComponent extends \Nette\Application\UI\Control {
 	 * @param bool $value
 	 * @return AlphabetFilterComponent
 	 */
-	public function setAjaxRequest($value = TRUE)
+	public function setAjaxRequest(bool $value = TRUE): AlphabetFilterComponent
 	{
 		$this->ajaxRequest = $value;
 		return $this;
 	}
 
-	public function getAjaxRequest(){
+    /**
+     * @return bool
+     */
+	public function getAjaxRequest(): bool
+    {
 		return $this->ajaxRequest;
 	}
 
-	public function render() {
+    /**
+     *
+     */
+	public function render(): void
+    {
 		$this->template->ajaxRequest = $this->ajaxRequest;
 		$this->template->setFile($this->templateFile);
 		$this->template->filters = $this->generateFilters();
@@ -82,16 +95,22 @@ class AlphabetFilterComponent extends \Nette\Application\UI\Control {
 		$this->template->render();
 	}
 
-	public function handleFilter($filter) {
-		if($filter && !in_array($filter, $this->generateFilters())) {
+    /**
+     * @param $filter
+     */
+	public function handleFilter($filter): void
+    {
+		if ($filter && !in_array($filter, $this->generateFilters())) {
 			new \Nette\InvalidArgumentException('Parameter "filter" has incorrent content!');
 		}
-		if(!$filter) $filter = null;
+		if (!$filter) {
+		    $filter = null;
+        }
 
 		$this->filter = $filter;
 		$this->onFilter($filter);
 
-		if($this->presenter->isAjax()) {
+		if ($this->presenter->isAjax()) {
 			$this->redrawControl('filter');
 		}
 	}

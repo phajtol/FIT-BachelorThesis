@@ -1,12 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 5.3.2015
- * Time: 16:57
- */
 
 namespace App\Model;
+
+use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
 
 
 class AuthLoginPassword extends Base {
@@ -25,13 +22,20 @@ class AuthLoginPassword extends Base {
 	 * @param $login
 	 * @return FALSE|\Nette\Database\Table\ActiveRow
 	 */
-	function findByLogin($login){
+	function findByLogin(string $login)
+    {
 		return $this->findOneBy(array(
 			self::COLUMN_LOGIN	=>	$login
 		));
 	}
 
-	public function associateToUser($user_id, $login, $password_hash)
+    /**
+     * @param int $user_id
+     * @param string $login
+     * @param string $password_hash
+     * @return ActiveRow
+     */
+	public function associateToUser(int $user_id, string $login, string $password_hash): ActiveRow
 	{
 		return $this->createOrUpdate(array(
 			self::COLUMN_USER_ID		=>	$user_id,
@@ -40,12 +44,21 @@ class AuthLoginPassword extends Base {
 		));
 	}
 
-	public function findOneByUserId($userId) {
+    /**
+     * @param int $userId
+     * @return FALSE|ActiveRow
+     */
+	public function findOneByUserId(int $userId)
+    {
 		return $this->findOneBy(array('submitter_id' => $userId));
 	}
 
-	public function findAllByUserId($userId) {
+    /**
+     * @param int $userId
+     * @return \Nette\Database\Table\Selection
+     */
+	public function findAllByUserId(int $userId): Selection
+    {
 		return $this->findAllBy(array('submitter_id' => $userId));
 	}
-
 }

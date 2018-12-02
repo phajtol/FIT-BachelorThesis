@@ -1,23 +1,29 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 15.4.2015
- * Time: 16:40
- */
 
 namespace App\Model;
 
 
+use Nette\Database\Table\ActiveRow;
+
 class DocumentIndex extends Base {
 
+    /** @var string */
 	protected $tableName = 'document_index';
 
-	public function findOneByName($name) {
+    /**
+     * @param string $name
+     * @return \Nette\Database\Table\ActiveRow|FALSE
+     */
+	public function findOneByName(string $name)
+    {
 		return $this->findOneBy(array('name'  =>  $name));
 	}
 
-	public function deleteWithAssociatedRecords($id) {
+    /**
+     * @param int $id
+     */
+	public function deleteWithAssociatedRecords(int $id): void
+    {
 		$this->database->table('conference_year_is_indexed')->where(array('document_index_id' => $id))->delete();
 		$this->delete($id);
 	}

@@ -1,16 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: petrof
- * Date: 18.3.2015
- * Time: 20:18
- */
 
 namespace App\CrudComponents\Author;
 
 
 class AuthorEditForm  extends AuthorForm {
-	public function __construct(\App\Model\Submitter $submitterModel,\Nette\ComponentModel\IContainer $parent = NULL, $name = NULL) {
+
+    /**
+     * AuthorEditForm constructor.
+     * @param \App\Model\Submitter $submitterModel
+     * @param \Nette\ComponentModel\IContainer|NULL $parent
+     * @param string|NULL $name
+     */
+	public function __construct(\App\Model\Submitter $submitterModel,\Nette\ComponentModel\IContainer $parent = NULL, string $name = NULL)
+    {
 		parent::__construct($submitterModel,$parent, $name);
 
 		$this->addHidden('id');
