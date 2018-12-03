@@ -68,7 +68,7 @@ class Base {
      * @param int $id
      * @return \Nette\Database\Table\ActiveRow|FALSE
      */
-    public function find(int $id): Nette\Database\Table\ActiveRow
+    public function find(int $id)
     {
         return $this->getTable()->get($id);
     }

@@ -93,7 +93,7 @@ class Reference extends Base {
      */
     public function refuse($id): void
     {
-        $max_refused_id = $this->database->fetchField("select max(id) from pcublication;");
+        $max_refused_id = $this->database->fetchField("select max(id) from publication;");
         $this->database->query("UPDATE reference set max_refused_id=? where id=?;",$max_refused_id, $id);
     }
 
