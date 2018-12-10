@@ -234,6 +234,7 @@ class JournalCrud extends BaseCrudComponent {
 	public function render(): void
     {
 		$this->template->journalForm = $this['journalForm'];
+		$this->template->getLatte()->addProvider('formsStack', [$this['journalForm']]);
 		parent::render();
 	}
 }

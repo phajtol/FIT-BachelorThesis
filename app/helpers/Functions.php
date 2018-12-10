@@ -9,10 +9,10 @@ class Functions {
 
     /**
      * Returns textual representation of month
-     * @param string $month month as 2 digits
+     * @param string|null $month month as 2 digits
      * @return string
      */
-    public function month_cze(string $month): string
+    public function month_cze(?string $month): string
     {
         switch ($month) {
             case '01': return 'Leden';
@@ -33,10 +33,10 @@ class Functions {
 
     /**
      * Returns textual representation of month
-     * @param string $month month as 2 digits
+     * @param string|null $month month as 2 digits
      * @return string
      */
-    public function month_eng(string $month): string
+    public function month_eng(?string $month): string
     {
         switch ($month) {
             case '01': return 'January';
@@ -57,10 +57,10 @@ class Functions {
 
     /**
      * Converts textual representation of month to digital
-     * @param string $month
+     * @param string|null $month
      * @return string digital month
      */
-    public function strmonth2nummonth(string $month): string
+    public function strmonth2nummonth(?string $month): string
     {
         $m = trim(strtolower($month));
         switch ($m) {
