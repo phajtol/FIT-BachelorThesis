@@ -1030,7 +1030,7 @@ class PublicationPresenter extends SecuredPresenter {
                     switch ($extension) {
                         case "pdf":
                             $this->pdfParser = new \Smalot\PdfParser\Parser();
-                            $extractedText = $this->pdfExtractorFirstPage($newFilePath);
+                            $extractedText = $this->pdfExtractorFirstPage($newFilePath) ?? "";
                             break;
                         case "ps":
                             // TODOOOO
@@ -1184,9 +1184,13 @@ class PublicationPresenter extends SecuredPresenter {
      */
     public function pdfExtractorFirstPage(string $newFilePath)
     {
-        $pdf = $this->pdfParser->parseFile($newFilePath);
-        $pages = $pdf->getPages();
-        return $pages[0]->getText();
+        try {
+            $pdf = $this->pdfParser->parseFile($newFilePath);
+            $pages = $pdf->getPages();
+            return $pages[0]->getText();
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
 
