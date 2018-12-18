@@ -65,10 +65,10 @@ class Base {
 
     /**
      * Vrací záznam s daným primárním klíčem
-     * @param int $id
+     * @param $id
      * @return \Nette\Database\Table\ActiveRow|FALSE
      */
-    public function find(int $id)
+    public function find($id)
     {
         return $this->getTable()->get($id);
     }
