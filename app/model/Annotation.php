@@ -60,10 +60,10 @@ class Annotation extends Base {
     }
 
     /**
-     * @param int $id
+     * @param $id
      * @return ActiveRow
      */
-    public function find(int $id): ActiveRow
+    public function find($id): ActiveRow
     {
         return $this->findOneBy(array('id' => $id));
     }
