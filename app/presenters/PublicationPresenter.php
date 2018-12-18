@@ -298,8 +298,8 @@ class PublicationPresenter extends SecuredPresenter {
             $definitionTemplate = preg_replace('/\n+/', '<br />', $definitionTemplate);
 
             if ($formValues['type'] == "bibtex") {
-                $definition = preg_replace('/\r+/', '', $formValues['definition']);
-                $definition = preg_replace('/\n+/', '', $definition);
+                $definition = preg_replace('/\r+/', ' ', $formValues['definition']);
+                $definition = preg_replace('/\n+/', ' ', $definition);
 
                 $parser = new Helpers\BibTexParser($definition);
                 $pub_type = $fields = $authors = null;
