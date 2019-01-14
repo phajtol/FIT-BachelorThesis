@@ -165,3 +165,14 @@ body.pu-only .CU {
         font-size: 13px;
     }
 }
+
+#snippet--flashMessages {
+    position: fixed;
+    right: 1%;
+    z-index: 10;
+}
+
+.flashMessage {
+    box-shadow: 0 1px 5px #0006;
+    width: 700px;
+}

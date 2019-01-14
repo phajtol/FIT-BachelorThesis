@@ -113,6 +113,23 @@
 
     <body>
 
+    <script>
+        $(function () {
+            $.nette.init();
+        });
+    </script>
+
+    <div n:snippet="flashMessages">
+        <script>
+            $("#snippet--flashMessages").show();
+            $("#snippet--flashMessages").delay(10000).hide(500);
+        </script>
+
+        <div n:foreach="$flashes as $flash" class="flashMessage alert {$flash->type} fade in">
+            {$flash->message}
+        </div>
+    </div>
+
         {* conference and publication parts switching *}
         {snippet CPToggleHandler}{ifset $CPToggleState}
             <script>
@@ -232,21 +249,6 @@
                 </div>
             </div>
         {/if}
-
-
-        <div class="container">
-            <div class="row">
-                {snippet flashMessages}
-                    <script>
-                        $("#snippet--flashMessages").show();
-                        $("#snippet--flashMessages").delay(10000).hide(500);
-                    </script>
-                    {* <button type="button" class="close" data-dismiss="alert">×</button> *}
-                    <div n:foreach="$flashes as $flash" class="alert {$flash->type} fade in">{$flash->message}</div>
-                {/snippet}
-            </div>
-        </div>
-
 
 
         <div class="container">
