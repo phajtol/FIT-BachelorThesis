@@ -1388,6 +1388,7 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->pubCit['author_array'] = $data['pubCit_author_array'];
         $this->template->pubCit['author'] = $data['pubCit_author'];
         $this->template->types = $this->types;
+        $this->template->submitter = $data['submitter'];
         $authorsByPubId = [];
 
         foreach ($this->template->references as $rec) {
@@ -1522,11 +1523,13 @@ class PublicationPresenter extends SecuredPresenter {
             'submitter_id' => $this->user->id
         ]);
 
+        $this->flashMessage('Publication has been added to starred.', 'alert-success');
+
         if (!$this->presenter->isAjax()) {
-            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
             $this->presenter->redirect('this');
         } else {
-            $this->redrawControl();
+            $this->redrawControl('flashMessages');
+            $this->redrawControl('publicationAdminButtons');
         }
     }
 
@@ -1546,11 +1549,13 @@ class PublicationPresenter extends SecuredPresenter {
             $record->delete();
         }
 
+        $this->flashMessage('Publication has been removed from starred.', 'alert-success');
+
         if (!$this->presenter->isAjax()) {
-            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
             $this->presenter->redirect('this');
         } else {
-            $this->redrawControl();
+            $this->redrawControl('flashMessages');
+            $this->redrawControl('publicationAdminButtons');
         }
     }
 

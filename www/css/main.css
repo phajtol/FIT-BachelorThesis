@@ -166,6 +166,25 @@ body.pu-only .CU {
     }
 }
 
+
+.pub-detail-item {
+    margin-bottom: 15px;
+}
+
+.row-equal-cols {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.vertical-align:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
 #snippet--flashMessages {
     position: fixed;
     right: 1%;

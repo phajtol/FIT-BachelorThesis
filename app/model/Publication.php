@@ -141,6 +141,8 @@ class Publication extends Base {
         $publication = $publicationCopy->toArray();
         $publication['location'] = '';
 
+        $submitter = $this->database->table('submitter')->where('id', $publicationCopy->submitter_id)->fetch();
+
         $journal = $this->database->table('journal')->get($publicationCopy->journal_id);
         unset($publication['journal_id']);
 
@@ -250,6 +252,7 @@ class Publication extends Base {
             'pubCit' => $publication,
             'pubCit_author_array' => $this->authorModel->getAuthorsNamesByPubIdPure($publicationCopy->id),
             'pubCit_author' => $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id, ', '),
+            'submitter' => $submitter
         ];
     }
 
