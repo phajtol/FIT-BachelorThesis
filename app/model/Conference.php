@@ -228,4 +228,16 @@ class Conference extends Base {
         return $conferences;
     }
 
+    /**
+     * @param int $id
+     * @return false|ActiveRow
+     */
+    public function getConferenceByConferenceYearId(int $id)
+    {
+        return $this->database->table($this->cyTable)
+            ->select('conference.*')
+            ->where([$this->cyTable . '.conference_id' => $id])
+            ->fetch();
+    }
+
 }

@@ -358,7 +358,7 @@ class ConferencePresenter extends SecuredPresenter {
 		$this->template->associatedPublicationsByConferenceYear = $associatedPublicationsByConferenceYear;
 		$this->template->authorsOfPublications = $authorsOfPublications;
 		$this->template->conferenceYearIsIndexed = $conferenceYearIsIndexed;
-
+        $this->template->conference = $this->conferenceModel->getConferenceByConferenceYearId($conferenceYear->conference_id);
 
 		// load categories
 		$this->template->acmCategories = [];

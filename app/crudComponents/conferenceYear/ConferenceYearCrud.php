@@ -7,6 +7,7 @@ use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
 use App\CrudComponents\Publisher\PublisherCrud;
 use App\Helpers\Func;
+use Nette\Utils\DateTime;
 
 
 class ConferenceYearCrud extends BaseCrudComponent {
@@ -278,20 +279,23 @@ class ConferenceYearCrud extends BaseCrudComponent {
         $this->reduceForm($form);
 
         $form->onSuccess[] = function (ConferenceYearForm $form) {
-    		$formValues = $form->getValuesTransformed();
-    		$formValues['submitter_id'] = intval($this->loggedUser->id);
-    		$documentIndexes = Func::getAndUnset($formValues, 'document_indexes');
+            $formValues = $form->getValuesTransformed();
+            $documentIndexes = Func::getAndUnset($formValues, 'document_indexes');
 
     		$this->sanitizeEntityData($formValues);
     		unset($formValues['isbn']);
     		unset($formValues['isbn_count']);
+    		unset($formValues['submitter_id']);
 
     		if (empty($formValues['id'])) {
     			$this->template->conferenceYearAdded = true;
     			unset($formValues['id']);
+                $formValues['submitter_id'] = intval($this->loggedUser->id);
     			$record = $this->conferenceYearModel->insert($formValues);
     		} else {
     			unset($formValues['publisher_id']);
+                $formValues['lastedit_submitter_id'] = intval($this->loggedUser->id);
+                $formValues['lastedit_timestamp'] = new DateTime();
     			$this->template->conferenceYearEdited = true;
     			$this->conferenceYearModel->update($formValues);
     			$record = $this->conferenceYearModel->findOneById($formValues['id']);
@@ -327,6 +331,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
     			$this->presenter->redirect('this');
     		} else {
     			$this->redrawControl('conferenceYearForm');
+                $this->redrawControl('conferenceYearDetail');
     		}
         };
 

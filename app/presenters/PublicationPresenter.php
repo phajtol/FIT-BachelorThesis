@@ -963,6 +963,8 @@ class PublicationPresenter extends SecuredPresenter {
                 $values = $form->getHttpData();
                 $formValues['conference_year_id'] = $values['conference_year_id'];
 
+                $publicationExists = (bool) $this->publicationModel->find($form->values->id);
+
                 unset($formValues['categories']);
                 unset($formValues['group']);
                 unset($formValues['authors']);
@@ -970,7 +972,12 @@ class PublicationPresenter extends SecuredPresenter {
                 unset($formValues['upload']);
                 unset($formValues['id']);
 
-                $formValues['submitter_id'] = $this->user->id;
+                if (!$publicationExists) {
+                    $formValues['submitter_id'] = $this->user->id;
+                } else {
+                    $formValues['lastedit_submitter_id'] = $this->user->id;
+                    $formValues['lastedit_timestamp'] = new Nette\Utils\DateTime();
+                }
 
                 if ($this->user->isInRole('admin')) {
                     $formValues['confirmed'] = 1;
@@ -1142,7 +1149,7 @@ class PublicationPresenter extends SecuredPresenter {
                 }
 
                 $this->publicationModel->commitTransaction();
-                $this->flashMessage('Operation has been completed successfullly.', 'alert-success');
+                $this->flashMessage('Publication has been ' . ($publicationExists ? 'edited' : 'added') . ' successfully.', 'alert-success');
 
             } catch (\Exception $e) {
                 $this->publicationModel->rollbackTransaction();
@@ -1388,7 +1395,6 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->pubCit['author_array'] = $data['pubCit_author_array'];
         $this->template->pubCit['author'] = $data['pubCit_author'];
         $this->template->types = $this->types;
-        $this->template->submitter = $data['submitter'];
         $authorsByPubId = [];
 
         foreach ($this->template->references as $rec) {

@@ -583,7 +583,7 @@
                             </div>
                             <div class="col-sm-10">
                                 {foreach $categories as $category}
-                                    <span class="label label-default">{$category->categories->name}</span>
+                                    <span class="label label-default" style="display:inline-block;">{$category->categories->name}</span>
                                 {/foreach}
                             </div>
                         </div>
@@ -602,46 +602,66 @@
                         </div>
                     {/if}
 
-                    {if $publication->submitter && $user->isInRole('admin')}
+                    {if $user->isInRole('admin')}
+                        <hr>
+
                         <div class="row row-equal-cols pub-detail-item">
                             <div class="col-sm-2 vertical-align text-right">
-                                <label>Last edit</label>
+                                <label>Added by</label>
                             </div>
                             <div class="col-sm-10">
-                                {$publication->submitter->name} {$publication->submitter->surname}
+                                {if $publication->submitter}
+                                    {$publication->submitter->name} {$publication->submitter->surname}
+                                {else}
+                                    -
+                                {/if}
                             </div>
                         </div>
+
+                        {if $publication->lastedit_submitter}
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2 vertical-align text-right">
+                                    <label>Last edit</label>
+                                </div>
+                                <div class="col-sm-10">
+                                    {$publication->lastedit_submitter->name} {$publication->lastedit_submitter->surname}
+                                    {if $publication->lastedit_timestamp}
+                                        ({$publication->lastedit_timestamp|date:'j. n. Y H:i:s'})
+                                    {/if}
+                                </div>
+                            </div>
+                        {/if}
                     {/if}
 
                 {if $user->isInRole('admin') || $user->isInRole('submitter')}
-                    <hr>
+                    <hr>p
 
                     {snippet publicationAdminButtons}
-                        <button type="button" id="deletePublicationButton" class="btn btn-danger" data-toggle="modal" data-target="#DeletePublicationModal" title="Delete this publication">
+                        <button type="button" id="deletePublicationButton" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeletePublicationModal" title="Delete this publication">
                             <span class="glyphicon glyphicon-remove"></span> Delete publication
                         </button>
 
-                        <a class="btn btn-primary" n:href="Publication:addnew, $publication->id" role="button" title="Edit this publication">
+                        <a class="btn btn-primary btn-sm" n:href="Publication:addnew, $publication->id" role="button" title="Edit this publication">
                             <span class="glyphicon glyphicon-pencil"></span> Edit publication
                         </a>
 
                         {if $favourite}
-                            <a class="btn btn-warning ajax" n:href="unsetFavouritePub!, $publication->id" role="button" title="Remove from my starred publications">
+                            <a class="btn btn-warning btn-sm ajax" n:href="unsetFavouritePub!, $publication->id" role="button" title="Remove from my starred publications">
                                 <span class="glyphicon glyphicon-star"></span> Remove starred
                             </a>
                         {else}
-                            <a class="btn btn-default ajax" n:href="setFavouritePub!, $publication->id" role="button" title="Add to my starred publications">
+                            <a class="btn btn-default btn-sm ajax" n:href="setFavouritePub!, $publication->id" role="button" title="Add to my starred publications">
                                 <span class="glyphicon glyphicon-star"></span> Mark as starred
                             </a>
                         {/if}
 
                         {if $user->isInRole('admin')}
                             {if $publication->confirmed == 1}
-                                <a class="btn btn-success" n:href="setUnConfirmed!, $publication->id" role="button" title="Set this publication as unconfirmed">
+                                <a class="btn btn-success btn-sm" n:href="setUnConfirmed!, $publication->id" role="button" title="Set this publication as unconfirmed">
                                     <span class="glyphicon glyphicon-check"></span> Set as unchecked
                                 </a>
                             {else}
-                                <a class="btn btn-default" n:href="setConfirmed!, $publication->id" role="button" title="Set this publication as confirmed">
+                                <a class="btn btn-default btn-sm" n:href="setConfirmed!, $publication->id" role="button" title="Set this publication as confirmed">
                                     <span class="glyphicon glyphicon-unchecked"></span> Set as confirmed
                                 </a>
                             {/if}

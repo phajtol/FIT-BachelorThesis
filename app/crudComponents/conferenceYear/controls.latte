@@ -1,30 +1,30 @@
 <span n:snippet="controls">
 	{ifset $deleteAllowed}
-		<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteConferenceYearButton deleteConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#DeleteConferenceYearModal{$uniqid}" title="Delete conference year">
-			<span class="glyphicon glyphicon-remove"></span>
+		<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-sm deleteConferenceYearButton deleteConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#DeleteConferenceYearModal{$uniqid}" title="Delete conference year">
+			<span class="glyphicon glyphicon-remove"></span> Delete
 		</button>
 	{/ifset}
 	{ifset $editAllowed}
-		<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editConferenceYearButton editConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#ConferenceYearModal{$uniqid}" title="Edit conference year">
-			<span class="glyphicon glyphicon-pencil"></span>
+		<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-sm editConferenceYearButton editConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#ConferenceYearModal{$uniqid}" title="Edit conference year">
+			<span class="glyphicon glyphicon-pencil"></span> Edit
 		</button>
 	{/ifset}
 	{ifset $showRelatedPublicationsAllowed}
-		<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default btn-xs conferenceYearRelatedPublicationsButton conferenceYearRelatedPublicationsButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToYearOfConferenceModal{$uniqid}" title="Associated Publications">
-			<span class="glyphicon glyphicon-link"></span>
+		<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default btn-sm conferenceYearRelatedPublicationsButton conferenceYearRelatedPublicationsButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToYearOfConferenceModal{$uniqid}" title="Associated Publications">
+			<span class="glyphicon glyphicon-link"></span> Related publications
 		</button>
 	{/ifset}
 	{ifset $showWorkshopsAllowed}
-		<button type="button" data-signal-url="{$showWorkshopsLink}" class="btn btn-default btn-xs showWorkshopsButton showWorkshopsButton{$uniqid}"  data-toggle="modal" data-target="#WorkshopsRelatedToYearOfConferenceModal{$uniqid}" title="Show workshops">
-			<strong>W</strong>
+		<button type="button" data-signal-url="{$showWorkshopsLink}" class="btn btn-default btn-sm showWorkshopsButton showWorkshopsButton{$uniqid}"  data-toggle="modal" data-target="#WorkshopsRelatedToYearOfConferenceModal{$uniqid}" title="Show workshops">
+			<strong>W</strong> Workshops
 		</button>
 	{/ifset}
 	{ifset $archivedStateChangeAllowed}
-		<button type="button" data-signal-url="{$setConferenceYearStateLink}" class="btn btn-{$nextConferenceYearState == 'archived' ? 'default' : 'warning'} btn-xs toggleArchivedButton toggleArchivedButton{$uniqid}" title="Mark conference year as {$nextConferenceYearState}">
+		<button type="button" data-signal-url="{$setConferenceYearStateLink}" class="btn btn-{$nextConferenceYearState == 'archived' ? 'default' : 'warning'} btn-sm toggleArchivedButton toggleArchivedButton{$uniqid}" title="Mark conference year as {$nextConferenceYearState}">
 			{if $nextConferenceYearState == 'alive'}
-				<span class="glyphicon glyphicon-tree-deciduous"></span>
+				<span class="glyphicon glyphicon-tree-deciduous"></span> Mark as alive
 			{elseif $nextConferenceYearState == 'archived'}
-				<span class="glyphicon glyphicon-eye-close"></span>
+				<span class="glyphicon glyphicon-eye-close"></span> Archive
 			{/if}
 		</button>
 	{/ifset}

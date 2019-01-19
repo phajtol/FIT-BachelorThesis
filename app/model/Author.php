@@ -98,7 +98,7 @@ class Author extends Base {
 
             default:
                 foreach ($authors as $author) {
-                    $authorsTemp[$author['id']] = $author['surname'] . ', ' . ($author['name']) . ($author['middlename'] ? ', ' . $author['middlename'] : '');
+                    $authorsTemp[$author['id']] = $author['name'] . ' ' . ($author['middlename'] ? $author['middlename'] . ' ' : '') . ($author['surname']);
                 }
         }
 

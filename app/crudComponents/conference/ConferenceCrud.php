@@ -10,6 +10,7 @@ use App\CrudComponents\BaseCrudControlsComponent;
 use App\Forms\BaseForm;
 use NasExt\Controls\SortingControl;
 use Nette\Application\UI\Multiplier;
+use Nette\Utils\DateTime;
 
 
 class ConferenceCrud extends BaseCrudComponent {
@@ -268,7 +269,8 @@ class ConferenceCrud extends BaseCrudComponent {
         $form->onSuccess[] = function (ConferenceEditForm $form) {
 		    $formValues = $form->getValuesTransformed();
 
-		    $formValues['submitter_id'] = $this->loggedUser->id;
+		    $formValues['lastedit_submitter_id'] = $this->loggedUser->id;
+		    $formValues['lastedit_timestamp'] = new DateTime();
 
 		    if (isset($form['acm_categories'])) {
 			    $acm_categories = $formValues['acm_categories'] ? explode(" ", $formValues['acm_categories']) : [];

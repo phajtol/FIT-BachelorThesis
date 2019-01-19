@@ -1,4 +1,4 @@
--- Adminer 4.2.3 MySQL dump
+-- Adminer 4.2.4 MySQL dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -152,10 +152,15 @@ CREATE TABLE `conference` (
   `description` varchar(1000) CHARACTER SET utf8 DEFAULT NULL,
   `first_year` year(4) DEFAULT NULL,
   `state` enum('alive','dead') COLLATE utf8_czech_ci NOT NULL DEFAULT 'alive',
+  `lastedit_submitter_id` int(10) unsigned DEFAULT NULL,
+  `lastedit_timestamp` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `conference2_FKIndex1` (`submitter_id`),
   KEY `state` (`state`),
-  CONSTRAINT `conference_ibfk_1` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  KEY `lastedit_submitter_id` (`lastedit_submitter_id`),
+  CONSTRAINT `conference_ibfk_1` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `conference_ibfk_2` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `conference_lastedit_submitter_id` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci ROW_FORMAT=COMPACT;
 
 
@@ -213,15 +218,20 @@ CREATE TABLE `conference_year` (
   `state` enum('alive','archived') CHARACTER SET utf8 NOT NULL DEFAULT 'alive',
   `doi` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `web` varchar(500) COLLATE latin2_czech_cs DEFAULT NULL,
+  `lastedit_submitter_id` int(10) unsigned DEFAULT NULL,
+  `lastedit_timestamp` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `conference_year_FKIndex1` (`conference_id`),
   KEY `conference_year_FKIndex2` (`submitter_id`),
   KEY `publisher_id` (`publisher_id`),
   KEY `parent_id` (`parent_id`),
+  KEY `lastedit_submitter_id` (`lastedit_submitter_id`),
   CONSTRAINT `conference_year_ibfk_1` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `conference_year_ibfk_2` FOREIGN KEY (`conference_id`) REFERENCES `conference` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `conference_year_ibfk_4` FOREIGN KEY (`parent_id`) REFERENCES `conference_year` (`id`),
-  CONSTRAINT `conference_year_ibfk_5` FOREIGN KEY (`publisher_id`) REFERENCES `publisher` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `conference_year_ibfk_5` FOREIGN KEY (`publisher_id`) REFERENCES `publisher` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `conference_year_ibfk_6` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `conference_year_lastedit_submitter_id` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs ROW_FORMAT=COMPACT;
 
 
@@ -234,7 +244,7 @@ CREATE TABLE `conference_year_isbn` (
   `type` enum('ISBN','ISSN') COLLATE utf8_czech_ci NOT NULL DEFAULT 'ISBN',
   PRIMARY KEY (`id`),
   KEY `conference_year_id` (`conference_year_id`),
-  CONSTRAINT `conference_year_isbn_ibfk_2` FOREIGN KEY (`conference_year_id`) REFERENCES `conference_year` (`id`)
+  CONSTRAINT `conference_year_isbn_ibfk_3` FOREIGN KEY (`conference_year_id`) REFERENCES `conference_year` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 
@@ -342,7 +352,7 @@ CREATE TABLE `journal_isbn` (
   `type` enum('ISBN','ISSN') COLLATE utf8_czech_ci NOT NULL DEFAULT 'ISBN',
   PRIMARY KEY (`id`),
   KEY `journal_id` (`journal_id`),
-  CONSTRAINT `journal_isbn_ibfk_2` FOREIGN KEY (`journal_id`) REFERENCES `journal` (`id`)
+  CONSTRAINT `journal_isbn_ibfk_3` FOREIGN KEY (`journal_id`) REFERENCES `journal` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 
@@ -350,7 +360,7 @@ DROP TABLE IF EXISTS `publication`;
 CREATE TABLE `publication` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `journal_id` int(10) unsigned DEFAULT NULL,
-  `submitter_id` int(10) unsigned DEFAULT NULL,
+  `submitter_id` int(10) unsigned DEFAULT NULL COMMENT 'user id of entry author',
   `publisher_id` int(10) unsigned DEFAULT NULL,
   `title` varchar(500) NOT NULL,
   `booktitle` varchar(500) DEFAULT NULL,
@@ -376,13 +386,18 @@ CREATE TABLE `publication` (
   `pub_type` varchar(50) DEFAULT NULL,
   `conference_year_id` int(10) unsigned DEFAULT NULL,
   `doi` varchar(100) DEFAULT NULL,
+  `lastedit_submitter_id` int(10) unsigned DEFAULT NULL,
+  `lastedit_timestamp` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `publication_FKIndex1` (`submitter_id`),
   KEY `publication_FKIndex2` (`publisher_id`),
   KEY `publication_FKIndex4` (`journal_id`),
   KEY `publication_FKIndex5` (`conference_year_id`),
+  KEY `lastedit_submitter_id` (`lastedit_submitter_id`),
   FULLTEXT KEY `title` (`title`),
-  CONSTRAINT `publication_ibfk_1` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `publication_ibfk_1` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `publication_ibfk_2` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `publication_lastedit_submitter_id` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -410,7 +425,7 @@ CREATE TABLE `publication_isbn` (
   `type` enum('ISBN','ISSN') COLLATE utf8_czech_ci NOT NULL DEFAULT 'ISBN',
   PRIMARY KEY (`id`),
   KEY `publication_id` (`publication_id`),
-  CONSTRAINT `publication_isbn_ibfk_2` FOREIGN KEY (`publication_id`) REFERENCES `publication` (`id`)
+  CONSTRAINT `publication_isbn_ibfk_3` FOREIGN KEY (`publication_id`) REFERENCES `publication` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 
@@ -436,6 +451,7 @@ CREATE TABLE `reference` (
   `title` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
   `confirmed` tinyint(4) NOT NULL DEFAULT '0',
   `max_refused_id` int(11) DEFAULT NULL,
+  `processed` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `title` (`title`),
   KEY `publication_id` (`publication_id`),
@@ -446,6 +462,30 @@ CREATE TABLE `reference` (
   CONSTRAINT `reference_ibfk_2` FOREIGN KEY (`publication_id`) REFERENCES `publication` (`id`),
   CONSTRAINT `reference_ibfk_3` FOREIGN KEY (`reference_id`) REFERENCES `publication` (`id`),
   CONSTRAINT `reference_ibfk_4` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+
+
+DROP TABLE IF EXISTS `reference2`;
+CREATE TABLE `reference2` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `publication_id` int(10) unsigned NOT NULL,
+  `reference_id` int(10) unsigned DEFAULT NULL,
+  `submitter_id` int(10) unsigned NOT NULL,
+  `text` text COLLATE utf8_czech_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `equal_id` int(11) NOT NULL,
+  `fulltext_id` int(11) NOT NULL,
+  `fulltext_weight` double NOT NULL,
+  `fulltext_title_id` int(11) NOT NULL,
+  `fulltext_title_weidht` double NOT NULL,
+  `correct_id` int(11) NOT NULL,
+  `confirmed` tinyint(4) NOT NULL DEFAULT '0',
+  `max_refused_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `reference_id` (`reference_id`),
+  KEY `submitter_id` (`submitter_id`),
+  KEY `reference_ibfk_3` (`publication_id`),
+  KEY `title` (`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 
@@ -548,4 +588,4 @@ CREATE TABLE `user_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- 2018-02-16 09:48:59
+-- 2019-01-18 10:51:47

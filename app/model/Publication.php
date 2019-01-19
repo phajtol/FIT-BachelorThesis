@@ -141,8 +141,6 @@ class Publication extends Base {
         $publication = $publicationCopy->toArray();
         $publication['location'] = '';
 
-        $submitter = $this->database->table('submitter')->where('id', $publicationCopy->submitter_id)->fetch();
-
         $journal = $this->database->table('journal')->get($publicationCopy->journal_id);
         unset($publication['journal_id']);
 
@@ -251,8 +249,7 @@ class Publication extends Base {
             'annotationDeleted' => false,
             'pubCit' => $publication,
             'pubCit_author_array' => $this->authorModel->getAuthorsNamesByPubIdPure($publicationCopy->id),
-            'pubCit_author' => $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id, ', '),
-            'submitter' => $submitter
+            'pubCit_author' => $this->authorModel->getAuthorsNamesByPubId($publicationCopy->id, ', ')
         ];
     }
 
@@ -856,7 +853,7 @@ class Publication extends Base {
         return $result;
     }
 
-    /** @return Nette\Database\Table\ActiveRow */
+    /** @return \Nette\Database\Table\ActiveRow */
     public function getAllPubs_no_params($categories, $sort, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
@@ -876,7 +873,7 @@ class Publication extends Base {
         return $result;
     }
 
-    /** @return Nette\Database\Table\ActiveRow */
+    /** @return \Nette\Database\Table\ActiveRow */
     public function getAllPubs_Categories_OR($categories, $sort, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
@@ -897,7 +894,7 @@ class Publication extends Base {
         return $result;
     }
 
-    /** @return Nette\Database\Table\ActiveRow */
+    /** @return \Nette\Database\Table\ActiveRow */
     public function getAllPubs_no_params_starred_publication($categories, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
@@ -918,7 +915,7 @@ class Publication extends Base {
         return $result;
     }
 
-    /** @return Nette\Database\Table\ActiveRow */
+    /** @return \Nette\Database\Table\ActiveRow */
     public function getAllPubs_Categories_OR_starred_publication($categories, $sort, $userId, $limit = null, $offset = null) {
         $limitQuery = $this->getLimitQuery($limit);
         $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
