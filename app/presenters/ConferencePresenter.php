@@ -599,7 +599,10 @@ class ConferencePresenter extends SecuredPresenter {
 			$c->setAjaxRequest(true);
 
 			$c->onMarkedAsFavourite[] = function () {
-				$this->redrawControl('conferenceYearsShowAll');
+                $this->presenter->flashMessage('Operation was successfully completed.', 'alert-success');
+                $this->redrawControl('conferenceYearsShowAllRecords');
+                $this->redrawControl('conferenceControls');
+				$this->redrawControl('flashMessages');
 			};
 
 			return $c;

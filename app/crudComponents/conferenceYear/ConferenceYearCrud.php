@@ -495,8 +495,12 @@ class ConferenceYearCrud extends BaseCrudComponent {
 			'id'        =>  $id,
 			'state'     =>  $state
 		]);
-		$this['controls'][$id]->redrawControl();
 		$this->onArchivedStateChanged($id, $state);
+
+        $this->presenter->flashMessage('Operation was successfully completed.', 'alert-success');
+        $this->presenter->redrawControl('conferenceYearShowAllRecords');
+        $this->presenter->redrawControl('conferenceYearControls');
+        $this->presenter->redrawControl('flashMessages');
 	}
 
     /**
@@ -601,11 +605,11 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	}
 
     /**
-     *
+     * @param array|null $params
      */
-	public function render(): void
+	public function render(?array $params = []): void
     {
-		parent::render();
+		parent::render($params);
 	}
 
 }

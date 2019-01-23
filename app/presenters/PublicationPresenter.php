@@ -169,6 +169,9 @@ class PublicationPresenter extends SecuredPresenter {
     /** @var \App\Forms\PublicationAddNewFormFactory @inject */
     public $publicationAddNewFormFactory;
 
+    /** @var \App\Factories\ITagCrudFactory @inject */
+    public $tagCrudFactory;
+
     // --
 
     /** @var int */
@@ -2144,6 +2147,20 @@ class PublicationPresenter extends SecuredPresenter {
 
         $c->onActiveButtonChanged[] = function () {
             $this->resetPagination();
+        };
+
+        return $c;
+    }
+
+    /**
+     * @return \App\CrudComponents\Tag\TagCrud
+     */
+    protected function createComponentTagCrud(){
+        $c = $this->tagCrudFactory->create();
+
+        $c->onAdd[] = function () {
+            $this->successFlashMessage('Tag has been added successfully.');
+            $this->redrawControl('tags');
         };
 
         return $c;

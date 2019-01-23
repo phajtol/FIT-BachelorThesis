@@ -29,9 +29,13 @@ abstract class BaseCrudComponent extends BaseControl implements IBaseCrudCompone
 	protected $writeActions = array('edit', 'delete', 'add');
 
 
-	public function render(): void
+	public function render(?array $params = []): void
     {
 		parent::render();
+
+		foreach ($params as $key => $value) {
+		    $this->template->$key = $value;
+        }
 
 		$this->template->control = $this;
 		$this->template->uniqid = $this->getUniqueId();

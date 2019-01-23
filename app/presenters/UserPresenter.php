@@ -90,8 +90,6 @@ class UserPresenter extends SecuredPresenter {
         $this->userPasswordChangeFormEnabled =
             ($this->baseAuthenticator->getUserAuthenticationMethod($this->user->id) == \App\Services\Authenticators\BaseAuthenticator::AUTH_LOGIN_PASS);
 
-        bdump($this->baseAuthenticator->getUserAuthenticationMethod($this->user->id));
-
         $submitter = $this->submitterModel->find($this->user->id);
 
         if (!$submitter) {

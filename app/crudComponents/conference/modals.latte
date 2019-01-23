@@ -179,10 +179,8 @@
                                     {control cPToggle}
                                 {/if}
                             </div>
-                            <div class="col-lg-2">
-                            </div>
-                            <div class="col-lg-1">
-                                {control conferenceYear-$conferenceId-addButton}
+                            <div class="col-lg-3 text-right">
+                                {control conferenceYear-$conferenceId-addButton, ['description' => true, 'button' => 'md']}
                             </div>
                             <div class="table-responsive col-lg-12">
                                 <table class="table table-striped">
@@ -202,7 +200,7 @@
                                             <th>Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody n:snippet="conferenceYearsShowAllRecords">
+                                    <tbody n:snippet="conferenceYearShowAllRecords">
                                         {foreach $conferenceYears as $conferenceYear}
                                             <tr id="trconferenceyear-{$conferenceYear->id}">
                                                 <td><a href="{plink Conference:show $conferenceYear->id}">{$conferenceYear->name}</a></td>
@@ -228,7 +226,9 @@
                                                     {/if}
                                                 </td>
                                                 <td class="nowrap">
-                                                    {control conferenceYear-$conferenceId-controls-$conferenceYear->id}
+                                                    {snippet conferenceYearControls-$conferenceYear->id}
+                                                        {control conferenceYear-$conferenceId-controls-$conferenceYear->id, ['description' => false, 'button' => 'xs']}
+                                                    {/snippet}
                                                 </td>
                                             </tr>
                                         {/foreach}

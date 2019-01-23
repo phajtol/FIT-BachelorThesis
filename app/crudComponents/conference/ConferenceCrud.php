@@ -484,7 +484,8 @@ class ConferenceCrud extends BaseCrudComponent {
 			'id'        =>  $id,
 			'state'     =>  $state
 		]);
-		$this['controls'][$id]->redrawControl();
+
+		$this->presenter->redrawControl('conferenceControls');
 		$this->onConferenceArchived($id, $state);
 	}
 
@@ -530,9 +531,9 @@ class ConferenceCrud extends BaseCrudComponent {
 	}
 
     /**
-     *
+     * @param array|null $params
      */
-	public function render(): void {
+	public function render(?array $params = []): void {
 
 		$this->template->addFormAcmCategoriesElementId = isset($this['conferenceAddForm']['acm_categories'])
 			? $this['conferenceAddForm']['acm_categories']->getHtmlId() : null;
@@ -555,7 +556,7 @@ class ConferenceCrud extends BaseCrudComponent {
 			'conferenceId' => $this->conferenceId
 		]);
 
-		parent::render();
+		parent::render($params);
 	}
 
     /**

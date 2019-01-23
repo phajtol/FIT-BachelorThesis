@@ -198,9 +198,9 @@ class CuGroupCrud extends BaseCrudComponent {
 	}
 
     /**
-     *
+     * @param array|null $params
      */
-	public function render(): void
+	public function render(?array $params = []): void
     {
 		$this->template->addFormConferenceCategoriesElementId = $this['cuGroupAddForm']['conference_categories']->getHtmlId();
 		$this->template->editFormConferenceCategoriesElementId = $this['cuGroupEditForm']['conference_categories']->getHtmlId();
@@ -212,7 +212,7 @@ class CuGroupCrud extends BaseCrudComponent {
 			"usersRelatedToCuGroup" => []
 		]);
 
-		parent::render();
+		parent::render($params);
 	}
 
     /**

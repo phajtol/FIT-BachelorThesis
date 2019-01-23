@@ -22,11 +22,16 @@ class StaticContentComponent extends \Nette\Application\UI\Control {
 	}
 
     /**
-     *
+     * @param array|null $params
      */
-	public function render(): void
+	public function render(?array $params = []): void
     {
 		$this->template->setFile($this->templateFile);
+
+        foreach ($params as $key => $value) {
+            $this->template->$key = $value;
+        }
+
 		$this->template->render();
 	}
 

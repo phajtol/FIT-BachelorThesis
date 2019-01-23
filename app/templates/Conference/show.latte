@@ -166,8 +166,8 @@
 
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <p n:if="$user->isAllowed('ConferenceAdmin:showall')">
-                                        {control crud-controls-$conferenceYear->id}
+                                    <p n:if="$user->isAllowed('ConferenceAdmin:showall')" n:snippet="conferenceYearControls">
+                                        {control crud-controls-$conferenceYear->id, ['description' => true, 'button' => 'sm']}
                                     </p>
                                 </div>
                             </div>
@@ -209,8 +209,9 @@
 
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <p n:if="$user->isAllowed('ConferenceAdmin:showall')">
-                                        {control conferenceCrud-controls-$conferenceYear->conference_id}
+                                    <p n:if="$user->isAllowed('ConferenceAdmin:showall')" n:snippet="conferenceControls">
+                                        {control conferenceCrud-controls-$conferenceYear->conference_id, ['description' => true, 'button' => 'sm']}
+                                        {control favouriteToggle-$conferenceYear->conference_id, ['description' => true, 'button' => 'sm']}
                                     </p>
                                 </div>
                             </div>
@@ -260,7 +261,7 @@
                         {/if}
 
                         <div class="text-center">
-                            {control crudOthers-addButton}
+                            {control crudOthers-addButton, ['description' => true, 'button' => 'xs']}
                         </div>
 
                         <h3>Workshops</h3>

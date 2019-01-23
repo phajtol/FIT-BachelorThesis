@@ -634,7 +634,7 @@
                     {/if}
 
                 {if $user->isInRole('admin') || $user->isInRole('submitter')}
-                    <hr>p
+                    <hr>
 
                     {snippet publicationAdminButtons}
                         <button type="button" id="deletePublicationButton" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeletePublicationModal" title="Delete this publication">
@@ -707,8 +707,11 @@
                     <h3>Tags</h3>
                     <hr>
 
-                    {control publicationTagCrud}
-                    {*{control tagCrud}*}
+                    {snippet tags}
+                        {control publicationTagCrud}
+                    {/snippet}
+
+                    {control tagCrud}
 
                     {snippet publicationTagData}
                         {foreach $tags as $tag}
@@ -733,8 +736,8 @@
                     {/snippet}
 
                     <div class="text-center">
-                        {control publicationTagCrud-addButton}
-                        {*{control tagCrud-addButton}*}
+                        {control publicationTagCrud-addButton, ['description' => true, 'button' => 'xs']}
+                        {control tagCrud-addButton, ['description' => true, 'button' => 'xs']}
                     </div>
                 </div>
 

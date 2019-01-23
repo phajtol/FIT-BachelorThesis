@@ -1,3 +1,10 @@
-<a n:snippet="button" href="{$setFavouriteLink}" class="btn {if $ajaxRequest}ajax {/if}{if $isFavourite}btn-warning{else}btn-default{/if} {if $isSmall}btn-xs{/if}" title="Toggle favourite conference">
+<a n:snippet="button" href="{$setFavouriteLink}" class="btn {if $ajaxRequest}ajax {/if}{if $isFavourite}btn-warning{else}btn-default{/if} {ifset $button}btn-{$button}{/ifset}" title="Toggle favourite conference">
 	<span class="glyphicon glyphicon-star"></span>
+    {if isset($description) && $description == true}
+        {if $isFavourite}
+            Remove from favourites
+        {else}
+            Add to favourites
+        {/if}
+    {/if}
 </a>

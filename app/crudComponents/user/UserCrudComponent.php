@@ -316,9 +316,9 @@ class UserCrudComponent extends BaseCrudComponent {
 	}
 
     /**
-     *
+     * @param array|null $params
      */
-	public function render(): void
+	public function render(?array $params = []): void
     {
 		$this->addDefaultTemplateVars([
 			'userAdded'     =>  false,
@@ -327,7 +327,7 @@ class UserCrudComponent extends BaseCrudComponent {
 			"publicationsRelatedToUser" => []
 		]);
 
-		parent::render();
+		parent::render($params);
 	}
 
 

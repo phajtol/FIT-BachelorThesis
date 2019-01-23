@@ -30,7 +30,15 @@ class BaseCrudControlsComponent extends \Nette\Application\UI\Control {
 		$this->uniqid = $uniqid;
 	}
 
-	public function render(){
+    /**
+     * @param array|null $params
+     */
+	public function render(?array $params = []): void
+    {
+        foreach ($params as $key => $value) {
+            $this->template->$key = $value;
+        }
+
 		$this->template->uniqid = $this->uniqid;
 		$this->template->recordId = $this->recordId;
 		$this->template->deleteLink = $this->getParent()->getParent()->link('delete!', array($this->recordId));

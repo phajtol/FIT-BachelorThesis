@@ -97,17 +97,17 @@
 		</div>
 
 		<div class="row">
-			<div class="col-lg-11">
+			<div class="col-lg-9">
 				{control alphabetFilter}
 			</div>
-			<div class="col-lg-1">
+			<div class="col-lg-3 text-right">
 				<div style="margin-top: 17px" n:if="$control['conferenceCrud']->isActionAllowed('add')">
-					{control conferenceCrud-addButton}
+					{control conferenceCrud-addButton, ['description' => true, 'button' => 'md']}
 				</div>
 			</div>
 		</div>
 
-		{snippet conferenceYearsShowAll}
+		{snippet conferenceYearsShowAllRecords}
 			{if count($records)}
 				<div class="table-responsive">
 					<table class="table table-striped">
@@ -165,8 +165,8 @@
 										{$record->w_from|ldaterange, $record->w_to}
 									</td>
 									<td class="nowrap">
-									 	{control crudList-controls-$record->id}
-									 	{control favouriteToggle-$record->conference_id}
+									 	{control crudList-controls-$record->id, ['description' => false, 'button' => 'xs']}
+									 	{control favouriteToggle-$record->conference_id, ['description' => false, 'button' => 'xs']}
 									</td>
 								</tr>
 							{/foreach}
