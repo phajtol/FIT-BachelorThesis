@@ -763,75 +763,77 @@
 
 
             <div class="tab-pane fade" id="exports">
+                <div class="col-sm-12">
 
-                <h1>Exports</h1>
+                    <h1>Exports</h1>
 
-                <hr>
+                    <hr>
 
-                <div class="row row-equal-cols">
-                    <div class="col-sm-2 text-right">
-                        <h2><small>ČSN ISO 690</small></h2>
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>ČSN ISO 690</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {include '@csn_iso_690.latte'}
+                        </div>
                     </div>
-                    <div class="col-sm-10">
-                        {include '@csn_iso_690.latte'}
+
+                    <hr>
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>APA</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {include '@apa.latte'}
+                        </div>
                     </div>
+
+                    <hr>
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>IEEE</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {include '@ieee.latte'}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>Bibtex</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {$bibtexDefinition|noescape}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>EndNote</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {$endnoteDefinition|noescape}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>RefWorks</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {$refworksDefinition|noescape}
+                        </div>
+                    </div>
+
                 </div>
-
-                <hr>
-
-                <div class="row row-equal-cols">
-                    <div class="col-sm-2 text-right">
-                        <h2><small>APA</small></h2>
-                    </div>
-                    <div class="col-sm-10">
-                        {include '@apa.latte'}
-                    </div>
-                </div>
-
-                <hr>
-
-                <div class="row row-equal-cols">
-                    <div class="col-sm-2 text-right">
-                        <h2><small>IEEE</small></h2>
-                    </div>
-                    <div class="col-sm-10">
-                        {include '@ieee.latte'}
-                    </div>
-                </div>
-
-                <hr>
-
-                <div class="row row-equal-cols">
-                    <div class="col-sm-2 text-right">
-                        <h2><small>Bibtex</small></h2>
-                    </div>
-                    <div class="col-sm-10">
-                        {$bibtexDefinition|noescape}
-                    </div>
-                </div>
-
-                <hr>
-
-                <div class="row row-equal-cols">
-                    <div class="col-sm-2 text-right">
-                        <h2><small>EndNote</small></h2>
-                    </div>
-                    <div class="col-sm-10">
-                        {$endnoteDefinition|noescape}
-                    </div>
-                </div>
-
-                <hr>
-
-                <div class="row row-equal-cols">
-                    <div class="col-sm-2 text-right">
-                        <h2><small>RefWorks</small></h2>
-                    </div>
-                    <div class="col-sm-10">
-                        {$refworksDefinition|noescape}
-                    </div>
-                </div>
-
             </div>
 
             <div class="tab-pane fade" id="references">
