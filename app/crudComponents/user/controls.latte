@@ -1,11 +1,14 @@
-<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteUserButton deleteUserButton{$uniqid}" data-toggle="modal" data-target="#DeleteUserModal{$uniqid}" title="Delete user">
+<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{else}btn-xs{/ifset} deleteUserButton deleteUserButton{$uniqid}" data-toggle="modal" data-target="#DeleteUserModal{$uniqid}" title="Delete user">
 	<span class="glyphicon glyphicon-remove"></span>
+	{if isset($description) && $description == true} Delete{/if}
 </button>
-<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editUserButton editUserButton{$uniqid}" data-toggle="modal" data-target="#EditUserModal{$uniqid}" title="Edit user">
+<button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{else}btn-xs{/ifset} editUserButton editUserButton{$uniqid}" data-toggle="modal" data-target="#EditUserModal{$uniqid}" title="Edit user">
 	<span class="glyphicon glyphicon-pencil"></span>
+	{if isset($description) && $description == true} Edit{/if}
 </button>
-<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default btn-xs showPublicationsRelatedToUserButton showPublicationsRelatedToUserButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToUserModal{$uniqid}" title="Associated Publications">
+<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default {ifset $button}btn-{$button}{else}btn-xs{/ifset} showPublicationsRelatedToUserButton showPublicationsRelatedToUserButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToUserModal{$uniqid}" title="Associated Publications">
 	<span class="glyphicon glyphicon-link"></span>
+	{if isset($description) && $description == true} Associated publications{/if}
 </button>
 
 {*

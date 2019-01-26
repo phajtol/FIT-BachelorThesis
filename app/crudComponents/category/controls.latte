@@ -1,10 +1,13 @@
-<button type="button" data-signal-url="{$addSubLink}" class="btn btn-warning btn-xs addSubcategoryButton addSubcategoryButton{$uniqid}" data-toggle="modal" data-target="#AddSubcategoryModal{$uniqid}" title="Add subcategory for {$entityName}">
+<button type="button" data-signal-url="{$addSubLink}" class="btn btn-warning {ifset $button}btn-{$button}{else}btn-xs{/ifset} addSubcategoryButton addSubcategoryButton{$uniqid}" data-toggle="modal" data-target="#AddSubcategoryModal{$uniqid}" title="Add subcategory for {$entityName}">
 	<span class="glyphicon glyphicon-plus-sign"></span>
+	{if isset($description) && $description == true} Add subcategory{/if}
 </button>
-<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteCategoryButton deleteCategoryButton{$uniqid}" data-toggle="modal" data-target="#DeleteCategoryModal{$uniqid}" title="Delete {$entityName}">
+<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{else}btn-xs{/ifset} deleteCategoryButton deleteCategoryButton{$uniqid}" data-toggle="modal" data-target="#DeleteCategoryModal{$uniqid}" title="Delete {$entityName}">
 	<span class="glyphicon glyphicon-remove"></span>
+	{if isset($description) && $description == true} Delete{/if}
 </button>
-<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editCategoryButton editCategoryButton{$uniqid}" data-toggle="modal" data-target="#EditCategoryModal{$uniqid}" title="Edit {$entityName}">
+<button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{else}btn-xs{/ifset} editCategoryButton editCategoryButton{$uniqid}" data-toggle="modal" data-target="#EditCategoryModal{$uniqid}" title="Edit {$entityName}">
 	<span class="glyphicon glyphicon-pencil"></span>
+	{if isset($description) && $description == true} Edit{/if}
 </button>
 {block extraControls}{/block}

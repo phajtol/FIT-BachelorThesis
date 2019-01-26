@@ -336,8 +336,8 @@
                 <form class="form-horizontal" role="form">
                     <div class="form-group">
                         <h1 class="col-sm-3 control-label">Tags</h1>
-                        <div class="col-sm-offset-8 col-sm-1" n:if="$control['tagCrud']->isActionAllowed('add')">
-                          {control tagCrud-addButton}
+                        <div class="col-sm-offset-6 col-sm-3 text-right" n:if="$control['tagCrud']->isActionAllowed('add')">
+                          {control tagCrud-addButton, ['description' => true]}
                         </div>
                     </div>
 
@@ -355,7 +355,7 @@
                                 <div class="col-sm-9">
                                     <p id="tag-{$tag->id}" class="form-control-static">{$tag->name}</p>
                                     <p class="form-control-static">
-                                        {control tagCrud-controls-$tag->id}
+                                        {control tagCrud-controls-$tag->id, ['description' => true]}
                                     </p>
                                 </div>
                                 <hr>

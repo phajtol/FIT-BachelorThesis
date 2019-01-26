@@ -1,3 +1,4 @@
-<button type="button" class="btn btn-success" data-toggle="modal" data-target="#AddNewReferenceModal{$uniqid}" title="Add new reference">
+<button type="button" class="btn {ifset $button}btn-{$button}{/ifset} btn-success" data-toggle="modal" data-target="#AddNewReferenceModal{$uniqid}" title="Add new reference">
 	<span class="glyphicon glyphicon-plus"></span>
+	{if isset($description) && $description == true} Add new reference{/if}
 </button>

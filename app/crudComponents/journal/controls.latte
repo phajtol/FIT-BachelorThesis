@@ -1,9 +1,12 @@
-<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteJournalButton deleteJournalButton{$uniqid}" data-toggle="modal" data-target="#DeleteJournalModal{$uniqid}" title="Delete journal">
+<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{else}btn-xs{/ifset} deleteJournalButton deleteJournalButton{$uniqid}" data-toggle="modal" data-target="#DeleteJournalModal{$uniqid}" title="Delete journal">
 	<span class="glyphicon glyphicon-remove"></span>
+	{if isset($description) && $description == true} Delete{/if}
 </button>
-<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editJournalButton editJournalButton{$uniqid}" data-toggle="modal" data-target="#JournalModal{$uniqid}" title="Edit journal">
+<button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{else}btn-xs{/ifset} editJournalButton editJournalButton{$uniqid}" data-toggle="modal" data-target="#JournalModal{$uniqid}" title="Edit journal">
 	<span class="glyphicon glyphicon-pencil"></span>
+	{if isset($description) && $description == true} Edit{/if}
 </button>
-<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default btn-xs showPublicationsRelatedToJournalButton showPublicationsRelatedToJournalButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToJournalModal{$uniqid}" title="Associated Publications">
+<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default {ifset $button}btn-{$button}{else}btn-xs{/ifset} showPublicationsRelatedToJournalButton showPublicationsRelatedToJournalButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToJournalModal{$uniqid}" title="Associated Publications">
 	<span class="glyphicon glyphicon-link"></span>
+	{if isset($description) && $description == true} Associated publications{/if}
 </button>

@@ -1,3 +1,4 @@
-<button type="button" id="addPublisherButton{$uniqid|noescape}" class="btn btn-success" data-toggle="modal" data-target="#AddNewPublisherModal{$uniqid}" title="Add new Publisher">
+<button type="button" id="addPublisherButton{$uniqid|noescape}" class="btn {ifset $button}btn-{$button}{/ifset} btn-success" data-toggle="modal" data-target="#AddNewPublisherModal{$uniqid}" title="Add new Publisher">
 	<span class="glyphicon glyphicon-plus"></span>
+	{if isset($description) && $description == true} Add new publisher{/if}
 </button>

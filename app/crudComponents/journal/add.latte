@@ -1,3 +1,4 @@
-<button data-signal-url="{$addLink}"  type="button" class="btn btn-success addJournalButton addJournalButton{$uniqid}" data-toggle="modal" data-target="#JournalModal{$uniqid}" title="Add new journal">
+<button data-signal-url="{$addLink}"  type="button" class="btn {ifset $button}btn-{$button}{/ifset} btn-success addJournalButton addJournalButton{$uniqid}" data-toggle="modal" data-target="#JournalModal{$uniqid}" title="Add new journal">
 	<span class="glyphicon glyphicon-plus"></span>
+	{if isset($description) && $description == true} Add new journal{/if}
 </button>

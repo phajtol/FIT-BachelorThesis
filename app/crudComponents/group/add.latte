@@ -1,5 +1,6 @@
 {ifset $addAllowed}
-	<button type="button" class="btn btn-success" data-toggle="modal" data-target="#AddNewModal{$uniqid}" title="Add new user group">
+	<button type="button" class="btn {ifset $button}btn-{$button}{/ifset} btn-success" data-toggle="modal" data-target="#AddNewModal{$uniqid}" title="Add new user group">
 		<span class="glyphicon glyphicon-plus"></span>
+		{if isset($description) && $description == true} Add new group{/if}
 	</button>
 {/ifset}

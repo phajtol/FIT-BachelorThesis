@@ -1,9 +1,12 @@
-<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deletePublisherButton deletePublisherButton{$uniqid}" data-toggle="modal" data-target="#DeletePublisherModal{$uniqid}" title="Delete Publisher">
+<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{else}btn-xs{/ifset} deletePublisherButton deletePublisherButton{$uniqid}" data-toggle="modal" data-target="#DeletePublisherModal{$uniqid}" title="Delete Publisher">
 	<span class="glyphicon glyphicon-remove"></span>
+    {if isset($description) && $description == true} Delete{/if}
 </button>
-<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editPublisherButton editPublisherButton{$uniqid}" data-toggle="modal" data-target="#EditPublisherModal{$uniqid}" title="Edit Publisher">
+<button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{else}btn-xs{/ifset} editPublisherButton editPublisherButton{$uniqid}" data-toggle="modal" data-target="#EditPublisherModal{$uniqid}" title="Edit Publisher">
 	<span class="glyphicon glyphicon-pencil"></span>
+    {if isset($description) && $description == true} Edit{/if}
 </button>
-<button type="button" data-signal-url="{$showPublisherRelatedLink}" class="btn btn-default btn-xs relatedPublisherButton relatedPublisherButton{$uniqid}" data-toggle="modal" data-target="#PublisherRelatedModal{$uniqid}" title="Associated Publications and Years of Conference">
+<button type="button" data-signal-url="{$showPublisherRelatedLink}" class="btn btn-default {ifset $button}btn-{$button}{else}btn-xs{/ifset} relatedPublisherButton relatedPublisherButton{$uniqid}" data-toggle="modal" data-target="#PublisherRelatedModal{$uniqid}" title="Associated Publications and Years of Conference">
 	<span class="glyphicon glyphicon-link"></span>
+    {if isset($description) && $description == true} Associated publications and conference years{/if}
 </button>

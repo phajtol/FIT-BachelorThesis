@@ -52,6 +52,12 @@
 
                         {include #conferenceYearInfo, key => 'abbreviation', caption => 'Abbreviation'}
 
+                        {if $parentConferenceYear}
+                            {capture $value}<a n:href="Conference:show $parentConferenceYear->id" target="_blank">{$parentConferenceYear->name}{if $parentConferenceYear->w_year} ({$parentConferenceYear->w_year}){/if}</a>{/capture}
+                            {include #conferenceYearInfo, caption => 'Workshop at', noescape => 'true'}
+                            {php unset($value)}
+                        {/if}
+
                         {include #conferenceYearInfo, key => 'w_year', caption => 'Year'}
 
                         {capture $value}{$conferenceYear->deadline|ldate}{/capture}
@@ -71,12 +77,6 @@
                             {include #conferenceYearInfo, caption => 'Final version date'}
                         </div>
                         {php unset($value)}
-
-                        {if $parentConferenceYear}
-                            {capture $value}<a n:href="Conference:show $parentConferenceYear->id" target="_blank">{$parentConferenceYear->name}{if $parentConferenceYear->w_year} ({$parentConferenceYear->w_year}){/if}</a>{/capture}
-                            {include #conferenceYearInfo, caption => 'Workshop at', noescape => 'true'}
-                            {php unset($value)}
-                        {/if}
 
                         {capture $value}{$conferenceYear->w_from|ldate}{/capture}
                         {include #conferenceYearInfo, caption => 'From'}
