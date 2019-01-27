@@ -254,7 +254,7 @@
                         </div>
                     {/if}
 
-                    {if $publication->related('publication_isbn')}
+                    {if $publication->pub_type != 'inproceedings' && $publication->related('publication_isbn')}
                         {foreach $publication->related('publication_isbn') as $isbn}
                             <div class="row row-equal-cols pub-detail-item">
                                 <div class="col-sm-2 text-right">
@@ -537,9 +537,9 @@
                                 </div>
                             {/if}
                         {/if}
-
-                        <hr>
                     {/if}
+
+                    <hr>
 
                     {if count($attributes)}
                         <h2 class="text-center"><small>Custom attributes</small></h2>
