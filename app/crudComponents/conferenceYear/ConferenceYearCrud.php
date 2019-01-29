@@ -546,6 +546,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$this->template->relatedWorkshops = $this->conferenceYearModel->findAllBy(['parent_id' =>  $conferenceYearId]);
 		$this->template->conferenceYearId = $conferenceYearId;
 		$this->redrawControl('relatedWorkshops');
+        $this->presenter->redrawControl('workshops');
 	}
 
     /**

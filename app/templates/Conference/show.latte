@@ -267,19 +267,21 @@
                         <h3>Workshops</h3>
                         <hr>
 
-                        {if count($associatedWorkshops)}
-                            {foreach $associatedWorkshops as $record}
-                                <p>
-                                    <a n:href="Conference:show $record->id">
-                                        {$record->w_year} - {$record->name}
-                                    </a>
-                                </p>
-                            {/foreach}
-                        {else}
-                            <div class="alert alert-warning">
-                                There are no workshops associated to this conference.
-                            </div>
-                        {/if}
+                        {snippet workshops}
+                            {if count($associatedWorkshops)}
+                                {foreach $associatedWorkshops as $record}
+                                    <p>
+                                        <a n:href="Conference:show $record->id">
+                                            {$record->w_year} - {$record->name}
+                                        </a>
+                                    </p>
+                                {/foreach}
+                            {else}
+                                <div class="alert alert-warning">
+                                    There are no workshops associated to this conference.
+                                </div>
+                            {/if}
+                        {/snippet}
 
                         <div class="text-center">
                             {control crud-controls-$conferenceYear->id, ['description' => true, 'button' => 'xs', 'workshopBtnOnly' => true]}
