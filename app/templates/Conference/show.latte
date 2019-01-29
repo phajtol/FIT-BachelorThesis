@@ -167,7 +167,7 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <p n:if="$user->isAllowed('ConferenceAdmin:showall')" n:snippet="conferenceYearControls">
-                                        {control crud-controls-$conferenceYear->id, ['description' => true, 'button' => 'sm']}
+                                        {control crud-controls-$conferenceYear->id, ['description' => true, 'button' => 'sm', 'actionBtnsOnly' => true]}
                                     </p>
                                 </div>
                             </div>
@@ -210,7 +210,7 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <p n:if="$user->isAllowed('ConferenceAdmin:showall')" n:snippet="conferenceControls">
-                                        {control conferenceCrud-controls-$conferenceYear->conference_id, ['description' => true, 'button' => 'sm']}
+                                        {control conferenceCrud-controls-$conferenceYear->conference_id, ['description' => true, 'button' => 'sm', 'actionBtnsOnly' => true]}
                                         {control favouriteToggle-$conferenceYear->conference_id, ['description' => true, 'button' => 'sm']}
                                     </p>
                                 </div>
@@ -280,6 +280,10 @@
                                 There are no workshops associated to this conference.
                             </div>
                         {/if}
+
+                        <div class="text-center">
+                            {control crud-controls-$conferenceYear->id, ['description' => true, 'button' => 'xs', 'workshopBtnOnly' => true]}
+                        </div>
 					</div>
 				</div>
         </div>

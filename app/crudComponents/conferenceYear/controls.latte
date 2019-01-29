@@ -1,37 +1,70 @@
 <span n:snippet="controls">
-	{ifset $deleteAllowed}
-		<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{/ifset} deleteConferenceYearButton deleteConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#DeleteConferenceYearModal{$uniqid}" title="Delete conference year">
-			<span class="glyphicon glyphicon-remove"></span>
-            {if isset($description) && $description == true} Delete{/if}
-		</button>
-	{/ifset}
-	{ifset $editAllowed}
-		<button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{/ifset} editConferenceYearButton editConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#ConferenceYearModal{$uniqid}" title="Edit conference year">
-			<span class="glyphicon glyphicon-pencil"></span>
-            {if isset($description) && $description == true} Edit{/if}
-		</button>
-	{/ifset}
-	{ifset $showRelatedPublicationsAllowed}
-		<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default {ifset $button}btn-{$button}{/ifset} conferenceYearRelatedPublicationsButton conferenceYearRelatedPublicationsButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToYearOfConferenceModal{$uniqid}" title="Associated Publications">
-			<span class="glyphicon glyphicon-link"></span>
-            {if isset($description) && $description == true} Related publications{/if}
-		</button>
-	{/ifset}
-	{ifset $showWorkshopsAllowed}
-		<button type="button" data-signal-url="{$showWorkshopsLink}" class="btn btn-default {ifset $button}btn-{$button}{/ifset} showWorkshopsButton showWorkshopsButton{$uniqid}"  data-toggle="modal" data-target="#WorkshopsRelatedToYearOfConferenceModal{$uniqid}" title="Show workshops">
-			<strong>W</strong>
-            {if isset($description) && $description == true} Workshops{/if}
-		</button>
-	{/ifset}
-	{ifset $archivedStateChangeAllowed}
-		<button type="button" data-signal-url="{$setConferenceYearStateLink}" class="btn btn-{$nextConferenceYearState == 'archived' ? 'default' : 'warning'} {ifset $button}btn-{$button}{/ifset} toggleArchivedButton toggleArchivedButton{$uniqid}" title="Mark conference year as {$nextConferenceYearState}">
-			{if $nextConferenceYearState == 'alive'}
-				<span class="glyphicon glyphicon-tree-deciduous"></span>
-                 {if isset($description) && $description == true} Mark as alive{/if}
-			{elseif $nextConferenceYearState == 'archived'}
-				<span class="glyphicon glyphicon-eye-close"></span>
-                {if isset($description) && $description == true} Archive{/if}
-			{/if}
-		</button>
-	{/ifset}
+	{if isset($workshopBtnOnly) && $workshopBtnOnly === true}
+        {ifset $showWorkshopsAllowed}
+            <button type="button" data-signal-url="{$showWorkshopsLink}" class="btn btn-success {ifset $button}btn-{$button}{/ifset} showWorkshopsButton showWorkshopsButton{$uniqid}"  data-toggle="modal" data-target="#WorkshopsRelatedToYearOfConferenceModal{$uniqid}" title="Add new workshop">
+		        <span class="glyphicon glyphicon-plus"></span>
+                {if isset($description) && $description == true} Add new workshop{/if}
+	        </button>
+        {/ifset}
+	{elseif isset($actionBtnsOnly) && $actionBtnsOnly}
+        {ifset $deleteAllowed}
+            <button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{/ifset} deleteConferenceYearButton deleteConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#DeleteConferenceYearModal{$uniqid}" title="Delete conference year">
+	    		<span class="glyphicon glyphicon-remove"></span>
+                {if isset($description) && $description == true} Delete{/if}
+            </button>
+        {/ifset}
+	    	{ifset $editAllowed}
+            <button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{/ifset} editConferenceYearButton editConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#ConferenceYearModal{$uniqid}" title="Edit conference year">
+	    		<span class="glyphicon glyphicon-pencil"></span>
+                {if isset($description) && $description == true} Edit{/if}
+	    	</button>
+        {/ifset}
+        {ifset $archivedStateChangeAllowed}
+            <button type="button" data-signal-url="{$setConferenceYearStateLink}" class="btn btn-{$nextConferenceYearState == 'archived' ? 'default' : 'warning'} {ifset $button}btn-{$button}{/ifset} toggleArchivedButton toggleArchivedButton{$uniqid}" title="Mark conference year as {$nextConferenceYearState}">
+                {if $nextConferenceYearState == 'alive'}
+                    <span class="glyphicon glyphicon-tree-deciduous"></span>
+                    {if isset($description) && $description == true} Mark as alive{/if}
+                {elseif $nextConferenceYearState == 'archived'}
+                    <span class="glyphicon glyphicon-eye-close"></span>
+                    {if isset($description) && $description == true} Archive{/if}
+                {/if}
+            </button>
+        {/ifset}
+	{else}
+		{ifset $deleteAllowed}
+			<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{/ifset} deleteConferenceYearButton deleteConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#DeleteConferenceYearModal{$uniqid}" title="Delete conference year">
+				<span class="glyphicon glyphicon-remove"></span>
+    	        {if isset($description) && $description == true} Delete{/if}
+			</button>
+		{/ifset}
+		{ifset $editAllowed}
+			<button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{/ifset} editConferenceYearButton editConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#ConferenceYearModal{$uniqid}" title="Edit conference year">
+				<span class="glyphicon glyphicon-pencil"></span>
+    	        {if isset($description) && $description == true} Edit{/if}
+			</button>
+		{/ifset}
+		{ifset $showRelatedPublicationsAllowed}
+			<button type="button" data-signal-url="{$showRelatedPublicationsLink}" class="btn btn-default {ifset $button}btn-{$button}{/ifset} conferenceYearRelatedPublicationsButton conferenceYearRelatedPublicationsButton{$uniqid}" data-toggle="modal" data-target="#PublicationsRelatedToYearOfConferenceModal{$uniqid}" title="Associated Publications">
+				<span class="glyphicon glyphicon-link"></span>
+    	        {if isset($description) && $description == true} Related publications{/if}
+			</button>
+		{/ifset}
+		{ifset $showWorkshopsAllowed}
+			<button type="button" data-signal-url="{$showWorkshopsLink}" class="btn btn-default {ifset $button}btn-{$button}{/ifset} showWorkshopsButton showWorkshopsButton{$uniqid}"  data-toggle="modal" data-target="#WorkshopsRelatedToYearOfConferenceModal{$uniqid}" title="Show workshops">
+				<strong>W</strong>
+    	        {if isset($description) && $description == true} Workshops{/if}
+			</button>
+		{/ifset}
+		{ifset $archivedStateChangeAllowed}
+			<button type="button" data-signal-url="{$setConferenceYearStateLink}" class="btn btn-{$nextConferenceYearState == 'archived' ? 'default' : 'warning'} {ifset $button}btn-{$button}{/ifset} toggleArchivedButton toggleArchivedButton{$uniqid}" title="Mark conference year as {$nextConferenceYearState}">
+				{if $nextConferenceYearState == 'alive'}
+					<span class="glyphicon glyphicon-tree-deciduous"></span>
+    	             {if isset($description) && $description == true} Mark as alive{/if}
+				{elseif $nextConferenceYearState == 'archived'}
+					<span class="glyphicon glyphicon-eye-close"></span>
+    	            {if isset($description) && $description == true} Archive{/if}
+				{/if}
+			</button>
+		{/ifset}
+	{/if}
 </span>
