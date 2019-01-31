@@ -224,41 +224,43 @@
                         <h3>Conference years</h3>
 						<hr>
 
-                        {if count($otherConferenceYears)}
-                            <div class="collapse" id="conferenceYears">
-                                {foreach $otherConferenceYears as $record}
-                                    <p>
-                                        <a n:href="Conference:show $record->id">
-                                            {if $conferenceYear->id === $record->id}
-                                                <b><span class="lead">{$record->w_year}</span> - {$record->name}</b>
-                                            {else}
-                                                <span class="lead">{$record->w_year}</span> - {$record->name}
-                                            {/if}
-                                        </a>
-                                    </p>
-                                {/foreach}
-                            </div>
-                            <div id="conferenceYearsToggle" class="text-center" style="margin:10px 0;">
-                                <a data-toggle="collapse" href="#conferenceYears" aria-controls="conferenceYears">
-                                    Toggle more
-                                </a>
-                            </div>
-                            <script type="text/javascript">
-                                function overflows(element) {
-                                    return element.scrollHeight > element.clientHeight;
-                                }
+                        {snippet conferenceYears}
+                            {if count($otherConferenceYears)}
+                                <div class="collapse" id="conferenceYears">
+                                    {foreach $otherConferenceYears as $record}
+                                        <p>
+                                            <a n:href="Conference:show $record->id">
+                                                {if $conferenceYear->id === $record->id}
+                                                    <b><span class="lead">{$record->w_year}</span> - {$record->name}</b>
+                                                {else}
+                                                    <span class="lead">{$record->w_year}</span> - {$record->name}
+                                                {/if}
+                                            </a>
+                                        </p>
+                                    {/foreach}
+                                </div>
+                                <div id="conferenceYearsToggle" class="text-center" style="margin:10px 0;">
+                                    <a data-toggle="collapse" href="#conferenceYears" aria-controls="conferenceYears">
+                                        Toggle more
+                                    </a>
+                                </div>
+                                <script type="text/javascript">
+                                    function overflows(element) {
+                                        return element.scrollHeight > element.clientHeight;
+                                    }
 
 
-                                if (!overflows($('#conferenceYears')[0])) {
-                                    $('#conferenceYears')[0].setAttribute('style', 'height:auto !important;box-shadow:none;border:none;');
-                                    $('#conferenceYearsToggle')[0].style.display = 'none';
-                                }
-                            </script>
-                        {else}
-                            <div class="alert alert-warning">
-                                There are no other conference years of this conference.
-                            </div>
-                        {/if}
+                                    if (!overflows($('#conferenceYears')[0])) {
+                                        $('#conferenceYears')[0].setAttribute('style', 'height:auto !important;box-shadow:none;border:none;');
+                                        $('#conferenceYearsToggle')[0].style.display = 'none';
+                                    }
+                                </script>
+                            {else}
+                                <div class="alert alert-warning">
+                                    There are no other conference years of this conference.
+                                </div>
+                            {/if}
+                        {/snippet}
 
                         <div class="text-center">
                             {control crudOthers-addButton, ['description' => true, 'button' => 'xs']}

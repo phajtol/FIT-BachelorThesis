@@ -326,12 +326,17 @@ class ConferenceYearCrud extends BaseCrudComponent {
     		}
 
     		$this->conferenceYearIsIndexedModel->setAssociatedDocumentIndexes($record->id, $documentIndexes);
+    		
+            if ($this->template->conferenceYearAdded) {
+                $this->presenter->redirect('this', $record->id);
+            }
 
     		if (!$this->presenter->isAjax()) {
     			$this->presenter->redirect('this');
     		} else {
     			$this->redrawControl('conferenceYearForm');
                 $this->redrawControl('conferenceYearDetail');
+                $this->presenter->redrawControl('conferenceYears');
     		}
         };
 
