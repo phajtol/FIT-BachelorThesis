@@ -302,17 +302,9 @@
 						<h3>{$conferenceYearWithPublications['name']}{ifset $conferenceYearWithPublications['w_year']} ({$conferenceYearWithPublications['w_year']}){/ifset}</h3>
 						<ul>
 							{foreach $conferenceYearWithPublications['publications'] as $publication}
-								<li>
-									<a n:href="Publication:showpub $publication->id">{$publication->title}</a>
-									{if count($authorsOfPublications[$publication->id])}
-										<br>
-										<small><em>
-											{foreach $authorsOfPublications[$publication->id] as $author}
-												{$author->name} {$author->surname}{if !$iterator->last}, {/if}
-											{/foreach}
-										</em></small>
-									{/if}
-								</li>
+                                <p>
+                                    {control publication, $publication, $authorsOfPublications[$publication->id]}
+                                </p>
 							{/foreach}
 						</ul>
 					</div>

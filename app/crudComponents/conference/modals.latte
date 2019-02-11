@@ -142,16 +142,20 @@
 			</div>
 			<div class="modal-body">
 				{snippet publicationsRelatedToConference}
-					{if count($publicationsRelatedToConference)}
-						{foreach $publicationsRelatedToConference as $rel}
-						<h5><strong>{$rel['name']} ({$rel['w_year']})</strong></h5>
-							<ul n:foreach="$rel['publication'] as $r">
-								<li><a target="_blank" href="{plink Publication:showpub, $r['id']}">{$r['title']}</a></li>
+                    {foreach $conferenceYears as $year}
+						<h5><strong>{$year->name} ({$year->w_year})</strong></h5>
+                        {if count($publicationsByYears[$year->w_year])}
+						    <ul n:foreach="$publicationsByYears[$year->w_year] as $pub">
+							    <li>
+                                    {control publication, $pub, $authorsByPubId[$pub->id] ?? []}
+                                </li>
 							</ul>
-						{/foreach}
-					{else}
-						There are no associated Publications with this Conference.
-					{/if}
+						{else}
+						    <div class="alert alert-warning">
+                                There are no publications associated with this conference year.
+                            </div>
+                        {/if}
+                    {/foreach}
 				{/snippet}
 			</div>
 			<div class="modal-footer">

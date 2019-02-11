@@ -521,6 +521,8 @@ class HomepagePresenter extends SecuredPresenter {
             }
         }
 
+        bdump($search_results);
+
         $this->template->results = $search_results;
         $this->template->sort = $sort;
         unset($params['sort']);

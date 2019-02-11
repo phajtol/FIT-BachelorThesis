@@ -15,6 +15,9 @@ class AuthorPresenter extends SecuredPresenter {
     /** @var Model\AuthorHasPublication @inject */
     public $authorHasPublicationModel;
 
+    /** @var Model\Publication @inject */
+    public $publicationModel;
+
 
     /**
      * @param string $name
@@ -40,7 +43,7 @@ class AuthorPresenter extends SecuredPresenter {
      */
     public function createComponentCrud(): AuthorCrud{
         $c = new AuthorCrud(
-            $this->user,$this->submitterModel, $this->authorModel, $this->authorHasPublicationModel,
+            $this->user,$this->submitterModel, $this->authorModel, $this->publicationModel, $this->authorHasPublicationModel,
             $this, 'crud'
         );
 

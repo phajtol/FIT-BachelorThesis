@@ -369,10 +369,14 @@ $(document).ready(function() {
 				{snippet relatedPublications}
 					{if count($relatedPublications)}
 					<ul n:foreach="$relatedPublications as $rel">
-						<li><a target="_blank" href="{plink Publication:showpub, $rel->id}">{$rel->title}</a></li>
+						<li>
+                            {control publication, $rel, $authorsByPubId[$rel->id] ?? []}
+                        </li>
 					</ul>
 					{else}
-						There are no associated Publications with this Year of Conference.
+						<div class="alert alert-warning">
+							There are no publications associated with this year of conference.
+						</div>
 					{/if}
 				{/snippet}
 			</div>

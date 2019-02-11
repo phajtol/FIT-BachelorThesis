@@ -16,6 +16,9 @@ class JournalPresenter extends SecuredPresenter {
     /** @var Model\Publication @inject */
     public $publicationModel;
 
+    /** @var Model\Author @inject */
+    public $authorModel;
+
     /** @var Model\JournalIsbn @inject */
     public $journalIsbnModel;
 
@@ -47,6 +50,7 @@ class JournalPresenter extends SecuredPresenter {
 			$this->user,
 			$this->journalModel,
 			$this->publicationModel,
+			$this->authorModel,
 			$this->journalIsbnModel,
 			$this, 'crud'
 		);

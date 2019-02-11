@@ -48,7 +48,9 @@ class PublisherPresenter extends SecuredPresenter {
     {
 		$c = new PublisherCrud(
 			$this->user, $this->publisherModel,
-			$this->publicationModel, $this->conferenceYearModel,
+			$this->publicationModel,
+            $this->authorModel,
+            $this->conferenceYearModel,
 			$this, 'crud'
 		);
 

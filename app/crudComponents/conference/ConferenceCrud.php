@@ -5,6 +5,7 @@ namespace App\CrudComponents\Conference;
 use App\Components\AcmCategoryList\AcmCategoryListComponent;
 use App\Components\ButtonToggle\ButtonGroupComponent;
 use App\Components\ConferenceCategoryList\ConferenceCategoryListComponent;
+use App\Components\Publication\PublicationControl;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
 use App\Forms\BaseForm;
@@ -27,6 +28,9 @@ class ConferenceCrud extends BaseCrudComponent {
 
 	/** @var \App\Model\Publication */
 	protected $publicationModel;
+
+	/** @var \App\Model\Author */
+	protected $authorModel;
 
 	/** @var \App\Model\Publisher */
 	protected $publisherModel;
@@ -68,6 +72,7 @@ class ConferenceCrud extends BaseCrudComponent {
      * @param \App\Model\Conference $conferenceModel
      * @param \App\Model\ConferenceYear $conferenceYearModel
      * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\Author $authorModel
      * @param \App\Model\Publisher $publisherModel
      * @param \App\Model\ConferenceHasAcmCategory $conferenceHasAcmCategoryModel
      * @param \App\Model\ConferenceHasCategory $conferenceHasCategoryModel
@@ -83,6 +88,7 @@ class ConferenceCrud extends BaseCrudComponent {
         \App\Model\Conference $conferenceModel,
         \App\Model\ConferenceYear $conferenceYearModel,
         \App\Model\Publication $publicationModel,
+        \App\Model\Author $authorModel,
         \App\Model\Publisher $publisherModel,
 		\App\Model\ConferenceHasAcmCategory $conferenceHasAcmCategoryModel,
         \App\Model\ConferenceHasCategory $conferenceHasCategoryModel,
@@ -98,6 +104,7 @@ class ConferenceCrud extends BaseCrudComponent {
 		$this->conferenceModel = $conferenceModel;
 		$this->conferenceYearModel = $conferenceYearModel;
 		$this->publicationModel = $publicationModel;
+		$this->authorModel = $authorModel;
 		$this->publisherModel = $publisherModel;
 		$this->conferenceHasAcmCategoryModel = $conferenceHasAcmCategoryModel;
 		$this->conferenceHasCategoryModel = $conferenceHasCategoryModel;
@@ -351,6 +358,14 @@ class ConferenceCrud extends BaseCrudComponent {
 	}
 
     /**
+     * @return PublicationControl
+     */
+	public function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
+
+    /**
      * @param int $id
      * @throws \Nette\Application\AbortException
      */
@@ -421,30 +436,21 @@ class ConferenceCrud extends BaseCrudComponent {
      */
 	public function handleShowRelatedPublications(int $id): void
     {
-		$ConferenceYearArray = [];
-		$counter = 0;
-		$counter2 = 0;
+        $conferenceYears = $this->conferenceYearModel->findAllBy(['conference_id' => $id])->order('w_year DESC');
+        $publicationsByYears = [];
+        $authorsByPubId = [];
 
-		$conferenceRelated = $this->conferenceYearModel->findAllBy(["conference_id" => $id])->order('w_year DESC');
+        foreach ($conferenceYears as $year) {
+            $publicationsByYears[$year->w_year] = $this->publicationModel->getMultiplePubInfoByParams(['conference_year_id' => $year->id]);
 
-		foreach ($conferenceRelated as $row) {
-			$ConferenceYearArray[$counter] = $row->toArray();
+            foreach ($publicationsByYears[$year->w_year] as $pub) {
+                $authorsByPubId[$pub->id] = $this->authorModel->getAuthorsNamesByPubIdPure($pub->id);
+            }
+        }
 
-			$publications = $this->publicationModel->findAllBy(["conference_year_id" => $row['id']]);
-			$publicationsArray = [];
-
-			foreach ($publications as $pub) {
-				$publicationsArray[$counter2]['title'] = $pub['title'];
-				$publicationsArray[$counter2]['id'] = $pub['id'];
-				$counter2++;
-			}
-
-			$counter2 = 0;
-			$ConferenceYearArray[$counter]['publication'] = $publicationsArray;
-			$counter++;
-		}
-
-		$this->template->publicationsRelatedToConference = $ConferenceYearArray;
+		$this->template->conferenceYears = $conferenceYears;
+		$this->template->publicationsByYears = $publicationsByYears;
+		$this->template->authorsByPubId = $authorsByPubId;
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');

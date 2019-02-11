@@ -132,7 +132,7 @@ body.pu-only .CU {
 }
 
 .modal-lg {
-    min-width: 1340px !important;
+    max-width: 1340px !important;
     width: 94%;
 }
 
@@ -222,4 +222,12 @@ body.pu-only .CU {
     height: auto !important;
     box-shadow: none;
     border: none;
+}
+
+a.publication {
+    font-size: 17px;
+}
+
+.pub_href {
+    color: rgb(51, 51, 51);
 }

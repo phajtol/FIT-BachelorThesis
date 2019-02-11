@@ -93,10 +93,14 @@
 				{snippet publicationsRelatedToAttribute}
 					{if count($publicationsRelatedToAttribute)}
 						<ul n:foreach="$publicationsRelatedToAttribute as $pub">
-							<li><a target="_blank" href="{plink Publication:showpub, $rel->publication->id}">{$rel->publication->title}</a></li>
+							<li>
+                                {control publication, $pub, $authorsByPubId[$pub->id] ?? []}
+                            </li>
 						</ul>
 					{else}
-						There are no associated Publications with this Attribute.
+						<div class="alert alert-warning">
+							There are no publications associated with this attribute.
+						</div>
 					{/if}
 				{/snippet}
 			</div>

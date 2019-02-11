@@ -4,6 +4,7 @@ namespace App\Presenters;
 
 use App\Components\AlphabetFilter\AlphabetFilterComponent;
 use App\Components\ButtonToggle\ButtonGroupComponent;
+use App\Components\Publication\PublicationControl;
 use App\Components\PublicationCategoryList\PublicationCategoryListComponent;
 use App\CrudComponents\Annotation\AnnotationCrud;
 use App\CrudComponents\Attribute\AttributeCrud;
@@ -1280,7 +1281,7 @@ class PublicationPresenter extends SecuredPresenter {
         }
 
         if (!isset($this->template->records)) {
-            $this->records = $this->publicationModel->findAllByKw($params);
+            $this->records = $this->publicationModel->getMultiplePubInfoByKeywords($params);
 
             if($starred) {
                 $this->records->where(':submitter_has_publication.submitter_id = ?', $this->user->id);
@@ -1292,7 +1293,7 @@ class PublicationPresenter extends SecuredPresenter {
 
             $this->setupRecordsPaginator();
 
-            $this->template->records = $this->records;
+            $this->template->records = iterator_to_array($this->records);
             $this->data = $params;
 
             if (isset($params['sort'])) {
@@ -1386,8 +1387,6 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->publisher = $data['publisher'];
         $this->template->favourite = $data['favourite'];
         $this->template->annotations = $data['annotations'];
-        $this->template->references = $data['references'];
-        $this->template->citations = $data['citations'];
         $this->template->conferenceYear = $data['conferenceYear'];
         $this->template->conferenceYearPublisher = $data['conferenceYearPublisher'];
         $this->template->files = $data['files'];
@@ -1400,54 +1399,42 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->types = $this->types;
         $authorsByPubId = [];
 
-        foreach ($this->template->references as $rec) {
-            if (empty($rec->reference_id)) {
-                continue;
-            }
-            /** @var $rec Nette\Database\Table\ActiveRow */
-            foreach($rec->reference->related('author_has_publication')->order('priority ASC') as $authHasPub) {
-                $author = $authHasPub->ref('author');
-                if(!isset($authorsByPubId[$rec->reference->id])) $authorsByPubId[$rec->reference->id] = [];
-                $authorsByPubId[$rec->reference->id][] = $author;
-            }
-        }
+        //load references and citations
+        $references = $this->referenceModel->getReferencesByPublication($publication['id']);
+        $pubReferences = [];
+        $textReferences = [];
 
-        foreach ($this->template->citations as $rec) {
-            /** @var $rec Nette\Database\Table\ActiveRow */
-            foreach($rec->publication->related('author_has_publication')->order('priority ASC') as $authHasPub) {
-                $author = $authHasPub->ref('author');
-                if(!isset($authorsByPubId[$rec->publication->id])) $authorsByPubId[$rec->publication->id] = [];
-                $authorsByPubId[$rec->publication->id][] = $author;
-            }
-        }
-
-        $this->template->authorsByPubId = $authorsByPubId;
-        $_this = $this;
-        $this->template->getLatte()->addFilter('template', function($text) use ($_this) {
-            $template = new Nette\Templating\Template();
-            $template->control = $template->_control = $_this;
-            $template->presenter = $template->_presenter = $_this->getPresenter(FALSE);
-            $template->registerFilter(new Nette\Latte\Engine);
-            // dodané proměnné
-            $template->user = $_this->user;
-            $template->baseUri = $_this->template->baseUri;
-            $template->basePath = $_this->template->basePath;
-
-            $template->pubCit = $_this->template->pubCit;
-            $template->pubCit['author_array'] = $_this->template->pubCit['author_array'];
-            $template->pubCit['author'] = $_this->template->pubCit['author'];
-            // flash message
-            $presenter = $_this->getPresenter(FALSE);
-            if ($presenter->hasFlashSession()) {
-                $id = $_this->getParameterId('flash');
-                $template->flashes = $presenter->getFlashSession()->$id;
+        foreach ($references as $reference) {
+            if ($reference->reference_id) {
+                $pubReferences[$reference->id] = $reference->reference_id;
             } else {
-                $template->flashes = array();
+                $textReferences[] = $reference;
             }
-            $template->setSource($text);
-            $txt = $template->__toString();
-            return $txt;
-        });
+        }
+
+        $referencedPubs = $this->publicationModel->getMultiplePubInfoByIds($pubReferences);
+
+        $citations = $this->referenceModel->getCitationsByPublication($publication['id']);
+        $citedPubs = $this->publicationModel->getMultiplePubInfoByIds($citations);
+
+        //load authors for references and citations
+        foreach ($pubReferences as $rec) {
+            if ($rec) {
+                $authorsByPubId[$rec] = $this->authorModel->getAuthorsNamesByPubIdPure($rec);
+            }
+        }
+        foreach ($citations as $cit) {
+            if ($cit) {
+                $authorsByPubId[$cit] = $this->authorModel->getAuthorsNamesByPubIdPure($cit);
+            }
+        }
+
+        $this->template->pubReferences = $pubReferences;
+        $this->template->textReferences = $textReferences;
+        $this->template->referencedPubs = $referencedPubs;
+        $this->template->citations = $citations;
+        $this->template->citedPubs = $citedPubs;
+        $this->template->authorsByPubId = $authorsByPubId;
 
         if ($this->user->isInRole('admin')) {
             $tags = $this->tagModel->findAllBy([':publication_has_tag.publication_id' => $this->publication->id])->order("id ASC");
@@ -1539,6 +1526,8 @@ class PublicationPresenter extends SecuredPresenter {
         } else {
             $this->redrawControl('flashMessages');
             $this->redrawControl('publicationAdminButtons');
+            $this->redrawControl('referencesShowAllRecords');
+            $this->redrawControl('citationsShowAllRecords');
         }
     }
 
@@ -1565,6 +1554,8 @@ class PublicationPresenter extends SecuredPresenter {
         } else {
             $this->redrawControl('flashMessages');
             $this->redrawControl('publicationAdminButtons');
+            $this->redrawControl('referencesShowAllRecords');
+            $this->redrawControl('citationsShowAllRecords');
         }
     }
 
@@ -2164,6 +2155,15 @@ class PublicationPresenter extends SecuredPresenter {
         };
 
         return $c;
+    }
+
+
+    /**
+     * @return PublicationControl
+     */
+    protected function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
     }
 
 }

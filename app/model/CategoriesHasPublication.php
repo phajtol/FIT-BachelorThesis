@@ -24,4 +24,14 @@ class CategoriesHasPublication extends Base {
         //wtf?
     }
 
+    /**
+     * @param int $category_id
+     * @return array
+     */
+    public function getPublicationIdsByCategory(int $category_id): array
+    {
+        return $this->getTable()
+            ->where('categories_id', $category_id)
+            ->fetchPairs('publication_id', 'publication_id');
+    }
 }

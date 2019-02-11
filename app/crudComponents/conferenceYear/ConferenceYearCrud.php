@@ -2,6 +2,7 @@
 
 namespace App\CrudComponents\ConferenceYear;
 
+use App\Components\Publication\PublicationControl;
 use App\Components\StaticContentComponent;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
@@ -23,6 +24,9 @@ class ConferenceYearCrud extends BaseCrudComponent {
 
 	/** @var  \App\Model\Publication */
 	protected $publicationModel;
+
+	/** @var \App\Model\Author */
+    protected $authorModel;
 
 	/** @var  \App\Model\DocumentIndex */
 	protected $documentIndexModel;
@@ -52,6 +56,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
      * @param \Nette\Security\User $loggedUser
      * @param \App\Model\Publisher $publisherModel
      * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\Author $authorModel
      * @param \App\Model\ConferenceYear $conferenceYearModel
      * @param \App\Model\Conference $conferenceModel
      * @param \App\Model\DocumentIndex $documentIndexModel
@@ -64,6 +69,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
                                 \Nette\Security\User $loggedUser,
                                 \App\Model\Publisher $publisherModel,
 								\App\Model\Publication $publicationModel,
+                                \App\Model\Author $authorModel,
                                 \App\Model\ConferenceYear $conferenceYearModel,
                                 \App\Model\Conference $conferenceModel,
 								\App\Model\DocumentIndex $documentIndexModel,
@@ -75,6 +81,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$this->conferenceYearModel = $conferenceYearModel;
 		$this->conferenceModel = $conferenceModel;
 		$this->publicationModel = $publicationModel;
+		$this->authorModel = $authorModel;
 		$this->publisherModel = $publisherModel;
 		$this->documentIndexModel = $documentIndexModel;
 		$this->conferenceYearIsIndexedModel = $conferenceYearIsIndexedModel;
@@ -151,7 +158,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	public function createComponentPublisherA(): PublisherCrud
     {
 		$publisherCrud = new PublisherCrud(
-		    $this->loggedUser, $this->publisherModel, $this->publicationModel, $this->conferenceYearModel, $this, 'publisherA'
+		    $this->loggedUser, $this->publisherModel, $this->publicationModel, $this->authorModel, $this->conferenceYearModel, $this, 'publisherA'
 		);
 
 		$p = $this;
@@ -188,7 +195,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	public function createComponentPublisherE(): PublisherCrud
     {
 		$publisherCrud = new PublisherCrud(
-			$this->loggedUser, $this->publisherModel, $this->publicationModel, $this->conferenceYearModel, $this, 'publisherE'
+			$this->loggedUser, $this->publisherModel, $this->publicationModel, $this->authorModel, $this->conferenceYearModel, $this, 'publisherE'
 		);
 
 		$p = $this;
@@ -388,7 +395,15 @@ class ConferenceYearCrud extends BaseCrudComponent {
      */
 	public function handleShowRelatedPublications(int $conferenceYearId): void
     {
-		$this->template->relatedPublications = $this->publicationModel->findAllBy(['conference_year_id' => $conferenceYearId]);
+		$publications = $this->publicationModel->getMultiplePubInfoByParams(['conference_year_id' => $conferenceYearId]);
+		$authors = [];
+
+		foreach ($publications as $pub) {
+		    $authors[$pub->id] = $this->authorModel->getAuthorsNamesByPubIdPure($pub->id);
+        }
+
+        $this->template->relatedPublications = $publications;
+		$this->template->authorsByPubId = $authors;
 		$this->redrawControl('relatedPublications');
 	}
 
@@ -609,6 +624,14 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$sc->template->addLink =  $this->link('add!');
 		return $sc;
 	}
+
+    /**
+     * @return PublicationControl
+     */
+	public function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
 
     /**
      * @param array|null $params

@@ -24,4 +24,17 @@ class AttribStorage extends Base {
         //wtf?
     }
 
+
+    /**
+     * @param int $attribId
+     * @return array
+     */
+    public function getPublicationsByAttribute(int $attribId): array
+    {
+        return $this->getTable()
+            ->select('publication_id')
+            ->where(['attributes_id' => $attribId])
+            ->fetchPairs('publication_id', 'publication_id');
+    }
+
 }

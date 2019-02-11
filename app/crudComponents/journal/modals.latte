@@ -173,10 +173,14 @@
 				{snippet publicationsRelatedToJournal}
 					{if count($publicationsRelatedToJournal)}
 						<ul n:foreach="$publicationsRelatedToJournal as $pub">
-							<li><a target="_blank" href="{plink Publication:showpub, $pub->id}">{$pub->title}</a></li>
+							<li>
+								{control publication, $pub, $authorsByPubId[$pub->id] ?? []}
+							</li>
 						</ul>
 					{else}
-						There are no associated Publications with this Journal.
+						<div class="alert alert-warning">
+							There are no publications associated with this journal.
+						</div>
 					{/if}
 				{/snippet}
 			</div>

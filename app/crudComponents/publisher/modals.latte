@@ -132,7 +132,9 @@
                         {if count($publisherRelated_publication)}
                             <h5><strong>Publications</strong></h5>
                             <ul n:foreach="$publisherRelated_publication as $rel">
-                                <li><a target="_blank" href="{plink Publication:showpub, $rel->id}">{$rel->title}</a></li>
+                                <li>
+                                    {control publication, $rel, $authorsByPubId[$rel->id] ?? []}
+                                </li>
                             </ul>
                         {/if}
                         {if count($publisherRelated_conference_year)}
@@ -142,7 +144,9 @@
                             </ul>
                         {/if}
                     {else}
-                        There are no associated Publications and Years of Conference with this Publisher.
+                        <div class="alert alert-warning">
+                            There are no associated publications and years of conference with this publisher.
+                        </div>
                     {/if}
                 {/snippet}
             </div>

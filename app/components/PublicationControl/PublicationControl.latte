@@ -1,0 +1,144 @@
+{if count($authors) >= 4}
+    {$authors[0]['name']|substr:0:1}.
+    {if $authors[0]['middlename']}{$authors[0]['middlename']|substr:0:1}.{/if}
+    {$authors[0]['surname']} et al.
+{elseif count($authors) < 4 && count($authors) != 0}
+    {foreach $authors as $author}
+        {$author['name']|substr:0:1}.
+        {if $author['middlename']}{$author['middlename']|substr:0:1}.{/if}
+        {$author['surname']},
+    {/foreach}
+{/if}
+"<a class="publication" href="{plink :Publication:showpub $publication['id']}">{$publication['title']}</a>"
+
+
+{if $publication['pub_type'] == 'article'}
+    {if isset($publication['journal']) && $publication['journal']}, <em>{$publication['journal']}</em>{/if}
+    {if $publication['volume']}, vol. {$publication['volume']}{/if}
+    {if $publication['number']}, no. {$publication['number']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['month_eng']}, {$publication['month_eng']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['url']} [online], URL <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+    {if $publication['note']}, {$publication['note']}{/if}
+{/if}
+
+{if $publication['pub_type'] == 'book'}
+    {if $publication['edition']}, {$publication['edition']}{/if}
+    {if $publication['editor']}, Eds., {$publication['editor']}{/if}
+    {if $publication['address']}, {$publication['address']}:{/if}
+    {if $publication['publisher']} {$publication['publisher']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['volume']}, vol. {$publication['volume']}{/if}
+    {if $publication['number']}, no. {$publication['number']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['note']}, {$publication['note']}{/if}
+    {if $publication['url']} [online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+{/if}
+
+{if $publication['pub_type'] == 'booklet'}
+    {if $publication['edition']}, {$publication['edition']}{/if}
+    {if $publication['address']} {$publication['address']}:{/if}
+    {if $publication['publisher']} {$publication['publisher']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['note']}, {$publication['note']}{/if}
+    {if $publication['howpublished']}, {$publication['howpublished']}{/if}
+    {if $publication['url']} [online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+{/if}
+
+{if $publication['pub_type'] == 'inbook'}
+    {if $publication['edition']}, {$publication['edition']}{/if}
+    {if $publication['editor']}Eds., {$publication['editor']}{/if}
+    {if $publication['address']}, {$publication['address']}:{/if}
+    {if $publication['publisher']} {$publication['publisher']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['volume']}, vol. {$publication['volume']}{/if}
+    {if $publication['number']}, no. {$publication['number']}{/if}
+    {if $publication['chapter']}, ch. {$publication['chapter']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['note']}, {$publication['note']}{/if}
+    {if $publication['url']} [online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+{/if}
+
+{if $publication['pub_type'] == 'incollection'}
+     in <em>{$publication['booktitle']}</em>
+    {if $publication['edition']}, {$publication['edition']}{/if}
+    {if $publication['editor']}Eds., {$publication['editor']}{/if}
+    {if $publication['address']}, {$publication['address']}:{/if}
+    {if $publication['publisher']} {$publication['publisher']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['volume']}, vol. {$publication['volume']}{/if}
+    {if $publication['number']}, no. {$publication['number']}{/if}
+    {if $publication['chapter']}, ch. {$publication['chapter']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['note']}, {$publication['note']}{/if}
+    {if $publication['url']} [online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+{/if}
+
+{if $publication['pub_type'] == 'inproceedings'}
+
+    {if $publication['name']} In {$publication['name']}{/if}
+    {if $publication['location']}, {$publication['location']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['volume']}, vol. {$publication['volume']}{/if}
+    {if $publication['number']}, no. {$publication['number']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['note']}, {$publication['note']}{/if}
+    {if $publication['url']}[online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+{/if}
+
+{if $publication['pub_type'] == 'manual'}
+    <em><a class="publication" href="{plink :Publication:showpub $publication['id']}">{$publication['title']}</a></em>
+    {if $publication['edition']}, {$publication['edition']}{/if}
+    {if $publication['address']} {$publication['address']}:{/if}
+    {if $publication['publisher']} {$publication['publisher']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['note']}, {$publication['note']}{/if}
+    {if $publication['url']} [online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+{/if}
+
+{if $publication['pub_type'] == 'mastersthesis' || $publication['pub_type'] == 'phdthesis'}
+    {if $publication['school']}, {$publication['school']}{/if}
+    {if $publication['address']}, {$publication['address']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['url']}[online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+    {if $publication['note']}, {$publication['note']}{/if}.
+{/if}
+
+{if $publication['pub_type'] == 'misc'}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['howpublished']}, {$publication['howpublished']}{/if}
+    {if $publication['url']}[online], Available <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+    {if $publication['note']}, {$publication['note']}{/if}.
+{/if}
+
+{if $publication['pub_type'] == 'proceedings'}
+    {if $publication['location']}, {$publication['location']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['volume']}, vol. {$publication['volume']}{/if}
+    {if $publication['number']}, no. {$publication['number']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['note']}, {$publication['note']}{/if}
+    {if $publication['url']}[online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+{/if}
+
+{if $publication['pub_type'] == 'techreport'}
+    {if $publication['type']}, {$publication['type']}{/if}
+    {if $publication['edition']}. {$publication['edition']}{/if}
+    {if $publication['institution']}, {$publication['institution']}{/if}
+    {if $publication['address']} {$publication['address']}:{/if}
+    {if $publication['publisher']} {$publication['publisher']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+    {if $publication['pages']}, pp. {$publication['pages']}{/if}
+    {if $publication['note']}, {$publication['note']}{/if}
+    {if $publication['url']} [online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+{/if}
+
+{if $publication['pub_type'] == 'unpublished'}
+    {if $publication['note']}, {$publication['note']}{/if}
+    {if $publication['month']}, {$publication['month']}{/if}
+    {if $publication['year']}, {$publication['year']}{/if}
+{/if}

@@ -844,125 +844,93 @@
 
             <div class="tab-pane fade" id="references">
 
-                <form class="form-horizontal" role="form">
+                <h1 class="col-sm-3">References</h1>
 
-                    <div class="form-group">
-                        <h1 class="col-sm-3 control-label">References</h1>
-                        <div class="col-sm-6"></div>
-                        <div class="col-sm-3 text-right">
-                            <p class="form-control-static" style="margin-right:15px;">
-                                {control referenceCrud-addButton, ['description' => true]}
-                            </p>
-                            <p class="form-control-static" style="margin-right:15px;">
-                                <a n:href="Reference:addlist $publication->id" class="btn btn-success" title="Add list of references">
-                                    <span class="glyphicon glyphicon-list"></span> Add list of references
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                    {snippet publicationReferencesData}
-                    {if count($references)}
+                <div class="col-sm-3 col-sm-offset-6 text-right">
+                    <p style="margin-right:15px;">
+                        {control referenceCrud-addButton, ['description' => true]}
+                    </p>
+                    <p style="margin-right:15px;">
+                        <a n:href="Reference:addlist $publication->id" class="btn btn-success" title="Add list of references">
+                            <span class="glyphicon glyphicon-list"></span> Add list of references
+                        </a>
+                    </p>
+                </div>
+
+                {snippet publicationReferencesData}
+                    {if count($pubReferences) || count($textReferences)}
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Title</th>
-                                        <th>Action</th>
+                                        <th>Publication</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody n:snippet="referencesShowAllRecords">
-                                    {foreach $references as $record}
-                                        <tr n:snippet="record-$record->id">
-                                            {if (empty($record->reference_id))}
-                                                <td>{$record->text}</td>
-                                                <td>{control referenceCrud-controls-$record->id}</td>
-                                            {else}
-                                            <td>
-                                                <a n:href="Publication:showpub, $record->reference->id">{$record->reference->title}</a>
-                                                <span class="text-muted">
-                                                {if $record->reference->issue_year}
-                                                    {if $record->reference->issue_month}{$record->reference->issue_month}/{/if}{$record->reference->issue_year}
-                                                {/if}
-                                                </span>
-                                                {ifset $authorsByPubId[$record->reference->id]}
-                                                    <br>
-                                                    <span class="authors">{$authorsByPubId[$record->reference->id]|authors}</span>
-                                                {/ifset}
+                                    {foreach $pubReferences as $id => $pubId}
+                                        <tr n:snippet="record-$id">
+                                            <td class="col-sm-10" style="vertical-align: middle;">
+                                                {control publication, $referencedPubs[$pubId], $authorsByPubId[$pubId] ?? []}
                                             </td>
-                                            <td>
-                                                {control referenceCrud-controls-$record->id}
-                                                {if in_array($record->reference->id, $recordsStarred)}
-                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $record->reference->id" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                            <td class="col-sm-2">
+                                                {control referenceCrud-controls-$id}
+                                                {if in_array($pubId, $recordsStarred)}
+                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $pubId" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {else}
-                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $record->reference->id" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $pubId" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {/if}
                                             </td>
-                                            {/if}
+                                        </tr>
+                                    {/foreach}
+
+                                    {foreach $textReferences as $ref}
+                                        <tr n:snippet="record-$ref->id">
+                                            <td class="col-sm-10">{$ref->text}</td>
+                                            <td class="col-sm-2">{control referenceCrud-controls-$ref->id}</td>
                                         </tr>
                                     {/foreach}
                                 </tbody>
                             </table>
                         </div>
                     {else}
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <p>Nothing found.</p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="col-sm-10 col-sm-offset-1">
+                            <div class="alert alert-warning">
+                                No references found.
+                            </div>
                         </div>
                     {/if}
-                    {/snippet}
-                </form>
-
+                {/snippet}
             </div>
 
             <div class="tab-pane fade" id="citations">
 
-                <form class="form-horizontal" role="form">
+                <div style="margin-bottom:0px;">
+                    <h1 class="col-sm-3">Citations</h1>
+                </div>
 
-                    <div class="form-group">
-                        <h1 class="col-sm-3 control-label">Citations</h1>
-                    </div>
+                <div style="margin-top:0px;">
                     {if count($citations)}
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Title</th>
-                                        <th>Action</th>
+                                        <th>Publication</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody n:snippet="citationsShowAllRecords">
-                                    {foreach $citations as $record}
-                                        <tr n:snippet="record-$record->id">
-                                            <td>
-                                                <a n:href="Publication:showpub, $record->publication->id">{$record->publication->title}</a>
-                                                <span class="text-muted">
-                                                {if $record->publication->issue_year}
-                                                    {if $record->publication->issue_month}{$record->publication->issue_month}/{/if}{$record->publication->issue_year}
-                                                {/if}
-                                                </span>
-                                            {ifset $authorsByPubId[$record->publication->id]}
-                                                <br>
-                                                <span class="authors">{$authorsByPubId[$record->publication->id]|authors}</span>
-                                            {/ifset}
+                                    {foreach $citations as $id => $pubId}
+                                        <tr n:snippet="record-$pubId">
+                                            <td class="col-sm-10" style="vertical-align: middle;">
+                                                {control publication, $citedPubs[$pubId], $authorsByPubId[$pubId] ?? []}
                                             </td>
-                                            <td>
-                                                {control citationCrud-controls-$record->id}
-                                                {if in_array($record->publication->id, $recordsStarred)}
-                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $record->publication->id" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                            <td class="col-sm-2">
+                                                {control citationCrud-controls-$id}
+                                                {if in_array($pubId, $recordsStarred)}
+                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $pubId" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {else}
-                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $record->publication->id" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $pubId" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {/if}
                                             </td>
                                         </tr>
@@ -971,30 +939,14 @@
                             </table>
                         </div>
                     {else}
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <p>Nothing found.</p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="col-sm-10 col-sm-offset-1">
+                            <div class="alert alert-warning">
+                                No citations found.
+                            </div>
                         </div>
                     {/if}
-
-                </form>
-
+                </div>
             </div>
-
-
-        </div>
     </div>
 </div>
 

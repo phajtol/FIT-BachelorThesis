@@ -40,7 +40,8 @@ class Publication extends Base {
      * @param array $params
      * @return Selection
      */
-    public function findAllByKw(array $params): Selection {
+    public function findAllByKw(array $params): Selection
+    {
         $records = $this->database->table('publication');
 
         if (isset($params['keywords'])) {
@@ -60,7 +61,31 @@ class Publication extends Base {
      */
     public function findAllUnconfirmedByKw(array $params): Selection
     {
-        return $this->database->table('publication')
+        return $this->getTable()
+            ->select('journal.name AS journal, 
+                publisher.name AS publisher, 
+                conference_year.location AS location, 
+                conference_year.name AS name,
+                type_of_report AS type, 
+                publication.id, 
+                pub_type, 
+                title, 
+                volume, 
+                number, 
+                pages, 
+                issue_month AS month_eng, 
+                issue_year AS year, 
+                url, 
+                note, 
+                editor, 
+                edition, 
+                publication.address, 
+                howpublished, 
+                chapter, 
+                booktitle, 
+                school, 
+                institution, 
+                conference_year_id')
             ->where(['confirmed' => 0])
             ->where('title LIKE ?', '%' . $params['keywords'] . '%')
             ->order($params['sort'] . ' ' . $params['order']);
@@ -72,7 +97,33 @@ class Publication extends Base {
      */
     public function findAllUnconfirmed(array $params): Selection
     {
-        return $this->database->table('publication')->where(['confirmed' => 0])->order($params['sort'] . ' ' . $params['order']);
+        return $this->getTable()
+            ->select('journal.name AS journal, 
+                publisher.name AS publisher, 
+                conference_year.location AS location, 
+                conference_year.name AS name,
+                type_of_report AS type, 
+                publication.id, 
+                pub_type, 
+                title, 
+                volume, 
+                number, 
+                pages, 
+                issue_month AS month_eng, 
+                issue_year AS year, 
+                url, 
+                note, 
+                editor, 
+                edition, 
+                publication.address, 
+                howpublished, 
+                chapter, 
+                booktitle, 
+                school, 
+                institution, 
+                conference_year_id')
+            ->where(['confirmed' => 0])
+            ->order($params['sort'] . ' ' . $params['order']);
     }
 
     /**
@@ -131,6 +182,183 @@ class Publication extends Base {
     }
 
     /**
+     * This is used to obtain necessary data to show publication in IEEE format.
+     * @param int $id
+     * @return Selection
+     */
+    public function getPubInfo(int $id): Selection
+    {
+        $publication = $this->getTable()
+            ->select('journal.name AS journal, 
+                publisher.name AS publisher, 
+                conference_year.location AS location, 
+                conference_year.name AS name,
+                type_of_report AS type, 
+                publication.id, 
+                pub_type, 
+                title, 
+                volume, 
+                number, 
+                pages, 
+                issue_month AS month_eng, 
+                issue_year AS year, 
+                url, 
+                note, 
+                editor, 
+                edition, 
+                publication.address, 
+                howpublished, 
+                chapter, 
+                booktitle, 
+                school, 
+                institution, 
+                conference_year_id')
+            ->where('publication.id', $id);
+
+        return $publication;
+    }
+
+
+    /**
+     * This is used to obtain necessary data to show publication in IEEE format.
+     * @param array $params
+     * @return Selection
+     */
+    public function getMultiplePubInfoByKeywords(array $params): Selection
+    {
+        return $this->findAllByKw($params)
+            ->select('journal.name AS journal, 
+                publisher.name AS publisher, 
+                conference_year.location AS location, 
+                conference_year.name AS name,
+                type_of_report AS type, 
+                publication.id, 
+                pub_type, 
+                title, 
+                volume, 
+                number, 
+                pages, 
+                issue_month AS month_eng, 
+                issue_year AS year, 
+                url, 
+                note, 
+                editor, 
+                edition, 
+                publication.address, 
+                howpublished, 
+                chapter, 
+                booktitle, 
+                school, 
+                institution, 
+                conference_year_id');
+    }
+
+    /**
+     * This is used to obtain necessary data to show publication in IEEE format.
+     * @param array $params
+     * @return Selection
+     */
+    public function getMultiplePubInfoByParams(array $params): Selection
+    {
+        return $this->findAllBy($params)
+            ->select('journal.name AS journal, 
+                publisher.name AS publisher, 
+                conference_year.location AS location, 
+                conference_year.name AS name,
+                type_of_report AS type, 
+                publication.id, 
+                pub_type, 
+                title, 
+                volume, 
+                number, 
+                pages, 
+                issue_month AS month_eng, 
+                issue_year AS year, 
+                url, 
+                note, 
+                editor, 
+                edition, 
+                publication.address, 
+                howpublished, 
+                chapter, 
+                booktitle, 
+                school, 
+                institution, 
+                conference_year_id');
+    }
+
+    /**
+     * This is used to obtain necessary data to show publication in IEEE format.
+     * @param array $ids
+     * @return Selection
+     */
+    public function getMultiplePubInfoByIds(array $ids): Selection
+    {
+        return $this->getTable()
+            ->select('journal.name AS journal, 
+                publisher.name AS publisher, 
+                conference_year.location AS location, 
+                conference_year.name AS name,
+                type_of_report AS type, 
+                publication.id, 
+                pub_type, 
+                title, 
+                volume, 
+                number, 
+                pages, 
+                issue_month AS month_eng, 
+                issue_year AS year, 
+                url, 
+                note, 
+                editor, 
+                edition, 
+                publication.address, 
+                howpublished, 
+                chapter, 
+                booktitle, 
+                school, 
+                institution, 
+                conference_year_id')
+            ->where('publication.id IN ?', $ids);
+    }
+
+    /**
+     * This is used to obtain necessary data to show publication in IEEE format.
+     * @param array $years
+     * @return Selection
+     */
+    public function getPublicationsByConferenceYears(array $years): Selection
+    {
+        return $this->getTable()
+            ->select('journal.name AS journal, 
+                publisher.name AS publisher, 
+                conference_year.location AS location, 
+                conference_year.name AS name,
+                type_of_report AS type, 
+                publication.id, 
+                pub_type, 
+                title, 
+                volume, 
+                number, 
+                pages, 
+                issue_month AS month_eng, 
+                issue_year AS year, 
+                url, 
+                note, 
+                editor, 
+                edition, 
+                publication.address, 
+                howpublished, 
+                chapter, 
+                booktitle, 
+                school, 
+                institution, 
+                conference_year_id')
+            ->where('conference_year_id IN ?', $years);
+    }
+
+
+    /**
      * @param $publicationCopy
      * @return array
      */
@@ -179,9 +407,6 @@ class Publication extends Base {
         } else {
             $annotations = $this->database->table('annotation')->where('publication_id', $publicationCopy->id)->where("submitter_id = ? OR global_scope = ?", $userId, 1)->order("id ASC");
         }
-        $references = $this->database->table('reference')->where(array('publication_id' => $publicationCopy->id))->order("id ASC");
-        $citations = $this->database->table('reference')->where(array('reference_id' => $publicationCopy->id))->order("id ASC");
-
 
         $favourite = $this->database->table('submitter_has_publication')->where(array('submitter_id' => $userId, 'publication_id' => $publicationCopy->id))->fetch();
         $conferenceYearOriginal = $this->database->table('conference_year')->get($publicationCopy->conference_year_id);
@@ -239,8 +464,6 @@ class Publication extends Base {
             'publisher' => $publisher,
             'favourite' => $favourite,
             'annotations' => $annotations,
-            'references' => $references,
-            'citations' => $citations,
             'conferenceYear' => $conferenceYearOriginal,
             'conferenceYearPublisher' => $conferenceYearPublisher,
             'files' => $this->filesModel->prepareFiles($publicationCopy->id),

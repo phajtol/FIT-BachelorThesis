@@ -27,15 +27,13 @@
                         </div>
                     {/form}
                 </div>
-                <div class="col-lg-5">
-                </div>
-                <div class="col-lg-2">
+                <div class="col-lg-2 col-lg-offset-4">
                     <button type="button" class="btn btn-default" id="confirmPublication">
                         <span class="glyphicon glyphicon-check"></span> Select/Deselect all
                     </button>
                 </div>
-                <div class="col-lg-1">
-                    <a class="btn btn-success" n:href="Publication:addnew" role="button" title="Add new Publication"><span class="glyphicon glyphicon-plus"></span></a>
+                <div class="col-lg-2">
+                    <a class="btn btn-success" n:href="Publication:addnew" role="button" title="Add new Publication"><span class="glyphicon glyphicon-plus"></span> Add new publication</a>
                 </div>
             </div>
 
@@ -44,16 +42,20 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Title</th>
-                                <th>Confirm?</th>
+                                <th>Publication</th>
+                                <th class="text-center">
+                                    Confirm?
+                                </th>
                             </tr>
                         </thead>
                         <tbody n:snippet="publicationShowAllRecords">
                             {var $form = $presenter['adminShowUnconfirmedForm']}
                             {foreach $records as $record}
                                 <tr>
-                                    <td><a n:href="Publication:showpub, $record->id">{$record->title}</a></td>
-                                    <td>
+                                    <td class="col-sm-11">
+                                        {control publication, $record, $authorsByPubId[$record->id] ?? []}
+                                    </td>
+                                    <td class="col-sm-1 text-center">
                                         {input confirm_$record->id}
                                     </td>
                                 </tr>
@@ -74,8 +76,9 @@
         {/snippet}
 
     {else}
-        <p>Nothing found.</p>
-
+        <div class="alert alert-warning">
+            No unconfirmed publications have been found.
+        </div>
     {/if}
 </div>
 

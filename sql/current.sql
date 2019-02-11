@@ -395,9 +395,13 @@ CREATE TABLE `publication` (
   KEY `publication_FKIndex5` (`conference_year_id`),
   KEY `lastedit_submitter_id` (`lastedit_submitter_id`),
   FULLTEXT KEY `title` (`title`),
+  CONSTRAINT `publication_conference_year_id_FK` FOREIGN KEY (`conference_year_id`) REFERENCES `conference_year` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `publication_ibfk_1` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `publication_ibfk_2` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `publication_lastedit_submitter_id` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `publication_journal_id_FK` FOREIGN KEY (`journal_id`) REFERENCES `journal` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `publication_lastedit_submitter_id` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `publication_publisher_id_FK` FOREIGN KEY (`publisher_id`) REFERENCES `publisher` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -588,4 +592,4 @@ CREATE TABLE `user_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- 2019-01-18 10:51:47
+-- 2019-02-04 16:23:31

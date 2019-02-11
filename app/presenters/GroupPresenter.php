@@ -189,7 +189,7 @@ class GroupPresenter extends SecuredPresenter {
             'submitter_id' => $this->user->id
         ]);
 
-        $this->flashMessage('Operation has been completed successfully.', 'alert-success');
+        $this->flashMessage('Group has been set as favourite.', 'alert-success');
 
         if (!$this->presenter->isAjax()) {
             $this->presenter->redirect('this');
@@ -213,7 +213,7 @@ class GroupPresenter extends SecuredPresenter {
             $record->delete();
         }
 
-        $this->flashMessage('Operation has been completed successfully.', 'alert-success');
+        $this->flashMessage('Group has been removed from favourites.', 'alert-success');
 
         if (!$this->presenter->isAjax()) {
             $this->presenter->redirect('this');

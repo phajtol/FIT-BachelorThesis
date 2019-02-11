@@ -27,13 +27,11 @@
                                                             </div>
                                                         {/form}
                                                     </div>
-                                                    <div class="col-lg-3">
-                                                    </div>
-                                                    <div class="col-lg-4">
+                                                    <div class="col-lg-4 col-lg-offset-2">
                                                         {control individualFilter}
                                                     </div>
-                                                    <div class="col-lg-1">
-                                                        {control crud-addButton}
+                                                    <div class="col-lg-2 text-center">
+                                                        {control crud-addButton, ['description' => true]}
                                                     </div>
                                                 </div>
                                                 <ul class="pagination pagination-sm" style="margin: 20px 0 0 0;">
@@ -76,9 +74,9 @@
                                                                             {control crud-controls-$record->id}
 
                                                                                 {if in_array($record->id, $recordsStarred)}
-                                                                                <a class="btn btn-warning btn-xs" n:href="unsetFavouriteGroup!, $record->id" role="button" title="Remove from starred groups"><span class="glyphicon glyphicon-star"></span></a>
+                                                                                <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouriteGroup!, $record->id" role="button" title="Remove from starred groups"><span class="glyphicon glyphicon-star"></span></a>
                                                                                 {else}
-                                                                                <a class="btn btn-default btn-xs" n:href="setFavouriteGroup!, $record->id" role="button" title="Add to starred groups"><span class="glyphicon glyphicon-star"></span></a>
+                                                                                <a class="btn btn-default btn-xs ajax" n:href="setFavouriteGroup!, $record->id" role="button" title="Add to starred groups"><span class="glyphicon glyphicon-star"></span></a>
                                                                                 {/if}
 
                                                                         </td>

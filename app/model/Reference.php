@@ -151,4 +151,30 @@ class Reference extends Base {
 
         return $counter;
     }
+
+
+    /**
+     * @param int $publicationId
+     * @return Selection
+     */
+    public function getReferencesByPublication(int $publicationId): Selection
+    {
+        return $this->getTable()
+            ->select('id, reference_id, text')
+            ->where(['publication_id' => $publicationId])
+            ->order('id ASC');
+    }
+
+    /**
+     * @param int $publicationId
+     * @return array
+     */
+    public function getCitationsByPublication(int $publicationId): array
+    {
+        return $this->getTable()
+            ->select('id, publication_id')
+            ->where(['reference_id' => $publicationId])
+            ->order('id ASC')
+            ->fetchPairs('id', 'publication_id');
+    }
 }
