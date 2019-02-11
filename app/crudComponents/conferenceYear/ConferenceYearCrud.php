@@ -519,6 +519,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 
         $this->presenter->flashMessage('Operation was successfully completed.', 'alert-success');
         $this->presenter->redrawControl('conferenceYearShowAllRecords');
+        $this->presenter->redrawControl('conferenceYearsShowAllRecords');
         $this->presenter->redrawControl('conferenceYearControls');
         $this->presenter->redrawControl('flashMessages');
 	}
