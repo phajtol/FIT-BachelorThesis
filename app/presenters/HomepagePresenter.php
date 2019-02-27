@@ -2,6 +2,7 @@
 
 namespace App\Presenters;
 
+use App\Components\Publication\PublicationControl;
 use App\Components\PublicationCategoryList\PublicationCategoryListComponent;
 use App\Model;
 use Nette\Application\UI\Form;
@@ -64,8 +65,37 @@ class HomepagePresenter extends SecuredPresenter {
     {
         $form = $this->HomepageSearchForm->create($this->data);
 
-        $form->onSuccess[] = function (Form $form) {
-            $this->presenter->redirect('Homepage:searchresults', (array) $form->getValues());
+        $form->onSuccess[] = function ( $form) {
+            $values = (array) $form->values;
+
+            //serialize pubtypes from checkbox list
+            if ($form->values->pubtype) {
+                $types = '';
+
+                foreach ($form->values->pubtype as $type) {
+                    $types .= (' ' . $type);
+                }
+
+                $types = substr($types, 1);
+                unset($values['pubtype']);
+                $values['ptype'] = $types;
+            }
+
+            //serialize tags from checkbox list
+            if ($form->values->tags) {
+                $tags = '';
+
+                foreach ($form->values->tags as $tag) {
+                    $tags .= (' ' . $tag);
+                }
+
+                $tags = substr($tags, 1);
+                $values['tags'] = $tags;
+            } else {
+                unset($values['tags']);
+            }
+
+            $this->presenter->redirect('Homepage:searchresults', $values);
         };
 
         return $form;
@@ -82,449 +112,75 @@ class HomepagePresenter extends SecuredPresenter {
         return $vt;
     }
 
-    public function display_search_results_document($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort): array
+    /**
+     * Handles search: retrieves results from model and initializes paginator.
+     * @param array $params
+     * @return array
+     */
+    public function search(array $params): array
     {
-        if ($advanced && $categories) {
-            if ($operator == 'OR') {
-                $itemCount = $this->publicationModel->getAllPubs_FullText_OR($keywords, $categories, $sort);
-            } else {
-                $itemCount = $this->publicationModel->getAllPubs_FullText_AND($keywords, $categories, $sort);
-            }
-        } else {
-            if ($advanced) {
-                $itemCount = $this->publicationModel->getAllPubs_FullText_advanced($keywords, $sort);
-            } else {
-                $itemCount = $this->publicationModel->getAllPubs_FullText($keywords, $sort);
-            }
-        }
+        $count = $this->publicationModel->searchCount($params);
 
         $vp = new \VisualPaginator();
         $this->addComponent($vp, 'vp');
         $paginator = $vp->getPaginator();
         $paginator->itemsPerPage = $this->itemsPerPageDB;
-        $paginator->itemCount = $itemCount['length'];
+        $paginator->itemCount = $count;
 
-        if ($advanced && $categories) {
-            if ($operator == 'OR') {
-                $preResults = $this->publicationModel->getAllPubs_FullText_OR($keywords, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
-            } else {
-                $preResults = $this->publicationModel->getAllPubs_FullText_AND($keywords, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
-            }
-        } else {
-            if ($advanced) {
-                $preResults = $this->publicationModel->getAllPubs_FullText_advanced($keywords, $sort, $paginator->itemsPerPage, $paginator->offset);
-            } else {
-                $preResults = $this->publicationModel->getAllPubs_FullText($keywords, $sort, $paginator->itemsPerPage, $paginator->offset);
-            }
+        $results = $this->publicationModel->search($params, $paginator->itemsPerPage, $paginator->offset);
+
+        $publicationIds = [];
+        foreach ($results as $result) {
+            $publicationIds[] = $result->id;
         }
+        $authorsByPubId = $this->authorModel->getAuthorsByMultiplePubIds($publicationIds);
 
-        $search_results = [];
-
-        foreach ($preResults as $row) {
-            $id = $row['id'];
-            $title = $row['title'];
-            $fulltext = stripslashes($row['content']);
-            $pub_type = $row['pub_type'];
-            $issue_year = $row['issue_year'];
-            $issue_month = $row['issue_month'];
-
-            $keywords_arr = explode(" ", str_replace('\"', '', $keywords));
-            $title_higligthed = $this->highlight_str(htmlspecialchars($title), $keywords_arr);
-            $passages_highlighted = '';
-
-            foreach ($keywords_arr as $keyword) {
-                if (strlen(trim($keyword)) != 0) {
-                    $pos = stripos($fulltext, $keyword);
-                    if ($pos === false) {
-                        continue;
-                    } else {
-                        $space_to_end = strlen($fulltext) - $pos;
-                        $length = $space_to_end >= 50 ? 100 : $space_to_end;
-                        if ($pos < 50) {
-                            $start = 0;
-                            $passage = substr($fulltext, $start, $length);
-                        } else {
-                            $start = $pos - 50;
-                            $passage = substr($fulltext, $start, $length);
-                        }
-                        $passage = htmlspecialchars($passage);
-                        $i = -1;
-                        while (isset($passage[++$i]) && $passage[$i] != ' ') {
-
-                        }
-                        $l = $j = strlen($passage);
-                        while (isset($passage[--$j]) && $passage[$j] != ' ') {
-
-                        }
-                        $passage = substr($passage, $i, $j - $i);
-                        $keyword_san = htmlspecialchars(preg_quote($keyword));
-                        // $passage_higligthed = preg_replace("((.$keyword_san.)|(.$keyword_san$)|(^$keyword_san.))", " <strong>$keyword_san</strong> ", $passage);
-                        $passage_higligthed = $this->highlight_str(htmlspecialchars($passage), array($keyword));
-                        $passages_highlighted .= "$passage_higligthed... ";
-                    }
-                }
-            }
-
-            $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
-            $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
-            $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
-
-            $search_results[] = [
-                'id' => $id,
-                'title' => $title_higligthed,
-                'authors' => $authors,
-                'passages' => $passages_highlighted,
-                'pub_type' => $pub_type,
-                'issue_year'  => $issue_year,
-                'issue_month'  => $issue_month,
-                'categories' => $categories,
-                'annotation' => $annotationTag
-            ];
-        }
-
-        return $search_results;
+        return [
+            'resultsCount' => $count,
+            'showingFrom' => $paginator->offset + 1,
+            'showingTo' => ($paginator->offset + $paginator->itemsPerPage > $count) ? $count : ($paginator->offset + $paginator->itemsPerPage),
+            'results' => $results,
+            'authorsByPubId' => $authorsByPubId
+        ];
     }
 
     /**
-     * @param $keywords
+     * @param string $keywords
+     * @param $ptype
      * @param $categories
-     * @param $operator
-     * @param $searchtype
-     * @param $staredpubs
-     * @param $advanced
-     * @param $sort
-     * @return array
+     * @param $catop
+     * @param $stype
+     * @param $scope
+     * @param string $sort
      */
-    public function display_search_results_document_starred_publications($keywords, $categories, $operator, $searchtype, $staredpubs, $advanced, $sort): array
-    {
-        if ($advanced && $categories) {
-            if ($operator == 'OR') {
-                $itemCount = $this->publicationModel->getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $this->user->id);
-            } else {
-                $itemCount = $this->publicationModel->getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $this->user->id);
-            }
-        } else {
-            if ($advanced) {
-                $itemCount = $this->publicationModel->getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $this->user->id);
-            } else {
-                $itemCount = $this->publicationModel->getAllPubs_FullText_starred_publication($keywords, $sort, $this->user->id);
-            }
-        }
-
-        $this->vp = new \VisualPaginator($this, 'vp');
-        $paginator = $this->vp->getPaginator();
-        $paginator->itemsPerPage = $this->itemsPerPageDB;
-        $paginator->itemCount = $itemCount['length'];
-
-        if ($advanced && $categories) {
-            if ($operator == 'OR') {
-                $preResults = $this->publicationModel->getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-            } else {
-                $preResults = $this->publicationModel->getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-            }
-        } else {
-            if ($advanced) {
-                $preResults = $this->publicationModel->getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-            } else {
-                $preResults = $this->publicationModel->getAllPubs_FullText_starred_publication($keywords, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-            }
-        }
-
-        $search_results = [];
-
-        foreach ($preResults as $row) {
-            $id = $row['id'];
-            $title = $row['title'];
-            $fulltext = stripslashes($row['content']);
-            $pub_type = $row['pub_type'];
-            $issue_year = $row['issue_year'];
-            $issue_month = $row['issue_month'];
-            $keywords_arr = explode(" ", str_replace('\"', '', $keywords));
-            $title_higligthed = $this->highlight_str(htmlspecialchars($title), $keywords_arr);
-            $passages_highlighted = '';
-
-            foreach ($keywords_arr as $keyword) {
-                if (strlen(trim($keyword)) != 0) {
-                    $pos = stripos($fulltext, $keyword);
-                    if ($pos === false) {
-                        continue;
-                    } else {
-                        $space_to_end = strlen($fulltext) - $pos;
-                        $length = $space_to_end >= 50 ? 100 : $space_to_end;
-                        if ($pos < 50) {
-                            $start = 0;
-                            $passage = substr($fulltext, $start, $length);
-                        } else {
-                            $start = $pos - 50;
-                            $passage = substr($fulltext, $start, $length);
-                        }
-                        $passage = htmlspecialchars($passage);
-                        $i = -1;
-                        while ($passage[++$i] != ' ') {
-
-                        }
-                        $l = $j = strlen($passage);
-                        while ($passage[--$j] != ' ') {
-
-                        }
-                        $passage = substr($passage, $i, $j - $i);
-                        $keyword_san = htmlspecialchars(preg_quote($keyword));
-                        // $passage_higligthed = preg_replace("((.$keyword_san.)|(.$keyword_san$)|(^$keyword_san.))", " <strong>$keyword_san</strong> ", $passage);
-                        $passage_higligthed = $this->highlight_str(htmlspecialchars($passage), array($keyword));
-                        $passages_highlighted .= "$passage_higligthed... ";
-                    }
-                }
-            }
-
-            $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
-            $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
-            $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
-
-            $search_results[] = [
-                'id' => $id,
-                'title' => $title_higligthed,
-                'authors' => $authors,
-                'passages' => $passages_highlighted,
-                'pub_type' => $pub_type,
-                'issue_year'  =>  $issue_year,
-                'issue_month'  =>  $issue_month,
-                'categories' => $categories,
-                'annotation' => $annotationTag
-            ];
-        }
-
-        return $search_results;
-    }
-
-    /**
-     * @param $keywords
-     * @param $categories
-     * @param $operator
-     * @param $searchtype
-     * @param $starredpubs
-     * @param $advanced
-     * @param $sort
-     * @return array
-     */
-    public function display_search_results_author($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort): array
-    {
-        $keywords = trim($keywords);
-        $keywordsString = preg_replace('/\s{2,}/', ' ', $keywords); //remove additional spaces
-        $keywords = explode(' ', $keywordsString);
-
-        if ($advanced && $categories) {
-            if ($operator == 'OR') {
-                $itemCount = $this->publicationModel->getAllPubs_Authors_OR($keywords, $keywordsString, $categories, $sort);
-            } else {
-                $itemCount = $this->publicationModel->getAllPubs_Authors_AND($keywords, $keywordsString, $categories, $sort);
-            }
-        } else {
-            if ($advanced) {
-                $itemCount = $this->publicationModel->getAllPubs_Authors_advanced($keywords, $keywordsString, $sort);
-            } else {
-                $itemCount = $this->publicationModel->getAllPubs_Authors($keywords, $keywordsString, $sort);
-            }
-        }
-
-
-        $vp = new \VisualPaginator();
-        $this->addComponent($vp, 'vp');
-        $paginator = $vp->getPaginator();
-        $paginator->itemsPerPage = $this->itemsPerPageDB;
-        $paginator->itemCount = $itemCount['length'];
-
-        if ($advanced && $categories) {
-            if ($operator == 'OR') {
-                $preResults = $this->publicationModel->getAllPubs_Authors_OR($keywords, $keywordsString, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
-            } else {
-                $preResults = $this->publicationModel->getAllPubs_Authors_AND($keywords, $keywordsString, $categories, $sort, $paginator->itemsPerPage, $paginator->offset);
-            }
-        } else {
-            if ($advanced) {
-                $preResults = $this->publicationModel->getAllPubs_Authors_advanced($keywords, $keywordsString, $sort, $paginator->itemsPerPage, $paginator->offset);
-            } else {
-                $preResults = $this->publicationModel->getAllPubs_Authors($keywords, $keywordsString, $sort, $paginator->itemsPerPage, $paginator->offset);
-            }
-        }
-
-        $search_results = [];
-
-        //display found publications
-        foreach ($preResults as $row) {
-            $id = htmlspecialchars($row['id']);
-            $title = htmlspecialchars($row['title']);
-            $issue_year = $row['issue_year'];
-            $issue_month = $row['issue_month'];
-
-            $authorsString = "";
-            $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
-
-            foreach ($authors as $author) {
-                $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
-            }
-
-            $authorsString = $this->highlight_str($authorsString, $keywords);
-            $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
-            $pub_type = $row['pub_type'];
-
-            $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
-
-            $search_results[] = [
-                'id' => $id,
-                'title' => $title,
-                'authors' => $authorsString,
-                'pub_type' => $pub_type,
-                'issue_year'  =>  $issue_year,
-                'issue_month'  =>  $issue_month,
-                'categories' => $categories,
-                'annotation' => $annotationTag
-            ];
-        }
-
-        return $search_results;
-    }
-
-    /**
-     * @param $keywords
-     * @param $categories
-     * @param $operator
-     * @param $searchtype
-     * @param $starredpubs
-     * @param $advanced
-     * @param $sort
-     * @return array
-     */
-    public function display_search_results_author_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort): array
-    {
-        $keywords = trim($keywords);
-        $keywordsString = preg_replace('/\s{2,}/', ' ', $keywords); //remove additional spaces
-        $keywords = explode(' ', $keywordsString);
-
-
-        if ($advanced && $categories) {
-            if ($operator == 'OR') {
-                $itemCount = $this->publicationModel->getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
-            } else {
-                $itemCount = $this->publicationModel->getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id);
-            }
-        } else {
-            if ($advanced) {
-                $itemCount = $this->publicationModel->getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $this->user->id);
-            } else {
-                $itemCount = $this->publicationModel->getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $this->user->id);
-            }
-        }
-
-
-        $this->vp = new \VisualPaginator($this, 'vp');
-        $paginator = $this->vp->getPaginator();
-        $paginator->itemsPerPage = $this->itemsPerPageDB;
-        $paginator->itemCount = $itemCount['length'];
-
-        if ($advanced && $categories) {
-            if ($operator == 'OR') {
-                $preResults = $this->publicationModel->getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-            } else {
-                $preResults = $this->publicationModel->getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-            }
-        } else {
-            if ($advanced) {
-                $preResults = $this->publicationModel->getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-            } else {
-                $preResults = $this->publicationModel->getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-            }
-        }
-
-        $search_results = [];
-
-        //display found publications
-        foreach ($preResults as $row) {
-            $id = htmlspecialchars($row['id']);
-            $title = htmlspecialchars($row['title']);
-            $issue_year = $row['issue_year'];
-            $issue_month = $row['issue_month'];
-
-            $authorsString = "";
-            $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
-
-            foreach ($authors as $author) {
-                $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
-            }
-
-            $authorsString = $this->highlight_str($authorsString, $keywords);
-            $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
-            $pub_type = $row['pub_type'];
-
-            $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
-
-            $search_results[] = [
-                'id' => $id,
-                'title' => $title,
-                'authors' => $authorsString,
-                'pub_type' => $pub_type,
-                'issue_year'  =>  $issue_year,
-                'issue_month'  =>  $issue_month,
-                'categories' => $categories,
-                'annotation' => $annotationTag
-            ];
-        }
-
-        return $search_results;
-    }
-
-    /**
-     * @param $keywords
-     * @param $categories
-     * @param $operator
-     * @param $searchtype
-     * @param $starredpubs
-     * @param $advanced
-     * @param $sort
-     */
-    public function actionSearchResults($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort): void
+    public function actionSearchResults($keywords, $ptype, $categories, $catop, $stype, $tags, $scope, $sort): void
     {
         $params = $this->httpRequest->getQuery();
 
-        if ($categories) {
-            $categories = explode(" ", $categories);
-        }
+        $pubtype = $ptype ? explode(' ', $ptype) : null;
+        $tags = $tags ? explode(' ', $tags) : null;
 
-        if ($keywords) {
-            $keywords = $this->remove_diac($keywords);
-        }
+        $searchParams = [
+            'keywords' => $keywords,
+            'categories' => $categories,
+            'catOp' => $catop,
+            'stype' => $stype,
+            'tags' => $tags,
+            'pubtype' => $pubtype,
+            'scope' => $scope,
+            'sort' => $sort
+        ];
 
-        if ($starredpubs) {
-            if ($searchtype == "fulltext" && $keywords) {
-                $search_results = $this->display_search_results_document_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
-            } elseif ($searchtype == "authors" && $keywords) {
-                $search_results = $this->display_search_results_author_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
-                $this->setView('searchresultsauthors');
-            } elseif ($categories && !$keywords) {
-                $search_results = $this->display_search_results_categories_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
-                $this->setView('searchresultsauthors');
-            } else {
-                $search_results = $this->display_search_results_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
-                $this->setView('searchresultsauthors');
-            }
-        } else {
-            if ($searchtype == "fulltext" && $keywords) {
-                $search_results = $this->display_search_results_document($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
-            } elseif ($searchtype == "authors" && $keywords) {
-                $search_results = $this->display_search_results_author($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
-                $this->setView('searchresultsauthors');
-            } elseif ($categories && !$keywords) {
-                $search_results = $this->display_search_results_categories($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
-                $this->setView('searchresultsauthors');
-            } else {
-                $search_results = $this->display_search_results($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort);
-                $this->setView('searchresultsauthors');
-            }
-        }
+        $results = $this->search($searchParams);
 
-        bdump($search_results);
+        $this->template->results = $results['results'];
+        $this->template->authorsByPubId = $results['authorsByPubId'];
+        $this->template->resultsCount = $results['resultsCount'];
+        $this->template->showingFrom = $results['showingFrom'];
+        $this->template->showingTo = $results['showingTo'];
 
-        $this->template->results = $search_results;
         $this->template->sort = $sort;
+        $this->template->stype = $stype;
         unset($params['sort']);
         $this->template->params = $params;
 
@@ -538,251 +194,6 @@ class HomepagePresenter extends SecuredPresenter {
         $this->template->selectedCategories = $categories;
         $dataAutocomplete = $this->publicationModel->getAuthorsNamesAndPubsTitles();
         $this->template->dataAutocomplete = json_encode($dataAutocomplete);
-    }
-
-    /**
-     * @param $keywords
-     * @param $categories
-     * @param $operator
-     * @param $searchtype
-     * @param $starredpubs
-     * @param $advanced
-     * @param $sort
-     * @return array
-     */
-    private function display_search_results_categories($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort): array
-    {
-        if ($operator == 'OR') {
-            $itemCount = $this->publicationModel->getAllPubs_Categories_OR($categories, $sort);
-        } else {
-            $itemCount = $this->publicationModel->getAllPubs_Categories_AND($categories, $sort);
-        }
-
-        $vp = new \VisualPaginator();
-        $this->addComponent($vp, 'vp');
-        $paginator = $vp->getPaginator();
-        $paginator->itemsPerPage = $this->itemsPerPageDB;
-        $paginator->itemCount = $itemCount['length'];
-
-        if ($operator == 'OR') {
-            $preResults = $this->publicationModel->getAllPubs_Categories_OR($categories, $sort, $paginator->itemsPerPage, $paginator->offset);
-        } else {
-            $preResults = $this->publicationModel->getAllPubs_Categories_AND($categories, $sort, $paginator->itemsPerPage, $paginator->offset);
-        }
-
-        $search_results = [];
-
-        //display found publications
-        foreach ($preResults as $row) {
-            $id = htmlspecialchars($row['id']);
-            $title = htmlspecialchars($row['title']);
-            $issue_year = $row['issue_year'];
-            $issue_month = $row['issue_month'];
-
-            $authorsString = "";
-            $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
-
-            foreach ($authors as $author) {
-                $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
-            }
-            $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
-            $pub_type = $row['pub_type'];
-
-            $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
-
-            $search_results[] = [
-                'id' => $id,
-                'title' => $title,
-                'authors' => $authorsString,
-                'pub_type' => $pub_type,
-                'issue_year'  =>  $issue_year,
-                'issue_month'  =>  $issue_month,
-                'categories' => $categories,
-                'annotation' => $annotationTag
-            ];
-        }
-
-        return $search_results;
-    }
-
-    /**
-     * @param $keywords
-     * @param $categories
-     * @param $operator
-     * @param $searchtype
-     * @param $starredpubs
-     * @param $advanced
-     * @param $sort
-     * @return array
-     */
-    private function display_search_results($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort): array
-    {
-        $itemCount = $this->publicationModel->getAllPubs_no_params($categories, $sort);
-
-        $vp = new \VisualPaginator();
-        $this->addComponent($vp, 'vp');
-        $paginator = $vp->getPaginator();
-        $paginator->itemsPerPage = $this->itemsPerPageDB;
-        $paginator->itemCount = $itemCount['length'];
-
-        $preResults = $this->publicationModel->getAllPubs_no_params($categories, $sort, $paginator->itemsPerPage, $paginator->offset);
-
-        $search_results = [];
-
-        //display found publications
-        foreach ($preResults as $row) {
-            $id = htmlspecialchars($row['id']);
-            $title = htmlspecialchars($row['title']);
-            $issue_year = $row['issue_year'];
-            $issue_month = $row['issue_month'];
-
-            $authorsString = "";
-            $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
-
-            foreach ($authors as $author) {
-                $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
-            }
-
-            $authorsString = $this->highlight_str($authorsString, $keywords);
-            $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
-            $pub_type = $row['pub_type'];
-
-            $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
-
-            $search_results[] = [
-                'id' => $id,
-                'title' => $title,
-                'authors' => $authorsString,
-                'pub_type' => $pub_type,
-                'issue_year'  =>  $issue_year,
-                'issue_month'  =>  $issue_month,
-                'categories' => $categories,
-                'annotation' => $annotationTag
-            ];
-        }
-
-        return $search_results;
-    }
-
-    /**
-     * @param $keywords
-     * @param $categories
-     * @param $operator
-     * @param $searchtype
-     * @param $starredpubs
-     * @param $advanced
-     * @param $sort
-     * @return array
-     */
-    private function display_search_results_categories_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort): array
-    {
-        if ($operator == 'OR') {
-            $itemCount = $this->publicationModel->getAllPubs_Categories_OR_starred_publication($categories, $sort, $this->user->id);
-        } else {
-            $itemCount = $this->publicationModel->getAllPubs_Categories_AND_starred_publication($categories, $sort, $this->user->id);
-        }
-
-        $this->vp = new \VisualPaginator($this, 'vp');
-        $paginator = $this->vp->getPaginator();
-        $paginator->itemsPerPage = $this->itemsPerPageDB;
-        $paginator->itemCount = $itemCount['length'];
-
-        if ($operator == 'OR') {
-            $preResults = $this->publicationModel->getAllPubs_Categories_OR_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-        } else {
-            $preResults = $this->publicationModel->getAllPubs_Categories_AND_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-        }
-
-        $search_results = [];
-
-        //display found publications
-        foreach ($preResults as $row) {
-            $id = htmlspecialchars($row['id']);
-            $title = htmlspecialchars($row['title']);
-            $issue_year = $row['issue_year'];
-            $issue_month = $row['issue_month'];
-
-            $authorsString = "";
-            $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
-
-            foreach ($authors as $author) {
-                $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
-            }
-            $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
-            $pub_type = $row['pub_type'];
-
-            $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
-
-
-            $search_results[] = [
-                'id' => $id,
-                'title' => $title,
-                'authors' => $authorsString,
-                'pub_type' => $pub_type,
-                'issue_year'  =>  $issue_year,
-                'issue_month'  =>  $issue_month,
-                'categories' => $categories,
-                'annotation' => $annotationTag
-            ];
-        }
-
-        return $search_results;
-    }
-
-    /**
-     * @param $keywords
-     * @param $categories
-     * @param $operator
-     * @param $searchtype
-     * @param $starredpubs
-     * @param $advanced
-     * @param $sort
-     * @return array
-     */
-    private function display_search_results_starred_publications($keywords, $categories, $operator, $searchtype, $starredpubs, $advanced, $sort): array
-    {
-        $itemCount = $this->publicationModel->getAllPubs_no_params_starred_publication($categories, $sort, $this->user->id);
-
-        $this->vp = new \VisualPaginator($this, 'vp');
-        $paginator = $this->vp->getPaginator();
-        $paginator->itemsPerPage = $this->itemsPerPageDB;
-        $paginator->itemCount = $itemCount['length'];
-
-        $preResults = $this->publicationModel->getAllPubs_no_params_starred_publication($categories, $sort, $this->user->id, $paginator->itemsPerPage, $paginator->offset);
-
-        $search_results = [];
-
-        //display found publications
-        foreach ($preResults as $row) {
-            $id = htmlspecialchars($row['id']);
-            $title = htmlspecialchars($row['title']);
-            $issue_year = $row['issue_year'];
-            $issue_month = $row['issue_month'];
-
-            $authorsString = "";
-            $authors = $this->authorHasPublicationModel->findAllBy(array('publication_id' => $id))->order('priority ASC');
-
-            foreach ($authors as $author) {
-                $authorsString .= $this->authorModel->formNames($author->author->surname, $author->author->middlename, $author->author->name);
-            }
-            $categories = $this->categoriesHasPublicationModel->findAllBy(array('publication_id' => $id));
-            $pub_type = $row['pub_type'];
-
-            $annotationTag = $this->annotationModel->getAnnotationTag($id, $this->user->id);
-
-            $search_results[] = [
-                'id' => $id,
-                'title' => $title,
-                'authors' => $authorsString,
-                'pub_type' => $pub_type,
-                'issue_year'  =>  $issue_year,
-                'issue_month'  =>  $issue_month,
-                'categories' => $categories,
-                'annotation' => $annotationTag
-            ];
-        }
-
-        return $search_results;
     }
 
     /**
@@ -827,6 +238,14 @@ class HomepagePresenter extends SecuredPresenter {
         $c->setIsSelectable(true);
 
         return $c;
+    }
+
+    /**
+     * @return PublicationControl
+     */
+    protected function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
     }
 
 }

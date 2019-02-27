@@ -504,273 +504,194 @@ class Publication extends Base {
           ', $submitterId, $limit, $offset)->fetchAll();
     }
 
+    //==================================
+
     /**
-     * @param $keywords
-     * @param $categories
-     * @param $sort
-     * @param null $limit
-     * @param null $offset
-     * @return ActiveRow
+     * @param array $params - same content as searchResults method
+     * @return int
      */
-    public function getAllPubs_FullText_OR($keywords, $categories, $sort, $limit = null, $offset = null): ActiveRow {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery($limit, $sort);
-        $selectQuery = $this->getSelectQueryOR($limit);
+    public function searchCount(array $params): int
+    {
+        return $this->search($params, null, null)->count();
+    }
 
-        $query = $selectQuery . "
-          FROM documents d
-          JOIN publication p ON p.id = d.publication_id
-          JOIN categories_has_publication c ON p.id = c.publication_id
-          WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
-          AND c.categories_id IN (?)
-          " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            if ($sort == "date" || $sort == "title") {
-                $result = $this->database->query($query, $keywords, $keywords, $categories, $limit, $offset)->fetchAll();
-            } else {
-                $result = $this->database->query($query, $keywords, $keywords, $categories, $keywords, $keywords, $limit, $offset)->fetchAll();
-            }
+    /**
+     * @param array $params - content: keywords, categories, operator, searchtype, starredpubs, advanced, sort
+     * @param int $limit
+     * @param int $offset
+     * @return Selection
+     */
+    public function search(array $params, ?int $limit, ?int $offset): Selection
+    {
+        if ($params['stype'] === 'fulltext') {
+            $result = $this->database->table('documents')
+                ->select('publication.journal.name AS journal,
+                    publication.publisher.name AS publisher,
+                    publication.conference_year.location AS location, 
+                    publication.conference_year.name AS name,
+                    publication.type_of_report AS type, 
+                    publication.id, 
+                    publication.pub_type, 
+                    publication.title, 
+                    publication.volume, 
+                    publication.number, 
+                    publication.pages, 
+                    publication.issue_month AS month_eng, 
+                    publication.issue_year AS year, 
+                    publication.url, 
+                    publication.note, 
+                    publication.editor, 
+                    publication.edition, 
+                    publication.address, 
+                    publication.howpublished, 
+                    publication.chapter, 
+                    publication.booktitle, 
+                    publication.school,
+                    publication.institution, 
+                    publication.conference_year_id');
         } else {
-            $result = $this->database->query($query, $keywords, $keywords, $categories)->fetch();
+            $result = $this->database->table('publication')
+                ->select('journal.name AS journal,
+                    publisher.name AS publisher,
+                    conference_year.location AS location, 
+                    conference_year.name AS name,
+                    type_of_report AS type, 
+                    publication.id, 
+                    pub_type, 
+                    title, 
+                    volume, 
+                    number, 
+                    pages, 
+                    issue_month AS month_eng, 
+                    issue_year AS year, 
+                    url, 
+                    note, 
+                    editor, 
+                    edition, 
+                    publication.address, 
+                    howpublished, 
+                    chapter, 
+                    booktitle, 
+                    school,
+                    institution, 
+                    conference_year_id');
+        }
+
+        //pubtype
+        if ($params['pubtype']) {
+            $result = $result->where('publication.pub_type IN', $params['pubtype']);
+        }
+
+        //keywords
+        if ($params['keywords']) {
+            if ($params['stype'] === 'fulltext') {
+                $result = $result->whereOr([
+                    'MATCH(content) AGAINST (? IN BOOLEAN MODE)' => $params['keywords'],
+                    'MATCH(documents.title) AGAINST (? IN BOOLEAN MODE)' => $params['keywords']
+                ]);
+            } else {
+                $keywords = explode(' ', $params['keywords']);
+
+                if (count($keywords) > 1) {
+                    $condition = '';
+                    $parameters = [];
+
+                    foreach ($keywords as $keyword) {
+                        if ($condition !== '') {
+                            $condition .= ' OR ';
+                        }
+                        $condition .= 'publication.title LIKE ?';
+                        $parameters[] = '% ' . $keyword . ' %';
+                    }
+
+                    $result = $result->where($condition, $parameters);
+                } else {
+                    $result = $result->where('publication.title LIKE', '% ' . $keywords[0] . ' %');
+                }
+            }
+        }
+
+        //scope
+        if ($params['scope']) {
+            if ($params['scope'] === 'starred') {
+                $starred = $this->database->table('submitter_has_publication')
+                    ->select('publication_id')
+                    ->where('submitter_id', $this->user->id)
+                    ->fetchPairs(null, 'publication_id');
+
+                $result = $result->where('publication.id IN ?', $starred);
+            } else if ($params['scope'] === 'my') {
+                $my = $this->database->table('author_has_publication')
+                    ->select('publication_id')
+                    ->where('author.user_id', $this->user->id)
+                    ->fetchPairs(null, 'publication_id');
+
+                $result = $result->where('publication.id IN ?', $my);
+            } else if ($params['scope'] === 'annotated') {
+                $annotated = $this->database->table('annotation')
+                    ->select('publication_id')
+                    ->where('submitter_id', $this->user->id)
+                    ->fetchPairs(null, 'publication_id');
+
+                $result = $result->where('publication.id IN ?', $annotated);
+            }
+        }
+
+        //categories
+        if ($params['categories']) {
+            $categoryIds = explode(' ', $params['categories']);
+
+            if ($params['catOp'] === 'or') {
+                $categories = $this->database->table('categories_has_publication')
+                    ->select('publication_id')
+                    ->where('categories_id IN', $categoryIds)
+                    ->fetchPairs(null, 'publication_id');
+
+                $result = $result->where('publication.id IN', $categories);
+            } else {
+                $intersection = $this->database->table('categories_has_publication')
+                    ->select('publication_id');
+
+                foreach ($categoryIds as $id) {
+                    $intersection = $intersection->where('categories_id', $id);
+                }
+
+                $intersection = $intersection->fetchPairs(null, 'publication_id');
+                $result = $result->where('publication.id IN ?', $intersection);
+            }
+        }
+
+        //tags
+        if ($params['tags']) {
+            $tagged = $this->database->table('publication_has_tag')
+                ->select('publication_id')
+                ->where('tag_id IN', $params['tags'])
+                ->fetchPairs(null, 'publication_id');
+
+            $result = $result->where('publication.id IN ?', $tagged);
+        }
+
+        //sort
+        if ($params['sort'] === 'title') {
+            $result = $result->order('publication.title ASC');
+        } else if ($params['sort'] === 'date') {
+            $result = $result->order('publication.issue_year DESC, publication.issue_month DESC, publication.title ASC');
+        } else {
+            if ($params['stype'] === 'fulltext') {
+                $result = $result->order('5 * MATCH(documents.title) AGAINST (?) + MATCH(content) AGAINST (?) DESC', $params['keywords'], $params['keywords']);
+            } else {
+                $result = $result->order('publication.title ASC');
+            }
+        }
+
+        //limit + offset
+        if ($limit !== null && $offset !== null) {
+            $result = $result->limit($limit, $offset);
         }
 
         return $result;
     }
 
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_OR_starred_publication($keywords, $categories, $sort, $userId, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery($limit, $sort);
-        $selectQuery = $this->getSelectQueryOR($limit);
-
-        $query = $selectQuery . "
-          FROM documents d
-          JOIN publication p ON p.id = d.publication_id
-          JOIN categories_has_publication c ON p.id = c.publication_id
-          WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
-          AND c.categories_id IN (?)
-          AND p.id IN (SELECT x.publication_id FROM submitter_has_publication x WHERE x.submitter_id = $userId)
-          " . $orderQuery . $limitQuery;
-
-
-        if ($limit) {
-            if ($sort == "date" || $sort == "title") {
-                $result = $this->database->query($query, $keywords, $keywords, $categories, $limit, $offset)->fetchAll();
-            } else {
-                $result = $this->database->query($query, $keywords, $keywords, $categories, $keywords, $keywords, $limit, $offset)->fetchAll();
-            }
-        } else {
-            $result = $this->database->query($query, $keywords, $keywords, $categories)->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_AND($keywords, $categories, $sort, $limit = null, $offset = null) {
-
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery($limit, $sort);
-        $selectQuery = $this->getSelectQueryAND($limit);
-
-        $query = $selectQuery . "
-                  FROM documents d
-		  JOIN publication p ON p.id = d.publication_id
-		  WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
-		  AND p.id IN (
-                    SELECT publication_id
-                    FROM categories_has_publication
-                    WHERE categories_id IN (?)
-                    GROUP BY (publication_id)
-                    HAVING COUNT(publication_id) = ?
-		  )" . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            if ($sort == "date" || $sort == "title") {
-                $result = $this->database->query($query, $keywords, $keywords, $categories, count($categories), $limit, $offset)->fetchAll();
-            } else {
-                $result = $this->database->query($query, $keywords, $keywords, $categories, count($categories), $keywords, $keywords, $limit, $offset)->fetchAll();
-            }
-        } else {
-            $result = $this->database->query($query, $keywords, $keywords, $categories, count($categories))->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_AND_starred_publication($keywords, $categories, $sort, $userId, $limit = null, $offset = null) {
-
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery($limit, $sort);
-        $selectQuery = $this->getSelectQueryAND($limit);
-
-        // $where_clause = $this->arr_condition($categories, 'categories_id');
-
-        $query = $selectQuery . "
-                  FROM documents d
-                  JOIN publication p ON p.id = d.publication_id
-		  WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
-                  AND p.id IN (
-		  SELECT publication_id
-		  FROM categories_has_publication
-		  WHERE categories_id IN (?)
-		  GROUP BY (publication_id)
-		  HAVING COUNT(publication_id) = ?
-                    )
-                  AND p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId)" . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            if ($sort == "date" || $sort == "title") {
-                $result = $this->database->query($query, $keywords, $keywords, $categories, count($categories), $limit, $offset)->fetchAll();
-            } else {
-                $result = $this->database->query($query, $keywords, $keywords, $categories, count($categories), $keywords, $keywords, $limit, $offset)->fetchAll();
-            }
-        } else {
-            $result = $this->database->query($query, $keywords, $keywords, $categories, count($categories))->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_advanced($keywords, $sort, $limit = null, $offset = null) {
-
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery($limit, $sort);
-        $selectQuery = $this->getSelectQueryAND($limit);
-
-        $query = $selectQuery . "
-                  FROM documents d
-                  JOIN publication p ON p.id = d.publication_id
-		  WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
-                  AND p.id NOT IN (
-                                SELECT publication_id
-                                FROM categories_has_publication
-                                )" . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            if ($sort == "date" || $sort == "title") {
-                $result = $this->database->query($query, $keywords, $keywords, $limit, $offset)->fetchAll();
-            } else {
-                $result = $this->database->query($query, $keywords, $keywords, $keywords, $keywords, $limit, $offset)->fetchAll();
-            }
-        } else {
-            $result = $this->database->query($query, $keywords, $keywords)->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_advanced_starred_publication($keywords, $sort, $userId, $limit = null, $offset = null) {
-
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery($limit, $sort);
-        $selectQuery = $this->getSelectQueryAND($limit);
-
-        $query = $selectQuery . "
-                FROM documents d JOIN publication p ON p.id = d.publication_id
-		WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
-		AND p.id NOT IN (
-		SELECT publication_id
-		FROM categories_has_publication
-		)
-		AND p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId)" . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            if ($sort == "date" || $sort == "title") {
-                $result = $this->database->query($query, $keywords, $keywords, $limit, $offset)->fetchAll();
-            } else {
-                $result = $this->database->query($query, $keywords, $keywords, $keywords, $keywords, $limit, $offset)->fetchAll();
-            }
-        } else {
-            $result = $this->database->query($query, $keywords, $keywords)->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText($keywords, $sort, $limit = null, $offset = null) {
-
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery($limit, $sort);
-        $selectQuery = $this->getSelectQueryAND($limit);
-
-        $query = $selectQuery . "
-                   FROM documents d
-                   JOIN publication p ON p.id = d.publication_id
-                   WHERE (MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
-                  " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            if ($sort == "date" || $sort == "title") {
-                $result = $this->database->query($query, $keywords, $keywords, $limit, $offset)->fetchAll();
-            } else {
-                $result = $this->database->query($query, $keywords, $keywords, $keywords, $keywords, $limit, $offset)->fetchAll();
-            }
-        } else {
-            $result = $this->database->query($query, $keywords, $keywords)->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_FullText_starred_publication($keywords, $sort, $userId, $limit = null, $offset = null) {
-
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery($limit, $sort);
-        $selectQuery = $this->getSelectQueryAND($limit);
-
-        $query = $selectQuery . "
-                FROM documents d JOIN publication p ON p.id = d.publication_id
-		WHERE ((MATCH(d.title) AGAINST (? IN BOOLEAN MODE) OR MATCH(d.content) AGAINST (? IN BOOLEAN MODE))
-		AND p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId))
-                  " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            if ($sort == "date" || $sort == "title") {
-                $result = $this->database->query($query, $keywords, $keywords, $limit, $offset)->fetchAll();
-            } else {
-                $result = $this->database->query($query, $keywords, $keywords, $keywords, $keywords, $limit, $offset)->fetchAll();
-            }
-        } else {
-            $result = $this->database->query($query, $keywords, $keywords)->fetch();
-        }
-
-        return $result;
-    }
-
-    public function getLimitQuery($limit) {
-        $limitQuery = "";
-        if ($limit) {
-            $limitQuery = " LIMIT ? OFFSET ?";
-        }
-        return $limitQuery;
-    }
-
-    public function getSelectQueryOR($limit) {
-        $selectQuery = "";
-        if ($limit) {
-            $selectQuery = "SELECT DISTINCT p.id, p.title, d.content, p.pub_type, p.issue_year, p.issue_month ";
-        } else {
-            $selectQuery = "SELECT COUNT(DISTINCT p.id) AS length ";
-        }
-        return $selectQuery;
-    }
-
-    public function getSelectQueryAND($limit) {
-        $selectQuery = "";
-        if ($limit) {
-            $selectQuery = "SELECT p.id, p.title, d.content, p.pub_type, p.issue_year, p.issue_month ";
-        } else {
-            $selectQuery = "SELECT COUNT(p.id) AS length ";
-        }
-        return $selectQuery;
-    }
 
     public function getAuthorsNamesAndPubsTitles() {
         $authors = $this->database->table('author')->order("surname ASC, name ASC");
@@ -785,457 +706,6 @@ class Publication extends Base {
         }
 
         return $dataTemp;
-    }
-
-    public function getOrderQuery($limit, $sort) {
-
-        if (!$limit) {
-            return "";
-        }
-
-        switch ($sort) {
-            case "title":
-                $order_clause = " ORDER BY p.title ASC ";
-                break;
-            case "date":
-                $order_clause = " ORDER BY p.issue_year DESC, p.issue_month DESC, p.title ASC ";
-                break;
-            default:
-                $order_clause = " ORDER BY 5 * MATCH(d.title) AGAINST (?) + MATCH(d.content) AGAINST (?) DESC ";
-        }
-
-        return $order_clause;
-    }
-
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_Authors_OR($keywords, $keywordsString, $categories, $sort, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $conditions = '(';
-        foreach ($keywords as $w) {
-            if (strlen($w) < 3 && $w != "and")//jump over abbreviations
-                continue;
-            $conditions .= "a.name LIKE '%$w%' OR a.middlename LIKE '%$w%' OR a.surname LIKE '%$w%' OR ";
-        }
-        $conditions .= "p.title LIKE '%$keywordsString%' OR ";
-        $conditions .= ' false)';
-
-
-        $query = $selectQuery . "
-            FROM publication p
-            JOIN `categories_has_publication` c ON p.id = c.publication_id
-            JOIN author_has_publication ap ON p.id = ap.publication_id
-            JOIN author a ON a.id = ap.author_id
-            WHERE $conditions
-            AND c.categories_id IN (?)
-            " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $categories, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query, $categories)->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return Nette\Database\Table\ActiveRow */
-    public function getAllPubs_Authors_OR_starred_publication($keywords, $keywordsString, $categories, $sort, $userId, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $conditions = '(';
-        foreach ($keywords as $w) {
-            if (strlen($w) < 3 && $w != "and")//jump over abbreviations
-                continue;
-            $conditions .= "a.name LIKE '%$w%' OR a.middlename LIKE '%$w%' OR a.surname LIKE '%$w%' OR ";
-        }
-        $conditions .= "p.title LIKE '%$keywordsString%' OR ";
-        $conditions .= ' false)';
-
-        $query = $selectQuery . "
-                FROM publication p
-                JOIN categories_has_publication c ON p.id = c.publication_id
-                JOIN author_has_publication ap ON p.id = ap.publication_id
-                JOIN author a ON a.id = ap.author_id
-                WHERE $conditions
-                AND c.categories_id IN (?)
-                AND p.id IN (SELECT publication_id from submitter_has_publication WHERE submitter_id = $userId)
-            " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $categories, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query, $categories)->fetch();
-        }
-
-        return $result;
-    }
-
-    public function getAllPubs_Authors_AND($keywords, $keywordsString, $categories, $sort, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $conditions = '(';
-        foreach ($keywords as $w) {
-            if (strlen($w) < 3 && $w != "and")//jump over abbreviations
-                continue;
-            $conditions .= "a.name LIKE '%$w%' OR a.middlename LIKE '%$w%' OR a.surname LIKE '%$w%' OR ";
-        }
-        $conditions .= "p.title LIKE '%$keywordsString%' OR ";
-        $conditions .= ' false)';
-
-        $query = $selectQuery . "
-            FROM publication p
-            JOIN author_has_publication ap ON p.id = ap.publication_id
-            JOIN author a ON a.id = ap.author_id
-            WHERE $conditions
-            AND p.id IN (
-                    SELECT publication_id
-                    FROM categories_has_publication
-                    WHERE categories_id IN (?)
-                    GROUP BY (publication_id)
-                    HAVING COUNT(publication_id) = ?
-            ) " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $categories, count($categories), $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query, $categories, count($categories))->fetch();
-        }
-
-        return $result;
-    }
-
-    public function getAllPubs_Authors_AND_starred_publication($keywords, $keywordsString, $categories, $sort, $userId, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $conditions = '(';
-        foreach ($keywords as $w) {
-            if (strlen($w) < 3 && $w != "and")//jump over abbreviations
-                continue;
-            $conditions .= "a.name LIKE '%$w%' OR a.middlename LIKE '%$w%' OR a.surname LIKE '%$w%' OR ";
-        }
-        $conditions .= "p.title LIKE '%$keywordsString%' OR ";
-        $conditions .= ' false)';
-
-        $query = $selectQuery . "
-           FROM publication p
-           JOIN author_has_publication ap ON p.id = ap.publication_id
-           JOIN author a ON a.id = ap.author_id
-           WHERE $conditions
-           AND p.id IN (
-                SELECT publication_id
-                FROM categories_has_publication
-                WHERE categories_id IN (?)
-                GROUP BY (publication_id)
-                HAVING COUNT(publication_id) = ?
-            )
-            AND p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId)
-                " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $categories, count($categories), $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query, $categories, count($categories))->fetch();
-        }
-
-        return $result;
-    }
-
-    public function getAllPubs_Authors_advanced($keywords, $keywordsString, $sort, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $conditions = '(';
-        foreach ($keywords as $w) {
-            if (strlen($w) < 3 && $w != "and")//jump over abbreviations
-                continue;
-            $conditions .= "a.name LIKE '%$w%' OR a.middlename LIKE '%$w%' OR a.surname LIKE '%$w%' OR ";
-        }
-        $conditions .= "p.title LIKE '%$keywordsString%' OR ";
-        $conditions .= ' false)';
-
-        $query = $selectQuery . "
-            FROM publication p
-            JOIN author_has_publication ap ON p.id = ap.publication_id
-            JOIN author a ON a.id = ap.author_id
-            WHERE $conditions
-            AND p.id NOT IN (
-              SELECT publication_id
-              FROM categories_has_publication
-              ) " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query)->fetch();
-        }
-
-        return $result;
-    }
-
-    public function getAllPubs_Authors_advanced_starred_publication($keywords, $keywordsString, $sort, $userId, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $conditions = '(';
-        foreach ($keywords as $w) {
-            if (strlen($w) < 3 && $w != "and")//jump over abbreviations
-                continue;
-            $conditions .= "a.name LIKE '%$w%' OR a.middlename LIKE '%$w%' OR a.surname LIKE '%$w%' OR ";
-        }
-        $conditions .= "p.title LIKE '%$keywordsString%' OR ";
-        $conditions .= ' false)';
-
-        $query = $selectQuery . "
-           FROM publication p
-           JOIN author_has_publication ap ON p.id = ap.publication_id
-           JOIN author a ON a.id = ap.author_id
-           WHERE $conditions
-            AND p.id NOT IN (
-                    SELECT publication_id
-                    FROM categories_has_publication
-            )
-            AND p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId)
-                " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query)->fetch();
-        }
-
-        return $result;
-    }
-
-    public function getAllPubs_Authors($keywords, $keywordsString, $sort, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $conditions = '(';
-        foreach ($keywords as $w) {
-            if (strlen($w) < 3 && $w != "and")//jump over abbreviations
-                continue;
-            $conditions .= "a.name LIKE '%$w%' OR a.middlename LIKE '%$w%' OR a.surname LIKE '%$w%' OR ";
-        }
-        $conditions .= "p.title LIKE '%$keywordsString%' OR ";
-        $conditions .= ' false)';
-
-        $query = $selectQuery . "
-            FROM publication p
-            JOIN author_has_publication ap ON p.id = ap.publication_id
-            JOIN author a ON a.id = ap.author_id
-            WHERE $conditions" . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query)->fetch();
-        }
-
-        return $result;
-    }
-
-    public function getAllPubs_Authors_starred_publication($keywords, $keywordsString, $sort, $userId, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $conditions = '(';
-        foreach ($keywords as $w) {
-            if (strlen($w) < 3 && $w != "and")//jump over abbreviations
-                continue;
-            $conditions .= "a.name LIKE '%$w%' OR a.middlename LIKE '%$w%' OR a.surname LIKE '%$w%' OR ";
-        }
-        $conditions .= "p.title LIKE '%$keywordsString%' OR ";
-        $conditions .= ' false)';
-
-        $query = $selectQuery . "
-            FROM publication p
-            JOIN author_has_publication ap ON p.id = ap.publication_id
-            JOIN author a ON a.id = ap.author_id
-            WHERE $conditions
-            AND p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId)" . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query)->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return \Nette\Database\Table\ActiveRow */
-    public function getAllPubs_no_params($categories, $sort, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $query = $selectQuery . "
-            FROM publication p
-            JOIN categories_has_publication c ON p.id = c.publication_id
-            " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query)->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return \Nette\Database\Table\ActiveRow */
-    public function getAllPubs_Categories_OR($categories, $sort, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $query = $selectQuery . "
-            FROM publication p
-            JOIN categories_has_publication c ON p.id = c.publication_id
-            WHERE c.categories_id IN (?)
-            " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $categories, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query, $categories)->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return \Nette\Database\Table\ActiveRow */
-    public function getAllPubs_no_params_starred_publication($categories, $sort, $userId, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $query = $selectQuery . "
-          FROM publication p
-          JOIN categories_has_publication c ON p.id = c.publication_id
-          WHERE p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId)
-            " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query)->fetch();
-        }
-
-        return $result;
-    }
-
-    /** @return \Nette\Database\Table\ActiveRow */
-    public function getAllPubs_Categories_OR_starred_publication($categories, $sort, $userId, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $query = $selectQuery . "
-          FROM publication p
-          JOIN categories_has_publication c ON p.id = c.publication_id
-          WHERE c.categories_id IN (?)
-          AND p.id IN (SELECT publication_id FROM submitter_has_publication WHERE submitter_id = $userId)
-            " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $categories, $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query, $categories)->fetch();
-        }
-
-        return $result;
-    }
-
-    public function getAllPubs_Categories_AND($categories, $sort, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $query = $selectQuery . "
-            FROM publication p
-            WHERE p.id IN (
-                            SELECT publication_id
-                            FROM categories_has_publication
-                            WHERE categories_id IN (?)
-                            GROUP BY (publication_id)
-                            HAVING COUNT(publication_id) = ?
-                    ) " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $categories, count($categories), $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query, $categories, count($categories))->fetch();
-        }
-
-        return $result;
-    }
-
-    public function getAllPubs_Categories_AND_starred_publication($categories, $sort, $userId, $limit = null, $offset = null) {
-        $limitQuery = $this->getLimitQuery($limit);
-        $orderQuery = $this->getOrderQuery_Author_OR($limit, $sort);
-        $selectQuery = $this->getSelectQuery_Author_OR($limit);
-
-        $query = $selectQuery . "
-            FROM publication p
-            WHERE p.id IN (
-                            SELECT publication_id
-                            FROM categories_has_publication
-                            WHERE categories_id IN (?)
-                            GROUP BY (publication_id)
-                            HAVING COUNT(publication_id) = ?
-                    )
-                    AND p.id IN (SELECT publication_id from submitter_has_publication where submitter_id = $userId)
-                " . $orderQuery . $limitQuery;
-
-        if ($limit) {
-            $result = $this->database->query($query, $categories, count($categories), $limit, $offset)->fetchAll();
-        } else {
-            $result = $this->database->query($query, $categories, count($categories))->fetch();
-        }
-
-        return $result;
-    }
-
-// IN VS OR OR OR OR
-    public function getSelectQuery_Author_OR($limit) {
-        $selectQuery = "";
-        if ($limit) {
-            $selectQuery = "SELECT DISTINCT p.id, p.pub_type, p.title, p.submitter_id, p.issue_year, p.issue_month ";
-        } else {
-            $selectQuery = "SELECT COUNT(DISTINCT p.id) AS length ";
-        }
-        return $selectQuery;
-    }
-
-    public function getOrderQuery_Author_OR($limit, $sort) {
-
-        if (!$limit) {
-            return "";
-        }
-
-        switch ($sort) {
-            case "date":
-                $order_clause = " ORDER BY p.issue_year DESC, p.issue_month DESC, p.title ASC ";
-                break;
-            default:
-                $order_clause = " ORDER BY p.title ASC ";
-        }
-
-        return $order_clause;
     }
 
     public function arr_condition($arr, $column) {
@@ -1674,16 +1144,43 @@ class Publication extends Base {
     }
 
     /**
+     * Gets publications where user with $id is author ready to be given to the PublicationControl component.
      * @param int $id
-     * @return array
+     * @return Selection
      */
-    public function findAllByUserId(int $id): array
+    public function findAllByUserId(int $id): Selection
     {
-      return $this->database->fetchAll("SELECT p.* FROM publication p
-                                        JOIN author_has_publication ap ON (p.id = ap.publication_id)
-                                        JOIN author a ON (ap.author_id = a.id)
-                                        WHERE a.user_id=?
-                                        ORDER BY title ASC;",$id);
+        $pubs = $this->database->table('author_has_publication')
+            ->select('publication_id')
+            ->where('author.user_id', $id)
+            ->fetchPairs(null, 'publication_id');
+
+        return $this->database->table('publication')
+            ->select('journal.name AS journal,
+                    publisher.name AS publisher,
+                    conference_year.location AS location, 
+                    conference_year.name AS name,
+                    type_of_report AS type, 
+                    publication.id, 
+                    pub_type, 
+                    title, 
+                    volume, 
+                    number, 
+                    pages, 
+                    issue_month AS month_eng, 
+                    issue_year AS year, 
+                    url, 
+                    note, 
+                    editor, 
+                    edition, 
+                    publication.address, 
+                    howpublished, 
+                    chapter, 
+                    booktitle, 
+                    school,
+                    institution, 
+                    conference_year_id')
+            ->where('publication.id IN ?', $pubs);
     }
 
 }

@@ -44,4 +44,19 @@ class Tag extends Base {
           ->where("submitter_id = ?", $userId)
           ->fetchPairs("id","name");
     }
+
+    /**
+     * Returns tags in format for HomepageSearchForm, t.j. array where key is tag id and value is tag name.
+     * @param int $userId
+     * @return array
+     */
+    public function getTagsForSearchForm(int $userId): array
+    {
+        return $this->getTable()
+            ->select('id, name, global_scope')
+            ->whereOr([
+                'submitter_id' => $userId,
+                'global_scope' => 1
+            ])->fetchPairs('id', 'name');
+    }
 }

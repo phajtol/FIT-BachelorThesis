@@ -9,14 +9,18 @@ class HomepageSearchForm {
     /** @var \Nette\Database\Connection */
     private $database;
 
+    /** @var App\Model\Tag */
+    private $tagModel;
 
     /**
      * HomepageSearchForm constructor.
      * @param \Nette\Database\Connection $database
+     * @param \App\Model\Tag $tagModel
      */
-    public function __construct(Nette\Database\Connection $database)
+    public function __construct(Nette\Database\Connection $database, App\Model\Tag $tagModel)
     {
         $this->database = $database;
+        $this->tagModel = $tagModel;
     }
 
     /**
@@ -31,20 +35,53 @@ class HomepageSearchForm {
           ->setRequired(false)
           ->addRule($form::MAX_LENGTH, 'Keywords is way too long', 100);
 
-        $form->addRadioList('operator', 'Search operator', ['OR' => 'OR', 'AND' => 'AND'])
-            ->setDefaultValue('OR');
+        $form->addRadioList('catop', 'Category operator', ['or' => 'OR', 'and' => 'AND'])
+            ->setDefaultValue('or');
 
-        $form->addText('categories');
+        $form->addText('categories', 'Publication categories');
 
-        $form->addRadioList('searchtype', 'Search type', ['fulltext' => 'Fulltext search', 'authors' => 'Authors / Publication search'])
+        $form->addRadioList('stype', 'Search type', ['fulltext' => 'Fulltext', 'title' => 'Title only'])
             ->setDefaultValue('fulltext');
 
-        $form->addCheckbox('starredpubs', 'Search only in starred publications');
+        $form->addRadioList('scope', 'Search scope', [
+                'all' => 'All publications',
+                'starred' => 'Starred by me',
+                'annotated' => 'Annotated by me',
+                'my' => 'My publications'
+            ])->setDefaultValue('all');
 
-        $form->addCheckbox('advanced', 'Enable advanced search')
-            ->setDefaultValue(FALSE);
+        $form->addCheckboxList('pubtype', 'Publication type', [
+            'misc' => 'Misc',
+            'book' => 'Book',
+            'article' => 'Article',
+            'inproceedings' => 'InProceedings',
+            'proceedings' => 'Proceedings',
+            'incollection' => 'InCollection',
+            'inbook' => 'InBook',
+            'booklet' => 'Booklet',
+            'manual' => 'Manual',
+            'techreport' => 'Techreport',
+            'mastersthesis' => 'Mastersthesis',
+            'phdthesis' => 'Phdthesis',
+            'unpublished' => 'Unpublished'
+        ]);
+
+        $tags = $this->tagModel->getTagsForSearchForm(156);
+
+        $form->addCheckboxList('tags', 'Publication tags', $tags);
 
         $form->addSubmit('send', 'Search');
+
+        //deserialize pubtypes from url
+        if (isset($data['ptype'])) {
+            $pubtypes = explode(' ', $data['ptype']);
+            $data['pubtype'] = $pubtypes;
+        }
+
+        //deserialize tags from url
+        if (isset($data['tags'])) {
+            $data['tags'] = explode(' ', $data['tags']);
+        }
 
         $form->setDefaults($data);
 

@@ -2,6 +2,7 @@
 
 namespace App\Presenters;
 
+use App\Components\Publication\PublicationControl;
 use Nette,
     App\Model,
     \VisualPaginator,
@@ -25,6 +26,9 @@ class UserPresenter extends SecuredPresenter {
 
     /** @var Model\Publication @inject */
     public $publicationModel;
+
+    /** @var Model\Author @inject */
+    public $authorModel;
 
     /** @var Model\Tag @inject */
     public $tagModel;
@@ -103,6 +107,12 @@ class UserPresenter extends SecuredPresenter {
         $userSettings = $this->userSettingsModel->findOneBy(array('submitter_id' => $this->user->id));
 
         $myPublications = $this->publicationModel->findAllByUserId($this->user->id);
+        $myPublicationIds = [];
+
+        foreach ($myPublications as $myPublication) {
+            $myPublicationIds[] = $myPublication->id;
+        }
+        $authorsByPubId = $this->authorModel->getAuthorsByMultiplePubIds($myPublicationIds);
 
         $myTags = $this->tagModel->findAllByUserId($this->user->id);
 
@@ -110,6 +120,7 @@ class UserPresenter extends SecuredPresenter {
         $this->template->annotations = $annotations;
         $this->template->userSettings = $userSettings;
         $this->template->myPublications = $myPublications;
+        $this->template->authorsByPubId = $authorsByPubId;
         $this->template->tags = $myTags;
 
         $this->template->annotationAdded = false;
@@ -347,4 +358,11 @@ class UserPresenter extends SecuredPresenter {
         return $c;
     }
 
+    /**
+     * @return PublicationControl
+     */
+    protected function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
 }

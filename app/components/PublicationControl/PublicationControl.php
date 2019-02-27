@@ -2,10 +2,9 @@
 
 namespace App\Components\Publication;
 
-use App\Model\Author;
-use App\Model\Publication;
 use Nette\Application\UI\Control;
-use Nette\Database\Table\ActiveRow;
+use Nette\Database\IRow;
+
 
 class PublicationControl extends Control
 {
@@ -18,10 +17,10 @@ class PublicationControl extends Control
     }
 
     /**
-     * @param ActiveRow $pub - row from db table `publication` containing all necessary columns
+     * @param IRow $pub - row from db table `publication` containing all necessary columns
      * @param array $authors
      */
-    public function render(ActiveRow $pub, array $authors): void
+    public function render(IRow $pub, array $authors): void
     {
         $this->template->setFile(__DIR__ . '/PublicationControl.latte');
 

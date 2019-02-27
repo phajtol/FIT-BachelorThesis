@@ -410,22 +410,24 @@
                     </form>
                 {/snippet}
             </div>
+
+
             <div class="tab-pane fade" id="publications">
-                <form class="form-horizontal" role="form">
-                    <div class="form-group">
-                        <h1 class="col-sm-3 control-label">My publications</h1>
+                <h1>My publications</h1>
+
+                <hr />
+
+                {if count($myPublications)}
+                    <ul n:foreach="$myPublications as $my">
+                        <li>
+                            {control publication, $my, $authorsByPubId[$my->id] ?? []}
+                        </li>
+                    </ul>
+                {else}
+                    <div class="alert alert-warning">
+                        There are no publications associated with this user.
                     </div>
-
-                        <hr />
-
-                          {if count($myPublications)}
-                          <ul n:foreach="$myPublications as $my">
-                            <li><a target="_blank" href="{link Publication:showpub, $my->id}">{$my->title}</a></li>
-                          </ul>
-                          {else}
-                            There are no associated Publications with this User.
-                          {/if}
-                </form>
+                {/if}
             </div>
 
 

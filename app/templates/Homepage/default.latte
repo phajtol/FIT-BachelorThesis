@@ -11,95 +11,88 @@
 *}
 
 <div class="row">
+    {form homepageSearchForm, role => "form"}
+        <div class="col-md-10 col-md-offset-1">
+            <h2>Publication search</h2>
 
-    <div class="col-md-4"></div>
-
-    {form homepageSearchForm, class => "form-horizontal", role => "form"}
-        
-    <div class="col-md-4">
-        <ul id="pub-detail-tab" class="nav nav-tabs">
-            <li class="active"><a href="#fulltext" data-toggle="tab">Fulltext search</a></li>
-            <li class=""><a href="#authors" data-toggle="tab">Authors/Publication search</a></li>
-        </ul>
-        <br />
-        <div id="pub-detail-tab-content" class="tab-content">
-            <div class="tab-pane fade active in" id="fulltext">
-                {* <div class="form-group">
-                    {input keywords, class => "form-control", placeholder => "Fulltext search", type => "search", autofocus => true}
-                </div> *}
-            </div>
-            <div class="tab-pane fade" id="authors">
-                {* <div class="form-group">
-                    {input keywords, class => "form-control", placeholder => "Authors/Publication search", type => "search", autofocus => true}
-                </div> *}
-            </div>
-        </div>
-        <div class="form-group">
-                    {input keywords, class => "form-control", placeholder => "Type keywords", type => "search", autocomplete => "off", autofocus => true, data-provide => "typeahead"}
-                </div> 
-                <div class="form-group" style="display:none; visibility:hidden;">
-                {input searchtype}
-                {input advanced}
+            <div class="row row-equal-cols">
+                <div class="col-md-7 form-group">
+                    {*}<div class="form-group form-group-lg">*}
+                        {input keywords, class => "form-control", placeholder => "Type keywords...", type => "search", autocomplete => "off", autofocus => true, data-provide => "typeahead"}
+                    {*}</div>*}
                 </div>
-                
 
-        <div class="form-group">
-            {label starredpubs}
-                {input starredpubs:} {$form['starredpubs']->caption}
-            {/label}
-        </div>
-       
-        <button type="button" class="btn btn-default btn-xs btn-block" id="advancedButton" data-toggle="collapse" data-target="#collapseOne">
-  Enable/Disable advanced search &nbsp;&nbsp;&nbsp;<span id="advancedIcon" class="glyphicon glyphicon-chevron-down"></span>
-</button>
-  <div class="panel panel-default" style="border: none;">
-    <div id="collapseOne" class="panel-collapse collapse in">
-      <div class="panel-body">
+                <div class="col-md-2">
+                        <b>{label stype}:</b><br>
+                        {foreach $form[stype]->items as $key => $label}
+                            <div>
+                                <label style="font-weight:normal;" n:name="stype:$key"><input n:name="stype:$key"> {$label}</label>
+                            </div>
+                        {/foreach}
+                </div>
 
-        <div class="form-group">
-        <div class="btn-group">
-            {foreach $form['operator']->items as $key => $label}
-                {if $key == "OR"}
-                    {label operator:$key, style => "font-weight: normal;"}
-                       {input operator:$key}&nbsp;{$label}
-                    {/label}
-                        &nbsp;
-                {else}
-                    {label operator:$key, style => "font-weight: normal;"}
-                       {input operator:$key}&nbsp;{$label}
-                    {/label}
-                {/if}
-        {/foreach}
+                <div class="col-md-3">
+                    <b>{label scope}:</b><br>
+                    {foreach $form[scope]->items as $key => $label}
+                        <div>
+                            <label style="font-weight:normal;" n:name="scope:$key"><input n:name="scope:$key"> {$label}</label>
+                        </div>
+                    {/foreach}
+                </div>
             </div>
-            <div class="col-sm-1"></div>
-             &nbsp;
-              &nbsp;
-               &nbsp;
-                &nbsp;
-                 &nbsp;
-            <button type="button" class="btn btn-default btn-xs" id="123x">
-                <span class="glyphicon glyphicon-check"></span> Select/Deselect all
-            </button>
+
+            <div class="row row-equal-cols">
+                <div class="col-md-3">
+                    <b>{label pubtype}:</b><br>
+                    {foreach $form[pubtype]->items as $key => $label}
+                        <div>
+                            <label style="font-weight:normal;" n:name="pubtype:$key"><input n:name="pubtype:$key"> {$label}</label>
+                        </div>
+                    {/foreach}
+                </div>
+
+                <div class="col-md-5">
+                    <b>{label categories}:</b><br>
+
+                    {control publicationCategoryList}
+                    {input categories}
+
+                    <div style="margin-top:15px;">
+                        <div class="text-left" style="float:left;">
+                            {foreach $form['catop']->items as $key => $label}
+                                {label catop:$key, style => "font-weight: normal;"}
+                                    {input catop:$key, 'disabled' => true}&nbsp;{$label}
+                                {/label}
+                            {/foreach}
+                        </div>
+
+                        <div class="text-right" style="float:right;">
+                            <button type="button" class="btn btn-default btn-xs" id="123x">
+                                <span class="glyphicon glyphicon-check"></span> Select/Deselect all
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <b>{label tags}:</b><br>
+                    {foreach $form[tags]->items as $key => $label}
+                        <div>
+                            <label style="font-weight:normal;" n:name="tags:$key"><input n:name="tags:$key"> {$label}</label>
+                        </div>
+                    {/foreach}
+                </div>
+            </div>
+
+            <div class="row row-equal-cols" style="margin-top:15px;">
+                <div class="col-md-4 col-md-offset-4">
+                    {input send, class => "btn btn-primary btn-lg btn-block"}
+                </div>
+            </div>
         </div>
-            
-        <div class="form-group advanced">
-           {control publicationCategoryList}
-           <div style="margin-top: -40px">
-                {input categories}
-           </div>
-        </div>
-        </div>
-    </div>
-  </div>
-        <div class="form-group">
-            {input send, class => "btn btn-primary btn-lg btn-block"}
-        </div>
-          </div>
     {/form}
-
-
-    <div class="col-md-4"></div>
-
 </div>
 
 {block #searchResults}

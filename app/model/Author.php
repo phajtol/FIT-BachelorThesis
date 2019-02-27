@@ -116,6 +116,31 @@ class Author extends Base {
     }
 
     /**
+     * @param array $ids
+     * @return array
+     */
+    public function getAuthorsByMultiplePubIds(array $ids): array
+    {
+        $res = [];
+        $authors = $this->database->table('author_has_publication')
+            ->select('publication_id, author.name, author.surname, author.middlename, author.id')
+            ->where('publication_id IN ?', $ids)
+            ->order('priority ASC');
+
+        foreach ($authors as $author) {
+            $res[$author->publication_id][] = [
+                'surname' => $author['surname'],
+                'middlename' => $author['middlename'],
+                'name' => $author['name'],
+                'initials' => mb_substr($author['name'], 0, 1) . '. ' .
+                    ($author['middlename'] ? mb_substr($author['middlename'], 0, 1) . '. ' : '')
+            ];
+        }
+
+        return $res;
+    }
+
+    /**
      * @param int $pubId
      * @return array
      */
