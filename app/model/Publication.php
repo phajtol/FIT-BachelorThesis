@@ -582,6 +582,19 @@ class Publication extends Base {
             $result = $result->where('publication.pub_type IN', $params['pubtype']);
         }
 
+        //author
+        if ($params['author']) {
+            $authorsPubs = $this->database->table('author_has_publication')
+                ->select('publication_id')
+                ->whereOr([
+                    'author.name LIKE ?' => '%' . $params['author'] . '%',
+                    'author.middlename LIKE ?' => '%' . $params['author'] . '%',
+                    'author.surname LIKE ?' => '%' . $params['author'] . '%'
+                ])->fetchPairs(null, 'publication_id');
+
+            $result = $result->where('publication.id IN ?', $authorsPubs);
+        }
+
         //keywords
         if ($params['keywords']) {
             if ($params['stype'] === 'fulltext') {

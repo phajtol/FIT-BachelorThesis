@@ -35,6 +35,10 @@ class HomepageSearchForm {
           ->setRequired(false)
           ->addRule($form::MAX_LENGTH, 'Keywords is way too long', 100);
 
+        $form->addText('author', 'Author')
+            ->setRequired(false)
+            ->addRule($form::MAX_LENGTH, 'Author is way too long', 100);
+
         $form->addRadioList('catop', 'Category operator', ['or' => 'OR', 'and' => 'AND'])
             ->setDefaultValue('or');
 

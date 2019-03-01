@@ -153,7 +153,7 @@ class HomepagePresenter extends SecuredPresenter {
      * @param $scope
      * @param string $sort
      */
-    public function actionSearchResults($keywords, $ptype, $categories, $catop, $stype, $tags, $scope, $sort): void
+    public function actionSearchResults($keywords, $ptype, $categories, $catop, $stype, $tags, $scope, $sort, $author): void
     {
         $params = $this->httpRequest->getQuery();
 
@@ -168,7 +168,8 @@ class HomepagePresenter extends SecuredPresenter {
             'tags' => $tags,
             'pubtype' => $pubtype,
             'scope' => $scope,
-            'sort' => $sort
+            'sort' => $sort,
+            'author' => $author
         ];
 
         $results = $this->search($searchParams);
