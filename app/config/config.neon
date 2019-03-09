@@ -41,7 +41,8 @@ services:
 
 
 
-	- HomepageSearchForm
+	- App\Forms\PublicationSearchForm
+	- App\Forms\SimpleSearchForm
 
 	ShibbolethParams: App\Model\ShibbolethParams(%shibboleth%)
 	Annotation: App\Model\Annotation

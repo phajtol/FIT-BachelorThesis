@@ -18,9 +18,12 @@ use App\CrudComponents\PublicationTag\PublicationTagCrud;
 use App\CrudComponents\Publisher\PublisherCrud;
 use App\CrudComponents\Reference\ReferenceCrud;
 use App\Forms\BaseForm;
+use App\Forms\PublicationSearchForm;
+use App\Forms\SimpleSearchForm;
 use Nette;
 use App\Model;
 use App\Helpers;
+use Nette\Application\UI\Form;
 
 
 class PublicationPresenter extends SecuredPresenter {
@@ -85,6 +88,9 @@ class PublicationPresenter extends SecuredPresenter {
 
     /** @var  Model\Attribute @inject */
     public $attributeModel;
+
+    /** @var  Model\Categories @inject */
+    public $categoriesModel;
 
     /** @var  Model\Author @inject */
     public $authorModel;
@@ -173,7 +179,17 @@ class PublicationPresenter extends SecuredPresenter {
     /** @var \App\Factories\ITagCrudFactory @inject */
     public $tagCrudFactory;
 
+    /** @var PublicationSearchForm @inject */
+    public $publicationSearchForm;
+
     // --
+
+    /**
+     * This variable is used to temporarily store publication search form values
+     * so that form shown on results page doesn't reset when viewing search results.
+     * @var array
+     */
+    protected $searchFormData = [];
 
     /** @var int */
     protected $publicationId;
@@ -201,6 +217,7 @@ class PublicationPresenter extends SecuredPresenter {
     public function __construct()
     {
         $this->functions = new Helpers\Functions();
+        parent::__construct();
     }
 
 
@@ -248,15 +265,6 @@ class PublicationPresenter extends SecuredPresenter {
         foreach ($recordsStarredTemp as $record) {
             $this->template->recordsStarred[] = $record->publication_id;
         }
-    }
-
-
-    /**
-     *
-     */
-    public function actionDefault(): void
-    {
-
     }
 
 
@@ -1565,6 +1573,8 @@ class PublicationPresenter extends SecuredPresenter {
     // --
 
     /**
+     * This is basically the same component as in method below, but has different settings.
+     * This one is used on publication add/edit page.
      * @return \App\Components\PublicationCategoryList\PublicationCategoryListComponent
      */
     protected function createComponentPublicationCategoryList(): PublicationCategoryListComponent
@@ -1574,6 +1584,22 @@ class PublicationPresenter extends SecuredPresenter {
         $c->setIsSelectable(true);
         $c->setHasThreeStates(false);
         $c->setHasControls(true);
+
+        return $c;
+    }
+
+    /**
+     * This is basically the same component as in method above, but has different settings.
+     * This one is used in search form.
+     * @return \App\Components\PublicationCategoryList\PublicationCategoryListComponent
+     */
+    protected function createComponentPublicationCategories(): PublicationCategoryListComponent
+    {
+        $c = $this->publicationCategoryListFactory->create();
+
+        $c->setHasControls(false);
+        $c->setHasThreeStates(true);
+        $c->setIsSelectable(true);
 
         return $c;
     }
@@ -2166,4 +2192,136 @@ class PublicationPresenter extends SecuredPresenter {
         return new PublicationControl();
     }
 
+    /*
+     * SEARCH RELATED CODE
+     */
+
+    /**
+     * Handles search: retrieves results from model and initializes paginator.
+     * @param array $params
+     * @return array
+     */
+    protected function search(array $params): array
+    {
+        $count = $this->publicationModel->searchCount($params);
+
+        $vp = new \VisualPaginator();
+        $this->addComponent($vp, 'vp');
+        $paginator = $vp->getPaginator();
+        $paginator->itemsPerPage = $this->itemsPerPageDB;
+        $paginator->itemCount = $count;
+
+        $results = $this->publicationModel->search($params, $paginator->itemsPerPage, $paginator->offset);
+
+        $publicationIds = [];
+        foreach ($results as $result) {
+            $publicationIds[] = $result->id;
+        }
+        $authorsByPubId = $this->authorModel->getAuthorsByMultiplePubIds($publicationIds);
+
+        return [
+            'resultsCount' => $count,
+            'showingFrom' => $paginator->offset + 1,
+            'showingTo' => ($paginator->offset + $paginator->itemsPerPage > $count) ? $count : ($paginator->offset + $paginator->itemsPerPage),
+            'results' => $results,
+            'authorsByPubId' => $authorsByPubId
+        ];
+    }
+
+
+    /**
+     * @param string $keywords
+     * @param $ptype
+     * @param $categories
+     * @param $catop
+     * @param $stype
+     * @param $tags
+     * @param $scope
+     * @param $sort
+     * @param $author
+     */
+    public function actionSearch($keywords, $ptype, $categories, $catop, $stype, $tags, $scope, $sort, $author): void
+    {
+        $params = $this->getHttpRequest()->getQuery();
+
+        $pubtype = $ptype ? explode(' ', $ptype) : null;
+        $tags = $tags ? explode(' ', $tags) : null;
+
+        $searchParams = [
+            'keywords' => $keywords,
+            'categories' => $categories,
+            'catOp' => $catop,
+            'stype' => $stype,
+            'tags' => $tags,
+            'pubtype' => $pubtype,
+            'scope' => $scope,
+            'sort' => $sort,
+            'author' => $author
+        ];
+
+        $results = $this->search($searchParams);
+
+        $this->template->results = $results['results'];
+        $this->template->authorsByPubId = $results['authorsByPubId'];
+        $this->template->resultsCount = $results['resultsCount'];
+        $this->template->showingFrom = $results['showingFrom'];
+        $this->template->showingTo = $results['showingTo'];
+
+        $this->template->sort = $sort;
+        $this->template->stype = $stype;
+        unset($params['sort']);
+        $this->template->params = $searchParams;
+
+        $this->searchFormData = $params;
+
+        $this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
+
+        if (!$categories) {
+            $categories = [];
+        }
+        $this->template->selectedCategories = $categories;
+    }
+
+    /**
+     * @return Form
+     */
+    protected function createComponentPublicationSearchForm(): Form
+    {
+        $form = $this->publicationSearchForm->create($this->searchFormData, $this->user->id);
+
+        $form->onSuccess[] = function (Form $form) {
+            $values = (array) $form->values;
+
+            //serialize pubtypes from checkbox list
+            if ($form->values->pubtype) {
+                $types = '';
+
+                foreach ($form->values->pubtype as $type) {
+                    $types .= (' ' . $type);
+                }
+
+                $types = substr($types, 1);
+                unset($values['pubtype']);
+                $values['ptype'] = $types;
+            }
+
+            //serialize tags from checkbox list
+            if ($form->values->tags) {
+                $tags = '';
+
+                foreach ($form->values->tags as $tag) {
+                    $tags .= (' ' . $tag);
+                }
+
+                $tags = substr($tags, 1);
+                $values['tags'] = $tags;
+            } else {
+                unset($values['tags']);
+            }
+
+            $this->presenter->redirect('Publication:search', $values);
+        };
+
+        return $form;
+    }
 }

@@ -516,7 +516,7 @@ class Publication extends Base {
     }
 
     /**
-     * @param array $params - content: keywords, categories, operator, searchtype, starredpubs, advanced, sort
+     * @param array $params - content: keywords, categories, catOp, pubtype, stype, starredpubs, advanced, sort, ...
      * @param int $limit
      * @param int $offset
      * @return Selection
@@ -662,15 +662,17 @@ class Publication extends Base {
 
                 $result = $result->where('publication.id IN', $categories);
             } else {
-                $intersection = $this->database->table('categories_has_publication')
+                //TODO
+                /*$intersection = $this->database->table('publication')
                     ->select('publication_id');
 
                 foreach ($categoryIds as $id) {
-                    $intersection = $intersection->where('categories_id', $id);
+                    $intersection = $intersection->where('categories_has_publication.categories_id = ?', $id)
+                    ->joinWhere();
                 }
 
                 $intersection = $intersection->fetchPairs(null, 'publication_id');
-                $result = $result->where('publication.id IN ?', $intersection);
+                $result = $result->where('publication.id IN ?', $intersection);*/
             }
         }
 
@@ -704,6 +706,19 @@ class Publication extends Base {
 
         return $result;
     }
+
+    /**
+     * @param string $title
+     * @return Selection
+     */
+    public function simpleSearch(string $title): Selection
+    {
+        return $this->getTable()
+            ->select('id')
+            ->where('title LIKE ?', '%' . $title . '%');
+    }
+
+
 
 
     public function getAuthorsNamesAndPubsTitles() {
@@ -1194,6 +1209,41 @@ class Publication extends Base {
                     institution, 
                     conference_year_id')
             ->where('publication.id IN ?', $pubs);
+    }
+
+    /**
+     * Gets starred publications for user with $id ready to be given to the PublicationControl component.
+     * @param int $id
+     * @return Selection
+     */
+    public function findStarredByUserId(int $id): Selection
+    {
+        return $this->database->table('submitter_has_publication')
+            ->select('publication.journal.name AS journal,
+                    publication.publisher.name AS publisher,
+                    publication.conference_year.location AS location, 
+                    publication.conference_year.name AS name,
+                    publication.type_of_report AS type, 
+                    publication.id, 
+                    publication.pub_type, 
+                    publication.title, 
+                    publication.volume, 
+                    publication.number, 
+                    publication.pages, 
+                    publication.issue_month AS month_eng, 
+                    publication.issue_year AS year, 
+                    publication.url, 
+                    publication.note, 
+                    publication.editor, 
+                    publication.edition, 
+                    publication.address, 
+                    publication.howpublished, 
+                    publication.chapter, 
+                    publication.booktitle, 
+                    publication.school,
+                    publication.institution, 
+                    publication.conference_year_id')
+            ->where('submitter_has_publication.submitter_id', $id);
     }
 
 }

@@ -1,0 +1,80 @@
+{extends default.latte}
+
+{block #searchBreadcrumbs}
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a n:href="Homepage:">Home</a></li>
+            <li><a n:href="Publication:">Publications</a></li>
+            <li class="active">Search</li>
+        </ol>
+    </div>
+{/block}
+
+{block #searchResults}
+    {if count($results)}
+        <div class="row" style="margin-bottom:15px;padding-bottom:10px;border-bottom:1px #666 solid;">
+            <div class="col-md-4">
+                Order by:
+
+                {if $stype === 'fulltext'}
+                    {if $sort == 'relevancy' || $sort == ''}
+                        <a n:href="this (expand) $params, sort => relevancy" style="font-weight: bold;">Relevancy</a>
+                    {else}
+                        <a n:href="this (expand) $params, sort => relevancy">Relevancy</a>
+                    {/if}
+
+                    |
+
+                    {if $sort == 'title'}
+                        <a n:href="this (expand) $params, sort => title" style="font-weight: bold;">Title</a>
+                    {else}
+                        <a n:href="this (expand) $params, sort => title">Title</a>
+                    {/if}
+
+                    |
+
+                    {if $sort == 'date'}
+                        <a n:href="this (expand) $params, sort => date" style="font-weight: bold;">Year</a>
+                    {else}
+                        <a n:href="this (expand) $params, sort => date">Year</a>
+                    {/if}
+                {else}
+                    {if $sort == 'title' || $sort == ''}
+                        <a n:href="this (expand) $params, sort => title" style="font-weight: bold;">Title</a>
+                    {else}
+                        <a n:href="this (expand) $params, sort => title">Title</a>
+                    {/if}
+
+                    |
+
+                    {if $sort == 'date'}
+                        <a n:href="this (expand) $params, sort => date" style="font-weight: bold;">Year</a>
+                    {else}
+                        <a n:href="this (expand) $params, sort => date">Year</a>
+                    {/if}
+                {/if}
+            </div>
+
+            <div class="col-md-3 col-md-offset-5 text-right">
+                Showing <b>{$showingFrom} - {$showingTo}</b> from <b>{$resultsCount}</b>
+            </div>
+        </div>
+
+        <div>
+            <ul>
+                <li n:foreach="$results as $res" style="margin-bottom:15px;">
+                    {control publication, $res, $authorsByPubId[$res->id] ?? []}
+                </li>
+            </ul>
+        </div>
+
+
+        <div class="text-center">
+            {control vp}
+        </div>
+    {else}
+        <div class="alert alert-warning" style="margin-top:25px;">
+            No results matching your criteria were found.
+        </div>
+    {/if}
+{/block}

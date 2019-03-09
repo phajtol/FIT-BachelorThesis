@@ -2,232 +2,86 @@
 
 {block content}
 
-    {block #searchBreadcrumbs}{/block}
-
-{*
-<div style="padding-top: 50px" class="row">
-    {$gp->getPublicWWWAddress()}
-</div>
-*}
-
 <div class="row">
-    {form homepageSearchForm, role => "form"}
-        <div class="col-md-10 col-md-offset-1">
-            <h1 style="font-size:25px;">Publication search</h1>
-
-            <div class="row" style="margin-bottom:15px;">
-                <div class="col-md-10 form-group-lg">
-                    {input keywords, class => "form-control input-lg", placeholder => "Type keywords...", type => "search", autocomplete => "off", autofocus => true, data-provide => "typeahead"}
-                </div>
-                <div class="col-md-2">
-                    {input send, class => "btn btn-primary btn-lg btn-block"}
-                </div>
-            </div>
-
-            <div class="row" style="margin-bottom:15px;">
-                <div class="col-md-12">
-                    <h3 style="font-size:20px;">More options</h3>
-                </div>
-            </div>
-
-            <div class="row row-equal-cols" style="margin-bottom:15px;">
-                <div class="col-md-7">
-                        {label author}:
-                        {input author, class => 'form-control', type => 'search', placeholder => 'Author\'s name...'}
-                </div>
-
-                <div class="col-md-2">
-                        <b>{label stype}:</b><br>
-                        {foreach $form[stype]->items as $key => $label}
-                            <div>
-                                <label style="font-weight:normal;" n:name="stype:$key"><input n:name="stype:$key"> {$label}</label>
-                            </div>
-                        {/foreach}
-                </div>
-
-                <div class="col-md-3">
-                    <b>{label scope}:</b><br>
-                    {foreach $form[scope]->items as $key => $label}
-                        <div>
-                            <label style="font-weight:normal;" n:name="scope:$key"><input n:name="scope:$key"> {$label}</label>
-                        </div>
-                    {/foreach}
-                </div>
-            </div>
-
-            <div class="row row-equal-cols">
-                <div class="col-md-3">
-                    <b>{label pubtype}:</b><br>
-                    {foreach $form[pubtype]->items as $key => $label}
-                        <div>
-                            <label style="font-weight:normal;" n:name="pubtype:$key"><input n:name="pubtype:$key"> {$label}</label>
-                        </div>
-                    {/foreach}
-                </div>
-
-                <div class="col-md-5">
-                    <b>{label categories}:</b><br>
-
-                    {control publicationCategoryList}
-                    {input categories}
-
-                    <div style="margin-top:15px;">
-                        <div class="text-left" style="float:left;">
-                            {foreach $form['catop']->items as $key => $label}
-                                {label catop:$key, style => "font-weight: normal;"}
-                                    {input catop:$key, 'disabled' => true}&nbsp;{$label}
-                                {/label}
-                            {/foreach}
-                        </div>
-
-                        <div class="text-right" style="float:right;">
-                            <button type="button" class="btn btn-default btn-xs" id="123x">
-                                <span class="glyphicon glyphicon-check"></span> Select/Deselect all
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="clearfix"></div>
-                </div>
-
-                <div class="col-md-4">
-                    <b>{label tags}:</b><br>
-                    {foreach $form[tags]->items as $key => $label}
-                        <div>
-                            <label style="font-weight:normal;" n:name="tags:$key"><input n:name="tags:$key"> {$label}</label>
-                        </div>
-                    {/foreach}
-                </div>
-            </div>
-
-            <div class="row row-equal-cols" style="margin-top:15px;">
-                <div class="col-md-4 col-md-offset-4">
-                    {*}{input send, class => "btn btn-primary btn-lg btn-block"}*}
-                </div>
-            </div>
-        </div>
-    {/form}
+    <ol class="breadcrumb">
+        <li class="active">Home</li>
+    </ol>
 </div>
 
-{block #searchResults}
-{/block}
+<div class="row row-equal-cols">
+    <div class="col-md-6">
+        <h2 class="text-center">Publications</h2>
+        <ul>
+            <li><a n:href="Publication:search, stype => title">All publications</a></li>
+            <li>
+                Quick search:
+                <p>
+                    {form publicationSimpleSearchForm}
+                        <div class="row">
+                            <div class="col-md-10">
+                                {input title, class => 'form-control input-sm', placeholder => 'Type publication title...', type => 'search'}
+                            </div>
+                            <div class="col-md-2">
+                                {input send, class => 'btn btn-primary btn-sm btn-block'}
+                            </div>
+                        </div>
+                    {/form}
+                </p>
+            </li>
+            <li><a n:href="Publication:default">Advanced search</a></li>
+            <hr>
+            <li><a n:href="Publication:addnew">Add new publication</a></li>
+            {*}TODO: odkomentovat ked bude hotovy profil autorov
+            <hr>
+            <li><a href="#Author:showall">All authors</a></li>
+            <li><a href="#Author:search">Search authors</a></li>*}
+        </ul>
 
-<div id="event_result" style="margin-top:2em; text-align:center;">&nbsp;</div>
+        <h3 style="display:block;margin-top:40px;" class="text-center">My starred publications</h3>
+        <ul>
+            {if count($starredPubs)}
+                <li n:foreach="$starredPubs as $pub" style="margin-bottom:15px;">
+                    {control publication, $pub, $authorsByPubId[$pub->id] ?? []}
+                </li>
+            {else}
+                <div class="alert alert-warning">
+                    You don't have any starred publications.
+                </div>
+            {/if}
+        </ul>
+    </div>
 
-<script>
-    
-var switcher = 0;
+    <div class="col-md-6">
+        <h2 class="text-center">Conferences</h2>
+        <li><a n:href="Conference:showall">All conferences</a></li>
+        <li>
+            Quick search:
+            <p>
+                {form conferenceSimpleSearchForm}
+            <div class="row">
+                <div class="col-md-10">
+                    {input title, class => 'form-control input-sm', placeholder => 'Type conference name...', type => 'search'}
+                </div>
+                <div class="col-md-2">
+                    {input send, class => 'btn btn-primary btn-sm btn-block'}
+                </div>
+            </div>
+            {/form}
+            </p>
+        </li>
 
-	function handleSwitchOperator(isAnd) {
-		$("#frm-homepageSearchForm .tree").fancytree({
-			'selectMode'    :   isAnd ? 2 : 3
-		});
-	}
-
-	$('#frm-homepageSearchForm input[type=radio]').change(function(){
-		handleSwitchOperator($(this).val() == 'AND');
-	});
-
-	{if isset($form['operator']) && $form['operator']->value == 'AND'}
-		$(function() {
-			handleSwitchOperator(true);
-		});
-	{/if}
-
-   $('#123x').click(function() {
-
-        var fnVisitor;
-
-        if(switcher == 0){
-            fnVisitor = function(node) {
-                node.setSelected(false);
-            };
-            switcher = 1;
-        } else {
-            fnVisitor = function(node){
-                node.setSelected(true);
-            }
-            switcher = 0;
-        }
-
-        $("#frm-homepageSearchForm .tree").fancytree("getTree").visit(fnVisitor);
-   });
-
-
-$(function(){
-    replaceInputWithFancytree($('#frm-homepageSearchForm [name=categories]'), $('#categoryTree' + 'publicationCategoryList'));
-});
-         
-$('.collapse').collapse();
-
-$('#collapseOne').on('show.bs.collapse', function () {
-    $('#advancedIcon').removeClass("glyphicon-chevron-down");
-    $('#advancedIcon').addClass("glyphicon-chevron-up");
-    $("#frm-homepageSearchForm-advanced").prop("checked", true);
-});
-
-$('#collapseOne').on('hide.bs.collapse', function () {
-    $('#advancedIcon').removeClass("glyphicon-chevron-up");
-    $('#advancedIcon').addClass("glyphicon-chevron-down");
-    $("#frm-homepageSearchForm-advanced").prop("checked", false);
-});
-
-    var fnTahCreate = function() {
-        $('#frm-homepageSearchForm-keywords').typeahead(
-            {
-                hint: true,
-                highlight: true,
-                minLength: 1
-            },
-            {
-                name: 'publicationsAndAuthors',
-                source: substringMatcher(publicationsAndAuthors),
-                templates: {
-                    suggestion: function(item){
-                        var mainEl = $('<p></p>');
-                        mainEl.text(item);
-                        return mainEl;
-                    }
-                }
-            }
-        ).bind('typeahead:selected', function(evt, item){
-            $('#frm-homepageSearchForm-keywords').val(item);
-            $('#frm-homepageSearchForm-keywords').closest('form').submit();
-        });
-    }
-
-    var fnTahDestroy = function(){
-        $('#frm-homepageSearchForm-keywords').typeahead('destroy');
-    }
-
-
-    $('#pub-detail-tab a').click(function(e) {
-        e.preventDefault();
-        $(this).tab('show');
-        if ($(this).attr("href") == '#fulltext') {
-           $("#frm-homepageSearchForm [name=searchtype]").val('fulltext');
-           fnTahDestroy();
-        } else if ($(this).attr("href") == '#authors') {
-           $("#frm-homepageSearchForm [name=searchtype]").val('authors');
-           fnTahCreate();
-        }
-     });
-     
-
-     $(function(){
-         if ($("#frm-homepageSearchForm [name=searchtype][checked]").val() == 'fulltext') {
-            $('#pub-detail-tab a[href="#fulltext"]').tab('show');
-         } else if ($("#frm-homepageSearchForm [name=searchtype][checked]").val() == 'authors') {
-            fnTahCreate();
-            $('#pub-detail-tab a[href="#authors"]').tab('show');
-         }
-      });
-     
-     if ($("#frm-homepageSearchForm-advanced").prop('checked')) {
-        $('#collapseOne').collapse('show');   
-     }
-     
-     var publicationsAndAuthors = JSON.parse({$dataAutocomplete});
-
-</script>
+        <h3 style="display:block;margin-top:40px;" class="text-center">Upcoming conferences</h3>
+        <ul>
+            {if count($upcomingConfs)}
+                <li n:foreach="$upcomingConfs as $conf" style="margin-bottom:15px;">
+                    <a n:href="Conference:show $conf->id">{$conf->name}</a> ({$conf->w_from|date:'j. n.'} - {$conf->w_to|date:'j. n. Y'})
+                </li>
+            {else}
+                <div class="alert alert-warning">
+                    There are no upcoming conferences. You can try to increase your deadline notification advance in settings.
+                </div>
+            {/if}
+        </ul>
+    </div>
+</div>
 

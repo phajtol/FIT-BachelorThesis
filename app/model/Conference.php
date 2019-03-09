@@ -4,6 +4,7 @@ namespace App\Model;
 
 use Nette\Database\Table\ActiveRow;
 use Nette\Database\Table\Selection;
+use Nette\Utils\DateTime;
 
 
 class Conference extends Base {
@@ -31,6 +32,9 @@ class Conference extends Base {
 
     /** @var string */
     protected $publicationTable = 'publication';
+
+    /** @var string */
+    protected $userSettingsTable = 'user_settings';
 
 
     /**
@@ -238,6 +242,32 @@ class Conference extends Base {
             ->select('conference.*')
             ->where([$this->cyTable . '.conference_id' => $id])
             ->fetch();
+    }
+
+    /**
+     * Gets conferences that have `deadline`, `notification` or `finalversion` between now and now + X days,
+     * where X is deadline notification set by user with given user ID.
+     * @param int $userId
+     * @return Selection
+     * @throws \Exception
+     */
+    public function getUpcomingConferences(int $userId): Selection
+    {
+        $deadlineAdvance = $this->database->table($this->userSettingsTable)
+            ->select('deadline_notification_advance')
+            ->where('submitter_id', $userId)
+            ->fetch()
+            ->deadline_notification_advance;
+
+        $now = new DateTime();
+        $limit = $now->modifyClone('+' . $deadlineAdvance . ' days');
+
+
+        return $this->database->table($this->cyTable)
+            ->select('id, name, w_from, w_to')
+            ->where('(deadline < ? AND deadline > ?) OR (notification < ? AND notification > ?) OR (finalversion < ? AND finalversion> ?)',
+                $limit, $now, $limit, $now, $limit, $now)
+            ->order('w_from');
     }
 
 }

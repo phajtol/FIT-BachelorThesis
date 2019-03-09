@@ -1,15 +1,18 @@
 <?php
 
-use Nette\Application\UI;
+namespace App\Forms;
 
-class HomepageSearchForm {
+use \Nette\Application\UI;
+
+
+class PublicationSearchForm {
 
     use \Nette\SmartObject;
 
     /** @var \Nette\Database\Connection */
     private $database;
 
-    /** @var App\Model\Tag */
+    /** @var \App\Model\Tag */
     private $tagModel;
 
     /**
@@ -17,17 +20,18 @@ class HomepageSearchForm {
      * @param \Nette\Database\Connection $database
      * @param \App\Model\Tag $tagModel
      */
-    public function __construct(Nette\Database\Connection $database, App\Model\Tag $tagModel)
+    public function __construct(\Nette\Database\Connection $database, \App\Model\Tag $tagModel)
     {
         $this->database = $database;
         $this->tagModel = $tagModel;
     }
 
     /**
-     * @param $data
+     * @param array $data
+     * @param int $userId
      * @return UI\Form
      */
-    public function create($data): UI\Form
+    public function create(array $data, int $userId): UI\Form
     {
         $form = new UI\Form;
 
@@ -70,7 +74,7 @@ class HomepageSearchForm {
             'unpublished' => 'Unpublished'
         ]);
 
-        $tags = $this->tagModel->getTagsForSearchForm(156);
+        $tags = $this->tagModel->getTagsForSearchForm($userId);
 
         $form->addCheckboxList('tags', 'Publication tags', $tags);
 

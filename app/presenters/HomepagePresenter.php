@@ -3,7 +3,6 @@
 namespace App\Presenters;
 
 use App\Components\Publication\PublicationControl;
-use App\Components\PublicationCategoryList\PublicationCategoryListComponent;
 use App\Model;
 use Nette\Application\UI\Form;
 
@@ -24,14 +23,14 @@ class HomepagePresenter extends SecuredPresenter {
     /** @var  Model\Author @inject */
     public $authorModel;
 
-    /** @var \HomepageSearchForm @inject */
-    public $HomepageSearchForm;
-
     /** @var  Model\Categories @inject */
     public $categoriesModel;
 
     /** @var  Model\Publication @inject */
     public $publicationModel;
+
+    /** @var Model\Conference @inject */
+    public $conferenceModel;
 
     /** @var  \App\Factories\IPublicationCategoryListFactory @inject */
     public $publicationCategoryListFactory;
@@ -39,15 +38,30 @@ class HomepagePresenter extends SecuredPresenter {
     /** @var \Nette\Http\Request @inject */
     public $httpRequest;
 
+    /** @var \App\Forms\SimpleSearchForm @inject */
+    public $simpleSearchForm;
+
 
     /**
      *
      */
-    public function actionDefault(): void
+    public function renderDefault(): void
     {
-        $this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
+        $starredPubs = $this->publicationModel->findStarredByUserId($this->user->id);
+        $pubIds = [];
+
+        foreach ($starredPubs as $starredPub) {
+            $pubIds[] = $starredPub->id;
+        }
+
+        $this->template->authorsByPubId = $this->authorModel->getAuthorsByMultiplePubIds($pubIds);
+        $this->template->starredPubs = $starredPubs;
+
+        $this->template->upcomingConfs = $this->conferenceModel->getUpcomingConferences($this->user->id);
+
+        /*$this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
         $dataAutocomplete = $this->publicationModel->getAuthorsNamesAndPubsTitles();
-        $this->template->dataAutocomplete = json_encode($dataAutocomplete);
+        $this->template->dataAutocomplete = json_encode($dataAutocomplete);*/
     }
 
     /**
@@ -58,48 +72,6 @@ class HomepagePresenter extends SecuredPresenter {
         //wtf???
     }
 
-    /**
-     * @return \Nette\Application\UI\Form
-     */
-    protected function createComponentHomepageSearchForm(): Form
-    {
-        $form = $this->HomepageSearchForm->create($this->data);
-
-        $form->onSuccess[] = function ( $form) {
-            $values = (array) $form->values;
-
-            //serialize pubtypes from checkbox list
-            if ($form->values->pubtype) {
-                $types = '';
-
-                foreach ($form->values->pubtype as $type) {
-                    $types .= (' ' . $type);
-                }
-
-                $types = substr($types, 1);
-                unset($values['pubtype']);
-                $values['ptype'] = $types;
-            }
-
-            //serialize tags from checkbox list
-            if ($form->values->tags) {
-                $tags = '';
-
-                foreach ($form->values->tags as $tag) {
-                    $tags .= (' ' . $tag);
-                }
-
-                $tags = substr($tags, 1);
-                $values['tags'] = $tags;
-            } else {
-                unset($values['tags']);
-            }
-
-            $this->presenter->redirect('Homepage:searchresults', $values);
-        };
-
-        return $form;
-    }
 
     /**
      * @param string $text
@@ -110,91 +82,6 @@ class HomepagePresenter extends SecuredPresenter {
         $replace = explode(",", "c,ae,oe,a,e,i,o,u,a,e,i,o,u,a,e,i,o,u,y,a,e,i,o,u,a,e,i,o,u");
         $vt = str_replace($search, $replace, $text);
         return $vt;
-    }
-
-    /**
-     * Handles search: retrieves results from model and initializes paginator.
-     * @param array $params
-     * @return array
-     */
-    public function search(array $params): array
-    {
-        $count = $this->publicationModel->searchCount($params);
-
-        $vp = new \VisualPaginator();
-        $this->addComponent($vp, 'vp');
-        $paginator = $vp->getPaginator();
-        $paginator->itemsPerPage = $this->itemsPerPageDB;
-        $paginator->itemCount = $count;
-
-        $results = $this->publicationModel->search($params, $paginator->itemsPerPage, $paginator->offset);
-
-        $publicationIds = [];
-        foreach ($results as $result) {
-            $publicationIds[] = $result->id;
-        }
-        $authorsByPubId = $this->authorModel->getAuthorsByMultiplePubIds($publicationIds);
-
-        return [
-            'resultsCount' => $count,
-            'showingFrom' => $paginator->offset + 1,
-            'showingTo' => ($paginator->offset + $paginator->itemsPerPage > $count) ? $count : ($paginator->offset + $paginator->itemsPerPage),
-            'results' => $results,
-            'authorsByPubId' => $authorsByPubId
-        ];
-    }
-
-    /**
-     * @param string $keywords
-     * @param $ptype
-     * @param $categories
-     * @param $catop
-     * @param $stype
-     * @param $scope
-     * @param string $sort
-     */
-    public function actionSearchResults($keywords, $ptype, $categories, $catop, $stype, $tags, $scope, $sort, $author): void
-    {
-        $params = $this->httpRequest->getQuery();
-
-        $pubtype = $ptype ? explode(' ', $ptype) : null;
-        $tags = $tags ? explode(' ', $tags) : null;
-
-        $searchParams = [
-            'keywords' => $keywords,
-            'categories' => $categories,
-            'catOp' => $catop,
-            'stype' => $stype,
-            'tags' => $tags,
-            'pubtype' => $pubtype,
-            'scope' => $scope,
-            'sort' => $sort,
-            'author' => $author
-        ];
-
-        $results = $this->search($searchParams);
-
-        $this->template->results = $results['results'];
-        $this->template->authorsByPubId = $results['authorsByPubId'];
-        $this->template->resultsCount = $results['resultsCount'];
-        $this->template->showingFrom = $results['showingFrom'];
-        $this->template->showingTo = $results['showingTo'];
-
-        $this->template->sort = $sort;
-        $this->template->stype = $stype;
-        unset($params['sort']);
-        $this->template->params = $params;
-
-        $this->data = $params;
-
-        $this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
-
-        if (!$categories) {
-            $categories = [];
-        }
-        $this->template->selectedCategories = $categories;
-        $dataAutocomplete = $this->publicationModel->getAuthorsNamesAndPubsTitles();
-        $this->template->dataAutocomplete = json_encode($dataAutocomplete);
     }
 
     /**
@@ -226,20 +113,46 @@ class HomepagePresenter extends SecuredPresenter {
         return $newstring;
     }
 
-    // new
+
     /**
-     * @return \App\Components\PublicationCategoryList\PublicationCategoryListComponent
+     * @return Form
      */
-    protected function createComponentPublicationCategoryList(): PublicationCategoryListComponent
+    protected function createComponentPublicationSimpleSearchForm(): Form
     {
-        $c = $this->publicationCategoryListFactory->create();
+        $form = $this->simpleSearchForm->create();
 
-        $c->setHasControls(false);
-        $c->setHasThreeStates(true);
-        $c->setIsSelectable(true);
+        $form->onSuccess[] = function (Form $form) {
+            $title = $form->values->title;
 
-        return $c;
+            //in case there's only one publication matching, redirect to it
+            $res = $this->publicationModel->simpleSearch($title);
+
+            if ($res->count() === 1) {
+                $res = $res->fetch();
+                $this->presenter->redirect('Publication:showpub', $res->id);
+            }
+
+            $this->presenter->redirect('Publication:search', ['stype' => 'title', 'keywords' => $title]);
+        };
+
+        return $form;
     }
+
+    /**
+     * @return Form
+     */
+    protected function createComponentConferenceSimpleSearchForm(): Form
+    {
+        $form = $this->simpleSearchForm->create();
+
+        $form->onSuccess[] = function (Form $form) {
+            $name = $form->values->title;
+            $this->presenter->redirect('Conference:showall', ['keywords' => $name]);
+        };
+
+        return $form;
+    }
+
 
     /**
      * @return PublicationControl
