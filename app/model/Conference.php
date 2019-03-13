@@ -264,10 +264,10 @@ class Conference extends Base {
 
 
         return $this->database->table($this->cyTable)
-            ->select('id, name, w_from, w_to')
+            ->select('id, name, deadline')
             ->where('(deadline < ? AND deadline > ?) OR (notification < ? AND notification > ?) OR (finalversion < ? AND finalversion> ?)',
                 $limit, $now, $limit, $now, $limit, $now)
-            ->order('w_from');
+            ->order('deadline');
     }
 
 }

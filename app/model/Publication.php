@@ -1214,9 +1214,11 @@ class Publication extends Base {
     /**
      * Gets starred publications for user with $id ready to be given to the PublicationControl component.
      * @param int $id
+     * @param int $limit
+     * @param $offset
      * @return Selection
      */
-    public function findStarredByUserId(int $id): Selection
+    public function findStarredByUserId(int $id, int $limit, $offset): Selection
     {
         return $this->database->table('submitter_has_publication')
             ->select('publication.journal.name AS journal,
@@ -1243,7 +1245,20 @@ class Publication extends Base {
                     publication.school,
                     publication.institution, 
                     publication.conference_year_id')
-            ->where('submitter_has_publication.submitter_id', $id);
+            ->where('submitter_has_publication.submitter_id', $id)
+            ->limit($limit, $offset);
+    }
+
+    /**
+     * Gets starred publications for user with $id ready to be given to the PublicationControl component.
+     * @param int $id
+     * @return int
+     */
+    public function findStarredCountByUserId(int $id): int
+    {
+        return $this->database->table('submitter_has_publication')
+            ->where('submitter_has_publication.submitter_id', $id)
+            ->count();
     }
 
 }

@@ -45,9 +45,17 @@ class HomepagePresenter extends SecuredPresenter {
     /**
      *
      */
-    public function renderDefault(): void
+    public function actionDefault(): void
     {
-        $starredPubs = $this->publicationModel->findStarredByUserId($this->user->id);
+        $starredCount = $this->publicationModel->findStarredCountByUserId($this->user->id);
+
+        $vp = new \VisualPaginator();
+        $this->addComponent($vp, 'vp');
+        $paginator = $vp->getPaginator();
+        $paginator->itemsPerPage = $this->itemsPerPageDB;
+        $paginator->itemCount = $starredCount;
+
+        $starredPubs = $this->publicationModel->findStarredByUserId($this->user->id, $paginator->itemsPerPage, $paginator->offset);
         $pubIds = [];
 
         foreach ($starredPubs as $starredPub) {
