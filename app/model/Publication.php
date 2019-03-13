@@ -651,17 +651,18 @@ class Publication extends Base {
         }
 
         //categories
+        bdump($params['categories']);
         if ($params['categories']) {
             $categoryIds = explode(' ', $params['categories']);
 
-            if ($params['catOp'] === 'or') {
+            //if ($params['catOp'] === 'or') {
                 $categories = $this->database->table('categories_has_publication')
                     ->select('publication_id')
                     ->where('categories_id IN', $categoryIds)
                     ->fetchPairs(null, 'publication_id');
 
                 $result = $result->where('publication.id IN', $categories);
-            } else {
+            //} else {
                 //TODO
                 /*$intersection = $this->database->table('publication')
                     ->select('publication_id');
@@ -673,7 +674,7 @@ class Publication extends Base {
 
                 $intersection = $intersection->fetchPairs(null, 'publication_id');
                 $result = $result->where('publication.id IN ?', $intersection);*/
-            }
+            //}
         }
 
         //tags
