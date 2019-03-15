@@ -74,7 +74,7 @@
             </p>
         </li>
 
-        <h3 style="display:block;margin-top:40px;" class="text-center">Upcoming conferences</h3>
+        <h3 style="display:block;margin-top:40px;" class="text-center">Upcoming starred conferences</h3>
         <ul>
             {if count($upcomingConfs)}
                 <li n:foreach="$upcomingConfs as $conf" style="margin-bottom:15px;">
@@ -83,7 +83,7 @@
                 </li>
             {else}
                 <div class="alert alert-warning">
-                    There are no upcoming conferences. You can try to increase your deadline notification advance in settings.
+                    There are no upcoming starred conferences. You can try to increase your deadline notification advance in settings or add more starred conferencesc.
                 </div>
             {/if}
         </ul>

@@ -251,7 +251,7 @@ class Conference extends Base {
      * @return Selection
      * @throws \Exception
      */
-    public function getUpcomingConferences(int $userId): Selection
+    public function getUpcomingStarredConferences(int $userId): Selection
     {
         $deadlineAdvance = $this->database->table($this->userSettingsTable)
             ->select('deadline_notification_advance')
@@ -259,14 +259,19 @@ class Conference extends Base {
             ->fetch()
             ->deadline_notification_advance;
 
+        $starred = $this->database->table('submitter_favourite_conference')
+            ->select('conference_id')
+            ->where('submitter_id', $userId)
+            ->fetchPairs(null, 'conference_id');
+
         $now = new DateTime();
         $limit = $now->modifyClone('+' . $deadlineAdvance . ' days');
 
 
         return $this->database->table($this->cyTable)
-            ->select('id, name, deadline')
-            ->where('(deadline < ? AND deadline > ?) OR (notification < ? AND notification > ?) OR (finalversion < ? AND finalversion> ?)',
-                $limit, $now, $limit, $now, $limit, $now)
+            ->select('conference_year.id, conference_year.name, deadline')
+            ->where('conference.id IN ?', $starred)
+            ->where('deadline < ? AND deadline > ?', $limit, $now)
             ->order('deadline');
     }
 

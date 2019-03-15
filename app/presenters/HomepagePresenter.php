@@ -65,7 +65,7 @@ class HomepagePresenter extends SecuredPresenter {
         $this->template->authorsByPubId = $this->authorModel->getAuthorsByMultiplePubIds($pubIds);
         $this->template->starredPubs = $starredPubs;
 
-        $this->template->upcomingConfs = $this->conferenceModel->getUpcomingConferences($this->user->id);
+        $this->template->upcomingConfs = $this->conferenceModel->getUpcomingStarredConferences($this->user->id);
 
         /*$this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
         $dataAutocomplete = $this->publicationModel->getAuthorsNamesAndPubsTitles();
