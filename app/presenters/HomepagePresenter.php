@@ -67,8 +67,6 @@ class HomepagePresenter extends SecuredPresenter {
 
         $this->template->upcomingConfs = $this->conferenceModel->getUpcomingStarredConferences($this->user->id);
 
-        $this->publicationModel->addSearchTitles();
-
         /*$this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
         $dataAutocomplete = $this->publicationModel->getAuthorsNamesAndPubsTitles();
         $this->template->dataAutocomplete = json_encode($dataAutocomplete);*/
