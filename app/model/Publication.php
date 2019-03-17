@@ -1285,13 +1285,4 @@ class Publication extends Base {
         $title = Strings::replace($title, '/\s\s+/', ' ');
         return Strings::normalize($title);
     }
-
-    public function addSearchTitles(): void
-    {
-        $rows = $this->getTable();
-
-        foreach ($rows as $row) {
-            $row->update(['title_search' => $this->stripTitleForSearch($row->title)]);
-        }
-    }
 }
