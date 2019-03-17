@@ -6,6 +6,7 @@ namespace App\Model;
 use Nette\ArrayHash;
 use Nette\Database\Table\ActiveRow;
 use Nette\Database\Table\Selection;
+use Nette\Utils\Strings;
 
 class Publication extends Base {
 
@@ -604,6 +605,13 @@ class Publication extends Base {
                 ]);
             } else {
                 $keywords = explode(' ', $params['keywords']);
+                $keywords2 = [];
+
+                foreach ($keywords as $keyword) {
+                    $keywords2[] = self::stripTitleForSearch($keyword);
+                }
+
+                $keywords = $keywords2;
 
                 if (count($keywords) > 1) {
                     $condition = '';
@@ -613,13 +621,16 @@ class Publication extends Base {
                         if ($condition !== '') {
                             $condition .= ' OR ';
                         }
-                        $condition .= 'publication.title LIKE ?';
-                        $parameters[] = '% ' . $keyword . ' %';
+                        $condition .= 'publication.title_search LIKE ?';
+                        $parameters[] = '%' . $keyword . '%';
                     }
+
+                    bdump($condition);
+                    bdump($keywords);
 
                     $result = $result->where($condition, $parameters);
                 } else {
-                    $result = $result->where('publication.title LIKE', '% ' . $keywords[0] . ' %');
+                    $result = $result->where('publication.title_search LIKE', '%' . $keywords[0] . '%');
                 }
             }
         }
@@ -716,7 +727,7 @@ class Publication extends Base {
     {
         return $this->getTable()
             ->select('id')
-            ->where('title LIKE ?', '%' . $title . '%');
+            ->where('title_search LIKE ?', '%' . $title . '%');
     }
 
 
@@ -1262,4 +1273,25 @@ class Publication extends Base {
             ->count();
     }
 
+    /**
+     * This is used to remove characters like multiple spaces, commas, dashes and so on from title for search.
+     * @param string $title
+     * @return string
+     */
+    static public function stripTitleForSearch(string $title): string
+    {
+        $title = str_replace(['.', '?', '!', ',', ':', ';', '\'', '`', '"', '<', '>', '-', '_', '|', '+', '*', '(', ')', '@', '#', '$', '€', '^', '~', '&', '[', ']', '{', '}', '%', '°'], ' ', $title);
+        $title = Strings::toAscii($title);
+        $title = Strings::replace($title, '/\s\s+/', ' ');
+        return Strings::normalize($title);
+    }
+
+    public function addSearchTitles(): void
+    {
+        $rows = $this->getTable();
+
+        foreach ($rows as $row) {
+            $row->update(['title_search' => $this->stripTitleForSearch($row->title)]);
+        }
+    }
 }

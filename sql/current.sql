@@ -284,9 +284,10 @@ CREATE TABLE `documents` (
   `title` text COLLATE utf8_czech_ci,
   `content` text COLLATE utf8_czech_ci,
   PRIMARY KEY (`publication_id`),
-  FULLTEXT KEY `content_fulltext` (`content`),
-  FULLTEXT KEY `title_fulltext` (`title`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
+  FULLTEXT KEY `content` (`content`),
+  FULLTEXT KEY `title` (`title`),
+  CONSTRAINT `publication_id` FOREIGN KEY (`publication_id`) REFERENCES `publication` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 
 DROP TABLE IF EXISTS `document_index`;
@@ -388,6 +389,7 @@ CREATE TABLE `publication` (
   `doi` varchar(100) DEFAULT NULL,
   `lastedit_submitter_id` int(10) unsigned DEFAULT NULL,
   `lastedit_timestamp` datetime DEFAULT NULL,
+  `title_search` varchar(500) NOT NULL COMMENT 'title without special character, used for search',
   PRIMARY KEY (`id`),
   KEY `publication_FKIndex1` (`submitter_id`),
   KEY `publication_FKIndex2` (`publisher_id`),
@@ -398,7 +400,6 @@ CREATE TABLE `publication` (
   CONSTRAINT `publication_conference_year_id_FK` FOREIGN KEY (`conference_year_id`) REFERENCES `conference_year` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `publication_ibfk_1` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `publication_ibfk_2` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `publication_lastedit_submitter_id` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
   CONSTRAINT `publication_journal_id_FK` FOREIGN KEY (`journal_id`) REFERENCES `journal` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `publication_lastedit_submitter_id` FOREIGN KEY (`lastedit_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `publication_publisher_id_FK` FOREIGN KEY (`publisher_id`) REFERENCES `publisher` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -592,4 +593,4 @@ CREATE TABLE `user_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- 2019-02-04 16:23:31
+-- 2019-03-17 10:05:52

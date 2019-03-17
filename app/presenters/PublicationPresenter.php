@@ -1001,6 +1001,7 @@ class PublicationPresenter extends SecuredPresenter {
                 unset($formValues['attributes']);
                 unset($formValues['isbn']);
                 unset($formValues['isbn_count']);
+                $formValues['title_search'] = Model\Publication::stripTitleForSearch($formValues['title']);
 
                 if ($form->values->id) {
                     $formValues['id'] = $form->values->id;

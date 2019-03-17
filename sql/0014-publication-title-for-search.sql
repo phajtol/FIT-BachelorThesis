@@ -1,0 +1,1 @@
+ALTER TABLE `publication` ADD `title_search` VARCHAR(500) NOT NULL COMMENT 'title without special character, used for search';
