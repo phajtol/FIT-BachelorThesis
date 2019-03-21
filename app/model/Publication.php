@@ -585,13 +585,54 @@ class Publication extends Base {
 
         //author
         if ($params['author']) {
+            $authorsExpl = explode(',', $params['author']);
+            $authors = [];
+
+            foreach ($authorsExpl as $author) {
+                $author = Strings::trim($author);
+                $authors[] = explode(' ', $author);
+            }
+
             $authorsPubs = $this->database->table('author_has_publication')
-                ->select('publication_id')
-                ->whereOr([
-                    'author.name LIKE ?' => '%' . $params['author'] . '%',
-                    'author.middlename LIKE ?' => '%' . $params['author'] . '%',
-                    'author.surname LIKE ?' => '%' . $params['author'] . '%'
-                ])->fetchPairs(null, 'publication_id');
+                ->select('publication_id');
+
+            $masterCondition = '';
+            $queryParams = [];
+
+            foreach ($authors as $author) {
+                $condition = '';
+
+                foreach ($author as $authorsNames) {
+                    if ($condition !== '') {
+                        if (count($authors) > 1) {
+                            $condition .= ' OR ';
+                        } else {
+                            $condition .= ' AND ';
+                        }
+                    }
+
+                    $condition .= '(author.name LIKE ? OR author.surname LIKE ?)';
+
+                    if (substr($authorsNames, -1) === '.') {
+                        $queryParams[] = substr($authorsNames, 0, strlen($authorsNames) - 1) . '%';
+                        $queryParams[] = substr($authorsNames, 0, strlen($authorsNames) - 1) . '%';
+                    } else {
+                        $queryParams[] = $authorsNames;
+                        $queryParams[] = $authorsNames;
+                    }
+                }
+
+                if ($masterCondition !== '') {
+                    $masterCondition .= ' AND ';
+                }
+
+                $masterCondition .= $condition;
+            }
+
+            $authorsPubs = $authorsPubs->where($masterCondition, $queryParams)
+                ->group('publication_id')
+                ->having('COUNT(publication_id) = ?', count($authors))
+                ->fetchPairs(null, 'publication_id');
 
             $result = $result->where('publication.id IN ?', $authorsPubs);
         }
@@ -624,9 +665,6 @@ class Publication extends Base {
                         $condition .= 'publication.title_search LIKE ?';
                         $parameters[] = '%' . $keyword . '%';
                     }
-
-                    bdump($condition);
-                    bdump($keywords);
 
                     $result = $result->where($condition, $parameters);
                 } else {
@@ -693,10 +731,12 @@ class Publication extends Base {
         }
 
         //sort
-        if ($params['sort'] === 'title') {
-            $result = $result->order('publication.title ASC');
-        } else if ($params['sort'] === 'date') {
-            $result = $result->order('publication.issue_year DESC, publication.issue_month DESC, publication.title ASC');
+        if ($params['sort']) {
+            if ($params['sort'] === 'title') {
+                $result = $result->order('publication.title ASC');
+            } else if ($params['sort'] === 'date') {
+                $result = $result->order('publication.issue_year DESC, publication.issue_month DESC, publication.title ASC');
+            }
         } else {
             if ($params['stype'] === 'fulltext') {
                 $result = $result->order('5 * MATCH(documents.title) AGAINST (?) + MATCH(content) AGAINST (?) DESC', $params['keywords'], $params['keywords']);
@@ -724,23 +764,6 @@ class Publication extends Base {
             ->where('title_search LIKE ?', '%' . $title . '%');
     }
 
-
-
-
-    public function getAuthorsNamesAndPubsTitles() {
-        $authors = $this->database->table('author')->order("surname ASC, name ASC");
-        $publications = $this->database->table('publication')->select('title')->order('title ASC');
-        $dataTemp = array();
-
-        foreach ($authors as $author) {
-            $dataTemp[] = $author->surname . ' ' . ($author->middlename ? $author->middlename . ' ' : '') . ($author->name);
-        }
-        foreach ($publications as $publication) {
-            $dataTemp[] = $publication->title;
-        }
-
-        return $dataTemp;
-    }
 
     public function arr_condition($arr, $column) {
         $condition = '(';

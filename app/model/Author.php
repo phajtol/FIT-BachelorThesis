@@ -31,6 +31,21 @@ class Author extends Base {
     }
 
     /**
+     * @return array
+     */
+    public function getAuthorsForAutocomplete(): array
+    {
+        $authors = $this->getTable()->order('surname ASC, name ASC');
+        $res = [];
+
+        foreach ($authors as $author) {
+            $res[] = $author->name . ' ' . ($author->middlename ? $author->middlename . ' ' : '') . $author->surname;
+        }
+
+        return $res;
+    }
+
+    /**
      * @param string $surname
      * @param string $middlename
      * @param string $name

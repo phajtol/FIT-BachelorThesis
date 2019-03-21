@@ -47,20 +47,21 @@ $(document).on('show.bs.modal', '.modal', function(){
 });
 
 // substring matcher - http://twitter.github.io/typeahead.js/examples/
-function substringMatcher(strs) {
-	return function findMatches(q, cb) {
-		var matches, substringRegex;
+// edited to use string.normalize().replace() to compare strings without diacritics
+function substringMatcher (strs) {
+	return function findMatches (q, cb) {
+		var matches, substrRegex;
 
 		// an array that will be populated with substring matches
 		matches = [];
 
 		// regex used to determine if a string contains the substring `q`
-		substrRegex = new RegExp(q, 'i');
+		substrRegex = new RegExp(q.normalize('NFD').replace(/[\u0300-\u036f]/g, ''), 'i');
 
 		// iterate through the pool of strings and for any string that
 		// contains the substring `q`, add it to the `matches` array
-		$.each(strs, function(i, str) {
-			if (substrRegex.test(str)) {
+		$.each(strs, function (i, str) {
+			if (substrRegex.test(str.normalize('NFD').replace(/[\u0300-\u036f]/g, ""))) {
 				matches.push(str);
 			}
 		});

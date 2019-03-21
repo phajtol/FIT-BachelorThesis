@@ -45,7 +45,7 @@
             <div class="row row-equal-cols" style="margin-bottom:15px;">
                 <div class="col-md-7">
                     {label author}:
-                    {input author, class => 'form-control', type => 'search', placeholder => 'Author\'s name...'}
+                    {input author, class => 'form-control author', data-provide => 'typeahead', autocomplete => 'off', type => 'search', placeholder => 'Author\'s name...'}
                 </div>
 
                 <div class="col-md-2">
@@ -150,7 +150,7 @@
 
         var fnVisitor;
 
-        if(switcher == 0){
+        if(switcher === 0){
             fnVisitor = function(node) {
                 node.setSelected(false);
             };
@@ -170,9 +170,35 @@
         replaceInputWithFancytree($('#frm-publicationSearchForm [name=categories]'), $('#categoryTree' + 'publicationCategories'));
     });
 
-    /*
-    //TODO: upravit typeahead na autorov a pridat support pre viac mien naraz
-    var fnTahCreate = function() {
+
+
+    //TODO: pridat support pre viac mien naraz
+    var authors = JSON.parse({$dataAutocomplete});
+
+    $(document).ready(function () {
+        $('.author').typeahead(
+            {
+                hint: true,
+                highlight: true,
+                minLength: 1
+            },
+            {
+                name: 'authors',
+                source: substringMatcher(authors),
+                templates: {
+                    suggestion: function (item) {
+                        var mainEl = $('<p></p>');
+                        mainEl.text(item);
+                        return mainEl;
+                    }
+                }
+            }
+        ).bind('typeahead:selected', function(evt, item) {
+            $('.author').val(item);
+        });
+    });
+
+    /*var fnTahCreate = function() {
         $('#frm-homepageSearchForm-keywords').typeahead(
             {
                 hint: true,

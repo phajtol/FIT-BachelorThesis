@@ -273,7 +273,13 @@ class PublicationPresenter extends SecuredPresenter {
      */
     public function renderDefault(): void
     {
+        $this->setUpAutocompleteData();
+    }
 
+    private function setUpAutocompleteData(): void
+    {
+        $dataAutocomplete = $this->authorModel->getAuthorsForAutocomplete();
+        $this->template->dataAutocomplete = json_encode($dataAutocomplete);
     }
 
 
@@ -2271,7 +2277,7 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->sort = $sort;
         $this->template->stype = $stype;
         unset($params['sort']);
-        $this->template->params = $searchParams;
+        $this->template->searchParams = $searchParams;
 
         $this->searchFormData = $params;
 
@@ -2281,6 +2287,8 @@ class PublicationPresenter extends SecuredPresenter {
             $categories = [];
         }
         $this->template->selectedCategories = $categories;
+
+        $this->setUpAutocompleteData();
     }
 
     /**
