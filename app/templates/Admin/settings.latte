@@ -34,7 +34,7 @@
 <div class="row">
 
     <ul id="settings-detail-tab" class="nav nav-tabs">
-        <li class="active"><a href="#detail" data-toggle="tab">General Settings</a></li>
+        <li class="active"><a href="#settings" data-toggle="tab">General Settings</a></li>
     </ul>
 
 
@@ -46,53 +46,59 @@
             <div class="tab-pane fade active in" id="settings">
 
                 {snippet settingsShowSettings}
-                    <form class="form-horizontal" role="form">
+                    <div class="row">
 
-                        <div class="form-group">
-                            <h1 class="col-sm-5 control-label">General Settings</h1>
+                        <div class="col-sm-10 col-sm-offset-1">
+                            <h1>General settings</h1>
+                            <p class="text-muted">These settings are default settings for new users and general settings affecting whole application. If you want to change these settings for yourself, go to <a n:href=":User:show">user's settings</a>.</p>
+                            <hr>
                         </div>
-                        <hr>
+
+                        <div class="col-sm-1"></div>
+                    </div>
 
                         {if $generalSettings->pagination}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Items per page</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$generalSettings->pagination}</p>
+                            <div class="row">
+                                <label class="col-sm-3 col-sm-offset-1">Items per page</label>
+                                <div class="col-sm-8">
+                                    <p>{$generalSettings->pagination}</p>
                                 </div>
                             </div>
                         {/if}
 
                         {if $generalSettings->spring_token}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Spring token</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$generalSettings->spring_token}</p>
+                            <div class="row">
+                                <label class="col-sm-3 col-sm-offset-1">Spring token</label>
+                                <div class="col-sm-8">
+                                    <p>{$generalSettings->spring_token}</p>
                                 </div>
                             </div>
                         {/if}
 
                         {if $generalSettings->deadline_notification_advance}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Deadline notification advance</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$generalSettings->deadline_notification_advance} days</p>
+                            <div class="row">
+                                <label class="col-sm-3 col-sm-offset-1">Deadline notification advance</label>
+                                <div class="col-sm-8">
+                                    <p>{$generalSettings->deadline_notification_advance} days</p>
                                 </div>
                             </div>
                         {/if}
 
-                        <div class="form-group">
-                            <h2 class="col-sm-3 control-label"><small>Actions</small></h2>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">
+                        <hr>
 
+                        <div class="row">
+                            <div class="col-sm-3 col-sm-offset-1">
+                                <h2 style="margin-top:0;"><small>Actions</small></h2>
+                            </div>
+                            <div class="col-sm-8">
+                                <p>
                                     <button type="button" id="editGeneralSettingsButton" class="btn btn-primary" data-toggle="modal" data-target="#EditGeneralSettingsModal" title="Edit Settings Settings">
-                                        <span class="glyphicon glyphicon-pencil"></span>
+                                        <span class="glyphicon glyphicon-pencil"></span> Edit settings
                                     </button>
-
                                 </p>
                             </div>
                         </div>
-                    </form>
+                    </div>
                 {/snippet}
 
                 <div class="modal fade" id="EditGeneralSettingsModal" tabindex="-1" role="dialog" aria-labelledby="EditGeneralSettingsModalLabel" aria-hidden="true">
@@ -100,7 +106,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                <h4 class="modal-title" id="EditGeneralSettingsModalLabel">Edit Settings Settings</h4>
+                                <h4 class="modal-title" id="EditGeneralSettingsModalLabel">Edit general settings</h4>
                             </div>
                             {snippet publicationEditGeneralSettingsForm}
                                 {form publicationEditGeneralSettingsForm, class => "ajax form-horizontal", role => "form"}
