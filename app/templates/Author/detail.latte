@@ -22,7 +22,7 @@
                 </h1>
             </div>
 
-            {if isset($authorDetails['tags'])}
+            {if isset($authorDetails['tags']) && count($authorDetails['tags'])}
                 <div class="row">
                     <h3>Author's tags</h3>
                     {foreach $authorDetails['tags'] as $tag}
