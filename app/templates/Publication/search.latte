@@ -18,39 +18,39 @@
 
                 {if $stype === 'fulltext'}
                     {if $sort == 'relevancy' || $sort == ''}
-                        <a n:href="this (expand) $searchParams, sort => relevancy" style="font-weight: bold;">Relevancy</a>
+                        <a n:href="this (expand) $searchParams, sort => 'relevancy'" style="font-weight: bold;">Relevancy</a>
                     {else}
-                        <a n:href="this (expand) $searchParams, sort => relevancy">Relevancy</a>
+                        <a n:href="this (expand) $searchParams, sort => 'relevancy'">Relevancy</a>
                     {/if}
 
                     |
 
                     {if $sort == 'title'}
-                        <a n:href="this (expand) $searchParams, sort => title" style="font-weight: bold;">Title</a>
+                        <a n:href="this (expand) $searchParams, sort => 'title'" style="font-weight: bold;">Title</a>
                     {else}
-                        <a n:href="this (expand) $searchParams, sort => title">Title</a>
+                        <a n:href="this (expand) $searchParams, sort => 'title'">Title</a>
                     {/if}
 
                     |
 
                     {if $sort == 'date'}
-                        <a n:href="this (expand) $searchParams, sort => date" style="font-weight: bold;">Year</a>
+                        <a n:href="this (expand) $searchParams, sort => 'date'" style="font-weight: bold;">Year</a>
                     {else}
-                        <a n:href="this (expand) $searchParams, sort => date">Year</a>
+                        <a n:href="this (expand) $searchParams, sort => 'date'">Year</a>
                     {/if}
                 {else}
                     {if $sort == 'title' || $sort == ''}
-                        <a n:href="this (expand) $searchParams, sort => title" style="font-weight: bold;">Title</a>
+                        <a n:href="this (expand) $searchParams, sort => 'title'" style="font-weight: bold;">Title</a>
                     {else}
-                        <a n:href="this (expand) $searchParams, sort => title">Title</a>
+                        <a n:href="this (expand) $searchParams, sort => 'title'">Title</a>
                     {/if}
 
                     |
 
                     {if $sort == 'date'}
-                        <a n:href="this (expand) $searchParams, sort => date" style="font-weight: bold;">Year</a>
+                        <a n:href="this (expand) $searchParams, sort => 'date'" style="font-weight: bold;">Year</a>
                     {else}
-                        <a n:href="this (expand) $searchParams, sort => date">Year</a>
+                        <a n:href="this (expand) $searchParams, sort => 'date'">Year</a>
                     {/if}
                 {/if}
             </div>
@@ -77,4 +77,11 @@
             No results matching your criteria were found.
         </div>
     {/if}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#SearchFormMoreOptions').removeClass('in');
+            $('#SearchFormMoreOptionsToggle').removeClass('hidden');
+        });
+    </script>
 {/block}

@@ -38,77 +38,87 @@
 
             <div class="row" style="margin-bottom:15px;">
                 <div class="col-md-12">
-                    <h3 style="font-size:20px;">More options</h3>
+                    <h3 style="font-size:20px;">
+                        More options
+                        <small id="SearchFormMoreOptionsToggle" class="hidden">
+                            <a class="btn btn-sm btn-default" style="cursor:pointer;margin-top:-5px;margin-left:10px;font-size:110%;" data-toggle="collapse" data-target="#SearchFormMoreOptions">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                                show/hide
+                            </a>
+                        </small>
+                    </h3>
                 </div>
             </div>
 
-            <div class="row row-equal-cols" style="margin-bottom:15px;">
-                <div class="col-md-7">
-                    {label author}:
-                    {input author, class => 'form-control author', data-provide => 'typeahead', autocomplete => 'off', type => 'search', placeholder => 'Author\'s name...'}
-                </div>
-
-                <div class="col-md-2">
-                    <b>{label stype}:</b><br>
-                    {foreach $form[stype]->items as $key => $label}
-                        <div>
-                            <label style="font-weight:normal;" n:name="stype:$key"><input n:name="stype:$key"> {$label}</label>
-                        </div>
-                    {/foreach}
-                </div>
-
-                <div class="col-md-3">
-                    <b>{label scope}:</b><br>
-                    {foreach $form[scope]->items as $key => $label}
-                        <div>
-                            <label style="font-weight:normal;" n:name="scope:$key"><input n:name="scope:$key"> {$label}</label>
-                        </div>
-                    {/foreach}
-                </div>
-            </div>
-
-            <div class="row row-equal-cols">
-                <div class="col-md-3">
-                    <b>{label pubtype}:</b><br>
-                    {foreach $form[pubtype]->items as $key => $label}
-                        <div>
-                            <label style="font-weight:normal;" n:name="pubtype:$key"><input n:name="pubtype:$key"> {$label}</label>
-                        </div>
-                    {/foreach}
-                </div>
-
-                <div class="col-md-5">
-                    <b>{label categories}:</b><br>
-
-                    {control publicationCategories}
-                    {input categories}
-
-                    <div style="margin-top:15px;">
-                        <div class="text-left" style="float:left;">
-                            {foreach $form['catop']->items as $key => $label}
-                                {label catop:$key, style => "font-weight: normal;"}
-                                    {input catop:$key}&nbsp;{$label}
-                                {/label}
-                            {/foreach}
-                        </div>
-
-                        <div class="text-right" style="float:right;">
-                            <button type="button" class="btn btn-default btn-xs" id="123x">
-                                <span class="glyphicon glyphicon-check"></span> Select/Deselect all
-                            </button>
-                        </div>
+            <div id="SearchFormMoreOptions" class="collapse in">
+                <div class="row row-equal-cols" style="margin-bottom:15px;">
+                    <div class="col-md-7">
+                        {label author}:
+                        {input author, class => 'form-control author', data-provide => 'typeahead', autocomplete => 'off', type => 'search', placeholder => 'Author\'s name...'}
                     </div>
 
-                    <div class="clearfix"></div>
+                    <div class="col-md-2">
+                        <b>{label stype}:</b><br>
+                        {foreach $form[stype]->items as $key => $label}
+                            <div>
+                                <label style="font-weight:normal;" n:name="stype:$key"><input n:name="stype:$key"> {$label}</label>
+                            </div>
+                        {/foreach}
+                    </div>
+
+                    <div class="col-md-3">
+                        <b>{label scope}:</b><br>
+                        {foreach $form[scope]->items as $key => $label}
+                            <div>
+                                <label style="font-weight:normal;" n:name="scope:$key"><input n:name="scope:$key"> {$label}</label>
+                            </div>
+                        {/foreach}
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <b>{label tags}:</b><br>
-                    {foreach $form[tags]->items as $key => $label}
-                        <div>
-                            <label style="font-weight:normal;" n:name="tags:$key"><input n:name="tags:$key"> {$label}</label>
+                <div class="row row-equal-cols">
+                    <div class="col-md-3">
+                        <b>{label pubtype}:</b><br>
+                        {foreach $form[pubtype]->items as $key => $label}
+                            <div>
+                                <label style="font-weight:normal;" n:name="pubtype:$key"><input n:name="pubtype:$key"> {$label}</label>
+                            </div>
+                        {/foreach}
+                    </div>
+
+                    <div class="col-md-5">
+                        <b>{label categories}:</b><br>
+
+                        {control publicationCategories}
+                        {input categories}
+
+                        <div style="margin-top:15px;">
+                            <div class="text-left" style="float:left;">
+                                {foreach $form['catop']->items as $key => $label}
+                                    {label catop:$key, style => "font-weight: normal;"}
+                                        {input catop:$key}&nbsp;{$label}
+                                    {/label}
+                                {/foreach}
+                            </div>
+
+                            <div class="text-right" style="float:right;">
+                                <button type="button" class="btn btn-default btn-xs" id="123x">
+                                    <span class="glyphicon glyphicon-check"></span> Select/Deselect all
+                                </button>
+                            </div>
                         </div>
-                    {/foreach}
+
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <b>{label tags}:</b><br>
+                        {foreach $form[tags]->items as $key => $label}
+                            <div>
+                                <label style="font-weight:normal;" n:name="tags:$key"><input n:name="tags:$key"> {$label}</label>
+                            </div>
+                        {/foreach}
+                    </div>
                 </div>
             </div>
 
