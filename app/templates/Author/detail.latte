@@ -1,0 +1,57 @@
+{block content}
+
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a n:href="Homepage:">Home</a></li>
+            <li><a href="#" class="breadcrumb-admin">Authors</a></li>
+            <li class="active"><a class="active" n:href="this">Author detail</a></li>
+        </ol>
+    </div>
+
+    <div class="row" style="border-radius:10px;">
+        <div class="col-md-12">
+
+            <div class="row">
+                <h1>
+                    {$authorDetails['name']}
+                    {if $authorDetails['middlename']}
+                        {$authorDetails['middlename']}
+                    {/if}
+                    {$authorDetails['surname']}
+                    <small>author</small>
+                </h1>
+            </div>
+
+            {if isset($authorDetails['tags'])}
+                <div class="row">
+                    <h3>Author's tags</h3>
+                    {foreach $authorDetails['tags'] as $tag}
+                        <a style="margin-right:10px;" class="label label-default" n:href=":Publication:search, 'stype' => 'title', 'tags' => $tag->id">
+                            {if $tag->global_scope === 1}
+                                <i class="glyphicon glyphicon-globe"></i>
+                            {elseif $tag->global_scope === 0}
+                                <i class="glyphicon glyphicon-lock"></i>
+                            {/if}
+                            {$tag->name}
+                        </a>
+                    {/foreach}
+                </div>
+            {/if}
+
+            <div class="row">
+                <h3>Author's publications</h3>
+                {if count($authorDetails['publications'])}
+                    <ul>
+                        <li n:foreach="$authorDetails['publications'] as $pub">
+                            {control publication, $pub, $authorDetails['publicationAuthors'][$pub->id] ?? []}
+                        </li>
+                    </ul>
+                {else}
+                    <div class="alert alert-warning">
+                        This author has no publications.
+                    </div>
+                {/if}
+            </div>
+        </div>
+    </div>
+{/block}

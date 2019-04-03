@@ -14,6 +14,79 @@ class Author extends Base {
      */
     protected $tableName = 'author';
 
+
+    /**
+     * Returns array with data to be show on author detail page.
+     * @param int $id
+     * @param bool $isAdmin
+     * @return array
+     */
+    public function getAuthorWithHisTagsAndPublications(int $id, bool $isAdmin): array
+    {
+        $res = [];
+        $publicationIds = [];
+        $author = $this->getTable()
+            ->select('user_id, name, middlename, surname')
+            ->where('id = ?', $id)
+            ->fetch();
+
+        $res['name'] = $author->name;
+        $res['middlename'] = $author->middlename;
+        $res['surname'] = $author->surname;
+
+        if ($author->user_id) {
+            $params = [
+                'submitter_id' => $author->user_id
+            ];
+
+            if (!$isAdmin) {
+                $params['global_scope'] = 1;
+            }
+
+            $res['tags'] = $this->database->table('tag')
+                ->select('id, name, global_scope')
+                ->where($params);
+        }
+
+        $res['publications'] = $this->database->table('author_has_publication')
+            ->select('publication.journal.name AS journal, 
+                publication.publisher.name AS publisher, 
+                publication.conference_year.location AS location, 
+                publication.conference_year.name AS name,
+                publication.type_of_report AS type, 
+                publication.id, 
+                publication.pub_type, 
+                publication.title, 
+                publication.volume, 
+                publication.number, 
+                publication.pages, 
+                publication.issue_month AS month_eng, 
+                publication.issue_year AS year, 
+                publication.url, 
+                publication.note, 
+                publication.editor, 
+                publication.edition, 
+                publication.address, 
+                publication.howpublished, 
+                publication.chapter, 
+                publication.booktitle, 
+                publication.school, 
+                publication.institution, 
+                publication.conference_year_id
+                author_id')
+            ->where('author_id = ?', $id)
+            ->order('priority ASC');
+
+        foreach ($res['publications'] as $publication) {
+            $publicationIds[] = $publication->id;
+        }
+
+        $res['publicationAuthors'] = $this->getAuthorsByMultiplePubIds($publicationIds);
+
+        return $res;
+    }
+
+
     /**
      * @return array
      */
@@ -144,6 +217,7 @@ class Author extends Base {
 
         foreach ($authors as $author) {
             $res[$author->publication_id][] = [
+                'id' => $author['id'],
                 'surname' => $author['surname'],
                 'middlename' => $author['middlename'],
                 'name' => $author['name'],
@@ -169,6 +243,7 @@ class Author extends Base {
 
         foreach ($authors as $author) {
             $authorsTemp[] = [
+                'id' => $author['id'],
                 'surname' => $author['surname'],
                 'middlename' => $author['middlename'],
                 'name' => $author['name'],

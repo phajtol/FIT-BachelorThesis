@@ -47,8 +47,13 @@
                                 <label>Authors</label>
                             </div>
                             <div class="col-sm-10">
-                                {foreach $authors as $author}
-                                    {$author}{if !$iterator->last}, {/if}
+                                {foreach $pubCit['author_array'] as $author}
+                                    <a n:href=":Author:detail $author['id']">
+                                        {$author['name']}
+                                        {if $author['middlename']}
+                                            {$author['middlename']}
+                                        {/if}
+                                    {$author['surname']}</a>{if !$iterator->last}, {/if}
                                 {/foreach}
                             </div>
                         </div>
@@ -585,7 +590,9 @@
                             </div>
                             <div class="col-sm-10">
                                 {foreach $categories as $category}
-                                    <span class="label label-default" style="display:inline-block;">{$category->categories->name}</span>
+                                    <a n:href=":Publication:search 'categories' => $category->categories_id, 'catop' => 'or', 'scope' => 'all', 'stype' => 'title'">
+                                        <span class="label label-default" style="display:inline-block;">{$category->categories->name}</span>
+                                    </a>
                                 {/foreach}
                             </div>
                         </div>

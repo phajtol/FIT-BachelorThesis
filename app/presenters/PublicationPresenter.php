@@ -1487,7 +1487,7 @@ class PublicationPresenter extends SecuredPresenter {
         $this->flashMessage('Operation has been completed successfully.', 'alert-success');
 
         if (!$this->presenter->isAjax()) {
-            $this->presenter->redirect('Publication:showall');
+            $this->presenter->redirect('Publication:default');
         } else {
             $this->redrawControl('deletePublication');
             $this->redrawControl('publicationShowAllRecords');
@@ -1515,7 +1515,7 @@ class PublicationPresenter extends SecuredPresenter {
 
         if (!$this->presenter->isAjax()) {
             $this->flashMessage('Operation has been completed successfully.', 'alert-success');
-            $this->presenter->redirect('Publication:showall');
+            $this->presenter->redirect('Publication:default');
         } else {
             $this->redrawControl('deleteReference');
             $this->redrawControl('referenceShowAllRecords');
@@ -2277,6 +2277,7 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->sort = $sort;
         $this->template->stype = $stype;
         unset($params['sort']);
+        $searchParams['tags'] = $params['tags'] ?? null;
         $this->template->searchParams = $searchParams;
 
         $this->searchFormData = $params;

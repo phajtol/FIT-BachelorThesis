@@ -1,12 +1,14 @@
 {if count($authors) >= 4}
-    {$authors[0]['name']|substr:0:1}.
-    {if $authors[0]['middlename']}{$authors[0]['middlename']|substr:0:1}.{/if}
-    {$authors[0]['surname']} et al.
+    <a class="pub_href" href="{plink :Author:detail, $authors[0]['id']}">
+        {$authors[0]['name']|substr:0:1}.
+        {if $authors[0]['middlename']}{$authors[0]['middlename']|substr:0:1}.{/if}
+        {$authors[0]['surname']}</a> et al.
 {elseif count($authors) < 4 && count($authors) != 0}
     {foreach $authors as $author}
-        {$author['name']|substr:0:1}.
-        {if $author['middlename']}{$author['middlename']|substr:0:1}.{/if}
-        {$author['surname']},
+        <a class="pub_href" href="{plink :Author:detail, $author['id']}">
+            {$author['name']|substr:0:1}.
+            {if $author['middlename']}{$author['middlename']|substr:0:1}.{/if}
+            {$author['surname']}</a>,
     {/foreach}
 {/if}
 

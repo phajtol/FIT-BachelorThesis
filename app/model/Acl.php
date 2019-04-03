@@ -65,6 +65,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addResource('Author');
         $this->addResource('Author:default');
         $this->addResource('Author:showall');
+        $this->addResource('Author:detail');
 
 
         $this->addResource('AcmCategory');
@@ -149,6 +150,8 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->allow('reader', 'Publication:default');
         $this->allow('reader', 'Publication:showpub');
         $this->allow('reader', 'Publication:search');
+
+        $this->allow('reader', 'Author:detail');
 
         // SUBMITTER submitter
         $this->allow('submitter', 'Attribute');
