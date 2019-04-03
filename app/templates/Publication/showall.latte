@@ -106,11 +106,11 @@
                         <tr>
                             <th>
                                 {if $sort == 'title' && $order == 'ASC'}
-                                    <a n:href="Publication:showall '','title','DESC'">Publication &#9650;</a>
+                                    <a n:href="Publication:showall 'keywords' => '','sort' => 'title', order => 'DESC'">Publication &#9650;</a>
                                 {elseif $sort == 'title' && $order == 'DESC'}
-                                    <a n:href="Publication:showall '','title','ASC'">Publication &#9660;</a>
+                                    <a n:href="Publication:showall 'keywords' => '','sort' => 'title', order => 'ASC'">Publication &#9660;</a>
                                 {else}
-                                    <a n:href="Publication:showall '','title','ASC'">Publication</a>
+                                    <a n:href="Publication:showall 'keywords' => '','sort' => 'title', order => 'ASC'">Publication</a>
                                 {/if}
                             </th>
                             <th>Action</th>
