@@ -204,11 +204,11 @@
                                     {ifCurrent DocumentIndex:showall}active{/ifCurrent}
                                     {ifCurrent Attribute:showall}active{/ifCurrent}
                                     ">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administration<b class="caret"></b></a>
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administration{if $user->isInRole('admin') && $unconfirmedCount > 0} <span class="badge">{$unconfirmedCount}</span>{/if} <b class="caret"></b></a>
                                     <ul class="dropdown-menu">
                                         <li n:if="$CU && $PU" class="dropdown-header">Publication management</li>
                                         {if $user->isInRole('admin')}
-                                            <li class="{ifCurrent Admin:showunconfirmed}active{/ifCurrent}"><a n:href="Admin:showunconfirmed">Publications for check</a></li>
+                                            <li class="{ifCurrent Admin:showunconfirmed}active{/ifCurrent}"><a n:href="Admin:showunconfirmed">Publications for check{if $user->isInRole('admin') && $unconfirmedCount > 0} <span class="badge">{$unconfirmedCount}</span>{/if}</a></li>
                                             <li class="{ifCurrent Admin:reference}active{/ifCurrent}"><a n:href="Admin:reference">Reference for check</a></li>
 
                                         {/if}

@@ -56,6 +56,10 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
             $this->itemsPerPageDB = $this->userSettings->pagination;
         }
 
+        if ($this->user->isInRole('admin')) {
+            $this->template->unconfirmedCount = $this->publicationModel->countUnConfirmed();
+        }
+
         $this->template->dirPathTemplate = '/storage/';
 
         $this->template->presenterName = $this->name;
