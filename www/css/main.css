@@ -229,5 +229,5 @@ a.publication {
 }
 
 .pub_href {
-    color: rgb(51, 51, 51);
+    text-decoration: underline;
 }
