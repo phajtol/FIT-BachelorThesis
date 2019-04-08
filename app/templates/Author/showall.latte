@@ -18,7 +18,9 @@
 			<div class="col-lg-6">
 			</div>
 			<div class="col-lg-2 text-center">
-				{control crud-addButton, ['description' => true]}
+                {if $user->isInRole('admin') || $user->isInRole('submitter')}
+                    {control crud-addButton, ['description' => true]}
+                {/if}
 			</div>
 		</div>
 
@@ -39,24 +41,40 @@
 								<th>
 									{control sorting, "name", "Name"}
 								</th>
-								<th>
-									{control sorting, "user", "User"}
-								</th>
-								<th>
-									Action
-								</th>
+								{if $user->isInRole('admin') || $user->isInRole('submitter')}
+								    <th>
+								    	{control sorting, "user", "User"}
+								    </th>
+								    <th>
+								    	Action
+								    </th>
+                                {/if}
 							</tr>
 						</thead>
 						<tbody n:snippet="authorShowAllRecords">
 							{foreach $records as $record}
 								<tr n:snippet="authorRow$record->id">
-									<td>{$record->surname}</td>
-									<td>{$record->middlename}</td>
-									<td>{$record->name}</td>
-									<td>{if $record->user}{$record->user->surname} {$record->user->name} ({$record->user->nickname}){/if}</td>
 									<td>
-										{control crud-controls-$record->id}
-									</td>
+                                        <a n:href=":Author:detail $record->id">
+                                            {$record->surname}
+                                        </a>
+                                    </td>
+									<td>
+                                        <a n:href=":Author:detail $record->id">
+                                            {$record->middlename}
+                                        </a>
+                                    </td>
+									<td>
+                                        <a n:href=":Author:detail $record->id">
+                                            {$record->name}
+                                        </a>
+                                    </td>
+                                    {if $user->isInRole('admin') || $user->isInRole('submitter')}
+									    <td>{if $record->user}{$record->user->surname} {$record->user->name} ({$record->user->nickname}){/if}</td>
+									    <td>
+										    {control crud-controls-$record->id}
+									    </td>
+                                    {/if}
 								</tr>
 							{/foreach}
 						</tbody>

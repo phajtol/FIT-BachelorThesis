@@ -224,10 +224,22 @@ body.pu-only .CU {
     border: none;
 }
 
+/* this is for publication in IEEE format */
+
+.pub_list li {
+    margin-bottom: 10px;
+}
+
 a.publication {
     font-size: 17px;
 }
 
 .pub_href {
     text-decoration: underline;
+}
+
+/* this is for author detail page */
+
+#author-detail-tab-content .tab-pane {
+    padding: 15px;
 }

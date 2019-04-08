@@ -34,7 +34,7 @@
 {/if}
 
 {if $publication['pub_type'] == 'inproceedings'}
-    "<a class="publication" href="{plink :Publication:showpub $publication['id']}">{$publication['title']}</a>"{if $publication['name']} In {$publication['name']}{/if}{if $publication['location']}, {$publication['location']}{/if}{if $publication['year']}, {$publication['year']}{/if}{if $publication['volume']}, vol. {$publication['volume']}{/if}{if $publication['number']}, no. {$publication['number']}{/if}{if $publication['pages']}, pp. {$publication['pages']}{/if}{if $publication['note']}, {$publication['note']}{/if}{if $publication['url']}[online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
+    "<a class="publication" href="{plink :Publication:showpub $publication['id']}">{$publication['title']}</a>"{if $publication['name']} In <a href="{plink :Conference:show $publication['cy_id']}" class="pub_href">{$publication['name']}</a>{/if}{if $publication['location']}, {$publication['location']}{/if}{if $publication['year']}, {$publication['year']}{/if}{if $publication['volume']}, vol. {$publication['volume']}{/if}{if $publication['number']}, no. {$publication['number']}{/if}{if $publication['pages']}, pp. {$publication['pages']}{/if}{if $publication['note']}, {$publication['note']}{/if}{if $publication['url']}[online], Available: <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}
 {/if}
 
 {if $publication['pub_type'] == 'manual'}

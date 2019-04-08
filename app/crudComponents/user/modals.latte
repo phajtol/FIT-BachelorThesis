@@ -92,7 +92,7 @@
 			<div class="modal-body">
 				{snippet publicationsRelatedToUser}
 					{if count($publicationsRelatedToUser)}
-						<ul n:foreach="$publicationsRelatedToUser as $pub">
+						<ul class="pub_list" n:foreach="$publicationsRelatedToUser as $pub">
 							<li>
 								{control publication, $pub, $authorsByPubId[$pub->id] ?? []}
 							</li>

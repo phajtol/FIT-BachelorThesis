@@ -1289,14 +1289,14 @@ class PublicationPresenter extends SecuredPresenter {
             $params['order'] = 'ASC';
         }
 
-  			if($alphabetFilter->getFilter()) {
+        if($alphabetFilter->getFilter()) {
             $params['filter'] = $alphabetFilter->getFilter();
         } else {
-          $params['filter'] = 'none';
+            $params['filter'] = 'none';
         }
 
         if (!isset($this->template->records)) {
-            $this->records = $this->publicationModel->getMultiplePubInfoByKeywords($params);
+            $this->records = $this->publicationModel->findAllByKw($params);
 
             if($starred) {
                 $this->records->where(':submitter_has_publication.submitter_id = ?', $this->user->id);
@@ -1308,7 +1308,7 @@ class PublicationPresenter extends SecuredPresenter {
 
             $this->setupRecordsPaginator();
 
-            $this->template->records = iterator_to_array($this->records);
+            $this->template->records = $this->records;
             $this->data = $params;
 
             if (isset($params['sort'])) {
@@ -1337,6 +1337,7 @@ class PublicationPresenter extends SecuredPresenter {
 
         $this->template->authorsByPubId = $authorsByPubId;
         $this->redrawControl('publicationShowAll');
+
     }
 
 

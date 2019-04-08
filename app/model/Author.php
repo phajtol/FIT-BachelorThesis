@@ -21,7 +21,7 @@ class Author extends Base {
      * @param bool $isAdmin
      * @return array
      */
-    public function getAuthorWithHisTagsAndPublications(int $id, bool $isAdmin): array
+    public function getAuthorWithHisTagsAndPublicationsAndStarred(int $id, bool $isAdmin): array
     {
         $res = [];
         $publicationIds = [];
@@ -35,6 +35,7 @@ class Author extends Base {
         $res['surname'] = $author->surname;
 
         if ($author->user_id) {
+            //tags
             $params = [
                 'submitter_id' => $author->user_id
             ];
@@ -46,6 +47,40 @@ class Author extends Base {
             $res['tags'] = $this->database->table('tag')
                 ->select('id, name, global_scope')
                 ->where($params);
+
+            //starred
+            $res['starred'] = $this->database->table('submitter_has_publication')
+                ->select('publication.journal.name AS journal, 
+                publication.publisher.name AS publisher, 
+                publication.conference_year.location AS location, 
+                publication.conference_year.name AS name,
+                publication.conference_year.id AS cy_id,
+                publication.type_of_report AS type, 
+                publication.id, 
+                publication.pub_type, 
+                publication.title, 
+                publication.volume, 
+                publication.number, 
+                publication.pages, 
+                publication.issue_month AS month_eng, 
+                publication.issue_year AS year, 
+                publication.url, 
+                publication.note, 
+                publication.editor, 
+                publication.edition, 
+                publication.address, 
+                publication.howpublished, 
+                publication.chapter, 
+                publication.booktitle, 
+                publication.school, 
+                publication.institution, 
+                publication.conference_year_id
+                author_id')
+                ->where('submitter_has_publication.submitter_id = ?', $author->user_id);
+
+            foreach ($res['starred'] as $starred) {
+                $publicationIds[] = $starred->id;
+            }
         }
 
         $res['publications'] = $this->database->table('author_has_publication')
@@ -53,6 +88,7 @@ class Author extends Base {
                 publication.publisher.name AS publisher, 
                 publication.conference_year.location AS location, 
                 publication.conference_year.name AS name,
+                publication.conference_year.id AS cy_id,
                 publication.type_of_report AS type, 
                 publication.id, 
                 publication.pub_type, 

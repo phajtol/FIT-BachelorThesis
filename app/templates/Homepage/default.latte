@@ -13,6 +13,9 @@
         <h2 class="text-center">Publications</h2>
         <ul>
             <li><a n:href="Publication:search, stype => title">All publications</a></li>
+            {if $user->isInRole('admin')}
+                <li><a n:href="Publication:showall">All publications - table view</a></li>
+            {/if}
             <li>
                 Quick search:
                 <p>
@@ -31,10 +34,8 @@
             <li><a n:href="Publication:default">Advanced search</a></li>
             <hr>
             <li><a n:href="Publication:addnew">Add new publication</a></li>
-            {*}TODO: odkomentovat ked bude hotovy profil autorov
             <hr>
-            <li><a href="#Author:showall">All authors</a></li>
-            <li><a href="#Author:search">Search authors</a></li>*}
+            <li><a n:href=":Author:showall">All authors</a></li>
         </ul>
         
         <h3 style="display:block;margin-top:40px;" class="text-center">My starred publications</h3>

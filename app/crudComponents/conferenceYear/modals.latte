@@ -368,7 +368,7 @@ $(document).ready(function() {
 			<div class="modal-body">
 				{snippet relatedPublications}
 					{if count($relatedPublications)}
-					<ul n:foreach="$relatedPublications as $rel">
+					<ul class="pub_list" n:foreach="$relatedPublications as $rel">
 						<li>
                             {control publication, $rel, $authorsByPubId[$rel->id] ?? []}
                         </li>

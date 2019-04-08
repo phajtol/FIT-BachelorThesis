@@ -31,7 +31,7 @@
 							{foreach $categories as $rel}
 								<h4><strong>{$rel['name']}</strong></h4>
                                 {if count($rel['publications'])}
-								    <ul n:foreach="$rel['publications'] as $pub">
+								    <ul class="pub_list" n:foreach="$rel['publications'] as $pub">
 									    <li>
                                             {control publication, $pub, $authorsByPubId[$pub->id] ?? []}
                                         </li>

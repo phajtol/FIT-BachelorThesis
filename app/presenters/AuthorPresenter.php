@@ -95,7 +95,7 @@ class AuthorPresenter extends SecuredPresenter {
 
     public function renderDetail(int $id): void
     {
-        $this->template->authorDetails = $this->authorModel->getAuthorWithHisTagsAndPublications($id, $this->user->isInRole('admin'));
+        $this->template->authorDetails = $this->authorModel->getAuthorWithHisTagsAndPublicationsAndStarred($id, $this->user->isInRole('admin'));
     }
 
 

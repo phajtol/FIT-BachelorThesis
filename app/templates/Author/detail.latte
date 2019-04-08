@@ -22,36 +22,62 @@
                 </h1>
             </div>
 
-            {if isset($authorDetails['tags']) && count($authorDetails['tags'])}
-                <div class="row">
-                    <h3>Author's tags</h3>
-                    {foreach $authorDetails['tags'] as $tag}
-                        <a style="margin-right:10px;" class="label label-default" n:href=":Publication:search, 'stype' => 'title', 'tags' => $tag->id">
-                            {if $tag->global_scope === 1}
-                                <i class="glyphicon glyphicon-globe"></i>
-                            {elseif $tag->global_scope === 0}
-                                <i class="glyphicon glyphicon-lock"></i>
-                            {/if}
-                            {$tag->name}
-                        </a>
-                    {/foreach}
-                </div>
+            {if isset($authorDetails['tags']) && isset($authorDetails['starred'])}
+                <ul id="author-detail-tab" class="nav nav-tabs" style="margin-top:20px;">
+                    <li data-toggle="tab" data-target="#publications" class="active"><a href="#publications">Author's publications</a></li>
+                    <li data-toggle="tab" data-target="#tags"><a href="#tags">Tags</a></li>
+                    <li data-toggle="tab" data-target="#starred"><a href="#starred">Starred by author</a></li>
+                </ul>
+
+                <div id="author-detail-tab-content" class="tab-content">
+                    <div class="tab-pane fade active in" id="publications">
             {/if}
 
-            <div class="row">
-                <h3>Author's publications</h3>
-                {if count($authorDetails['publications'])}
-                    <ul>
-                        <li n:foreach="$authorDetails['publications'] as $pub">
-                            {control publication, $pub, $authorDetails['publicationAuthors'][$pub->id] ?? []}
-                        </li>
-                    </ul>
-                {else}
-                    <div class="alert alert-warning">
-                        This author has no publications.
+                    <div class="row">
+                        {if count($authorDetails['publications'])}
+                            <ul>
+                                <li n:foreach="$authorDetails['publications'] as $pub">
+                                    {control publication, $pub, $authorDetails['publicationAuthors'][$pub->id] ?? []}
+                                </li>
+                            </ul>
+                        {else}
+                            <div class="alert alert-warning">
+                                This author has no publications.
+                            </div>
+                        {/if}
                     </div>
-                {/if}
+            {if isset($authorDetails['tags']) && isset($authorDetails['starred'])}
+                </div>
+
+                <div class="tab-pane fade" id="tags">
+                    <div class="row">
+                        {foreach $authorDetails['tags'] as $tag}
+                            <a style="margin-right:10px;" class="label label-default" n:href=":Publication:search, 'stype' => 'title', 'tags' => $tag->id">
+                                {if $tag->global_scope === 1}
+                                    <i class="glyphicon glyphicon-globe"></i>
+                                {elseif $tag->global_scope === 0}
+                                    <i class="glyphicon glyphicon-lock"></i>
+                                {/if}
+                                {$tag->name}
+                            </a>
+                        {/foreach}
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="starred">
+                    <div class="row">
+                        <ul class="pub_list">
+                            {foreach $authorDetails['starred'] as $star}
+                                <li>
+                                    {control publication, $star, $authorDetails['publicationAuthors'][$star->id] ?? []}
+                                </li>
+                            {/foreach}
+                        </ul>
+                    </div>
+                </div>
             </div>
+            {/if}
+
         </div>
     </div>
 {/block}

@@ -60,7 +60,7 @@
     </div>
 
     <div>
-        <ul>
+        <ul class="pub_list">
             <li n:foreach="$results as $res" style="margin-bottom:15px;">
                 {control publication, $res, $authorsByPubId[$res->id] ?? []}
             </li>

@@ -131,7 +131,7 @@
                         count($publisherRelated_conference_year)}
                         {if count($publisherRelated_publication)}
                             <h5><strong>Publications</strong></h5>
-                            <ul n:foreach="$publisherRelated_publication as $rel">
+                            <ul class="pub_list" n:foreach="$publisherRelated_publication as $rel">
                                 <li>
                                     {control publication, $rel, $authorsByPubId[$rel->id] ?? []}
                                 </li>
