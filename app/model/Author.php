@@ -51,6 +51,7 @@ class Author extends Base {
             //starred
             $res['starred'] = $this->database->table('submitter_has_publication')
                 ->select('publication.journal.name AS journal, 
+                publication.journal.id AS journal_id, 
                 publication.publisher.name AS publisher, 
                 publication.conference_year.location AS location, 
                 publication.conference_year.name AS name,
@@ -85,6 +86,7 @@ class Author extends Base {
 
         $res['publications'] = $this->database->table('author_has_publication')
             ->select('publication.journal.name AS journal, 
+                publication.journal.id AS journal_id,
                 publication.publisher.name AS publisher, 
                 publication.conference_year.location AS location, 
                 publication.conference_year.name AS name,

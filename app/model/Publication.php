@@ -64,6 +64,7 @@ class Publication extends Base {
     {
         return $this->getTable()
             ->select('journal.name AS journal, 
+                journal.id AS journal_id,
                 publisher.name AS publisher, 
                 conference_year.location AS location, 
                 conference_year.name AS name,
@@ -100,7 +101,8 @@ class Publication extends Base {
     public function findAllUnconfirmed(array $params): Selection
     {
         return $this->getTable()
-            ->select('journal.name AS journal, 
+            ->select('journal.name AS journal,
+                journal.id AS journal_id, 
                 publisher.name AS publisher, 
                 conference_year.location AS location, 
                 conference_year.name AS name,
@@ -192,7 +194,8 @@ class Publication extends Base {
     public function getPubInfo(int $id): Selection
     {
         $publication = $this->getTable()
-            ->select('journal.name AS journal, 
+            ->select('journal.name AS journal,
+                journal.id AS journal_id, 
                 publisher.name AS publisher, 
                 conference_year.location AS location, 
                 conference_year.name AS name,
@@ -232,6 +235,7 @@ class Publication extends Base {
     {
         return $this->findAllByKw($params)
             ->select('journal.name AS journal, 
+                journal.id AS journal_id,
                 publisher.name AS publisher, 
                 conference_year.location AS location, 
                 conference_year.name AS name,
@@ -267,6 +271,7 @@ class Publication extends Base {
     {
         return $this->findAllBy($params)
             ->select('journal.name AS journal, 
+                journal.id AS journal_id,
                 publisher.name AS publisher, 
                 conference_year.location AS location, 
                 conference_year.name AS name,
@@ -302,6 +307,7 @@ class Publication extends Base {
     {
         return $this->getTable()
             ->select('journal.name AS journal, 
+                journal.id AS journal_id,
                 publisher.name AS publisher, 
                 conference_year.location AS location, 
                 conference_year.name AS name,
@@ -337,7 +343,8 @@ class Publication extends Base {
     public function getPublicationsByConferenceYears(array $years): Selection
     {
         return $this->getTable()
-            ->select('journal.name AS journal, 
+            ->select('journal.name AS journal,
+                journal.id AS journal_id, 
                 publisher.name AS publisher, 
                 conference_year.location AS location, 
                 conference_year.name AS name,
@@ -534,6 +541,7 @@ class Publication extends Base {
         if ($params['stype'] === 'fulltext') {
             $result = $this->database->table('documents')
                 ->select('publication.journal.name AS journal,
+                    publication.journal.id AS journal_id,
                     publication.publisher.name AS publisher,
                     publication.conference_year.location AS location, 
                     publication.conference_year.name AS name,
@@ -561,6 +569,7 @@ class Publication extends Base {
         } else {
             $result = $this->database->table('publication')
                 ->select('journal.name AS journal,
+                    journal.id AS journal_id,
                     publisher.name AS publisher,
                     conference_year.location AS location, 
                     conference_year.name AS name,
@@ -1223,6 +1232,7 @@ class Publication extends Base {
 
         return $this->database->table('publication')
             ->select('journal.name AS journal,
+                    journal.id AS journal_id,
                     publisher.name AS publisher,
                     conference_year.location AS location, 
                     conference_year.name AS name,
@@ -1261,6 +1271,7 @@ class Publication extends Base {
     {
         return $this->database->table('submitter_has_publication')
             ->select('publication.journal.name AS journal,
+                    publication.journal.id AS journal_id,
                     publication.publisher.name AS publisher,
                     publication.conference_year.location AS location, 
                     publication.conference_year.name AS name,

@@ -71,4 +71,46 @@ class Journal extends Base {
         return $this->findOneBy(["name" => $name]);
     }
 
+    public function getJournalWithIsbnsAndPublications(int $journal_id): array
+    {
+        $res = [];
+
+        $res['journal'] = $this->find($journal_id);
+
+        $res['isbn'] = $this->database->table('journal_isbn')
+            ->select('*')
+            ->where('journal_id = ?', $journal_id);
+
+        $res['publications'] = $this->database->table('publication')
+            ->select('journal.name AS journal,
+                journal.id AS journal_id, 
+                publisher.name AS publisher, 
+                conference_year.location AS location, 
+                conference_year.name AS name,
+                conference_year.id AS cy_id,
+                type_of_report AS type, 
+                publication.id, 
+                pub_type, 
+                title, 
+                volume, 
+                number, 
+                pages, 
+                issue_month AS month_eng, 
+                issue_year AS year, 
+                url, 
+                note, 
+                editor, 
+                edition, 
+                publication.address, 
+                howpublished, 
+                chapter, 
+                booktitle, 
+                school, 
+                institution, 
+                conference_year_id')
+            ->where('journal_id = ?', $journal_id)
+            ->order('title ASC');
+
+        return $res;
+    }
 }

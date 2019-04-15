@@ -14,7 +14,7 @@
 
 
 {if $publication['pub_type'] == 'article'}
-    "<a class="publication" href="{plink :Publication:showpub $publication['id']}">{$publication['title']}</a>"{if isset($publication['journal']) && $publication['journal']}, <em>{$publication['journal']}</em>{/if}{if $publication['volume']}, vol. {$publication['volume']}{/if}{if $publication['number']}, no. {$publication['number']}{/if}{if $publication['pages']}, pp. {$publication['pages']}{/if}{if $publication['month_eng']}, {$publication['month_eng']}{/if}{if $publication['year']}, {$publication['year']}{/if}{if $publication['url']} [online], URL <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}{if $publication['note']}, {$publication['note']}{/if}
+    "<a class="publication" href="{plink :Publication:showpub $publication['id']}">{$publication['title']}</a>"{if isset($publication['journal']) && $publication['journal']}, <a href="{plink :Journal:detail $publication['journal_id']}" class="pub_href">{$publication['journal']}</a>{/if}{if $publication['volume']}, vol. {$publication['volume']}{/if}{if $publication['number']}, no. {$publication['number']}{/if}{if $publication['pages']}, pp. {$publication['pages']}{/if}{if $publication['month_eng']}, {$publication['month_eng']}{/if}{if $publication['year']}, {$publication['year']}{/if}{if $publication['url']} [online], URL <a class="pub_href" href="{$publication['url']}" target="_blank">{$publication['url']}</a>{/if}{if $publication['note']}, {$publication['note']}{/if}
 {/if}
 
 {if $publication['pub_type'] == 'book'}

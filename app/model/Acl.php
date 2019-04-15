@@ -110,6 +110,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addResource('Journal');
         $this->addResource('Journal:default');
         $this->addResource('Journal:showall');
+        $this->addResource('Journal:detail');
         // Publication presenter
         $this->addResource('Publication');
         $this->addResource('Publication:default');
@@ -154,6 +155,9 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->allow('reader', 'Author:detail');
         $this->allow('reader', 'Author:showall');
 
+        $this->allow('reader', 'Journal:detail');
+        $this->allow('reader', 'Journal:showall');
+
         // SUBMITTER submitter
         $this->allow('submitter', 'Attribute');
         $this->allow('submitter', 'Attribute:default');
@@ -172,7 +176,6 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
 
         $this->allow('submitter', 'Journal');
         $this->allow('submitter', 'Journal:default');
-        $this->allow('submitter', 'Journal:showall');
 
         $this->allow('submitter', 'Publication:showall');
         $this->allow('submitter', 'Publication:addnew');
