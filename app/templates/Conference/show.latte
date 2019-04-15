@@ -92,6 +92,12 @@
                         {include #conferenceYearInfo, caption => 'Web', noescape => 'true'}
                         {php unset($value)}
 
+                        {foreach $isbn as $i}
+                            {capture $value}{$i->isbn}{if $i->note} ({$i->note}){/if}{/capture}
+                            {include #conferenceYearInfo, caption => $i->type, noescape => 'true'}
+                            {php unset($value)}
+                        {/foreach}
+
                         {include #conferenceYearInfo, key => 'description', caption => 'Description'}
 
                         {* ACM Categories *}
