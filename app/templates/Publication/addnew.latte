@@ -203,6 +203,12 @@
                   if(item[0]){
                    $("#listBoxA").jqxListBox('unselectIndex', item[0].index );
                     }
+                 $.nette.ajax({
+                     url: {link selectAuthor!},
+                     data: {
+                         authorId: event.args.item.value || 0
+                     }
+                 });
                 });
 
                  $('#listBoxA').on('select', function (event) {
