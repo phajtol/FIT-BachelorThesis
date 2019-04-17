@@ -141,6 +141,9 @@
 
     $(document).ready(function () {
 
+        //enable tooltips on this page
+        $('[data-toggle="tooltip"]').tooltip();
+
         var data1 = [
     {foreach $authors as $key => $value}
         { label: {$value}, value: {$key} },
@@ -1228,7 +1231,14 @@
                     {var $form = $presenter['publicationAddNewForm']}
                     {foreach $attributes as $attrib}
                         <div id="addnew-attributes_{$attrib->id}" class="form-group attributes">
-                            {label $form['attributes'][$attrib->id], class=>"col-sm-2 control-label"}{/label}
+                            <div class="col-sm-2 control-label">
+                                {label $form['attributes'][$attrib->id]}{/label}
+                                {if $attrib->confirmed === 1}
+                                    <span class="glyphicon glyphicon-globe" data-toggle="tooltip" title="Global"></span>
+                                {elseif $attrib->confirmed === 0}
+                                    <span class="glyphicon glyphicon-lock" data-toggle="tooltip" title="Private"></span>
+                                {/if}
+                            </div>
                             <div class="col-sm-7">
                                 {input $form['attributes'][$attrib->id], class=>"form-control"}
                                 <span class=error n:ifcontent>{$form['attributes'][$attrib->id]->error}</span>
