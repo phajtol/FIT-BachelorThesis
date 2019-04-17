@@ -31,10 +31,8 @@
 							{foreach $conferencesRelatedToCategory as $rel}
 								<h5><strong>{$rel['categories']['name']}</strong></h5>
 								<ul>
-									<li n:foreach="$rel['conference_has_acm_category'] as $r">
-										{*<a href="{plink Conference:show, $r->conference->id}">{$r->conference->title}</a> *}
-										{* todo uncomment later *}
-										<a href="#">{$r->conference->name}</a>
+									<li n:foreach="$rel['conference_has_category'] as $r">
+										<a href="{plink :Conference:showall, 'keywords' => $r->conference->name}">{$r->conference->name}</a>
 									</li>
 								</ul>
 							{/foreach}
