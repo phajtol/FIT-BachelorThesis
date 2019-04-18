@@ -322,6 +322,7 @@ class PublicationPresenter extends SecuredPresenter {
                 $parser = new Helpers\BibTexParser($definition);
                 $pub_type = $fields = $authors = null;
                 $parser->parse($pub_type, $fields, $authors);
+                $fields['author'] = $authors;
                 $bibtex = Helpers\Bibtex::create($pub_type);
                 $report = $bibtex->validate($fields);
             } elseif ($formValues['type'] == "endnote") {
@@ -516,7 +517,7 @@ class PublicationPresenter extends SecuredPresenter {
             }
 
             if (isset($fields['isbn'])) {
-                $this->publication['isbn'] = $fields['isbn'];
+                $this->publication['isbn'] = [$fields['isbn']];
             }
 
             if (isset($fields['note'])) {
