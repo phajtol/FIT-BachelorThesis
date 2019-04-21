@@ -1290,6 +1290,10 @@ class PublicationPresenter extends SecuredPresenter {
             $params['order'] = 'ASC';
         }
 
+        if ($params['sort'] === 'published') {
+            $params['sort'] = 'issue_year ' . $params['order'] . ', issue_month';
+        }
+
         if($alphabetFilter->getFilter()) {
             $params['filter'] = $alphabetFilter->getFilter();
         } else {

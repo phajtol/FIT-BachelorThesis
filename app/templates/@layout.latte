@@ -212,6 +212,7 @@
                                             <li class="{ifCurrent Admin:reference}active{/ifCurrent}"><a n:href="Admin:reference">Reference for check</a></li>
 
                                         {/if}
+                                        <li n:if="$user->isAllowed('Publication:showall')" class="{ifCurrent Publication:showall}active{/ifCurrent}"><a n:href="Publication:showall">All Publications</a></li>
                                         <li n:if="$user->isAllowed('Author:showall')" class="{ifCurrent Author:showall}active{/ifCurrent}"><a n:href="Author:showall">All Authors</a></li>
                                         <li n:if="$user->isAllowed('Journal:showall')" class="{ifCurrent Journal:showall}active{/ifCurrent}"><a n:href="Journal:showall">All Journals</a></li>
                                         <li n:if="$user->isAllowed('Publisher:showall')" class="{ifCurrent Publisher:showall}active{/ifCurrent}"><a n:href="Publisher:showall">All Publishers</a></li>

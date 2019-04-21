@@ -25,7 +25,6 @@ span.error {
 span.authors {
     font-style: italic;
     color: #808080;
-    padding-left: 1em;
 }
 
 .bs-callout-danger {
@@ -242,4 +241,9 @@ a.publication {
 
 #author-detail-tab-content .tab-pane {
     padding: 15px;
+}
+
+
+.table > tbody > tr > td {
+    vertical-align: middle;
 }

@@ -104,35 +104,106 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>
+                            <th class="col-md-4">
                                 {if $sort == 'title' && $order == 'ASC'}
-                                    <a n:href="Publication:showall '','title','DESC'">Title &#9650;</a>
+                                    <a n:href="Publication:showall 'keywords' => '', 'sort' => 'title', 'order' => 'DESC'">Title &#9650;</a>
                                 {elseif $sort == 'title' && $order == 'DESC'}
-                                    <a n:href="Publication:showall '','title','ASC'">Title &#9660;</a>
+                                    <a n:href="Publication:showall 'keywords' => '', 'sort' => 'title', 'order' => 'ASC'">Title &#9660;</a>
                                 {else}
-                                    <a n:href="Publication:showall '','title','ASC'">Title</a>
+                                    <a n:href="Publication:showall 'keywords' => '', 'sort' => 'title', 'order' => 'ASC'">Title</a>
                                 {/if}
                             </th>
-                            <th>Action</th>
+                            <th class="col-md-2">
+                                Authors
+                            </th>
+                            <th class="col-md-1">
+                                {* Check sort against different string because im changing it in PublicationPresenter::drawPublications() *}
+                                {if strstr($sort, 'issue_year') && $order == 'ASC'}
+                                    <a n:href="Publication:showall 'keywords' => '', 'sort' => 'published', 'order' => 'DESC'">Published&#9650;</a>
+                                {elseif strstr($sort, 'issue_year') && $order == 'DESC'}
+                                    <a n:href="Publication:showall 'keywords' => '', 'sort' => 'published', 'order' => 'ASC'">Published&#9660;</a>
+                                {else}
+                                    <a n:href="Publication:showall 'keywords' => '', 'sort' => 'published', 'order' => 'DESC'">Published</a>
+                                {/if}
+                            </th>
+                            <th class="col-md-1">
+                                {if $sort == 'pub_type' && $order == 'ASC'}
+                                    <a n:href="Publication:showall 'keywords' => '', 'sort' => 'pub_type', 'order' => 'DESC'">Type &#9650;</a>
+                                {elseif $sort == 'pub_type' && $order == 'DESC'}
+                                    <a n:href="Publication:showall 'keywords' => '', 'sort' => 'pub_type', 'order' => 'ASC'">Type &#9660;</a>
+                                {else}
+                                    <a n:href="Publication:showall 'keywords' => '', 'sort' => 'pub_type', 'order' => 'ASC'">Type</a>
+                                {/if}
+                            </th>
+                            <th class="col-md-3">
+                                Source
+                            </th>
+                            <th class="col-md-1">Action</th>
                         </tr>
                     </thead>
                     <tbody n:snippet="publicationShowAllRecords">
                         {foreach $records as $record}
                             <tr n:snippet="record-$record->id">
                                 <td>
-                                    <a n:href="Publication:showpub, $record->id">{$record->title}</a>
+                                    <a style="font-weight:bold;" n:href="Publication:showpub, $record->id">{$record->title}</a>
+                                </td>
+                                <td class="authors">
+                                    {ifset $authorsByPubId[$record->id]}
+                                        {foreach $authorsByPubId[$record->id] as $author}
+                                            <a n:href=":Author:detail $author->id">{$author->name} {$author->surname}</a>{if !$iterator->isLast()},{/if}
+                                        {/foreach}
+                                    {/ifset}
+                                </td>
+                                <td>
                                     <span class="text-muted">
                                     {if $record->issue_year}
                                         {if $record->issue_month}{$record->issue_month}/{/if}{$record->issue_year}
                                     {/if}
                                     </span>
-                                    {ifset $authorsByPubId[$record->id]}
-                                        <br>
-                                        <span class="authors">{$authorsByPubId[$record->id]|authors}</span>
-                                    {/ifset}
                                 </td>
                                 <td>
-
+                                    {$record->pub_type}
+                                </td>
+                                <td>
+                                    {if $record->pub_type === 'inproceedings' || $record->pub_type === 'proceedings'}
+                                        {if $record->ref('conference_year')}
+                                            <a n:href=":Conference:show $record->conference_year_id">
+                                                {$record->ref('conference_year')->name}
+                                            </a>
+                                        {else}
+                                            -
+                                        {/if}
+                                    {elseif $record->pub_type === 'article'}
+                                        {if $record->ref('journal')}
+                                            <a n:href=":Journal:detail $record->journal_id">
+                                                {$record->ref('journal')->name}
+                                            </a>
+                                        {else}
+                                            -
+                                        {/if}
+                                    {elseif $record->pub_type === 'book' || $record->pub_type === 'inbook' || $record->pub_type === 'incollection'}
+                                        {if $record->ref('publisher')}
+                                            {$record->ref('publisher')->name}
+                                        {else}
+                                            -
+                                        {/if}
+                                    {elseif $record->pub_type === 'techreport'}
+                                        {if $record->institution}
+                                            {$record->institution}
+                                        {else}
+                                            -
+                                        {/if}
+                                    {elseif $record->pub_type === 'phdthesis' || $record->pub_type === 'mastersthesis'}
+                                        {if $record->school}
+                                            {$record->school}
+                                        {else}
+                                            -
+                                        {/if}
+                                    {else}
+                                        -
+                                    {/if}
+                                </td>
+                                <td>
                                     <button type="button" id="deletePublicationButton-{$record->id}" class="btn btn-danger btn-xs deletePublicationButton" data-toggle="modal" data-target="#DeletePublicationModal" title="Delete publication">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </button>
