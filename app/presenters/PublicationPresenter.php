@@ -2236,7 +2236,7 @@ class PublicationPresenter extends SecuredPresenter {
         $results = $this->publicationModel->search($params, $paginator->itemsPerPage, $paginator->offset);
 
         $highlighted = [];
-        $kwArray = explode(' ', $params['keywords']);
+        $kwArray = $params['keywords'] ? explode(' ', $params['keywords']) : [];
         if ($params['stype'] === 'annotations') {
             foreach ($results as $result) {
                 $highlighted[$result->annotation_id] = $this->highlight($result->text, $kwArray);
