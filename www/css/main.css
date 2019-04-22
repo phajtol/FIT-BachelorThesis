@@ -243,7 +243,16 @@ a.publication {
     padding: 15px;
 }
 
+/* vertical align in tables */
 
 .table > tbody > tr > td {
     vertical-align: middle;
+}
+
+/* highlighting in search */
+
+.highlight {
+    font-weight: bold;
+    background-color: #FFFBCC;
+    padding: 2px;
 }

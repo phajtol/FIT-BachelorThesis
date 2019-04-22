@@ -2209,6 +2209,15 @@ class PublicationPresenter extends SecuredPresenter {
      * SEARCH RELATED CODE
      */
 
+    private function highlight(string $string, array $highlightedWords)
+    {
+        foreach($highlightedWords as $vword) {
+            $string = preg_replace('/('.$vword.')/Ui', '<span class="highlight">$1</span>', $string);
+        }
+
+        return $string;
+    }
+
     /**
      * Handles search: retrieves results from model and initializes paginator.
      * @param array $params
@@ -2226,6 +2235,16 @@ class PublicationPresenter extends SecuredPresenter {
 
         $results = $this->publicationModel->search($params, $paginator->itemsPerPage, $paginator->offset);
 
+        $highlighted = [];
+        if ($params['stype'] === 'annotations') {
+            $kwArray = explode(' ', $params['keywords']);
+
+            foreach ($results as $result) {
+                $highlighted[$result->annotation_id] = $this->highlight($result->text, $kwArray);
+            }
+        }
+        bdump($highlighted);
+
         $publicationIds = [];
         foreach ($results as $result) {
             $publicationIds[] = $result->id;
@@ -2237,6 +2256,7 @@ class PublicationPresenter extends SecuredPresenter {
             'showingFrom' => $paginator->offset + 1,
             'showingTo' => ($paginator->offset + $paginator->itemsPerPage > $count) ? $count : ($paginator->offset + $paginator->itemsPerPage),
             'results' => $results,
+            'highlighted' => $highlighted,
             'authorsByPubId' => $authorsByPubId
         ];
     }
@@ -2269,12 +2289,14 @@ class PublicationPresenter extends SecuredPresenter {
             'pubtype' => $pubtype,
             'scope' => $scope,
             'sort' => $sort,
-            'author' => $author
+            'author' => $author,
+            'user_id' => $this->user->id
         ];
 
         $results = $this->search($searchParams);
 
         $this->template->results = $results['results'];
+        $this->template->highlighted = $results['highlighted'];
         $this->template->authorsByPubId = $results['authorsByPubId'];
         $this->template->resultsCount = $results['resultsCount'];
         $this->template->showingFrom = $results['showingFrom'];

@@ -48,8 +48,11 @@ class PublicationSearchForm {
 
         $form->addText('categories', 'Publication categories');
 
-        $form->addRadioList('stype', 'Search type', ['fulltext' => 'Fulltext', 'title' => 'Title only'])
-            ->setDefaultValue('title');
+        $form->addRadioList('stype', 'Search type', [
+            'fulltext' => 'Fulltext',
+            'title' => 'Title only',
+            'annotations' => 'Annotations'
+            ])->setDefaultValue('title');
 
         $form->addRadioList('scope', 'Search scope', [
                 'all' => 'All publications',

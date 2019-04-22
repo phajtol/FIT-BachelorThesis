@@ -61,11 +61,36 @@
         </div>
 
         <div>
-            <ul>
-                <li n:foreach="$results as $res" style="margin-bottom:15px;">
-                    {control publication, $res, $authorsByPubId[$res->id] ?? []}
-                </li>
-            </ul>
+            {if $stype === 'annotations'}
+                <ul>
+                    <li n:foreach="$results as $res" style="margin-bottom:15px;">
+                        <div class="row row-equal-cols" style="margin-top:-25px;">
+                            <div class="col-md-6">
+                                {control publication, $res, $authorsByPubId[$res->id] ?? []}
+                            </div>
+                            <div class="col-md-6">
+                                <label>{$res->submitter_name} {$res->submitter_surname}</label>, {$res->date|ldate},
+
+                                {if $res->global_scope == 1}
+                                    <span class="label label-info">Global</span>
+                                {else}
+                                    <span class="label label-warning">Private</span>
+                                {/if}
+
+                                <p>
+                                    {$highlighted[$res->annotation_id]|noescape}
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            {else}
+                <ul>
+                    <li n:foreach="$results as $res" style="margin-bottom:15px;">
+                        {control publication, $res, $authorsByPubId[$res->id] ?? []}
+                    </li>
+                </ul>
+            {/if}
         </div>
 
 

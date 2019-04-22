@@ -538,7 +538,45 @@ class Publication extends Base {
      */
     public function search(array $params, ?int $limit, ?int $offset): Selection
     {
-        if ($params['stype'] === 'fulltext') {
+        if ($params['stype'] === 'annotations') {
+            $result = $this->database->table('annotation')
+                ->select('publication.journal.name AS journal,
+                    publication.journal.id AS journal_id,
+                    publication.publisher.name AS publisher,
+                    publication.conference_year.location AS location, 
+                    publication.conference_year.name AS name,
+                    publication.conference_year.id AS cy_id,
+                    publication.type_of_report AS type, 
+                    publication.id, 
+                    publication.pub_type, 
+                    publication.title, 
+                    publication.volume, 
+                    publication.number, 
+                    publication.pages, 
+                    publication.issue_month AS month_eng, 
+                    publication.issue_year AS year, 
+                    publication.url, 
+                    publication.note, 
+                    publication.editor, 
+                    publication.edition, 
+                    publication.address, 
+                    publication.howpublished, 
+                    publication.chapter, 
+                    publication.booktitle, 
+                    publication.school,
+                    publication.institution, 
+                    publication.conference_year_id,
+                    submitter.name AS submitter_name,
+                    submitter.surname AS submitter_surname,
+                    annotation.text,
+                    annotation.global_scope,
+                    annotation.date,
+                    annotation.id AS annotation_id')
+                ->whereOr([
+                    'global_scope = ?' => '1',
+                    'annotation.submitter_id = ?' => $params['user_id']
+                ]);
+        } elseif ($params['stype'] === 'fulltext') {
             $result = $this->database->table('documents')
                 ->select('publication.journal.name AS journal,
                     publication.journal.id AS journal_id,
@@ -657,10 +695,12 @@ class Publication extends Base {
 
         //keywords
         if ($params['keywords']) {
-            if ($params['stype'] === 'fulltext') {
+            if ($params['stype'] === 'annotations') {
+                $result = $result->where('MATCH(text) AGAINST (? IN BOOLEAN MODE)', $params['keywords']);
+            } elseif ($params['stype'] === 'fulltext') {
                 $result = $result->whereOr([
-                    'MATCH(content) AGAINST (? IN BOOLEAN MODE)' => $params['keywords'],
-                    'MATCH(documents.title) AGAINST (? IN BOOLEAN MODE)' => $params['keywords']
+                   'MATCH(content) AGAINST (? IN BOOLEAN MODE)' => $params['keywords'],
+                   'MATCH(documents.title) AGAINST (? IN BOOLEAN MODE)' => $params['keywords']
                 ]);
             } else {
                 $keywords = explode(' ', $params['keywords']);
@@ -686,7 +726,7 @@ class Publication extends Base {
 
                     $result = $result->where($condition, $parameters);
                 } else {
-                    $result = $result->where('publication.title_search LIKE', '%' . $keywords[0] . '%');
+                $result = $result->where('publication.title_search LIKE', '%' . $keywords[0] . '%');
                 }
             }
         }
@@ -756,7 +796,9 @@ class Publication extends Base {
                 $result = $result->order('publication.issue_year DESC, publication.issue_month DESC, publication.title ASC');
             }
         } else {
-            if ($params['stype'] === 'fulltext') {
+            if ($params['stype'] === 'annotations') {
+                $result = $result->order('MATCH(text) AGAINST (?) DESC', $params['keywords']);
+            } elseif ($params['stype'] === 'fulltext') {
                 $result = $result->order('5 * MATCH(documents.title) AGAINST (?) + MATCH(content) AGAINST (?) DESC', $params['keywords'], $params['keywords']);
             } else {
                 $result = $result->order('publication.title ASC');

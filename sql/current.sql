@@ -1,4 +1,4 @@
--- Adminer 4.2.4 MySQL dump
+-- Adminer 4.7.1 MySQL dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -27,6 +27,7 @@ CREATE TABLE `annotation` (
   PRIMARY KEY (`id`,`publication_id`),
   KEY `annotation_FKIndex1` (`submitter_id`),
   KEY `annotation_FKIndex2` (`publication_id`),
+  FULLTEXT KEY `idx_annotation_text` (`text`),
   CONSTRAINT `annotation_ibfk_1` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `annotation_ibfk_2` FOREIGN KEY (`publication_id`) REFERENCES `publication` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
@@ -593,4 +594,4 @@ CREATE TABLE `user_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- 2019-03-17 10:05:52
+-- 2019-04-22 09:39:56
