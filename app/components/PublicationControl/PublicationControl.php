@@ -19,13 +19,15 @@ class PublicationControl extends Control
     /**
      * @param IRow $pub - row from db table `publication` containing all necessary columns
      * @param array $authors
+     * @param null|string $highlightedTitle - optional parameter that overrides title from $pub if not null
      */
-    public function render(IRow $pub, array $authors): void
+    public function render(IRow $pub, array $authors, ?string $highlightedTitle = null): void
     {
         $this->template->setFile(__DIR__ . '/PublicationControl.latte');
 
         $this->template->publication = $pub;
         $this->template->authors = $authors;
+        $this->template->highlightedTitle = $highlightedTitle;
 
         $this->template->render();
     }

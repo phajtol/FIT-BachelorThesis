@@ -87,7 +87,7 @@
             {else}
                 <ul>
                     <li n:foreach="$results as $res" style="margin-bottom:15px;">
-                        {control publication, $res, $authorsByPubId[$res->id] ?? []}
+                        {control publication, $res, $authorsByPubId[$res->id] ?? [], $highlighted[$res->id] ?? null}
                     </li>
                 </ul>
             {/if}

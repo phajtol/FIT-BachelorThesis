@@ -2236,14 +2236,16 @@ class PublicationPresenter extends SecuredPresenter {
         $results = $this->publicationModel->search($params, $paginator->itemsPerPage, $paginator->offset);
 
         $highlighted = [];
+        $kwArray = explode(' ', $params['keywords']);
         if ($params['stype'] === 'annotations') {
-            $kwArray = explode(' ', $params['keywords']);
-
             foreach ($results as $result) {
                 $highlighted[$result->annotation_id] = $this->highlight($result->text, $kwArray);
             }
+        } else {
+            foreach ($results as $result) {
+                $highlighted[$result->id] = $this->highlight($result->title, $kwArray);
+            }
         }
-        bdump($highlighted);
 
         $publicationIds = [];
         foreach ($results as $result) {
