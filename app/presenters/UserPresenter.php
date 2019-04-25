@@ -421,7 +421,10 @@ class UserPresenter extends SecuredPresenter {
     public function handleRejectRequest(int $requestId): void
     {
         if ($this->user->isInRole('admin')) {
-            $this->rightsRequestModel->reject($requestId, $this->user->id);
+            $userId = $this->rightsRequestModel->reject($requestId, $this->user->id);
+
+            $this->userRoleModel->setUserRoles($userId, ['conference-user', 'reader']);
+
             $this->redrawControl('request-' . $requestId);
             $this->redrawControl('allRequests');
         } else {

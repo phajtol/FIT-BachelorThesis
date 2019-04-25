@@ -20,9 +20,6 @@ class BasePresenter extends BasePresenterOld {
 	/** @var \App\Model\Submitter @inject */
 	public $submitterModel;
 
-	/** @var \App\Model\UserRole @inject */
-	public $userRoleModel;
-
 	/** @var  \NasExt\Controls\ISortingControlFactory @inject */
 	public $sortingControlFactory;
 

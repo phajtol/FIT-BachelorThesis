@@ -14,9 +14,6 @@
             {foreach $newRightsVerdict as $verdict}
                 <div class="alert {$verdict->verdict === 'approved' ? 'alert-success' : 'alert-danger'}">
                     Your request for submitter rights has been {$verdict->verdict}.
-                    {if $verdict->verdict === 'approved'}
-                        Please re-log for new roles to take effect.
-                    {/if}
                     <a n:href="markVerdictAsSeen! $verdict->rights_request_id" class="close ajax" title="close">×</a>
                 </div>
             {/foreach}

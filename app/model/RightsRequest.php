@@ -113,7 +113,8 @@ class RightsRequest extends Base
         $row->update([
             'verdict_submitter_id' => $userId,
             'verdict_datetime' => new DateTime(),
-            'verdict' => 'approved'
+            'verdict' => 'approved',
+            'seen' => '0'
         ]);
 
         return $row->fetchField('submitter_id');
@@ -122,17 +123,20 @@ class RightsRequest extends Base
     /**
      * @param int $requestId
      * @param int $userId
-     * @return bool
+     * @return int
      */
-    public function reject(int $requestId, int $userId): bool
+    public function reject(int $requestId, int $userId): int
     {
-        return $this->getTable()
-            ->where('rights_request_id', $requestId)
-            ->update([
-                'verdict_submitter_id' => $userId,
-                'verdict_datetime' => new DateTime(),
-                'verdict' => 'rejected'
+        $row = $this->getTable()->where('rights_request_id', $requestId);
+
+        $row->update([
+            'verdict_submitter_id' => $userId,
+            'verdict_datetime' => new DateTime(),
+            'verdict' => 'rejected',
+            'seen' => '0'
         ]);
+
+        return $row->fetchField('submitter_id');
     }
 
     /**

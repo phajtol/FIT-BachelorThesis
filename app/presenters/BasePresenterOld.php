@@ -46,6 +46,9 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
     /** @var Model\RightsRequest @inject */
     public $rightsRequestModel;
 
+    /** @var Model\UserRole @inject */
+    public $userRoleModel;
+
 
     /**
      *
@@ -55,6 +58,9 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
         parent::startup();
 
         if ($this->getUser()->isLoggedIn()) {
+            $roles = $this->userRoleModel->getAllByUserId($this->user->id);
+            $this->user->getIdentity()->setRoles($roles);
+
             $this->userSettings = $this->userSettingsModel->findOneBy(['submitter_id' => $this->user->id]);
             $this->itemsPerPageDB = $this->userSettings->pagination;
         }
