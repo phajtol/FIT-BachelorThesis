@@ -43,6 +43,9 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
     /** @var Model\Reference @inject */
     public $referenceModel;
 
+    /** @var Model\RightsRequest @inject */
+    public $rightsRequestModel;
+
 
     /**
      *
@@ -58,6 +61,7 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
 
         if ($this->user->isInRole('admin')) {
             $this->template->unconfirmedCount = $this->publicationModel->countUnConfirmed();
+            $this->template->rightsRequestCount = $this->rightsRequestModel->getWaitingCount();
         }
 
         $this->template->dirPathTemplate = '/storage/';

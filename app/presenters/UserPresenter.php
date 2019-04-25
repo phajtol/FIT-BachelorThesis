@@ -169,6 +169,12 @@ class UserPresenter extends SecuredPresenter {
     public function renderShow() {
         $this->template->userPasswordChangeFormEnabled = $this->userPasswordChangeFormEnabled;
 
+        $this->template->requestRightsButtonShow =
+            $this->user->isInRole('reader') && $this->user->isInRole('conference-user');
+
+        $this->template->requestRightsButtonDisabled =
+            $this->rightsRequestModel->hasUserWaitingRequests($this->user->id);
+
         if ($this->drawAllowed) {
             //$this->drawPublications(true);
         }
@@ -182,6 +188,11 @@ class UserPresenter extends SecuredPresenter {
         $this->template->userEdited = false;
         $this->template->userDeleted = false;
         $this->template->userRelated = array();
+    }
+
+    public function renderRequests(): void
+    {
+        $this->template->records = $this->rightsRequestModel->getAll();
     }
 
     public function publicationAddNewUserSettingsFormError($form) {
@@ -364,5 +375,58 @@ class UserPresenter extends SecuredPresenter {
     protected function createComponentPublication(): PublicationControl
     {
         return new PublicationControl();
+    }
+
+
+    /**
+     * This handles request for rights from user's profile page.
+     */
+    public function handleRequestRights(): void
+    {
+        if ($this->user->isInRole('reader') && $this->user->isInRole('conference-user')) {
+            $this->rightsRequestModel->request($this->user->id);
+            $this->flashMessage('Your request has been submitted.', 'alert-success');
+        } else {
+            $this->flashMessage('You cannot request rights!', 'alert-danger');
+        }
+
+        $this->redrawControl('flashMessages');
+        $this->redrawControl('requestRightsButton');
+    }
+
+
+    /**
+     * This approves user's request
+     * @param int $requestId
+     */
+    public function handleApproveRequest(int $requestId): void
+    {
+        if ($this->user->isInRole('admin')) {
+            $userId = $this->rightsRequestModel->approve($requestId, $this->user->id);
+
+            $this->userRoleModel->setUserRoles($userId, ['conference-moderator', 'submitter']);
+
+            $this->redrawControl('request-' . $requestId);
+            $this->redrawControl('allRequests');
+        } else {
+            $this->flashMessage('You don\'t have permission to do this!', 'alert-danger');
+            $this->redrawControl('flashMessages');
+        }
+    }
+
+    /**
+     * This rejects user's request
+     * @param int $requestId
+     */
+    public function handleRejectRequest(int $requestId): void
+    {
+        if ($this->user->isInRole('admin')) {
+            $this->rightsRequestModel->reject($requestId, $this->user->id);
+            $this->redrawControl('request-' . $requestId);
+            $this->redrawControl('allRequests');
+        } else {
+            $this->flashMessage('You don\'t have permission to do this!', 'alert-danger');
+            $this->redrawControl('flashMessages');
+        }
     }
 }

@@ -78,6 +78,7 @@ services:
 	Publication: App\Model\Publication
 	Publisher: App\Model\Publisher
 	Retrieve: App\Model\Retrieve
+	RightsRequest: App\Model\RightsRequest
 	Springer: App\Model\Springer
 	Submitter: App\Model\Submitter
 	SubmitterHasGroup: App\Model\SubmitterHasGroup

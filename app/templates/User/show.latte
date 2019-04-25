@@ -116,6 +116,11 @@
                                         </li>
                                     {/foreach}
                                 </ul>
+                                {snippet requestRightsButton}
+                                    {if $requestRightsButtonShow}
+                                        <a n:href="requestRights!" class="btn btn-default {if $requestRightsButtonDisabled}disabled{/if} ajax">Request submitter rights</a>
+                                    {/if}
+                                {/snippet}
                             </div>
                         </div>
 

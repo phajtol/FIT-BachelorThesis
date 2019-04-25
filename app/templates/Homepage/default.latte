@@ -8,6 +8,22 @@
     </ol>
 </div>
 
+{snippet rightsVerdict}
+    {if count($newRightsVerdict) > 0}
+        <div class="row">
+            {foreach $newRightsVerdict as $verdict}
+                <div class="alert {$verdict->verdict === 'approved' ? 'alert-success' : 'alert-danger'}">
+                    Your request for submitter rights has been {$verdict->verdict}.
+                    {if $verdict->verdict === 'approved'}
+                        Please re-log for new roles to take effect.
+                    {/if}
+                    <a n:href="markVerdictAsSeen! $verdict->rights_request_id" class="close ajax" title="close">×</a>
+                </div>
+            {/foreach}
+        </div>
+    {/if}
+{/snippet}
+
 <div class="row row-equal-cols">
     <div class="col-md-6">
         <h2 class="text-center">Publications</h2>

@@ -67,6 +67,8 @@ class HomepagePresenter extends SecuredPresenter {
 
         $this->template->upcomingConfs = $this->conferenceModel->getUpcomingStarredConferences($this->user->id);
 
+        $this->template->newRightsVerdict = $this->rightsRequestModel->getUsersUnseenVerdict($this->user->id);
+
         /*$this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
         $dataAutocomplete = $this->publicationModel->getAuthorsNamesAndPubsTitles();
         $this->template->dataAutocomplete = json_encode($dataAutocomplete);*/
@@ -168,6 +170,22 @@ class HomepagePresenter extends SecuredPresenter {
     protected function createComponentPublication(): PublicationControl
     {
         return new PublicationControl();
+    }
+
+
+    /**
+     * @param int $requestId
+     */
+    public function handleMarkVerdictAsSeen(int $requestId): void
+    {
+        $res = $this->rightsRequestModel->markVerdictAsSeen($this->user->id, $requestId);
+
+        if (!$res) {
+            $this->flashMessage('You don\'t have permission to do this!', 'alert-danger');
+            $this->redrawControl('flashMessages');
+        }
+
+        $this->redrawControl('rightsVerdict');
     }
 
 }

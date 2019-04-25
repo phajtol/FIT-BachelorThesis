@@ -504,6 +504,23 @@ CREATE TABLE `retrieve` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 
+DROP TABLE IF EXISTS `rights_request`;
+CREATE TABLE `rights_request` (
+  `rights_request_id` int(11) NOT NULL AUTO_INCREMENT,
+  `submitter_id` int(10) unsigned DEFAULT NULL,
+  `verdict_submitter_id` int(10) unsigned DEFAULT NULL,
+  `request_datetime` datetime DEFAULT NULL,
+  `verdict_datetime` datetime DEFAULT NULL,
+  `verdict` enum('waiting','approved','rejected') DEFAULT 'waiting',
+  `seen` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`rights_request_id`),
+  KEY `submitter_id` (`submitter_id`),
+  KEY `verdict_submitter_id` (`verdict_submitter_id`),
+  CONSTRAINT `submitter_id` FOREIGN KEY (`submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `verdict_submitter_id` FOREIGN KEY (`verdict_submitter_id`) REFERENCES `submitter` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 DROP TABLE IF EXISTS `submitter`;
 CREATE TABLE `submitter` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -594,4 +611,4 @@ CREATE TABLE `user_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- 2019-04-22 09:39:56
+-- 2019-04-25 07:16:59

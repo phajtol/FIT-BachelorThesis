@@ -129,6 +129,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addResource('User:default');
         $this->addResource('User:showall');
         $this->addResource('User:show');
+        $this->addResource('User:requests');
 
         $this->addResource('Publi');
         $this->addResource('Publi:showall');
@@ -226,6 +227,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->allow('admin', 'Admin:settings');
 
         $this->allow('admin', 'User:showall');
+        $this->allow('admin', 'User:requests');
 
         // $this->allow('admin', Permission::ALL, Permission::ALL);
         // akci logs atp
