@@ -17,39 +17,114 @@ class Help {
     public function __construct()
     {
         $this->arrayHelp = [
-            "publicationAddNewForm" => "If you want to EDIT some field value, click on the EDIT button. The form for editing data will be displayed. "
-            . "If you want to DELETE some field value, click the DELETE button. "
-            . "To display a list of all publications of field value, click the ASSOCIATED PUBLICATIONS button. "
-            . "If you want to ADD NEW field value, click the ADD NEW button. The form for adding new data will be displayed. ",
+            'publicationAddNewForm' => [
+                'title' => 'Add new publication',
+                'content' => 
+                    'If you want to EDIT some field value, click on the EDIT button. The form for editing data will be displayed. ' 
+                    .'If you want to DELETE some field value, click the DELETE button. '
+                    .'To display a list of all publications of field value, click the ASSOCIATED PUBLICATIONS button. '
+                    .'If you want to ADD NEW field value, click the ADD NEW button. The form for adding new data will be displayed.'
+            ],
 
-            "pub_type" => "Select type of your publication and then fill all the required fields (marked by red star).",
+            'pub_type' => [
+                'title' => 'Publication type',
+                'content' =>
+                    'Select type of your publication and then fill all the required fields (marked by red star).'
+                    .'Available and required field are different for every publication type.'
+            ],
 
-            "authors" => "There is a list of all authors in the ALL AUTHORS box. "
-            . "If you want to select some authors, please drag&drop (or use SELECT button) them to the SELECTED AUTHORS box. "
-            . "If you want to sort all the authors in the SELECTED AUTHORS box, just use drag&drop (or use MOVE UP/MOVE DOWN button). "
-            . "Author with the highest priority is on the first place.",
+            'authors' => [
+                'title' => 'Authors',
+                'content' =>
+                    'There is a list of all authors in the All authors box. '
+                    .'Select authors using drag & drop or click on them and click right arrow to move them to selected authors. '
+                    .'Order of authors matters. Author with the highest priority is on top. '
+                    .'Sort authors using drag & drop or click on one of them and move him with up and down arrows. '
+                    .'You can also add new author by clicking + button or edit or delete existing when selected from either box.'
+            ],
 
-            "categories" => "There is a list of all categories in the CATEGORIES box. "
-            . "If you want to select some categories, please check them. "
-            . "If you want to do some action (EDIT, DELETE, ASSOCIATED PUBLICATIONS) with them, just mark them and then press one of the action buttons. "
-            . "If you want to ADD NEW parent category, just click ADD NEW button and fill in a form."
-            . "If you want to ADD NEW child category, just mark parent category, click ADD NEW button and fill in a form. ",
+            'categories' => [
+                'title' => 'Categories',
+                'content' =>
+                    'Select desired categories by checking box next to them. '
+                    .'Show subcategories using an arrow next to the checkbox, if available. '
+                    .'Select a category by clicking on its name and add subcategory, edit or delete it using buttons next to the box. '
+            ],
 
-            "upload" => "If you want to upload documents, please drag&drop (or use ADD FILES button) them to the upload area. "
-            . "When you are done, just click START UPLOAD button. "
-            . "If you want to delete them, just click delete button.",
+            'upload' => [
+                'title' => 'Upload',
+                'content' =>
+                    'Use file prompt to choose file to upload for this publication.'
+            ],
 
-            "attributes" => "You can use them to extend set of publication attributes. "
-            . "If you cannot find the corresponding attribute for your publication, just ADD NEW one. "
-            . "The first character must be underline, other characters may be letters and numbers.",
+            'attributes' => [
+                'title' => 'Attributes',
+                'content' =>
+                    'Use attributes to extend set of publication attributes. '
+                    .'Use existing attributes below or add new one using + button. '
+                    .'Attribute can be private or global. '
+                    .'The first character must be underline, other characters may be letters and numbers.'
+            ],
 
-            "groups" => "There is a list of all user groups in the GROUPS box. "
-            . "If you want this publication to be part of some groups, please check them. "
-            . "If you want to do some action (EDIT, DELETE, ASSOCIATED PUBLICATIONS) with them, just mark them and then press one of the action buttons.",
+            'groups' => [
+                'title' => 'Groups',
+                'content' =>
+                    'There is a list of all user groups in the GROUPS box. '
+                    .'If you want this publication to be part of some groups, please check them. '
+                    .'If you want to do some action (EDIT, DELETE, ASSOCIATED PUBLICATIONS) with them, just mark them and then press one of the action buttons.'
+            ],
 
-            "springer" => "If you want to fetch some data from Springer, please fill in the form correctly, then click FETCH DATA button. "
-            . "In the next step, select the data for import and click IMPORT DATA button.",
+            'springer' => [
+                'title' => 'Springer',
+                'content' =>
+                    'If you want to fetch some data from Springer, please fill in the form correctly, then click FETCH DATA button. '
+                    .'In the next step, select the data for import and click IMPORT DATA button.'
+            ],
 
+            'upcomingConferences' => [
+                'title' => 'Upcoming conferences',
+                'content' =>
+                    'Conference is upcoming, if it\'s notification date is less than your deadline notification advance days from today. '
+                    .'Deadline notification advance is a setting that you can change in settings, by clicking on your username in top-right corner.'
+            ],
+
+            'publicationSearch' => [
+                'title' => 'Publication search',
+                'content' =>
+                    'Use this form to search for publications. Select desired criteria to search by. '
+                    .'You can select multiple authors, separate them with comma. All text fields are case and diacritics insensitive.'
+            ],
+
+            'annotations' => [
+                'title' => 'Annotations',
+                'content' =>
+                    'Annotation is a short text you can add to publication. '
+                    .'Its visibility can be private or global.'
+            ],
+
+            'tags' => [
+                'title' => 'Tags',
+                'content' =>
+                    'You can assign your tags to publications. '
+                    .'In order to assign tag to publication, you first need to create new tag by clicking Create new tag button. '
+                    .'Then you can add existing tag to this publication by clicking Add tag to publication button.'
+            ],
+
+            'workshops' => [
+                'title' => 'Workshop',
+                'content' =>
+                    'Workshop is basically standalone conference year, that is associated with another conference\'s year. '
+                    .'See workshops for this conference year below. '
+                    .'Add new workshop to this conference year using + button below.'
+            ],
+
+            'deadlineAdvance' => [
+                'title' => 'Deadline notification advance',
+                'content' =>
+                    'This is a period in days that is used to highlight upcoming conferences. '
+                    .'If conference year has one of the dates less than set days from today, the conference will be highlighted in the conference table and on conference detail page. '
+                    .'You can set values between 1 and 99 days.'
+            ]
         ];
     }
 

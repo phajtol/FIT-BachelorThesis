@@ -684,7 +684,21 @@
                 </div>
 
                 <div class="col-sm-4">
-                    <h3>Annotations</h3>
+                    <div style="display:block;margin-top:40px;">
+                        <h3 style="display:inline-block;">Annotations</h3>
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['annotations']['title']}"
+                           data-content="{$help['annotations']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
+                    </div>
+
+                    {*}<h3>Annotations</h3>*}
                     <hr>
 
                     {control annotationCrud}
@@ -716,8 +730,20 @@
                         {control annotationCrud-addButton, ['description' => true]}
                     </div>
 
-
-                    <h3>Tags</h3>
+                    <div style="display:block;margin-top:40px;">
+                        <h3 style="display:inline-block;">Tags</h3>
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['tags']['title']}"
+                           data-content="{$help['tags']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
+                    </div>
+                    {*}<h3>Tags</h3>*}
                     <hr>
 
                     {snippet tags}

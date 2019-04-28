@@ -90,7 +90,12 @@
             </p>
         </li>
 
-        <h3 style="display:block;margin-top:40px;" class="text-center">Upcoming starred conferences</h3>
+        <div style="display:block;margin-top:40px;" class="text-center">
+            <h3 style="display:inline-block;">Upcoming starred conferences</h3>
+            <a tabindex="0" class="btn btn-xs btn-default" data-toggle="popover" data-trigger="focus" title="{$help['upcomingConferences']['title']}" data-content="{$help['upcomingConferences']['content']}" style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;">
+                ?
+            </a>
+        </div>
         <ul>
             {if count($upcomingConfs)}
                 <li n:foreach="$upcomingConfs as $conf" style="margin-bottom:15px;">

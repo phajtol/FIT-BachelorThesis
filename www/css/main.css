@@ -256,3 +256,13 @@ a.publication {
     background-color: #FFFBCC;
     padding: 2px;
 }
+
+/* CRUD components buttons for publication category */
+
+#categoryControls button,
+#snippet-conferenceCrud-acmCategoryListA-categoryControls button,
+#snippet-conferenceCrud-conferenceCategoryListA-categoryControls button,
+#snippet-acmCategoryList-categoryControls button,
+#snippet-conferenceCategoryList-categoryControls button {
+    margin-bottom: 10px;
+}
