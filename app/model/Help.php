@@ -84,7 +84,7 @@ class Help {
             'upcomingConferences' => [
                 'title' => 'Upcoming conferences',
                 'content' =>
-                    'Conference is upcoming, if it\'s notification date is less than your deadline notification advance days from today. '
+                    'Conference is upcoming, if its notification date is less than your deadline notification advance days from today. '
                     .'Deadline notification advance is a setting that you can change in settings, by clicking on your username in top-right corner.'
             ],
 
@@ -93,6 +93,19 @@ class Help {
                 'content' =>
                     'Use this form to search for publications. Select desired criteria to search by. '
                     .'You can select multiple authors, separate them with comma. All text fields are case and diacritics insensitive.'
+            ],
+
+            'publicationSearchAuthors' => [
+                'title' => 'Publication search - authors',
+                'content' =>
+                    'Use this field to specify authors. This field will suggest authors as you type. '
+                    .'You can select multiple authors, separate them with comma.'
+            ],
+
+            'publicationSearchCategories' => [
+                'title' => 'Publication search - categories',
+                'content' =>
+                    'Use this field to specify categories. Selecting a category automatically selects all its subcategories.'
             ],
 
             'annotations' => [

@@ -43,8 +43,16 @@
             </div>
 
             <div class="row" style="margin-bottom:15px;">
-                <div class="col-md-12 form-group-lg">
+                <div class="col-md-9 form-group-lg" style="margin-top:30px;">
                     {input keywords, class => "form-control input-lg", placeholder => "Type keywords...", type => "search", autocomplete => "off", autofocus => true, data-provide => "typeahead"}
+                </div>
+                <div class="col-md-2 col-md-offset-1">
+                    <b>{label stype}:</b><br>
+                    {foreach $form[stype]->items as $key => $label}
+                        <div>
+                            <label style="font-weight:normal;" n:name="stype:$key"><input n:name="stype:$key"> {$label}</label>
+                        </div>
+                    {/foreach}
                 </div>
             </div>
 
@@ -63,22 +71,23 @@
             </div>
 
             <div id="SearchFormMoreOptions" class="collapse in">
-                <div class="row row-equal-cols" style="margin-bottom:15px;">
-                    <div class="col-md-7">
+                <div class="row row-equal-cols" style="margin-bottom:50px;">
+                    <div class="col-md-8" style="margin-top:30px;">
                         {label author}:
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['publicationSearchAuthors']['title']}"
+                           data-content="{$help['publicationSearchAuthors']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
                         {input author, class => 'form-control author', data-provide => 'typeahead', autocomplete => 'off', type => 'search', placeholder => 'Author\'s name...'}
                     </div>
 
-                    <div class="col-md-2">
-                        <b>{label stype}:</b><br>
-                        {foreach $form[stype]->items as $key => $label}
-                            <div>
-                                <label style="font-weight:normal;" n:name="stype:$key"><input n:name="stype:$key"> {$label}</label>
-                            </div>
-                        {/foreach}
-                    </div>
-
-                    <div class="col-md-3">
+                    <div class="col-md-2 col-md-offset-2">
                         <b>{label scope}:</b><br>
                         {foreach $form[scope]->items as $key => $label}
                             <div>
@@ -99,7 +108,18 @@
                     </div>
 
                     <div class="col-md-5">
-                        <b>{label categories}:</b><br>
+                        <b>{label categories}:</b>
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['publicationSearchCategories']['title']}"
+                           data-content="{$help['publicationSearchCategories']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
+                        <br>
 
                         {control publicationCategories}
                         {input categories}
