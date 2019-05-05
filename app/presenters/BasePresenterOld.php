@@ -46,6 +46,9 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
     /** @var Model\RightsRequest @inject */
     public $rightsRequestModel;
 
+    /** @var Model\ReferenceCount @inject */
+    public $referenceCountModel;
+
     /** @var Model\UserRole @inject */
     public $userRoleModel;
 
@@ -68,6 +71,18 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
         if ($this->user->isInRole('admin')) {
             $this->template->unconfirmedCount = $this->publicationModel->countUnConfirmed();
             $this->template->rightsRequestCount = $this->rightsRequestModel->getWaitingCount();
+
+            //check reference count last update and if higher than set value update it, otherwise use cached count from DB
+            $referenceCntLastUpdate = $this->referenceCountModel->getLastUpdate();
+            $referenceCntTimeDiff = $referenceCntLastUpdate->diff(new Nette\DateTime());
+
+            if ($referenceCntTimeDiff->h >= Model\ReferenceCount::UPDATE_INTERVAL) {
+                $newCount = $this->referenceModel->findUnconfirmedWithPublicationCount();
+                $this->referenceCountModel->updateCount($newCount);
+                $this->template->unconfirmedReferencesCount = $newCount;
+            } else {
+                $this->template->unconfirmedReferencesCount = $this->referenceCountModel->getCount();
+            }
         }
 
         $this->template->dirPathTemplate = '/storage/';

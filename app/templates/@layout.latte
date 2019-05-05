@@ -209,7 +209,7 @@
                                         Administration
                                         {if $user->isInRole('admin')}
                                             <span class="badge">
-                                                {$unconfirmedCount + $rightsRequestCount}
+                                                {$unconfirmedCount + $rightsRequestCount + $unconfirmedReferencesCount}
                                             </span>
                                         {/if}
                                         <b class="caret"></b>
@@ -222,15 +222,14 @@
                                             <li class="{ifCurrent Admin:showunconfirmed}active{/ifCurrent}">
                                                 <a n:href="Admin:showunconfirmed">
                                                     Publications for check
-                                                    {if $user->isInRole('admin')}
-                                                        <span class="badge">{$unconfirmedCount}</span>
-                                                    {/if}
+                                                    <span class="badge">{$unconfirmedCount}</span>
                                                 </a>
                                             </li>
 
                                             <li class="{ifCurrent Admin:reference}active{/ifCurrent}">
                                                 <a n:href="Admin:reference">
                                                     Reference for check
+                                                    <span class="badge">{$unconfirmedReferencesCount}</span>
                                                 </a>
                                             </li>
                                         {/if}
