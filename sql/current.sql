@@ -495,6 +495,15 @@ CREATE TABLE `reference2` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 
+DROP TABLE IF EXISTS `reference_count`;
+CREATE TABLE `reference_count` (
+  `reference_count_id` int(11) NOT NULL AUTO_INCREMENT,
+  `count` int(10) unsigned DEFAULT NULL,
+  `timestamp` datetime DEFAULT NULL,
+  PRIMARY KEY (`reference_count_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 DROP TABLE IF EXISTS `retrieve`;
 CREATE TABLE `retrieve` (
   `submitter_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -611,4 +620,4 @@ CREATE TABLE `user_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- 2019-04-25 07:16:59
+-- 2019-05-05 16:40:54
