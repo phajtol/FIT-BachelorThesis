@@ -74,9 +74,9 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
 
             //check reference count last update and if higher than set value update it, otherwise use cached count from DB
             $referenceCntLastUpdate = $this->referenceCountModel->getLastUpdate();
-            $referenceCntTimeDiff = $referenceCntLastUpdate->diff(new Nette\DateTime());
+            $referenceCntTimeDiff = ((new Nette\DateTime())->getTimestamp() - $referenceCntLastUpdate->getTimestamp()) / 60 / 60;
 
-            if ($referenceCntTimeDiff->h >= Model\ReferenceCount::UPDATE_INTERVAL) {
+            if ($referenceCntTimeDiff >= Model\ReferenceCount::UPDATE_INTERVAL) {
                 $newCount = $this->referenceModel->findUnconfirmedWithPublicationCount();
                 $this->referenceCountModel->updateCount($newCount);
                 $this->template->unconfirmedReferencesCount = $newCount;
