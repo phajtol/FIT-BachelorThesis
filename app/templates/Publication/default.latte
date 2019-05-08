@@ -236,7 +236,9 @@
                 }
             }
         ).bind('typeahead:selected', function(evt, item) {
-            $('.author').val(item);
+            let split = item.split(' ');
+            let author = split[0] + ' ' + split[split.length - 1];
+            $('.author').val(author);
         });
     });
 
