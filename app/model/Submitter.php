@@ -124,7 +124,7 @@ class Submitter extends Base {
      * @param string $surname
      * @return \Nette\Database\Table\ActiveRow
      */
-    public function createNew(string $nickname, string $email = '', string $name = '', string $surname = ''): ActiveRow
+    public function createNew(string $nickname, string $email = '', ?string $name = '', string $surname = ''): ActiveRow
     {
         return $this->insert([
                 'name'  	=>	$name,

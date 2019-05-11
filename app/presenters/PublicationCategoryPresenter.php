@@ -14,6 +14,12 @@ class PublicationCategoryPresenter extends SecuredPresenter {
     /** @var Model\CategoriesHasPublication @inject */
     public $categoriesHasPublicationModel;
 
+    /** @var Model\Publication @inject */
+    public $publicationModel;
+
+    /** @var Model\Author @inject */
+    public $authorModel;
+
 
     /**
      * @param $name
@@ -24,6 +30,8 @@ class PublicationCategoryPresenter extends SecuredPresenter {
             $this->user,
             $this->categoriesModel,
             $this->categoriesHasPublicationModel,
+            $this->publicationModel,
+            $this->authorModel,
             $this, $name
         );
 

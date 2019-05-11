@@ -2,9 +2,11 @@
 
 namespace App\CrudComponents\User;
 
+use App\Components\Publication\PublicationControl;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
 use App\Helpers\Func;
+use App\Model\Author;
 use App\Services\Authenticators\BaseAuthenticator;
 
 
@@ -31,6 +33,9 @@ class UserCrudComponent extends BaseCrudComponent {
 	/** @var  \App\Model\Publication */
 	protected $publicationModel;
 
+	/** @var \App\Model\Author */
+	protected $authorModel;
+
 	/** @var  \App\Model\UserRole */
 	protected $userRoleModel;
 
@@ -46,6 +51,7 @@ class UserCrudComponent extends BaseCrudComponent {
      * @param \App\Model\SubmitterHasCuGroup $submitterHasCuGroupModel
      * @param \App\Model\Submitter $submitterModel
      * @param \App\Model\Publication $publicationModel
+     * @param Author $authorModel
      * @param \App\Model\UserRole $userRoleModel
      * @param BaseAuthenticator $baseAuthenticator
      * @param \Nette\ComponentModel\IContainer|NULL $parent
@@ -57,6 +63,7 @@ class UserCrudComponent extends BaseCrudComponent {
                          \App\Model\SubmitterHasCuGroup $submitterHasCuGroupModel,
 						 \App\Model\Submitter $submitterModel,
                          \App\Model\Publication $publicationModel,
+						 \App\Model\Author $authorModel,
 						 \App\Model\UserRole $userRoleModel,
 						 BaseAuthenticator $baseAuthenticator,
 						 \Nette\ComponentModel\IContainer $parent = NULL,
@@ -70,6 +77,7 @@ class UserCrudComponent extends BaseCrudComponent {
 		$this->submitterHasCuGroupModel = $submitterHasCuGroupModel;
 		$this->submitterModel = $submitterModel;
 		$this->publicationModel = $publicationModel;
+		$this->authorModel = $authorModel;
 		$this->userRoleModel = $userRoleModel;
 		$this->baseAuthenticator = $baseAuthenticator;
 
@@ -300,13 +308,30 @@ class UserCrudComponent extends BaseCrudComponent {
 		return $form;
 	}
 
+
+    /**
+     * @return PublicationControl
+     */
+	public function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
+
     /**
      * @param int $id
      * @throws \Nette\Application\AbortException
      */
 	public function handleShowRelatedPublications(int $id): void
     {
-		$this->template->publicationsRelatedToUser = $this->publicationModel->findAllBy(array("submitter_id" => $id));
+        $publications = $this->publicationModel->getMultiplePubInfoByParams(['publication.submitter_id' => $id]);
+        $authorsByPubId = [];
+
+        foreach ($publications as $pub) {
+            $authorsByPubId[$pub->id] = $this->authorModel->getAuthorsNamesByPubIdPure($pub->id);
+        }
+
+        $this->template->publicationsRelatedToUser = $publications;
+        $this->template->authorsByPubId = $authorsByPubId;
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');
@@ -316,9 +341,9 @@ class UserCrudComponent extends BaseCrudComponent {
 	}
 
     /**
-     *
+     * @param array|null $params
      */
-	public function render(): void
+	public function render(?array $params = []): void
     {
 		$this->addDefaultTemplateVars([
 			'userAdded'     =>  false,
@@ -327,7 +352,7 @@ class UserCrudComponent extends BaseCrudComponent {
 			"publicationsRelatedToUser" => []
 		]);
 
-		parent::render();
+		parent::render($params);
 	}
 
 

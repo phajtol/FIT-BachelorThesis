@@ -5,9 +5,11 @@ use App\Components\AcmCategoryList\AcmCategoryListComponent;
 use App\Components\AlphabetFilter\AlphabetFilterComponent;
 use App\Components\ButtonToggle\ButtonGroupComponent;
 use App\Components\ConferenceCategoryList\ConferenceCategoryListComponent;
+use App\Components\Publication\PublicationControl;
 use App\CrudComponents\Conference\ConferenceCrud;
 use App\CrudComponents\ConferenceYear\ConferenceYearCrud;
 use App\Forms\BaseForm;
+use App\Model\Author;
 use NasExt\Controls\SortingControl;
 use Nette\Application\UI\Multiplier;
 
@@ -294,7 +296,9 @@ class ConferencePresenter extends SecuredPresenter {
 	public function renderShow(): void
     {
 
-		if (!$this->currentConferenceYear) return;
+		if (!$this->currentConferenceYear) {
+		    return;
+        }
 
 		$conferenceYear = $this->currentConferenceYear;
 
@@ -314,7 +318,7 @@ class ConferencePresenter extends SecuredPresenter {
 
 		// load associated publications
 		$associtatedPublicationsByConferenceYear = [];
-		$publications = $this->publicationModel->findAll()->where( 'conference_year_id IN ?', $allConferenceYearsIds );
+		$publications = $this->publicationModel->getPublicationsByConferenceYears($allConferenceYearsIds);
 
 			// load conference years to the apbcy array
 			$associatedPublicationsByConferenceYear[$conferenceYear->id] = array_merge($conferenceYear->toArray(),
@@ -358,7 +362,8 @@ class ConferencePresenter extends SecuredPresenter {
 		$this->template->associatedPublicationsByConferenceYear = $associatedPublicationsByConferenceYear;
 		$this->template->authorsOfPublications = $authorsOfPublications;
 		$this->template->conferenceYearIsIndexed = $conferenceYearIsIndexed;
-
+        $this->template->conference = $this->conferenceModel->getConferenceByConferenceYearId($conferenceYear->conference_id);
+        $this->template->isbn = $this->conferenceYearModel->getIsbnForConferenceYear($conferenceYear->id);
 
 		// load categories
 		$this->template->acmCategories = [];
@@ -599,7 +604,10 @@ class ConferencePresenter extends SecuredPresenter {
 			$c->setAjaxRequest(true);
 
 			$c->onMarkedAsFavourite[] = function () {
-				$this->redrawControl('conferenceYearsShowAll');
+                $this->presenter->flashMessage('Operation was successfully completed.', 'alert-success');
+                $this->redrawControl('conferenceYearsShowAllRecords');
+                $this->redrawControl('conferenceControls');
+				$this->redrawControl('flashMessages');
 			};
 
 			return $c;
@@ -688,5 +696,14 @@ class ConferencePresenter extends SecuredPresenter {
 
 		return $form;
 	}
+
+
+    /**
+     * @return PublicationControl
+     */
+	protected function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
 
 }

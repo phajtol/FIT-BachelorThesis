@@ -1,5 +1,6 @@
 {ifset $deleteAllowed}
-	<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deletePublicationTagButton deletePublicationTagButton{$uniqid}" data-toggle="modal" data-target="#PublicationTagDeleteModal{$uniqid}" title="Delete publication tag">
+	<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{else}btn-xs{/ifset} deletePublicationTagButton deletePublicationTagButton{$uniqid}" data-toggle="modal" data-target="#PublicationTagDeleteModal{$uniqid}" title="Delete publication tag">
 		<span class="glyphicon glyphicon-remove"></span>
+		{if isset($description) && $description == true} Delete{/if}
 	</button>
 {/ifset}

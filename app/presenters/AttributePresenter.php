@@ -15,6 +15,12 @@ class AttributePresenter extends BasePresenter {
     /** @var Model\AttribStorage @inject */
     public $attribStorageModel;
 
+    /** @var Model\Publication @inject */
+    public $publicationModel;
+
+    /** @var Model\Author @inject */
+    public $authorModel;
+
 
     /**
      * @return AttributeCrud
@@ -22,7 +28,7 @@ class AttributePresenter extends BasePresenter {
 	public function createComponentCrud(): AttributeCrud
     {
 		$c = new AttributeCrud(
-			$this->user, $this->attributeModel, $this->attribStorageModel,
+			$this->user, $this->attributeModel, $this->attribStorageModel, $this->publicationModel, $this->authorModel,
 			$this, 'crud'
 		);
 

@@ -36,7 +36,7 @@
 										<tr n:foreach="$rel['conference_has_acm_category'] as $r">
 											{* <li><a href="{plink Conference:show, $r->conference->id}">{$r->conference->title}</a></li> *}
 											{* todo uncomment later *}
-											<td><a href="#">{$r->conference->name}</a></td>
+											<td><a href="{plink :Conference:show, $r->conference->id}">{$r->conference->name}</a></td>
 											{* <td>{control conferenceCrud-controls-$r->conference->id}</td> *}
 										</tr>
 									</tbody>

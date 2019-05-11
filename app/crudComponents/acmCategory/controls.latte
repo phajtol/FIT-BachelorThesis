@@ -1,6 +1,7 @@
 {extends $baseTemplateFilename}
 {block extraControls}
-	<button type="button" data-signal-url="{$showRelatedConferencesLink}" class="btn btn-default btn-xs showConferencesRelatedToCategoryButton showConferencesRelatedToCategoryButton{$uniqid}" data-toggle="modal" data-target="#ConferencesRelatedToCategoryModal{$uniqid}" title="Associated Conferences">
+	<button type="button" data-signal-url="{$showRelatedConferencesLink}" class="btn btn-default {ifset $button}btn-{$button}{else}btn-xs{/ifset} showConferencesRelatedToCategoryButton showConferencesRelatedToCategoryButton{$uniqid}" data-toggle="modal" data-target="#ConferencesRelatedToCategoryModal{$uniqid}" title="Associated Conferences">
     	<span class="glyphicon glyphicon-link"></span>
+		{if isset($description) && $description == true} Associated conferences{/if}
     </button>
 {/block}

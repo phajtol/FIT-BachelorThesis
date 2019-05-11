@@ -2,6 +2,7 @@
 
 namespace App\CrudComponents\Journal;
 
+use App\Components\Publication\PublicationControl;
 use App\Components\StaticContentComponent;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
@@ -18,6 +19,9 @@ class JournalCrud extends BaseCrudComponent {
 	/** @var \App\Model\Publication */
 	protected $publicationModel;
 
+	/** @var \App\Model\Author */
+	protected $authorModel;
+
 	/** @var  \App\Model\JournalIsbn */
 	protected $journalIsbnModel;
 
@@ -27,14 +31,16 @@ class JournalCrud extends BaseCrudComponent {
      * @param \Nette\Security\User $loggedUser
      * @param \App\Model\Journal $journalModel
      * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\Author $authorModel
      * @param \App\Model\JournalIsbn $journalIsbn
-     * @param \Nette\ComponentModel\IContainer|NULL $parent
-     * @param string|NULL $name
+     * @param \Nette\ComponentModel\IContainer|null $parent
+     * @param string|null $name
      */
 	public function __construct(
 		\Nette\Security\User $loggedUser,
         \App\Model\Journal $journalModel,
 		\App\Model\Publication $publicationModel,
+		\App\Model\Author $authorModel,
 		\App\Model\JournalIsbn $journalIsbn,
 		\Nette\ComponentModel\IContainer $parent = NULL,
         string $name = NULL)
@@ -54,6 +60,7 @@ class JournalCrud extends BaseCrudComponent {
 		$this->journalModel = $journalModel;
 		$this->loggedUser = $loggedUser;
 		$this->publicationModel = $publicationModel;
+		$this->authorModel = $authorModel;
 		$this->journalIsbnModel = $journalIsbn;
 
 		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
@@ -183,7 +190,15 @@ class JournalCrud extends BaseCrudComponent {
      */
 	public function handleShowRelatedPublications(int $id): void
     {
-		$this->template->publicationsRelatedToJournal = $this->publicationModel->findAllBy(["journal_id" => $id]);
+		$publications = $this->publicationModel->getMultiplePubInfoByParams(['journal_id' => $id]);
+		$authorsByPubId = [];
+
+		foreach ($publications as $pub) {
+		    $authorsByPubId[$pub->id] = $this->authorModel->getAuthorsNamesByPubIdPure($pub->id);
+        }
+
+        $this->template->publicationsRelatedToJournal = $publications;
+		$this->template->authorsByPubId = $authorsByPubId;
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');
@@ -229,12 +244,20 @@ class JournalCrud extends BaseCrudComponent {
 	}
 
     /**
-     *
+     * @return PublicationControl
      */
-	public function render(): void
+	public function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
+
+    /**
+     * @param array|null $params
+     */
+	public function render(?array $params = []): void
     {
 		$this->template->journalForm = $this['journalForm'];
 		$this->template->getLatte()->addProvider('formsStack', [$this['journalForm']]);
-		parent::render();
+		parent::render($params);
 	}
 }

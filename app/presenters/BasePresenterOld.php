@@ -43,6 +43,15 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
     /** @var Model\Reference @inject */
     public $referenceModel;
 
+    /** @var Model\RightsRequest @inject */
+    public $rightsRequestModel;
+
+    /** @var Model\ReferenceCount @inject */
+    public $referenceCountModel;
+
+    /** @var Model\UserRole @inject */
+    public $userRoleModel;
+
 
     /**
      *
@@ -52,8 +61,28 @@ abstract class BasePresenterOld extends Nette\Application\UI\Presenter {
         parent::startup();
 
         if ($this->getUser()->isLoggedIn()) {
+            $roles = $this->userRoleModel->getAllByUserId($this->user->id);
+            $this->user->getIdentity()->setRoles($roles);
+
             $this->userSettings = $this->userSettingsModel->findOneBy(['submitter_id' => $this->user->id]);
             $this->itemsPerPageDB = $this->userSettings->pagination;
+        }
+
+        if ($this->user->isInRole('admin')) {
+            $this->template->unconfirmedCount = $this->publicationModel->countUnConfirmed();
+            $this->template->rightsRequestCount = $this->rightsRequestModel->getWaitingCount();
+
+            //check reference count last update and if higher than set value update it, otherwise use cached count from DB
+            $referenceCntLastUpdate = $this->referenceCountModel->getLastUpdate();
+            $referenceCntTimeDiff = ((new Nette\DateTime())->getTimestamp() - $referenceCntLastUpdate->getTimestamp()) / 60 / 60;
+
+            if ($referenceCntTimeDiff >= Model\ReferenceCount::UPDATE_INTERVAL) {
+                $newCount = $this->referenceModel->findUnconfirmedWithPublicationCount();
+                $this->referenceCountModel->updateCount($newCount);
+                $this->template->unconfirmedReferencesCount = $newCount;
+            } else {
+                $this->template->unconfirmedReferencesCount = $this->referenceCountModel->getCount();
+            }
         }
 
         $this->template->dirPathTemplate = '/storage/';

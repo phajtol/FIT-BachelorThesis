@@ -3,6 +3,7 @@
 namespace App\Presenters;
 
 use App\Components\AlphabetFilter\AlphabetFilterComponent;
+use App\Components\Publication\PublicationControl;
 use App\CrudComponents\Journal\JournalCrud;
 use App\Model;
 use NasExt\Controls\SortingControl;
@@ -15,6 +16,9 @@ class JournalPresenter extends SecuredPresenter {
 
     /** @var Model\Publication @inject */
     public $publicationModel;
+
+    /** @var Model\Author @inject */
+    public $authorModel;
 
     /** @var Model\JournalIsbn @inject */
     public $journalIsbnModel;
@@ -47,18 +51,29 @@ class JournalPresenter extends SecuredPresenter {
 			$this->user,
 			$this->journalModel,
 			$this->publicationModel,
+			$this->authorModel,
 			$this->journalIsbnModel,
 			$this, 'crud'
 		);
 
 		$c->onAdd[] = function ($row) {
 			$this->successFlashMessage(sprintf("Journal %s has been added successfully", $row->name));
-			$this->redrawControl('journalShowAll');
+
+			if ($this->isLinkCurrent(':Journal:detail')) {
+			    $this->redirect(':Journal:detail', $row->id);
+            } else {
+                $this->redrawControl('journalShowAll');
+            }
 		};
 
 		$c->onDelete[] = function ($row) {
 			$this->successFlashMessage(sprintf("Journal %s has been deleted successfully", $row->name));
-			$this->redrawControl('journalShowAll');
+
+            if ($this->isLinkCurrent(':Journal:detail')) {
+                $this->redirect(':Journal:showall');
+            } else {
+                $this->redrawControl('journalShowAll');
+            }
 		};
 
 		$c->onEdit[] = function ($row) {
@@ -96,6 +111,24 @@ class JournalPresenter extends SecuredPresenter {
 		}
 	}
 
+    /**
+     * @param int $id
+     */
+	public function renderDetail(int $id): void
+    {
+        $publicationIds = [];
+        $journalDetails = $this->journalModel->getJournalWithIsbnsAndPublications($id);
+
+        foreach ($journalDetails['publications'] as $publication) {
+            $publicationIds[] = $publication->id;
+        }
+
+        $authorsByPubId = $this->authorModel->getAuthorsByMultiplePubIds($publicationIds);
+
+        $this->template->journalDetails = $journalDetails;
+        $this->template->authorsByPubId = $authorsByPubId;
+    }
+
 
 	/**
 	 * @return \NasExt\Controls\SortingControl
@@ -111,4 +144,11 @@ class JournalPresenter extends SecuredPresenter {
 		return $control;
 	}
 
+    /**
+     * @return PublicationControl
+     */
+	protected function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
 }

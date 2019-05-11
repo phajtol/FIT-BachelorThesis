@@ -3,8 +3,8 @@
 	<div class="row">
 		<ol class="breadcrumb">
 			<li><a n:href="Homepage:">Home</a></li>
-			<li><a href="#" class="breadcrumb-admin">Administration</a></li>
-			<li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">All Journals</a></li>
+			<li><a href="#" class="breadcrumb-admin">Journals</a></li>
+			<li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">All journals</a></li>
 		</ol>
 	</div>
 
@@ -15,10 +15,12 @@
 			<div class="col-lg-4">
 				{include searchForm}
 			</div>
-			<div class="col-lg-7">
+			<div class="col-lg-6">
 			</div>
-			<div class="col-lg-1">
-				{control crud-addButton}
+			<div class="col-lg-2 text-center">
+				{if $user->isInRole('admin') || $user->isInRole('submitter')}
+					{control crud-addButton, ['description' => true]}
+				{/if}
 			</div>
 		</div>
 
@@ -39,20 +41,30 @@
 								<th>
 									{control sorting, "doi", "DOI"}
 								</th>
-								<th>
-									Action
-								</th>
+                                {if $user->isInRole('admin') || $user->isInRole('submitter')}
+								    <th>
+									    Action
+								    </th>
+                                {/if}
 							</tr>
 						</thead>
 						<tbody n:snippet="journalShowAllRecords">
 							{foreach $records as $record}
 								<tr n:snippet="journalRow$record->id">
-									<td>{$record->name}</td>
-									<td>{$record->abbreviation}</td>
-									<td>{$record->doi}</td>
 									<td>
-										{control crud-controls-$record->id}
-									</td>
+                                        <a n:href=":Journal:detail $record->id">
+                                            {$record->name}
+                                        </a>
+                                    </td>
+									<td> <a n:href=":Journal:detail $record->id">
+                                            {$record->abbreviation}
+                                        </a></td>
+									<td>{$record->doi}</td>
+                                    {if $user->isInRole('admin') || $user->isInRole('submitter')}
+									    <td>
+										    {control crud-controls-$record->id}
+									    </td>
+                                    {/if}
 								</tr>
 							{/foreach}
 						</tbody>

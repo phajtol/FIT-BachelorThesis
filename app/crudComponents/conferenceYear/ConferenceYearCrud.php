@@ -2,11 +2,13 @@
 
 namespace App\CrudComponents\ConferenceYear;
 
+use App\Components\Publication\PublicationControl;
 use App\Components\StaticContentComponent;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
 use App\CrudComponents\Publisher\PublisherCrud;
 use App\Helpers\Func;
+use Nette\Utils\DateTime;
 
 
 class ConferenceYearCrud extends BaseCrudComponent {
@@ -22,6 +24,9 @@ class ConferenceYearCrud extends BaseCrudComponent {
 
 	/** @var  \App\Model\Publication */
 	protected $publicationModel;
+
+	/** @var \App\Model\Author */
+    protected $authorModel;
 
 	/** @var  \App\Model\DocumentIndex */
 	protected $documentIndexModel;
@@ -51,6 +56,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
      * @param \Nette\Security\User $loggedUser
      * @param \App\Model\Publisher $publisherModel
      * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\Author $authorModel
      * @param \App\Model\ConferenceYear $conferenceYearModel
      * @param \App\Model\Conference $conferenceModel
      * @param \App\Model\DocumentIndex $documentIndexModel
@@ -63,6 +69,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
                                 \Nette\Security\User $loggedUser,
                                 \App\Model\Publisher $publisherModel,
 								\App\Model\Publication $publicationModel,
+                                \App\Model\Author $authorModel,
                                 \App\Model\ConferenceYear $conferenceYearModel,
                                 \App\Model\Conference $conferenceModel,
 								\App\Model\DocumentIndex $documentIndexModel,
@@ -74,6 +81,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$this->conferenceYearModel = $conferenceYearModel;
 		$this->conferenceModel = $conferenceModel;
 		$this->publicationModel = $publicationModel;
+		$this->authorModel = $authorModel;
 		$this->publisherModel = $publisherModel;
 		$this->documentIndexModel = $documentIndexModel;
 		$this->conferenceYearIsIndexedModel = $conferenceYearIsIndexedModel;
@@ -150,7 +158,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	public function createComponentPublisherA(): PublisherCrud
     {
 		$publisherCrud = new PublisherCrud(
-		    $this->loggedUser, $this->publisherModel, $this->publicationModel, $this->conferenceYearModel, $this, 'publisherA'
+		    $this->loggedUser, $this->publisherModel, $this->publicationModel, $this->authorModel, $this->conferenceYearModel, $this, 'publisherA'
 		);
 
 		$p = $this;
@@ -187,7 +195,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	public function createComponentPublisherE(): PublisherCrud
     {
 		$publisherCrud = new PublisherCrud(
-			$this->loggedUser, $this->publisherModel, $this->publicationModel, $this->conferenceYearModel, $this, 'publisherE'
+			$this->loggedUser, $this->publisherModel, $this->publicationModel, $this->authorModel, $this->conferenceYearModel, $this, 'publisherE'
 		);
 
 		$p = $this;
@@ -278,20 +286,23 @@ class ConferenceYearCrud extends BaseCrudComponent {
         $this->reduceForm($form);
 
         $form->onSuccess[] = function (ConferenceYearForm $form) {
-    		$formValues = $form->getValuesTransformed();
-    		$formValues['submitter_id'] = intval($this->loggedUser->id);
-    		$documentIndexes = Func::getAndUnset($formValues, 'document_indexes');
+            $formValues = $form->getValuesTransformed();
+            $documentIndexes = Func::getAndUnset($formValues, 'document_indexes');
 
     		$this->sanitizeEntityData($formValues);
     		unset($formValues['isbn']);
     		unset($formValues['isbn_count']);
+    		unset($formValues['submitter_id']);
 
     		if (empty($formValues['id'])) {
     			$this->template->conferenceYearAdded = true;
     			unset($formValues['id']);
+                $formValues['submitter_id'] = intval($this->loggedUser->id);
     			$record = $this->conferenceYearModel->insert($formValues);
     		} else {
     			unset($formValues['publisher_id']);
+                $formValues['lastedit_submitter_id'] = intval($this->loggedUser->id);
+                $formValues['lastedit_timestamp'] = new DateTime();
     			$this->template->conferenceYearEdited = true;
     			$this->conferenceYearModel->update($formValues);
     			$record = $this->conferenceYearModel->findOneById($formValues['id']);
@@ -322,11 +333,17 @@ class ConferenceYearCrud extends BaseCrudComponent {
     		}
 
     		$this->conferenceYearIsIndexedModel->setAssociatedDocumentIndexes($record->id, $documentIndexes);
+    		
+            if ($this->template->conferenceYearAdded) {
+                $this->presenter->redirect('this', $record->id);
+            }
 
     		if (!$this->presenter->isAjax()) {
     			$this->presenter->redirect('this');
     		} else {
     			$this->redrawControl('conferenceYearForm');
+                $this->redrawControl('conferenceYearDetail');
+                $this->presenter->redrawControl('conferenceYears');
     		}
         };
 
@@ -378,7 +395,15 @@ class ConferenceYearCrud extends BaseCrudComponent {
      */
 	public function handleShowRelatedPublications(int $conferenceYearId): void
     {
-		$this->template->relatedPublications = $this->publicationModel->findAllBy(['conference_year_id' => $conferenceYearId]);
+		$publications = $this->publicationModel->getMultiplePubInfoByParams(['conference_year_id' => $conferenceYearId]);
+		$authors = [];
+
+		foreach ($publications as $pub) {
+		    $authors[$pub->id] = $this->authorModel->getAuthorsNamesByPubIdPure($pub->id);
+        }
+
+        $this->template->relatedPublications = $publications;
+		$this->template->authorsByPubId = $authors;
 		$this->redrawControl('relatedPublications');
 	}
 
@@ -490,8 +515,13 @@ class ConferenceYearCrud extends BaseCrudComponent {
 			'id'        =>  $id,
 			'state'     =>  $state
 		]);
-		$this['controls'][$id]->redrawControl();
 		$this->onArchivedStateChanged($id, $state);
+
+        $this->presenter->flashMessage('Operation was successfully completed.', 'alert-success');
+        $this->presenter->redrawControl('conferenceYearShowAllRecords');
+        $this->presenter->redrawControl('conferenceYearsShowAllRecords');
+        $this->presenter->redrawControl('conferenceYearControls');
+        $this->presenter->redrawControl('flashMessages');
 	}
 
     /**
@@ -537,6 +567,7 @@ class ConferenceYearCrud extends BaseCrudComponent {
 		$this->template->relatedWorkshops = $this->conferenceYearModel->findAllBy(['parent_id' =>  $conferenceYearId]);
 		$this->template->conferenceYearId = $conferenceYearId;
 		$this->redrawControl('relatedWorkshops');
+        $this->presenter->redrawControl('workshops');
 	}
 
     /**
@@ -596,11 +627,19 @@ class ConferenceYearCrud extends BaseCrudComponent {
 	}
 
     /**
-     *
+     * @return PublicationControl
      */
-	public function render(): void
+	public function createComponentPublication(): PublicationControl
     {
-		parent::render();
+        return new PublicationControl();
+    }
+
+    /**
+     * @param array|null $params
+     */
+	public function render(?array $params = []): void
+    {
+		parent::render($params);
 	}
 
 }

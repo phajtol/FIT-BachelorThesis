@@ -1,13 +1,16 @@
 {ifset $editAllowed}
-  <button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editReferenceButton editReferenceButton{$uniqid}" data-toggle="modal" data-target="#EditReferenceModal{$uniqid}" title="Edit reference">
-  	<span class="glyphicon glyphicon-pencil"></span>
-  </button>
-  <button type="button" data-signal-url="{$selectLink}" class="btn btn-default btn-xs selectReferenceButton selectReferenceButton{$uniqid}" data-toggle="modal" data-target="#SelectReferenceModal{$uniqid}" title="Select reference">
-  	<span class="glyphicon glyphicon-link"></span>
-  </button>
+	<button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{else}btn-xs{/ifset} editReferenceButton editReferenceButton{$uniqid}" data-toggle="modal" data-target="#EditReferenceModal{$uniqid}" title="Edit reference">
+  	    <span class="glyphicon glyphicon-pencil"></span>
+	    {if isset($description) && $description == true} Edit{/if}
+    </button>
+    <button type="button" data-signal-url="{$selectLink}" class="btn btn-default {ifset $button}btn-{$button}{else}btn-xs{/ifset} selectReferenceButton selectReferenceButton{$uniqid}" data-toggle="modal" data-target="#SelectReferenceModal{$uniqid}" title="Select reference">
+  	    <span class="glyphicon glyphicon-link"></span>
+	    {if isset($description) && $description == true} Select{/if}
+    </button>
 {/ifset}
 {ifset $deleteAllowed}
-	<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteReferenceButton deleteButton{$uniqid}" data-toggle="modal" data-target="#DeleteModal{$uniqid}" title="Delete reference">
+    <button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{else}btn-xs{/ifset} deleteReferenceButton deleteButton{$uniqid}" data-toggle="modal" data-target="#DeleteModal{$uniqid}" title="Delete reference">
 		<span class="glyphicon glyphicon-remove"></span>
+		{if isset($description) && $description == true} Delete{/if}
 	</button>
 {/ifset}

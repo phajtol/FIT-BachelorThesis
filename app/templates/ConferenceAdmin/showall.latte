@@ -17,13 +17,13 @@
 			</div>
 			<div class="col-lg-1">
 			</div>
-			<div class="col-lg-6">
+			<div class="col-lg-4">
 				{if $CU}
 					{control showArchivedControl}
 				{/if}
 			</div>
-			<div class="col-lg-1">
-				{control crud-addButton}
+			<div class="col-lg-3 text-center">
+				{control crud-addButton, ['description' => true]}
 			</div>
 		</div>
 
@@ -55,12 +55,12 @@
 						<tbody n:snippet="conferenceShowAllRecords">
 							{foreach $records as $record}
 								<tr n:snippet="conferenceRow$record->id">
-									<td>{$record->name}</td>
-									<td>{$record->abbreviation}</td>
-									<td>{$record->description}</td>
-									<td>{$record->first_year}</td>
-									<td>
-										{control crud-controls-$record->id}
+									<td class="col-md-3">{$record->name}</td>
+									<td class="col-md-1">{$record->abbreviation}</td>
+									<td class="col-md-5">{$record->description}</td>
+									<td class="col-md-1">{$record->first_year}</td>
+									<td class="col-md-2">
+										{control crud-controls-$record->id, ['description' => false, 'button' => 'xs']}
 									</td>
 								</tr>
 							{/foreach}

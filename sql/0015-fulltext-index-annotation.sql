@@ -1,0 +1,1 @@
+ALTER TABLE `annotation` ADD FULLTEXT KEY `idx_annotation_text` (`text`);

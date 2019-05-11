@@ -2,225 +2,112 @@
 
 {block content}
 
-    {block #searchBreadcrumbs}{/block}
-
-{*
-<div style="padding-top: 50px" class="row">
-    {$gp->getPublicWWWAddress()}
-</div>
-*}
-
 <div class="row">
-
-    <div class="col-md-4"></div>
-
-    {form homepageSearchForm, class => "form-horizontal", role => "form"}
-        
-    <div class="col-md-4">
-        <ul id="pub-detail-tab" class="nav nav-tabs">
-            <li class="active"><a href="#fulltext" data-toggle="tab">Fulltext search</a></li>
-            <li class=""><a href="#authors" data-toggle="tab">Authors/Publication search</a></li>
-        </ul>
-        <br />
-        <div id="pub-detail-tab-content" class="tab-content">
-            <div class="tab-pane fade active in" id="fulltext">
-                {* <div class="form-group">
-                    {input keywords, class => "form-control", placeholder => "Fulltext search", type => "search", autofocus => true}
-                </div> *}
-            </div>
-            <div class="tab-pane fade" id="authors">
-                {* <div class="form-group">
-                    {input keywords, class => "form-control", placeholder => "Authors/Publication search", type => "search", autofocus => true}
-                </div> *}
-            </div>
-        </div>
-        <div class="form-group">
-                    {input keywords, class => "form-control", placeholder => "Type keywords", type => "search", autocomplete => "off", autofocus => true, data-provide => "typeahead"}
-                </div> 
-                <div class="form-group" style="display:none; visibility:hidden;">
-                {input searchtype}
-                {input advanced}
-                </div>
-                
-
-        <div class="form-group">
-            {label starredpubs}
-                {input starredpubs:} {$form['starredpubs']->caption}
-            {/label}
-        </div>
-       
-        <button type="button" class="btn btn-default btn-xs btn-block" id="advancedButton" data-toggle="collapse" data-target="#collapseOne">
-  Enable/Disable advanced search &nbsp;&nbsp;&nbsp;<span id="advancedIcon" class="glyphicon glyphicon-chevron-down"></span>
-</button>
-  <div class="panel panel-default" style="border: none;">
-    <div id="collapseOne" class="panel-collapse collapse in">
-      <div class="panel-body">
-
-        <div class="form-group">
-        <div class="btn-group">
-            {foreach $form['operator']->items as $key => $label}
-                {if $key == "OR"}
-                    {label operator:$key, style => "font-weight: normal;"}
-                       {input operator:$key}&nbsp;{$label}
-                    {/label}
-                        &nbsp;
-                {else}
-                    {label operator:$key, style => "font-weight: normal;"}
-                       {input operator:$key}&nbsp;{$label}
-                    {/label}
-                {/if}
-        {/foreach}
-            </div>
-            <div class="col-sm-1"></div>
-             &nbsp;
-              &nbsp;
-               &nbsp;
-                &nbsp;
-                 &nbsp;
-            <button type="button" class="btn btn-default btn-xs" id="123x">
-                <span class="glyphicon glyphicon-check"></span> Select/Deselect all
-            </button>
-        </div>
-            
-        <div class="form-group advanced">
-           {control publicationCategoryList}
-           <div style="margin-top: -40px">
-                {input categories}
-           </div>
-        </div>
-        </div>
-    </div>
-  </div>
-        <div class="form-group">
-            {input send, class => "btn btn-primary btn-lg btn-block"}
-        </div>
-          </div>
-    {/form}
-
-
-    <div class="col-md-4"></div>
-
+    <ol class="breadcrumb">
+        <li class="active">Home</li>
+    </ol>
 </div>
 
-{block #searchResults}
-{/block}
+{snippet rightsVerdict}
+    {if count($newRightsVerdict) > 0}
+        <div class="row">
+            {foreach $newRightsVerdict as $verdict}
+                <div class="alert {$verdict->verdict === 'approved' ? 'alert-success' : 'alert-danger'}">
+                    Your request for submitter rights has been {$verdict->verdict}.
+                    <a n:href="markVerdictAsSeen! $verdict->rights_request_id" class="close ajax" title="close">×</a>
+                </div>
+            {/foreach}
+        </div>
+    {/if}
+{/snippet}
 
-<div id="event_result" style="margin-top:2em; text-align:center;">&nbsp;</div>
+<div class="row row-equal-cols">
+    <div class="col-md-6">
+        <h2 class="text-center">Publications</h2>
+        <ul>
+            <li><a n:href="Publication:search, stype => title">All publications</a></li>
+            {if $user->isInRole('admin')}
+                <li><a n:href="Publication:showall">All publications - table view</a></li>
+            {/if}
+            <li>
+                Quick search:
+                <p>
+                    {form publicationSimpleSearchForm}
+                        <div class="row">
+                            <div class="col-md-10">
+                                {input title, class => 'form-control input-sm', placeholder => 'Type publication title...', type => 'search'}
+                            </div>
+                            <div class="col-md-2">
+                                {input send, class => 'btn btn-primary btn-sm btn-block'}
+                            </div>
+                        </div>
+                    {/form}
+                </p>
+            </li>
+            <li><a n:href="Publication:default">Advanced search</a></li>
+            <hr>
+            <li><a n:href="Publication:addnew">Add new publication</a></li>
+            <hr>
+            <li><a n:href=":Author:showall">All authors</a></li>
+            <hr>
+            <li><a n:href=":Journal:showall">All journals</a></li>
+        </ul>
+        
+        <h3 style="display:block;margin-top:40px;" class="text-center">My starred publications</h3>
+        <ul>
+            {if count($starredPubs)}
+                <li n:foreach="$starredPubs as $pub" style="margin-bottom:15px;">
+                    {control publication, $pub, $authorsByPubId[$pub->id] ?? []}
+                </li>
 
-<script>
-    
-var switcher = 0;
+                <div class="text-center">
+                    {control vp}
+                </div>
+            {else}
+                <div class="alert alert-warning">
+                    You don't have any starred publications.
+                </div>
+            {/if}
+        </ul>
+    </div>
 
-	function handleSwitchOperator(isAnd) {
-		$("#frm-homepageSearchForm .tree").fancytree({
-			'selectMode'    :   isAnd ? 2 : 3
-		});
-	}
+    <div class="col-md-6">
+        <h2 class="text-center">Conferences</h2>
+        <li><a n:href="Conference:showall">All conferences</a></li>
+        <li>
+            Quick search:
+            <p>
+                {form conferenceSimpleSearchForm}
+            <div class="row">
+                <div class="col-md-10">
+                    {input title, class => 'form-control input-sm', placeholder => 'Type conference name...', type => 'search'}
+                </div>
+                <div class="col-md-2">
+                    {input send, class => 'btn btn-primary btn-sm btn-block'}
+                </div>
+            </div>
+            {/form}
+            </p>
+        </li>
 
-	$('#frm-homepageSearchForm input[type=radio]').change(function(){
-		handleSwitchOperator($(this).val() == 'AND');
-	});
-
-	{if isset($form['operator']) && $form['operator']->value == 'AND'}
-		$(function() {
-			handleSwitchOperator(true);
-		});
-	{/if}
-
-   $('#123x').click(function() {
-
-        var fnVisitor;
-
-        if(switcher == 0){
-            fnVisitor = function(node) {
-                node.setSelected(false);
-            };
-            switcher = 1;
-        } else {
-            fnVisitor = function(node){
-                node.setSelected(true);
-            }
-            switcher = 0;
-        }
-
-        $("#frm-homepageSearchForm .tree").fancytree("getTree").visit(fnVisitor);
-   });
-
-
-$(function(){
-    replaceInputWithFancytree($('#frm-homepageSearchForm [name=categories]'), $('#categoryTree' + 'publicationCategoryList'));
-});
-         
-$('.collapse').collapse();
-
-$('#collapseOne').on('show.bs.collapse', function () {
-    $('#advancedIcon').removeClass("glyphicon-chevron-down");
-    $('#advancedIcon').addClass("glyphicon-chevron-up");
-    $("#frm-homepageSearchForm-advanced").prop("checked", true);
-});
-
-$('#collapseOne').on('hide.bs.collapse', function () {
-    $('#advancedIcon').removeClass("glyphicon-chevron-up");
-    $('#advancedIcon').addClass("glyphicon-chevron-down");
-    $("#frm-homepageSearchForm-advanced").prop("checked", false);
-});
-
-    var fnTahCreate = function() {
-        $('#frm-homepageSearchForm-keywords').typeahead(
-            {
-                hint: true,
-                highlight: true,
-                minLength: 1
-            },
-            {
-                name: 'publicationsAndAuthors',
-                source: substringMatcher(publicationsAndAuthors),
-                templates: {
-                    suggestion: function(item){
-                        var mainEl = $('<p></p>');
-                        mainEl.text(item);
-                        return mainEl;
-                    }
-                }
-            }
-        ).bind('typeahead:selected', function(evt, item){
-            $('#frm-homepageSearchForm-keywords').val(item);
-            $('#frm-homepageSearchForm-keywords').closest('form').submit();
-        });
-    }
-
-    var fnTahDestroy = function(){
-        $('#frm-homepageSearchForm-keywords').typeahead('destroy');
-    }
-
-
-    $('#pub-detail-tab a').click(function(e) {
-        e.preventDefault();
-        $(this).tab('show');
-        if ($(this).attr("href") == '#fulltext') {
-           $("#frm-homepageSearchForm [name=searchtype]").val('fulltext');
-           fnTahDestroy();
-        } else if ($(this).attr("href") == '#authors') {
-           $("#frm-homepageSearchForm [name=searchtype]").val('authors');
-           fnTahCreate();
-        }
-     });
-     
-
-     $(function(){
-         if ($("#frm-homepageSearchForm [name=searchtype][checked]").val() == 'fulltext') {
-            $('#pub-detail-tab a[href="#fulltext"]').tab('show');
-         } else if ($("#frm-homepageSearchForm [name=searchtype][checked]").val() == 'authors') {
-            fnTahCreate();
-            $('#pub-detail-tab a[href="#authors"]').tab('show');
-         }
-      });
-     
-     if ($("#frm-homepageSearchForm-advanced").prop('checked')) {
-        $('#collapseOne').collapse('show');   
-     }
-     
-     var publicationsAndAuthors = JSON.parse({$dataAutocomplete});
-
-</script>
+        <div style="display:block;margin-top:40px;" class="text-center">
+            <h3 style="display:inline-block;">Upcoming starred conferences</h3>
+            <a tabindex="0" class="btn btn-xs btn-default" data-toggle="popover" data-trigger="focus" title="{$help['upcomingConferences']['title']}" data-content="{$help['upcomingConferences']['content']}" style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;">
+                ?
+            </a>
+        </div>
+        <ul>
+            {if count($upcomingConfs)}
+                <li n:foreach="$upcomingConfs as $conf" style="margin-bottom:15px;">
+                    <a n:href="Conference:show $conf->id">{$conf->name}</a><br>
+                    (deadline: {$conf->deadline|date:'j. n. Y'})
+                </li>
+            {else}
+                <div class="alert alert-warning">
+                    There are no upcoming starred conferences. You can try to increase your deadline notification advance in settings or add more starred conferencesc.
+                </div>
+            {/if}
+        </ul>
+    </div>
+</div>
 

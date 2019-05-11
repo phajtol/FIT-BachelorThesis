@@ -91,9 +91,9 @@
 	<div class="col-sm-offset-0 col-sm-8" style="margin-top: 10px;">
 		{snippet categoryControls}
 			{if $hasControls}
-				{control crud-addButton}
+				{control crud-addButton, 'description' => true}
 				{if $categoryId}
-					{control crud-controls-$categoryId}&nbsp;
+					{control crud-controls-$categoryId, 'description' => true}&nbsp;
 				{/if}
 			{/if}
 		{/snippet}

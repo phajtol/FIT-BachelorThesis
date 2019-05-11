@@ -1,0 +1,75 @@
+{block content}
+
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a n:href="Homepage:">Home</a></li>
+            <li><a n:href=":Journal:showall" class="breadcrumb-admin">Journals</a></li>
+            <li class="active"><a class="active" n:href="this">Journal detail</a></li>
+        </ol>
+    </div>
+
+    {control crud}
+
+    <div n:snippet="journalShowAll" class="row" style="border-radius:10px;">
+        <div n:snippet="journalShowAllRecords" class="col-md-12">
+
+            <div class="row">
+                <div class="col-lg-10">
+                    <h1>
+                        {$journalDetails['journal']->name}
+                        <small>journal</small>
+                    </h1>
+                </div>
+                <div class="col-lg-2 text-center">
+                    {if $user->isInRole('admin') || $user->isInRole('submitter')}
+                        {control crud-addButton, ['description' => true]}
+                    {/if}
+                </div>
+            </div>
+
+            <div class="row">
+                <ul>
+                    {if $journalDetails['journal']->abbreviation}
+                        <li><b>Abbreviation:</b> {$journalDetails['journal']->abbreviation}</li>
+                    {/if}
+                    {if $journalDetails['journal']->doi}
+                        <li><b>DOI:</b> {$journalDetails['journal']->doi}</li>
+                    {/if}
+                    {if count($journalDetails['isbn'])}
+                        <li n:foreach="$journalDetails['isbn'] as $i">
+                            <b>{$i->type}:</b> {$i->isbn} {if $i->note}({$i->note}){/if}
+                        </li>
+                    {/if}
+                </ul>
+            </div>
+
+            <div class="row">
+                <h3>Publications</h3>
+                {if count($journalDetails['publications'])}
+                    <ul>
+                        <li n:foreach="$journalDetails['publications'] as $pub">
+                            {control publication, $pub, $authorsByPubId[$pub->id] ?? []}
+                        </li>
+                    </ul>
+                {else}
+                    <div class="alert alert-warning">
+                        This journal has no publications.
+                    </div>
+                {/if}
+            </div>
+
+            {if $user->isInRole('admin') || $user->isInRole('submitter')}
+                {var $id = $journalDetails['journal']->id}
+                <div style="margin-top:20px">
+                    {control crud-controls-$id, 'description' => true, 'button' => 'sm'}
+                </div>
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        $('.showPublicationsRelatedToJournalButton')[0].style.display = 'none';
+                    });
+                </script>
+            {/if}
+
+        </div>
+    </div>
+{/block}

@@ -27,15 +27,25 @@
     			</div>
     			<div class="modal-body">
     				{snippet publicationsRelatedToCategory}
-						{if count($publicationsRelatedToCategory)}
-							{foreach $publicationsRelatedToCategory as $rel}
-								<h5><strong>{$rel['categories']['name']}</strong></h5>
-								<ul n:foreach="$rel['categories_has_publication'] as $r">
-									<li><a target="_blank" href="{plink Publication:showpub, $r->publication->id}">{$r->publication->title}</a></li>
-								</ul>
+						{if isset($categories) && count($categories)}
+							{foreach $categories as $rel}
+								<h4><strong>{$rel['name']}</strong></h4>
+                                {if count($rel['publications'])}
+								    <ul class="pub_list" n:foreach="$rel['publications'] as $pub">
+									    <li>
+                                            {control publication, $pub, $authorsByPubId[$pub->id] ?? []}
+                                        </li>
+								    </ul>
+                                {else}
+                                    <div class="alert alert-warning">
+                                        There are no publications associated with this category.
+                                    </div>
+                                {/if}
 							{/foreach}
 						{else}
-							There are no associated Publications with this Category.
+							<div class="alert alert-warning">
+								There are no publications associated with this category.
+							</div>
 						{/if}
     				{/snippet}
     			</div>

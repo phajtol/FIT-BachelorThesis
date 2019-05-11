@@ -13,6 +13,12 @@ class PublicationCategoryListComponent extends \App\Components\CategoryList\Cate
 	/** @var \App\Model\CategoriesHasPublication */
 	protected $categoriesHasPublicationModel;
 
+	/** @var \App\Model\Publication */
+	protected $publicationModel;
+
+	/** @var \App\Model\Author */
+	protected $authorModel;
+
 	/** @var \Nette\Security\User */
 	protected $loggedUser;
 
@@ -22,12 +28,16 @@ class PublicationCategoryListComponent extends \App\Components\CategoryList\Cate
      * @param \Nette\Security\User $loggedUser
      * @param \App\Model\Categories $publicationCategoryModel
      * @param \App\Model\CategoriesHasPublication $categoriesHasPublicationModel
+     * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\Author $authorModel
      * @param \Nette\ComponentModel\IContainer|NULL $parent
      * @param string|NULL $name
      */
 	public function __construct(\Nette\Security\User $loggedUser,
 		                        \App\Model\Categories $publicationCategoryModel,
 		                        \App\Model\CategoriesHasPublication $categoriesHasPublicationModel,
+		                        \App\Model\Publication $publicationModel,
+		                        \App\Model\Author $authorModel,
 		                        \Nette\ComponentModel\IContainer $parent = NULL,
                                 string $name = NULL)
     {
@@ -40,6 +50,8 @@ class PublicationCategoryListComponent extends \App\Components\CategoryList\Cate
 		$this->loggedUser = $loggedUser;
 		$this->publicationCategoryModel = $publicationCategoryModel;
 		$this->categoriesHasPublicationModel = $categoriesHasPublicationModel;
+		$this->publicationModel = $publicationModel;
+		$this->authorModel = $authorModel;
 	}
 
     /**
@@ -83,6 +95,8 @@ class PublicationCategoryListComponent extends \App\Components\CategoryList\Cate
 		    $this->loggedUser,
             $this->publicationCategoryModel,
             $this->categoriesHasPublicationModel,
+			$this->publicationModel,
+			$this->authorModel,
 			$this,
             $name
 		);

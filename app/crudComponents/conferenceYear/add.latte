@@ -1,5 +1,6 @@
 {ifset $addAllowed}
-	<button type="button" data-signal-url="{$addLink}" class="btn btn-success addConferenceYearButton addConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#ConferenceYearModal{$uniqid}" title="Add new conference year">
+	<button type="button" data-signal-url="{$addLink}" class="btn btn-success {ifset $button}btn-{$button}{/ifset} addConferenceYearButton addConferenceYearButton{$uniqid}" data-toggle="modal" data-target="#ConferenceYearModal{$uniqid}" title="Add new conference year">
 		<span class="glyphicon glyphicon-plus"></span>
+		{if isset($description) && $description == true} Add new year{/if}
 	</button>
 {/ifset}

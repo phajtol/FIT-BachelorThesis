@@ -25,7 +25,6 @@ span.error {
 span.authors {
     font-style: italic;
     color: #808080;
-    padding-left: 1em;
 }
 
 .bs-callout-danger {
@@ -132,7 +131,7 @@ body.pu-only .CU {
 }
 
 .modal-lg {
-    min-width: 1340px !important;
+    max-width: 1340px !important;
     width: 94%;
 }
 
@@ -164,4 +163,106 @@ body.pu-only .CU {
     .navbar-brand {
         font-size: 13px;
     }
+}
+
+
+.pub-detail-item {
+    margin-bottom: 15px;
+}
+
+.row-equal-cols {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.vertical-align:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+/* these are styles for flash messages */
+
+#snippet--flashMessages {
+    position: fixed;
+    right: 1%;
+    z-index: 10;
+}
+
+.flashMessage {
+    box-shadow: 0 1px 5px #0006;
+    width: 700px;
+}
+
+/* this is for toggling conference years on conference year detail page */
+
+#conferenceYears {
+    border: none;
+    border-bottom: 1px rgba(0, 0, 0, 0.4) solid;
+    box-shadow: inset 0 -40px 15px -15px rgba(0, 0, 0, 0.33);
+    padding-left: 5px;
+}
+
+#conferenceYears.collapse {
+    display: block;
+    height: 450px !important;
+    overflow: hidden;
+}
+
+#conferenceYears.collapsing {
+    min-height: 450px !important;
+    border: none;
+}
+
+#conferenceYears.collapse.in {
+    height: auto !important;
+    box-shadow: none;
+    border: none;
+}
+
+/* this is for publication in IEEE format */
+
+.pub_list li {
+    margin-bottom: 10px;
+}
+
+a.publication {
+    font-size: 17px;
+}
+
+.pub_href {
+    text-decoration: underline;
+}
+
+/* this is for author detail page */
+
+#author-detail-tab-content .tab-pane {
+    padding: 15px;
+}
+
+/* vertical align in tables */
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+/* highlighting in search */
+
+.highlight {
+    font-weight: bold;
+    background-color: #FFFBCC;
+    padding: 2px;
+}
+
+/* CRUD components buttons for publication category */
+
+#categoryControls button,
+#snippet-conferenceCrud-acmCategoryListA-categoryControls button,
+#snippet-conferenceCrud-conferenceCategoryListA-categoryControls button,
+#snippet-acmCategoryList-categoryControls button,
+#snippet-conferenceCategoryList-categoryControls button {
+    margin-bottom: 10px;
 }

@@ -14,6 +14,117 @@ class Author extends Base {
      */
     protected $tableName = 'author';
 
+
+    /**
+     * Returns array with data to be show on author detail page.
+     * @param int $id
+     * @param bool $isAdmin
+     * @return array
+     */
+    public function getAuthorWithHisTagsAndPublicationsAndStarred(int $id, bool $isAdmin): array
+    {
+        $res = [];
+        $publicationIds = [];
+        $author = $this->getTable()
+            ->select('user_id, name, middlename, surname')
+            ->where('id = ?', $id)
+            ->fetch();
+
+        $res['name'] = $author->name;
+        $res['middlename'] = $author->middlename;
+        $res['surname'] = $author->surname;
+
+        if ($author->user_id) {
+            //tags
+            $params = [
+                'submitter_id' => $author->user_id
+            ];
+
+            if (!$isAdmin) {
+                $params['global_scope'] = 1;
+            }
+
+            $res['tags'] = $this->database->table('tag')
+                ->select('id, name, global_scope')
+                ->where($params);
+
+            //starred
+            $res['starred'] = $this->database->table('submitter_has_publication')
+                ->select('publication.journal.name AS journal, 
+                publication.journal.id AS journal_id, 
+                publication.publisher.name AS publisher, 
+                publication.conference_year.location AS location, 
+                publication.conference_year.name AS name,
+                publication.conference_year.id AS cy_id,
+                publication.type_of_report AS type, 
+                publication.id, 
+                publication.pub_type, 
+                publication.title, 
+                publication.volume, 
+                publication.number, 
+                publication.pages, 
+                publication.issue_month AS month_eng, 
+                publication.issue_year AS year, 
+                publication.url, 
+                publication.note, 
+                publication.editor, 
+                publication.edition, 
+                publication.address, 
+                publication.howpublished, 
+                publication.chapter, 
+                publication.booktitle, 
+                publication.school, 
+                publication.institution, 
+                publication.conference_year_id
+                author_id')
+                ->where('submitter_has_publication.submitter_id = ?', $author->user_id);
+
+            foreach ($res['starred'] as $starred) {
+                $publicationIds[] = $starred->id;
+            }
+        }
+
+        $res['publications'] = $this->database->table('author_has_publication')
+            ->select('publication.journal.name AS journal, 
+                publication.journal.id AS journal_id,
+                publication.publisher.name AS publisher, 
+                publication.conference_year.location AS location, 
+                publication.conference_year.name AS name,
+                publication.conference_year.id AS cy_id,
+                publication.type_of_report AS type, 
+                publication.id, 
+                publication.pub_type, 
+                publication.title, 
+                publication.volume, 
+                publication.number, 
+                publication.pages, 
+                publication.issue_month AS month_eng, 
+                publication.issue_year AS year, 
+                publication.url, 
+                publication.note, 
+                publication.editor, 
+                publication.edition, 
+                publication.address, 
+                publication.howpublished, 
+                publication.chapter, 
+                publication.booktitle, 
+                publication.school, 
+                publication.institution, 
+                publication.conference_year_id
+                author_id')
+            ->where('author_id = ?', $id)
+            ->order('priority ASC');
+
+        foreach ($res['publications'] as $publication) {
+            $publicationIds[] = $publication->id;
+        }
+
+        $res['publicationAuthors'] = $this->getAuthorsByMultiplePubIds($publicationIds);
+
+        return $res;
+    }
+
+
     /**
      * @return array
      */
@@ -28,6 +139,21 @@ class Author extends Base {
         // Příjmení, jméno, 2. jméno. Teď je to příjmení, 2. jméno, jméno.
 
         return $authorsTemp;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAuthorsForAutocomplete(): array
+    {
+        $authors = $this->getTable()->order('surname ASC, name ASC');
+        $res = [];
+
+        foreach ($authors as $author) {
+            $res[] = $author->name . ' ' . ($author->middlename ? $author->middlename . ' ' : '') . $author->surname;
+        }
+
+        return $res;
     }
 
     /**
@@ -98,7 +224,7 @@ class Author extends Base {
 
             default:
                 foreach ($authors as $author) {
-                    $authorsTemp[$author['id']] = $author['surname'] . ', ' . ($author['name']) . ($author['middlename'] ? ', ' . $author['middlename'] : '');
+                    $authorsTemp[$author['id']] = $author['name'] . ' ' . ($author['middlename'] ? $author['middlename'] . ' ' : '') . ($author['surname']);
                 }
         }
 
@@ -116,6 +242,32 @@ class Author extends Base {
     }
 
     /**
+     * @param array $ids
+     * @return array
+     */
+    public function getAuthorsByMultiplePubIds(array $ids): array
+    {
+        $res = [];
+        $authors = $this->database->table('author_has_publication')
+            ->select('publication_id, author.name, author.surname, author.middlename, author.id')
+            ->where('publication_id IN ?', $ids)
+            ->order('priority ASC');
+
+        foreach ($authors as $author) {
+            $res[$author->publication_id][] = [
+                'id' => $author['id'],
+                'surname' => $author['surname'],
+                'middlename' => $author['middlename'],
+                'name' => $author['name'],
+                'initials' => mb_substr($author['name'], 0, 1) . '. ' .
+                    ($author['middlename'] ? mb_substr($author['middlename'], 0, 1) . '. ' : '')
+            ];
+        }
+
+        return $res;
+    }
+
+    /**
      * @param int $pubId
      * @return array
      */
@@ -129,6 +281,7 @@ class Author extends Base {
 
         foreach ($authors as $author) {
             $authorsTemp[] = [
+                'id' => $author['id'],
                 'surname' => $author['surname'],
                 'middlename' => $author['middlename'],
                 'name' => $author['name'],

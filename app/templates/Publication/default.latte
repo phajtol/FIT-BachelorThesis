@@ -1,2 +1,293 @@
+{extends ../@layout.latte}
 
 {block content}
+
+{block #searchBreadcrumbs}
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a n:href="Homepage:">Home</a></li>
+            <li class="active">Publications</li>
+        </ol>
+    </div>
+{/block}
+
+{*
+<div style="padding-top: 50px" class="row">
+    {$gp->getPublicWWWAddress()}
+</div>
+*}
+
+<div class="row">
+    <div class="col-md-2 col-md-offset-10 text-center">
+        <a class="btn btn-success btn-sm" n:href="Publication:addnew" role="button" title="Add new Publication">
+            <span class="glyphicon glyphicon-plus"></span> Add new publication
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    {form publicationSearchForm, role => "form"}
+        <div class="col-md-10 col-md-offset-1">
+            <div style="display:block;margin-top:40px;">
+                <h1 style="display:inline-block;font-size:25px;">Publication search</h1>
+                <a tabindex="0"
+                   class="btn btn-xs btn-default"
+                   data-toggle="popover"
+                   data-trigger="focus"
+                   title="{$help['publicationSearch']['title']}"
+                   data-content="{$help['publicationSearch']['content']}"
+                   style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                >
+                    ?
+                </a>
+            </div>
+
+            <div class="row" style="margin-bottom:15px;">
+                <div class="col-md-9 form-group-lg" style="margin-top:30px;">
+                    {input keywords, class => "form-control input-lg", placeholder => "Type keywords...", type => "search", autocomplete => "off", autofocus => true, data-provide => "typeahead"}
+                </div>
+                <div class="col-md-2 col-md-offset-1">
+                    <b>{label stype}:</b><br>
+                    {foreach $form[stype]->items as $key => $label}
+                        <div>
+                            <label style="font-weight:normal;" n:name="stype:$key"><input n:name="stype:$key"> {$label}</label>
+                        </div>
+                    {/foreach}
+                </div>
+            </div>
+
+            <div class="row" style="margin-bottom:15px;">
+                <div class="col-md-12">
+                    <h3 style="font-size:20px;">
+                        More options
+                        <small id="SearchFormMoreOptionsToggle" class="hidden">
+                            <a class="btn btn-sm btn-default" style="cursor:pointer;margin-top:-5px;margin-left:10px;font-size:110%;" data-toggle="collapse" data-target="#SearchFormMoreOptions">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                                show/hide
+                            </a>
+                        </small>
+                    </h3>
+                </div>
+            </div>
+
+            <div id="SearchFormMoreOptions" class="collapse in">
+                <div class="row row-equal-cols" style="margin-bottom:50px;">
+                    <div class="col-md-8" style="margin-top:30px;">
+                        {label author}:
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['publicationSearchAuthors']['title']}"
+                           data-content="{$help['publicationSearchAuthors']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
+                        {input author, class => 'form-control author', data-provide => 'typeahead', autocomplete => 'off', type => 'search', placeholder => 'Author\'s name...'}
+                    </div>
+
+                    <div class="col-md-2 col-md-offset-2">
+                        <b>{label scope}:</b><br>
+                        {foreach $form[scope]->items as $key => $label}
+                            <div>
+                                <label style="font-weight:normal;" n:name="scope:$key"><input n:name="scope:$key"> {$label}</label>
+                            </div>
+                        {/foreach}
+                    </div>
+                </div>
+
+                <div class="row row-equal-cols">
+                    <div class="col-md-3">
+                        <b>{label pubtype}:</b><br>
+                        {foreach $form[pubtype]->items as $key => $label}
+                            <div>
+                                <label style="font-weight:normal;" n:name="pubtype:$key"><input n:name="pubtype:$key"> {$label}</label>
+                            </div>
+                        {/foreach}
+                    </div>
+
+                    <div class="col-md-5">
+                        <b>{label categories}:</b>
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['publicationSearchCategories']['title']}"
+                           data-content="{$help['publicationSearchCategories']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
+                        <br>
+
+                        {control publicationCategories}
+                        {input categories}
+
+                        <div style="margin-top:15px;">
+                            <div class="text-left" style="float:left;">
+                                {foreach $form['catop']->items as $key => $label}
+                                    {label catop:$key, style => "font-weight: normal;"}
+                                        {input catop:$key}&nbsp;{$label}
+                                    {/label}
+                                {/foreach}
+                            </div>
+
+                            <div class="text-right" style="float:right;">
+                                <button type="button" class="btn btn-default btn-xs" id="123x">
+                                    <span class="glyphicon glyphicon-check"></span> Select/Deselect all
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <b>{label tags}:</b><br>
+                        {foreach $form[tags]->items as $key => $label}
+                            <div>
+                                <label style="font-weight:normal;" n:name="tags:$key"><input n:name="tags:$key"> {$label}</label>
+                            </div>
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row row-equal-cols" style="margin-top:15px;">
+                <div class="col-md-4 col-md-offset-4">
+                    {input send, class => "btn btn-primary btn-lg btn-block"}
+                </div>
+            </div>
+        </div>
+    {/form}
+</div>
+
+{block #searchResults}
+{/block}
+
+<div id="event_result" style="margin-top:2em; text-align:center;">&nbsp;</div>
+
+<script>
+
+    var switcher = 0;
+
+    function handleSwitchOperator(isAnd) {
+        $("#frm-publicationSearchForm .tree").fancytree({
+            'selectMode'    :   isAnd ? 2 : 3
+        });
+    }
+
+    $('#frm-publicationSearchForm input[type=radio]').change(function(){
+        handleSwitchOperator($(this).val() == 'and');
+    });
+
+    {if isset($form['catop']) && $form['catop']->value == 'and'}
+    $(function() {
+        handleSwitchOperator(true);
+    });
+    {/if}
+
+    $('#123x').click(function() {
+
+        var fnVisitor;
+
+        if(switcher === 0){
+            fnVisitor = function(node) {
+                node.setSelected(false);
+            };
+            switcher = 1;
+        } else {
+            fnVisitor = function(node){
+                node.setSelected(true);
+            }
+            switcher = 0;
+        }
+
+        $("#frm-publicationSearchForm .tree").fancytree("getTree").visit(fnVisitor);
+    });
+
+
+    $(function(){
+        replaceInputWithFancytree($('#frm-publicationSearchForm [name=categories]'), $('#categoryTree' + 'publicationCategories'));
+    });
+
+
+
+    //TODO: pridat support pre viac mien naraz
+    var authors = JSON.parse({$dataAutocomplete});
+
+    $(document).ready(function () {
+        $('.author').typeahead(
+            {
+                hint: true,
+                highlight: true,
+                minLength: 1
+            },
+            {
+                name: 'authors',
+                source: substringMatcher(authors),
+                templates: {
+                    suggestion: function (item) {
+                        var mainEl = $('<p></p>');
+                        mainEl.text(item);
+                        return mainEl;
+                    }
+                }
+            }
+        ).bind('typeahead:selected', function(evt, item) {
+            let split = item.split(' ');
+            let author = split[0] + ' ' + split[split.length - 1];
+            $('.author').val(author);
+        });
+    });
+
+    /*var fnTahCreate = function() {
+        $('#frm-homepageSearchForm-keywords').typeahead(
+            {
+                hint: true,
+                highlight: true,
+                minLength: 1
+            },
+            {
+                name: 'publicationsAndAuthors',
+                source: substringMatcher(publicationsAndAuthors),
+                templates: {
+                    suggestion: function(item){
+                        var mainEl = $('<p></p>');
+                        mainEl.text(item);
+                        return mainEl;
+                    }
+                }
+            }
+        ).bind('typeahead:selected', function(evt, item){
+            $('#frm-homepageSearchForm-keywords').val(item);
+            $('#frm-homepageSearchForm-keywords').closest('form').submit();
+        });
+    }
+
+    var fnTahDestroy = function(){
+        $('#frm-homepageSearchForm-keywords').typeahead('destroy');
+    }
+
+
+    /*$('#pub-detail-tab a').click(function(e) {
+        e.preventDefault();
+        $(this).tab('show');
+        if ($(this).attr("href") == '#fulltext') {
+           $("#frm-homepageSearchForm [name=searchtype]").val('fulltext');
+           fnTahDestroy();
+        } else if ($(this).attr("href") == '#authors') {
+           $("#frm-homepageSearchForm [name=searchtype]").val('authors');
+           fnTahCreate();
+        }
+     });
+
+    $(document).ready(function () {
+        fnTahCreate();
+    });
+
+    var publicationsAndAuthors = JSON.parse({*}{$dataAutocomplete}*});*/
+
+</script>
+{/block}

@@ -1,10 +1,12 @@
 {ifset $deleteAllowed}
-	<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteAnnotationButton deleteButton{$uniqid}" data-toggle="modal" data-target="#DeleteModal{$uniqid}" title="Delete annotation">
+	<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{else}btn-xs{/ifset} deleteAnnotationButton deleteButton{$uniqid}" data-toggle="modal" data-target="#DeleteModal{$uniqid}" title="Delete annotation">
 		<span class="glyphicon glyphicon-remove"></span>
+		{if isset($description) && $description == true} Delete{/if}
 	</button>
 {/ifset}
 {ifset $editAllowed}
-	<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editAnnotationButton editButton{$uniqid}" data-toggle="modal" data-target="#EditModal{$uniqid}" title="Edit annotation">
+	<button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{else}btn-xs{/ifset} editAnnotationButton editButton{$uniqid}" data-toggle="modal" data-target="#EditModal{$uniqid}" title="Edit annotation">
 		<span class="glyphicon glyphicon-pencil"></span>
+		{if isset($description) && $description == true} Edit{/if}
 	</button>
 {/ifset}

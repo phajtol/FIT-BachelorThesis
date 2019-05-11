@@ -113,6 +113,17 @@
 
     <body>
 
+    <div n:snippet="flashMessages">
+        <script>
+            $("#snippet--flashMessages").show();
+            $("#snippet--flashMessages").delay(10000).hide(500);
+        </script>
+
+        <div n:foreach="$flashes as $flash" class="flashMessage alert {$flash->type} fade in">
+            {$flash->message}
+        </div>
+    </div>
+
         {* conference and publication parts switching *}
         {snippet CPToggleHandler}{ifset $CPToggleState}
             <script>
@@ -160,7 +171,7 @@
                                 {* Publication dropdown *}
                                 <ul class="nav navbar-nav">
                                     <li class="{ifCurrent Publication:*}active{/ifCurrent}">
-                                        <a n:href="Publication:showall">Publications</a>
+                                        <a n:href="Publication:default">Publications</a>
                                     </li>
                                 </ul>
                             {elseif $PU}
@@ -193,60 +204,155 @@
                                     {ifCurrent DocumentIndex:showall}active{/ifCurrent}
                                     {ifCurrent Attribute:showall}active{/ifCurrent}
                                     ">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administration<b class="caret"></b></a>
+
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                        Administration
+                                        {if $user->isInRole('admin')}
+                                            <span class="badge">
+                                                {$unconfirmedCount + $rightsRequestCount + $unconfirmedReferencesCount}
+                                            </span>
+                                        {/if}
+                                        <b class="caret"></b>
+                                    </a>
+
                                     <ul class="dropdown-menu">
                                         <li n:if="$CU && $PU" class="dropdown-header">Publication management</li>
-                                        {if $user->isInRole('admin')}
-                                            <li class="{ifCurrent Admin:showunconfirmed}active{/ifCurrent}"><a n:href="Admin:showunconfirmed">Publications for check</a></li>
-                                            <li class="{ifCurrent Admin:reference}active{/ifCurrent}"><a n:href="Admin:reference">Reference for check</a></li>
 
+                                        {if $user->isInRole('admin')}
+                                            <li class="{ifCurrent Admin:showunconfirmed}active{/ifCurrent}">
+                                                <a n:href="Admin:showunconfirmed">
+                                                    Publications for check
+                                                    <span class="badge">{$unconfirmedCount}</span>
+                                                </a>
+                                            </li>
+
+                                            <li class="{ifCurrent Admin:reference}active{/ifCurrent}">
+                                                <a n:href="Admin:reference">
+                                                    Reference for check
+                                                    <span class="badge">{$unconfirmedReferencesCount}</span>
+                                                </a>
+                                            </li>
                                         {/if}
-                                        <li n:if="$user->isAllowed('Author:showall')" class="{ifCurrent Author:showall}active{/ifCurrent}"><a n:href="Author:showall">All Authors</a></li>
-                                        <li n:if="$user->isAllowed('Journal:showall')" class="{ifCurrent Journal:showall}active{/ifCurrent}"><a n:href="Journal:showall">All Journals</a></li>
-                                        <li n:if="$user->isAllowed('Publisher:showall')" class="{ifCurrent Publisher:showall}active{/ifCurrent}"><a n:href="Publisher:showall">All Publishers</a></li>
-                                        <li n:if="$user->isAllowed('PublicationCategory:showall')" class="{ifCurrent PublicationCategory:showall}active{/ifCurrent}"><a n:href="PublicationCategory:showall">All Publication Categories</a></li>
-                                        <li n:if="$user->isAllowed('Attribute:showall')" class="{ifCurrent Attribute:showall}active{/ifCurrent}"><a n:href="Attribute:showall">All Attributes</a></li>
+
+                                        <li n:if="$user->isAllowed('Publication:showall')" class="{ifCurrent Publication:showall}active{/ifCurrent}">
+                                            <a n:href="Publication:showall">
+                                                All Publications
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('Author:showall')" class="{ifCurrent Author:showall}active{/ifCurrent}">
+                                            <a n:href="Author:showall">
+                                                All Authors
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('Journal:showall')" class="{ifCurrent Journal:showall}active{/ifCurrent}">
+                                            <a n:href="Journal:showall">
+                                                All Journals
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('Publisher:showall')" class="{ifCurrent Publisher:showall}active{/ifCurrent}">
+                                            <a n:href="Publisher:showall">
+                                                All Publishers
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('PublicationCategory:showall')" class="{ifCurrent PublicationCategory:showall}active{/ifCurrent}">
+                                            <a n:href="PublicationCategory:showall">
+                                                All Publication Categories
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('Attribute:showall')" class="{ifCurrent Attribute:showall}active{/ifCurrent}">
+                                            <a n:href="Attribute:showall">
+                                                All Attributes
+                                            </a>
+                                        </li>
+
                                         <li n:if="$CU && $PU" class="divider"></li>
                                         <li n:if="$CU && $PU" class="dropdown-header">Conference management</li>
-                                        <li n:if="$user->isAllowed('AcmCategory:showall')" class="{ifCurrent AcmCategory:showall}active{/ifCurrent}"><a n:href="AcmCategory:showall">All ACM Categories</a></li>
-                                        <li n:if="$user->isAllowed('ConferenceCategory:showall')" class="{ifCurrent ConferenceCategory:showall}active{/ifCurrent}"><a n:href="ConferenceCategory:showall">All Conference Categories</a></li>
-                                        <li n:if="$user->isAllowed('CuGroup:showall')" class="{ifCurrent CuGroup:showall}active{/ifCurrent}"><a n:href="CuGroup:showall">All Conference User Groups</a></li>
-                                        <li n:if="$user->isAllowed('DocumentIndex:showall')" class="{ifCurrent DocumentIndex:showall}active{/ifCurrent}"><a n:href="DocumentIndex:showall">All Document Index Databases</a></li>
+
+                                        <li n:if="$user->isAllowed('AcmCategory:showall')" class="{ifCurrent AcmCategory:showall}active{/ifCurrent}">
+                                            <a n:href="AcmCategory:showall">
+                                                All ACM Categories
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('ConferenceCategory:showall')" class="{ifCurrent ConferenceCategory:showall}active{/ifCurrent}">
+                                            <a n:href="ConferenceCategory:showall">
+                                                All Conference Categories
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('CuGroup:showall')" class="{ifCurrent CuGroup:showall}active{/ifCurrent}">
+                                            <a n:href="CuGroup:showall">
+                                                All Conference User Groups
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('DocumentIndex:showall')" class="{ifCurrent DocumentIndex:showall}active{/ifCurrent}">
+                                            <a n:href="DocumentIndex:showall">
+                                                All Document Index Databases
+                                            </a>
+                                        </li>
+
                                         <li n:if="$CU && $PU" class="divider"></li>
                                         <li n:if="$CU && $PU" class="dropdown-header">Common management</li>
-                                        <li n:if="$user->isAllowed('ConferenceAdmin:showall')" class="{ifCurrent ConferenceAdmin:showall}active{/ifCurrent}"><a n:href="ConferenceAdmin:showall">All Conferences</a></li>
-                                        <li n:if="$user->isAllowed('User:showall')" class="{ifCurrent User:showall}active{/ifCurrent}"><a n:href="User:showall">All Users</a></li>
+
+                                        <li n:if="$user->isAllowed('ConferenceAdmin:showall')" class="{ifCurrent ConferenceAdmin:showall}active{/ifCurrent}">
+                                            <a n:href="ConferenceAdmin:showall">
+                                                All Conferences
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('User:showall')" class="{ifCurrent User:showall}active{/ifCurrent}">
+                                            <a n:href="User:showall">
+                                                All Users
+                                            </a>
+                                        </li>
+
+                                        <li n:if="$user->isAllowed('User:requests')" class="{ifCurrent User:requests}active{/ifCurrent}">
+                                            <a n:href="User:requests">
+                                                Users' requests
+                                                {if $user->isInRole('admin')}
+                                                    <span class="badge">{$rightsRequestCount}</span>
+                                                {/if}
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
 
                         <ul class="nav navbar-nav navbar-right">
-                            <li class="{ifCurrent User:show}active{/ifCurrent}"><a n:href="User:show" ><span class="glyphicon glyphicon-user"></span> {$user->getIdentity()->nickname}</a></li>
+                            <li class="{ifCurrent User:show}active{/ifCurrent}">
+                                <a n:href="User:show">
+                                    <span class="glyphicon glyphicon-user"></span>
+                                    {$user->getIdentity()->nickname}
+                                </a>
+                            </li>
+
                             {if $user->isAllowed('Admin:settings')}
-                                <li class="{ifCurrent Admin:settings}active{/ifCurrent}"><a n:href="Admin:settings" ><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+                                <li class="{ifCurrent Admin:settings}active{/ifCurrent}">
+                                    <a n:href="Admin:settings">
+                                        <span class="glyphicon glyphicon-cog"></span>
+                                        Settings
+                                    </a>
+                                </li>
                             {/if}
-                            <li><a n:href="Sign:out"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
+
+                            <li>
+                                <a n:href="Sign:out">
+                                    <span class="glyphicon glyphicon-off"></span>
+                                    Logout
+                                </a>
+                            </li>
                         </ul>
                     </div>
 
                 </div>
             </div>
         {/if}
-
-
-        <div class="container">
-            <div class="row">
-                {snippet flashMessages}
-                    <script>
-                        $("#snippet--flashMessages").show();
-                        $("#snippet--flashMessages").delay(10000).hide(500);
-                    </script>
-                    {* <button type="button" class="close" data-dismiss="alert">×</button> *}
-                    <div n:foreach="$flashes as $flash" class="alert {$flash->type} fade in">{$flash->message}</div>
-                {/snippet}
-            </div>
-        </div>
-
 
 
         <div class="container">

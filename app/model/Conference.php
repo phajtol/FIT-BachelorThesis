@@ -4,6 +4,7 @@ namespace App\Model;
 
 use Nette\Database\Table\ActiveRow;
 use Nette\Database\Table\Selection;
+use Nette\Utils\DateTime;
 
 
 class Conference extends Base {
@@ -31,6 +32,9 @@ class Conference extends Base {
 
     /** @var string */
     protected $publicationTable = 'publication';
+
+    /** @var string */
+    protected $userSettingsTable = 'user_settings';
 
 
     /**
@@ -226,6 +230,49 @@ class Conference extends Base {
         }
 
         return $conferences;
+    }
+
+    /**
+     * @param int $id
+     * @return false|ActiveRow
+     */
+    public function getConferenceByConferenceYearId(int $id)
+    {
+        return $this->database->table($this->cyTable)
+            ->select('conference.*')
+            ->where([$this->cyTable . '.conference_id' => $id])
+            ->fetch();
+    }
+
+    /**
+     * Gets conferences that have `deadline`, `notification` or `finalversion` between now and now + X days,
+     * where X is deadline notification set by user with given user ID.
+     * @param int $userId
+     * @return Selection
+     * @throws \Exception
+     */
+    public function getUpcomingStarredConferences(int $userId): Selection
+    {
+        $deadlineAdvance = $this->database->table($this->userSettingsTable)
+            ->select('deadline_notification_advance')
+            ->where('submitter_id', $userId)
+            ->fetch()
+            ->deadline_notification_advance;
+
+        $starred = $this->database->table('submitter_favourite_conference')
+            ->select('conference_id')
+            ->where('submitter_id', $userId)
+            ->fetchPairs(null, 'conference_id');
+
+        $now = new DateTime();
+        $limit = $now->modifyClone('+' . $deadlineAdvance . ' days');
+
+
+        return $this->database->table($this->cyTable)
+            ->select('conference_year.id, conference_year.name, deadline')
+            ->where('conference.id IN ?', $starred)
+            ->where('deadline < ? AND deadline > ?', $limit, $now)
+            ->order('deadline');
     }
 
 }

@@ -65,6 +65,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addResource('Author');
         $this->addResource('Author:default');
         $this->addResource('Author:showall');
+        $this->addResource('Author:detail');
 
 
         $this->addResource('AcmCategory');
@@ -109,12 +110,14 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addResource('Journal');
         $this->addResource('Journal:default');
         $this->addResource('Journal:showall');
+        $this->addResource('Journal:detail');
         // Publication presenter
         $this->addResource('Publication');
         $this->addResource('Publication:default');
         $this->addResource('Publication:showall');
         $this->addResource('Publication:showpub');
         $this->addResource('Publication:addnew');
+        $this->addResource('Publication:search');
         // Reference presenter
         $this->addResource('Reference:addlist');
         // Publisher presenter
@@ -126,6 +129,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->addResource('User:default');
         $this->addResource('User:showall');
         $this->addResource('User:show');
+        $this->addResource('User:requests');
 
         $this->addResource('Publi');
         $this->addResource('Publi:showall');
@@ -147,6 +151,13 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->allow('reader', 'Publication');
         $this->allow('reader', 'Publication:default');
         $this->allow('reader', 'Publication:showpub');
+        $this->allow('reader', 'Publication:search');
+
+        $this->allow('reader', 'Author:detail');
+        $this->allow('reader', 'Author:showall');
+
+        $this->allow('reader', 'Journal:detail');
+        $this->allow('reader', 'Journal:showall');
 
         // SUBMITTER submitter
         $this->allow('submitter', 'Attribute');
@@ -155,7 +166,6 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
 
         $this->allow('submitter', 'Author');
         $this->allow('submitter', 'Author:default');
-        $this->allow('submitter', 'Author:showall');
 
         $this->allow('submitter', 'PublicationCategory');
         $this->allow('submitter', 'PublicationCategory:default');
@@ -167,7 +177,6 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
 
         $this->allow('submitter', 'Journal');
         $this->allow('submitter', 'Journal:default');
-        $this->allow('submitter', 'Journal:showall');
 
         $this->allow('submitter', 'Publication:showall');
         $this->allow('submitter', 'Publication:addnew');
@@ -218,6 +227,7 @@ class Acl extends Permission implements \App\Interfaces\IRoleTranslator {
         $this->allow('admin', 'Admin:settings');
 
         $this->allow('admin', 'User:showall');
+        $this->allow('admin', 'User:requests');
 
         // $this->allow('admin', Permission::ALL, Permission::ALL);
         // akci logs atp

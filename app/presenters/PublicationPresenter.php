@@ -4,6 +4,7 @@ namespace App\Presenters;
 
 use App\Components\AlphabetFilter\AlphabetFilterComponent;
 use App\Components\ButtonToggle\ButtonGroupComponent;
+use App\Components\Publication\PublicationControl;
 use App\Components\PublicationCategoryList\PublicationCategoryListComponent;
 use App\CrudComponents\Annotation\AnnotationCrud;
 use App\CrudComponents\Attribute\AttributeCrud;
@@ -17,9 +18,12 @@ use App\CrudComponents\PublicationTag\PublicationTagCrud;
 use App\CrudComponents\Publisher\PublisherCrud;
 use App\CrudComponents\Reference\ReferenceCrud;
 use App\Forms\BaseForm;
+use App\Forms\PublicationSearchForm;
+use App\Forms\SimpleSearchForm;
 use Nette;
 use App\Model;
 use App\Helpers;
+use Nette\Application\UI\Form;
 
 
 class PublicationPresenter extends SecuredPresenter {
@@ -84,6 +88,9 @@ class PublicationPresenter extends SecuredPresenter {
 
     /** @var  Model\Attribute @inject */
     public $attributeModel;
+
+    /** @var  Model\Categories @inject */
+    public $categoriesModel;
 
     /** @var  Model\Author @inject */
     public $authorModel;
@@ -169,7 +176,20 @@ class PublicationPresenter extends SecuredPresenter {
     /** @var \App\Forms\PublicationAddNewFormFactory @inject */
     public $publicationAddNewFormFactory;
 
+    /** @var \App\Factories\ITagCrudFactory @inject */
+    public $tagCrudFactory;
+
+    /** @var PublicationSearchForm @inject */
+    public $publicationSearchForm;
+
     // --
+
+    /**
+     * This variable is used to temporarily store publication search form values
+     * so that form shown on results page doesn't reset when viewing search results.
+     * @var array
+     */
+    protected $searchFormData = [];
 
     /** @var int */
     protected $publicationId;
@@ -197,6 +217,7 @@ class PublicationPresenter extends SecuredPresenter {
     public function __construct()
     {
         $this->functions = new Helpers\Functions();
+        parent::__construct();
     }
 
 
@@ -250,18 +271,15 @@ class PublicationPresenter extends SecuredPresenter {
     /**
      *
      */
-    public function actionDefault(): void
-    {
-
-    }
-
-
-    /**
-     *
-     */
     public function renderDefault(): void
     {
+        $this->setUpAutocompleteData();
+    }
 
+    private function setUpAutocompleteData(): void
+    {
+        $dataAutocomplete = $this->authorModel->getAuthorsForAutocomplete();
+        $this->template->dataAutocomplete = json_encode($dataAutocomplete);
     }
 
 
@@ -304,6 +322,7 @@ class PublicationPresenter extends SecuredPresenter {
                 $parser = new Helpers\BibTexParser($definition);
                 $pub_type = $fields = $authors = null;
                 $parser->parse($pub_type, $fields, $authors);
+                $fields['author'] = $authors;
                 $bibtex = Helpers\Bibtex::create($pub_type);
                 $report = $bibtex->validate($fields);
             } elseif ($formValues['type'] == "endnote") {
@@ -498,7 +517,7 @@ class PublicationPresenter extends SecuredPresenter {
             }
 
             if (isset($fields['isbn'])) {
-                $this->publication['isbn'] = $fields['isbn'];
+                $this->publication['isbn'] = [$fields['isbn']];
             }
 
             if (isset($fields['note'])) {
@@ -963,6 +982,8 @@ class PublicationPresenter extends SecuredPresenter {
                 $values = $form->getHttpData();
                 $formValues['conference_year_id'] = $values['conference_year_id'];
 
+                $publicationExists = (bool) $this->publicationModel->find($form->values->id);
+
                 unset($formValues['categories']);
                 unset($formValues['group']);
                 unset($formValues['authors']);
@@ -970,7 +991,12 @@ class PublicationPresenter extends SecuredPresenter {
                 unset($formValues['upload']);
                 unset($formValues['id']);
 
-                $formValues['submitter_id'] = $this->user->id;
+                if (!$publicationExists) {
+                    $formValues['submitter_id'] = $this->user->id;
+                } else {
+                    $formValues['lastedit_submitter_id'] = $this->user->id;
+                    $formValues['lastedit_timestamp'] = new Nette\Utils\DateTime();
+                }
 
                 if ($this->user->isInRole('admin')) {
                     $formValues['confirmed'] = 1;
@@ -982,6 +1008,7 @@ class PublicationPresenter extends SecuredPresenter {
                 unset($formValues['attributes']);
                 unset($formValues['isbn']);
                 unset($formValues['isbn_count']);
+                $formValues['title_search'] = Model\Publication::stripTitleForSearch($formValues['title']);
 
                 if ($form->values->id) {
                     $formValues['id'] = $form->values->id;
@@ -1142,7 +1169,7 @@ class PublicationPresenter extends SecuredPresenter {
                 }
 
                 $this->publicationModel->commitTransaction();
-                $this->flashMessage('Operation has been completed successfullly.', 'alert-success');
+                $this->flashMessage('Publication has been ' . ($publicationExists ? 'edited' : 'added') . ' successfully.', 'alert-success');
 
             } catch (\Exception $e) {
                 $this->publicationModel->rollbackTransaction();
@@ -1263,10 +1290,14 @@ class PublicationPresenter extends SecuredPresenter {
             $params['order'] = 'ASC';
         }
 
-  			if($alphabetFilter->getFilter()) {
+        if ($params['sort'] === 'published') {
+            $params['sort'] = 'issue_year ' . $params['order'] . ', issue_month';
+        }
+
+        if($alphabetFilter->getFilter()) {
             $params['filter'] = $alphabetFilter->getFilter();
         } else {
-          $params['filter'] = 'none';
+            $params['filter'] = 'none';
         }
 
         if (!isset($this->template->records)) {
@@ -1311,6 +1342,7 @@ class PublicationPresenter extends SecuredPresenter {
 
         $this->template->authorsByPubId = $authorsByPubId;
         $this->redrawControl('publicationShowAll');
+
     }
 
 
@@ -1376,8 +1408,6 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->publisher = $data['publisher'];
         $this->template->favourite = $data['favourite'];
         $this->template->annotations = $data['annotations'];
-        $this->template->references = $data['references'];
-        $this->template->citations = $data['citations'];
         $this->template->conferenceYear = $data['conferenceYear'];
         $this->template->conferenceYearPublisher = $data['conferenceYearPublisher'];
         $this->template->files = $data['files'];
@@ -1390,54 +1420,42 @@ class PublicationPresenter extends SecuredPresenter {
         $this->template->types = $this->types;
         $authorsByPubId = [];
 
-        foreach ($this->template->references as $rec) {
-            if (empty($rec->reference_id)) {
-                continue;
-            }
-            /** @var $rec Nette\Database\Table\ActiveRow */
-            foreach($rec->reference->related('author_has_publication')->order('priority ASC') as $authHasPub) {
-                $author = $authHasPub->ref('author');
-                if(!isset($authorsByPubId[$rec->reference->id])) $authorsByPubId[$rec->reference->id] = [];
-                $authorsByPubId[$rec->reference->id][] = $author;
-            }
-        }
+        //load references and citations
+        $references = $this->referenceModel->getReferencesByPublication($publication['id']);
+        $pubReferences = [];
+        $textReferences = [];
 
-        foreach ($this->template->citations as $rec) {
-            /** @var $rec Nette\Database\Table\ActiveRow */
-            foreach($rec->publication->related('author_has_publication')->order('priority ASC') as $authHasPub) {
-                $author = $authHasPub->ref('author');
-                if(!isset($authorsByPubId[$rec->publication->id])) $authorsByPubId[$rec->publication->id] = [];
-                $authorsByPubId[$rec->publication->id][] = $author;
-            }
-        }
-
-        $this->template->authorsByPubId = $authorsByPubId;
-        $_this = $this;
-        $this->template->getLatte()->addFilter('template', function($text) use ($_this) {
-            $template = new Nette\Templating\Template();
-            $template->control = $template->_control = $_this;
-            $template->presenter = $template->_presenter = $_this->getPresenter(FALSE);
-            $template->registerFilter(new Nette\Latte\Engine);
-            // dodané proměnné
-            $template->user = $_this->user;
-            $template->baseUri = $_this->template->baseUri;
-            $template->basePath = $_this->template->basePath;
-
-            $template->pubCit = $_this->template->pubCit;
-            $template->pubCit['author_array'] = $_this->template->pubCit['author_array'];
-            $template->pubCit['author'] = $_this->template->pubCit['author'];
-            // flash message
-            $presenter = $_this->getPresenter(FALSE);
-            if ($presenter->hasFlashSession()) {
-                $id = $_this->getParameterId('flash');
-                $template->flashes = $presenter->getFlashSession()->$id;
+        foreach ($references as $reference) {
+            if ($reference->reference_id) {
+                $pubReferences[$reference->id] = $reference->reference_id;
             } else {
-                $template->flashes = array();
+                $textReferences[] = $reference;
             }
-            $template->setSource($text);
-            $txt = $template->__toString();
-            return $txt;
-        });
+        }
+
+        $referencedPubs = $this->publicationModel->getMultiplePubInfoByIds($pubReferences);
+
+        $citations = $this->referenceModel->getCitationsByPublication($publication['id']);
+        $citedPubs = $this->publicationModel->getMultiplePubInfoByIds($citations);
+
+        //load authors for references and citations
+        foreach ($pubReferences as $rec) {
+            if ($rec) {
+                $authorsByPubId[$rec] = $this->authorModel->getAuthorsNamesByPubIdPure($rec);
+            }
+        }
+        foreach ($citations as $cit) {
+            if ($cit) {
+                $authorsByPubId[$cit] = $this->authorModel->getAuthorsNamesByPubIdPure($cit);
+            }
+        }
+
+        $this->template->pubReferences = $pubReferences;
+        $this->template->textReferences = $textReferences;
+        $this->template->referencedPubs = $referencedPubs;
+        $this->template->citations = $citations;
+        $this->template->citedPubs = $citedPubs;
+        $this->template->authorsByPubId = $authorsByPubId;
 
         if ($this->user->isInRole('admin')) {
             $tags = $this->tagModel->findAllBy([':publication_has_tag.publication_id' => $this->publication->id])->order("id ASC");
@@ -1475,7 +1493,7 @@ class PublicationPresenter extends SecuredPresenter {
         $this->flashMessage('Operation has been completed successfully.', 'alert-success');
 
         if (!$this->presenter->isAjax()) {
-            $this->presenter->redirect('Publication:showall');
+            $this->presenter->redirect('Publication:default');
         } else {
             $this->redrawControl('deletePublication');
             $this->redrawControl('publicationShowAllRecords');
@@ -1503,7 +1521,7 @@ class PublicationPresenter extends SecuredPresenter {
 
         if (!$this->presenter->isAjax()) {
             $this->flashMessage('Operation has been completed successfully.', 'alert-success');
-            $this->presenter->redirect('Publication:showall');
+            $this->presenter->redirect('Publication:default');
         } else {
             $this->redrawControl('deleteReference');
             $this->redrawControl('referenceShowAllRecords');
@@ -1522,11 +1540,15 @@ class PublicationPresenter extends SecuredPresenter {
             'submitter_id' => $this->user->id
         ]);
 
+        $this->flashMessage('Publication has been added to starred.', 'alert-success');
+
         if (!$this->presenter->isAjax()) {
-            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
             $this->presenter->redirect('this');
         } else {
-            $this->redrawControl();
+            $this->redrawControl('flashMessages');
+            $this->redrawControl('publicationAdminButtons');
+            $this->redrawControl('referencesShowAllRecords');
+            $this->redrawControl('citationsShowAllRecords');
         }
     }
 
@@ -1546,11 +1568,15 @@ class PublicationPresenter extends SecuredPresenter {
             $record->delete();
         }
 
+        $this->flashMessage('Publication has been removed from starred.', 'alert-success');
+
         if (!$this->presenter->isAjax()) {
-            $this->flashMessage('Operation has been completed successfully.', 'alert-success');
             $this->presenter->redirect('this');
         } else {
-            $this->redrawControl();
+            $this->redrawControl('flashMessages');
+            $this->redrawControl('publicationAdminButtons');
+            $this->redrawControl('referencesShowAllRecords');
+            $this->redrawControl('citationsShowAllRecords');
         }
     }
 
@@ -1560,6 +1586,8 @@ class PublicationPresenter extends SecuredPresenter {
     // --
 
     /**
+     * This is basically the same component as in method below, but has different settings.
+     * This one is used on publication add/edit page.
      * @return \App\Components\PublicationCategoryList\PublicationCategoryListComponent
      */
     protected function createComponentPublicationCategoryList(): PublicationCategoryListComponent
@@ -1569,6 +1597,22 @@ class PublicationPresenter extends SecuredPresenter {
         $c->setIsSelectable(true);
         $c->setHasThreeStates(false);
         $c->setHasControls(true);
+
+        return $c;
+    }
+
+    /**
+     * This is basically the same component as in method above, but has different settings.
+     * This one is used in search form.
+     * @return \App\Components\PublicationCategoryList\PublicationCategoryListComponent
+     */
+    protected function createComponentPublicationCategories(): PublicationCategoryListComponent
+    {
+        $c = $this->publicationCategoryListFactory->create();
+
+        $c->setHasControls(false);
+        $c->setHasThreeStates(true);
+        $c->setIsSelectable(true);
 
         return $c;
     }
@@ -2138,4 +2182,186 @@ class PublicationPresenter extends SecuredPresenter {
         return $c;
     }
 
+    /**
+     * @return \App\CrudComponents\Tag\TagCrud
+     */
+    protected function createComponentTagCrud(){
+        $c = $this->tagCrudFactory->create();
+
+        $c->onAdd[] = function () {
+            $this->successFlashMessage('Tag has been added successfully.');
+            $this->redrawControl('tags');
+        };
+
+        return $c;
+    }
+
+
+    /**
+     * @return PublicationControl
+     */
+    protected function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
+
+    /*
+     * SEARCH RELATED CODE
+     */
+
+    private function highlight(string $string, array $highlightedWords)
+    {
+        foreach($highlightedWords as $vword) {
+            $string = preg_replace('/('.$vword.')/Ui', '<span class="highlight">$1</span>', $string);
+        }
+
+        return $string;
+    }
+
+    /**
+     * Handles search: retrieves results from model and initializes paginator.
+     * @param array $params
+     * @return array
+     */
+    protected function search(array $params): array
+    {
+        $count = $this->publicationModel->searchCount($params);
+
+        $vp = new \VisualPaginator();
+        $this->addComponent($vp, 'vp');
+        $paginator = $vp->getPaginator();
+        $paginator->itemsPerPage = $this->itemsPerPageDB;
+        $paginator->itemCount = $count;
+
+        $results = $this->publicationModel->search($params, $paginator->itemsPerPage, $paginator->offset);
+
+        $highlighted = [];
+        $kwArray = $params['keywords'] ? explode(' ', $params['keywords']) : [];
+        if ($params['stype'] === 'annotations') {
+            foreach ($results as $result) {
+                $highlighted[$result->annotation_id] = $this->highlight($result->text, $kwArray);
+            }
+        } else {
+            foreach ($results as $result) {
+                $highlighted[$result->id] = $this->highlight($result->title, $kwArray);
+            }
+        }
+
+        $publicationIds = [];
+        foreach ($results as $result) {
+            $publicationIds[] = $result->id;
+        }
+        $authorsByPubId = $this->authorModel->getAuthorsByMultiplePubIds($publicationIds);
+
+        return [
+            'resultsCount' => $count,
+            'showingFrom' => $paginator->offset + 1,
+            'showingTo' => ($paginator->offset + $paginator->itemsPerPage > $count) ? $count : ($paginator->offset + $paginator->itemsPerPage),
+            'results' => $results,
+            'highlighted' => $highlighted,
+            'authorsByPubId' => $authorsByPubId
+        ];
+    }
+
+
+    /**
+     * @param string $keywords
+     * @param $ptype
+     * @param $categories
+     * @param $catop
+     * @param $stype
+     * @param $tags
+     * @param $scope
+     * @param $sort
+     * @param $author
+     */
+    public function actionSearch($keywords, $ptype, $categories, $catop, $stype, $tags, $scope, $sort, $author): void
+    {
+        $params = $this->getHttpRequest()->getQuery();
+
+        $pubtype = $ptype ? explode(' ', $ptype) : null;
+        $tags = $tags ? explode(' ', $tags) : null;
+
+        $searchParams = [
+            'keywords' => $keywords,
+            'categories' => $categories,
+            'catOp' => $catop,
+            'stype' => $stype,
+            'tags' => $tags,
+            'pubtype' => $pubtype,
+            'scope' => $scope,
+            'sort' => $sort,
+            'author' => $author,
+            'user_id' => $this->user->id
+        ];
+
+        $results = $this->search($searchParams);
+
+        $this->template->results = $results['results'];
+        $this->template->highlighted = $results['highlighted'];
+        $this->template->authorsByPubId = $results['authorsByPubId'];
+        $this->template->resultsCount = $results['resultsCount'];
+        $this->template->showingFrom = $results['showingFrom'];
+        $this->template->showingTo = $results['showingTo'];
+
+        $this->template->sort = $sort;
+        $this->template->stype = $stype;
+        unset($params['sort']);
+        $searchParams['tags'] = $params['tags'] ?? null;
+        $this->template->searchParams = $searchParams;
+
+        $this->searchFormData = $params;
+
+        $this->template->categoriesTree = $this->categoriesModel->findAll()->order('name ASC');
+
+        if (!$categories) {
+            $categories = [];
+        }
+        $this->template->selectedCategories = $categories;
+
+        $this->setUpAutocompleteData();
+    }
+
+    /**
+     * @return Form
+     */
+    protected function createComponentPublicationSearchForm(): Form
+    {
+        $form = $this->publicationSearchForm->create($this->searchFormData, $this->user->id);
+
+        $form->onSuccess[] = function (Form $form) {
+            $values = (array) $form->values;
+
+            //serialize pubtypes from checkbox list
+            if ($form->values->pubtype) {
+                $types = '';
+
+                foreach ($form->values->pubtype as $type) {
+                    $types .= (' ' . $type);
+                }
+
+                $types = substr($types, 1);
+                unset($values['pubtype']);
+                $values['ptype'] = $types;
+            }
+
+            //serialize tags from checkbox list
+            if ($form->values->tags) {
+                $tags = '';
+
+                foreach ($form->values->tags as $tag) {
+                    $tags .= (' ' . $tag);
+                }
+
+                $tags = substr($tags, 1);
+                $values['tags'] = $tags;
+            } else {
+                unset($values['tags']);
+            }
+
+            $this->presenter->redirect('Publication:search', $values);
+        };
+
+        return $form;
+    }
 }

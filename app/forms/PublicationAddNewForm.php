@@ -240,8 +240,9 @@ class PublicationAddNewFormFactory {
         $form->addHidden('id');
 
         $form->addSubmit('cancel', 'Cancel')
-            ->setValidationScope(NULL)->onClick[] = function () use ($parent) {
-                $parent->redirect('Publication:showall');
+            ->setValidationScope(false)
+            ->onClick[] = function () use ($parent) {
+                $parent->redirect('Publication:default');
             };
 
         $form->addSubmit('send', 'Done');

@@ -2,6 +2,7 @@
 
 namespace App\Presenters;
 
+use App\Components\Publication\PublicationControl;
 use Nette;
 use App\Model;
 
@@ -13,6 +14,9 @@ class AdminPresenter extends SecuredPresenter {
 
     /** @var Model\Publication @inject */
     public $publicationModel;
+
+    /** @var Model\Author @inject */
+    public $authorModel;
 
     /** @var Model\GeneralSettings @inject */
     public $generalSettingsModel;
@@ -206,7 +210,14 @@ class AdminPresenter extends SecuredPresenter {
 
             $this->setupRecordsPaginator();
 
+            $authorsByPubId = [];
+
+            foreach ($this->records as $record) {
+                $authorsByPubId[$record->id] = $this->authorModel->getAuthorsNamesByPubIdPure($record->id);
+            }
+
             $this->template->records = $this->records;
+            $this->template->authorsByPubId = $authorsByPubId;
             $this->data = $params;
 
             if (isset($params['sort'])) {
@@ -278,6 +289,15 @@ class AdminPresenter extends SecuredPresenter {
         $count = $this->referenceModel->process();
         $this->flashMessage($count . ' reference processed.');
         $this->redirect('this');
+    }
+
+
+    /**
+     * @return PublicationControl
+     */
+    public function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
     }
 
 }

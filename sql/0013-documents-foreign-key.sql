@@ -1,0 +1,13 @@
+SET FOREIGN_KEY_CHECKS=0;
+
+ALTER TABLE `documents` 
+ENGINE = InnoDB ;
+ALTER TABLE `documents` 
+ADD CONSTRAINT `publication_id`
+  FOREIGN KEY (`publication_id`)
+  REFERENCES `publication` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+SET FOREIGN_KEY_CHECKS=1;

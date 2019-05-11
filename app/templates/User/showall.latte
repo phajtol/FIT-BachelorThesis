@@ -15,10 +15,10 @@
 			<div class="col-lg-4">
 				{include searchForm}
 			</div>
-			<div class="col-lg-7">
+			<div class="col-lg-6">
 			</div>
-			<div class="col-lg-1">
-				{control crud-addButton}
+			<div class="col-lg-2 text-center">
+				{control crud-addButton, ['description' => true]}
 			</div>
 		</div>
 
@@ -56,23 +56,23 @@
 						<tbody n:snippet="userShowAllRecords">
 							{foreach $records as $record}
 								<tr n:snippet="userRow$record->id">
-									<td>{$record->surname}</td>
-									<td>{$record->name}</td>
-									<td>{$record->email}</td>
-									<td>{$record->nickname}</td>
-									<td>
+									<td class="col-md-1">{$record->surname}</td>
+									<td class="col-md-1">{$record->name}</td>
+									<td class="col-md-2">{$record->email}</td>
+									<td class="col-md-1">{$record->nickname}</td>
+									<td class="col-md-1">
 										<span class="label auth-method-label auth-method-{$userAuthTypes[$record->id]}">
 											{$userAuthTypes[$record->id]|translateAuthMethod}
 										</span>
 									</td>
-									<td>
+									<td class="col-md-5">
 										{foreach $record->related('user_role') as $role}
 											<span class="label role-label role-{$role->role}">
 												{$role->role|translateRole}
 											</span>
 										{/foreach}
 									</td>
-									<td>
+									<td class="col-md-1">
 										{control crud-controls-$record->id}
 									</td>
 								</tr>

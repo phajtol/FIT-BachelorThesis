@@ -2,6 +2,7 @@
 
 namespace App\CrudComponents\PublicationCategory;
 
+use App\Components\Publication\PublicationControl;
 use App\CrudComponents\BaseCrudControlsComponent;
 use App\CrudComponents\Category\CategoryCrud;
 
@@ -14,6 +15,12 @@ class PublicationCategoryCrud extends CategoryCrud {
 	/** @var \App\Model\CategoriesHasPublication */
 	protected $categoriesHasPublicationModel;
 
+	/** @var \App\Model\Publication */
+	protected $publicationModel;
+
+	/** @var \App\Model\Author */
+	protected $authorModel;
+
 	/** @var \Nette\Security\User */
 	protected $loggedUser;
 
@@ -23,13 +30,17 @@ class PublicationCategoryCrud extends CategoryCrud {
      * @param \Nette\Security\User $loggedUser
      * @param \App\Model\Categories $publicationCategoryModel
      * @param \App\Model\CategoriesHasPublication $categoriesHasPublicationModel
-     * @param \Nette\ComponentModel\IContainer|NULL $parent
-     * @param string|NULL $name
+     * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\Author $authorModel
+     * @param \Nette\ComponentModel\IContainer|null $parent
+     * @param string|null $name
      */
 	public function __construct(
 		\Nette\Security\User $loggedUser,
 		\App\Model\Categories $publicationCategoryModel,
 		\App\Model\CategoriesHasPublication $categoriesHasPublicationModel,
+		\App\Model\Publication $publicationModel,
+		\App\Model\Author $authorModel,
 		\Nette\ComponentModel\IContainer $parent = NULL,
         string $name = NULL)
     {
@@ -37,6 +48,8 @@ class PublicationCategoryCrud extends CategoryCrud {
 
 		$this->categoriesHasPublicationModel = $categoriesHasPublicationModel;
 		$this->publicationCategoryModel = $publicationCategoryModel;
+		$this->publicationModel = $publicationModel;
+		$this->authorModel = $authorModel;
 		$this->loggedUser = $loggedUser;
 
 		$this->template->publicationsRelatedToCategory = [];
@@ -147,6 +160,14 @@ class PublicationCategoryCrud extends CategoryCrud {
 	}
 
     /**
+     * @return PublicationControl
+     */
+	public function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
+
+    /**
      * @param int $id
      * @throws \Nette\Application\AbortException
      */
@@ -207,15 +228,20 @@ class PublicationCategoryCrud extends CategoryCrud {
      */
 	public function handleShowRelatedPublications(int $id): void
     {
-		$result = [];
-		$categoriesBranchIds = $this->publicationCategoryModel->getCategoriesTreeIds($id);
+		$authorsByPubId = [];
+		$categories = $this->publicationCategoryModel->getCategoriesTreeIds($id);
 
-		foreach ($categoriesBranchIds as $row) {
-			$categories = $this->categoriesHasPublicationModel->findAllBy(["categories_id" => $row['id']]);
-			array_push($result, ['categories' => $row, 'categories_has_publication' => $categories]);
-		}
+		foreach ($categories as &$row) {
+            $publicationIds = $this->categoriesHasPublicationModel->getPublicationIdsByCategory($row['id']);
+            $row['publications'] = $this->publicationModel->getMultiplePubInfoByIds($publicationIds);
 
-		$this->template->publicationsRelatedToCategory = $result;
+            foreach ($row['publications'] as $pub) {
+                $authorsByPubId[$pub->id] = $this->authorModel->getAuthorsNamesByPubIdPure($pub->id);
+            }
+        }
+
+		$this->template->categories = $categories;
+        $this->template->authorsByPubId = $authorsByPubId;
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');

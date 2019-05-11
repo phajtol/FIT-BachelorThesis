@@ -26,6 +26,15 @@ class UserRole extends Base {
 	}
 
     /**
+     * @param int $userId
+     * @return array
+     */
+	public function getAllByUserId(int $userId): array
+    {
+        return $this->findAllByUserId($userId)->fetchPairs(null, 'role');
+    }
+
+    /**
      * @param $user_id
      * @param $role
      * @return \Nette\Database\Table\ActiveRow

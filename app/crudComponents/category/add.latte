@@ -1,3 +1,4 @@
 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#AddNewCategoryModal{$uniqid}" title="Add new {$entityName}">
 	<span class="glyphicon glyphicon-plus"></span>
+	{if isset($description) && $description == true} Add new {$entityName}{/if}
 </button>

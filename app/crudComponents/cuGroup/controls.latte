@@ -1,9 +1,12 @@
-<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger btn-xs deleteCuGroupButton deleteCuGroupButton{$uniqid}" data-toggle="modal" data-target="#DeleteCuGroupModal{$uniqid}" title="Delete conference user group">
+<button type="button" data-signal-url="{$deleteLink}" class="btn btn-danger {ifset $button}btn-{$button}{else}btn-xs{/ifset} deleteCuGroupButton deleteCuGroupButton{$uniqid}" data-toggle="modal" data-target="#DeleteCuGroupModal{$uniqid}" title="Delete conference user group">
 	<span class="glyphicon glyphicon-remove"></span>
+	{if isset($description) && $description == true} Delete{/if}
 </button>
-<button type="button" data-signal-url="{$editLink}" class="btn btn-primary btn-xs editCuGroupButton editCuGroupButton{$uniqid}" data-toggle="modal" data-target="#EditCuGroupModal{$uniqid}" title="Edit conference user group">
+<button type="button" data-signal-url="{$editLink}" class="btn btn-primary {ifset $button}btn-{$button}{else}btn-xs{/ifset} editCuGroupButton editCuGroupButton{$uniqid}" data-toggle="modal" data-target="#EditCuGroupModal{$uniqid}" title="Edit conference user group">
 	<span class="glyphicon glyphicon-pencil"></span>
+	{if isset($description) && $description == true} Edit{/if}
 </button>
-<button type="button" data-signal-url="{$showRelatedUsersLink}" class="btn btn-default btn-xs showUsersRelatedToCuGroupButton showUsersRelatedToCuGroupButton{$uniqid}" data-toggle="modal" data-target="#UsersRelatedToCuGroupModal{$uniqid}" title="Associated users">
+<button type="button" data-signal-url="{$showRelatedUsersLink}" class="btn btn-default {ifset $button}btn-{$button}{else}btn-xs{/ifset} showUsersRelatedToCuGroupButton showUsersRelatedToCuGroupButton{$uniqid}" data-toggle="modal" data-target="#UsersRelatedToCuGroupModal{$uniqid}" title="Associated users">
 	<span class="glyphicon glyphicon-link"></span>
+	{if isset($description) && $description == true} Associated users{/if}
 </button>

@@ -3,6 +3,7 @@
 namespace App\CrudComponents\Attribute;
 
 
+use App\Components\Publication\PublicationControl;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
 
@@ -18,12 +19,20 @@ class AttributeCrud extends BaseCrudComponent {
 	/** @var \App\Model\AttribStorage */
 	protected $attribStorageModel;
 
+	/** @var \App\Model\Publication */
+	protected $publicationModel;
+
+	/** @var \App\Model\Author */
+	protected $authorModel;
+
 
     /**
      * AttributeCrud constructor.
      * @param \Nette\Security\User $loggedUser
      * @param \App\Model\Attribute $attributeModel
      * @param \App\Model\AttribStorage $attribStorageModel
+     * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\Author $authorModel
      * @param \Nette\ComponentModel\IContainer|NULL $parent
      * @param string|NULL $name
      */
@@ -31,6 +40,8 @@ class AttributeCrud extends BaseCrudComponent {
 		\Nette\Security\User $loggedUser,
         \App\Model\Attribute $attributeModel,
         \App\Model\AttribStorage $attribStorageModel,
+		\App\Model\Publication $publicationModel,
+		\App\Model\Author $authorModel,
 		\Nette\ComponentModel\IContainer $parent = NULL,
         string $name = NULL)
     {
@@ -48,6 +59,8 @@ class AttributeCrud extends BaseCrudComponent {
 
 		$this->attributeModel = $attributeModel;
 		$this->attribStorageModel = $attribStorageModel;
+		$this->publicationModel = $publicationModel;
+		$this->authorModel = $authorModel;
 		$this->loggedUser = $loggedUser;
 
 		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
@@ -126,6 +139,14 @@ class AttributeCrud extends BaseCrudComponent {
 	}
 
     /**
+     * @return PublicationControl
+     */
+	public function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
+
+    /**
      * @param int $id
      * @throws \Nette\Application\AbortException
      */
@@ -174,8 +195,16 @@ class AttributeCrud extends BaseCrudComponent {
      */
 	public function handleShowRelatedPublications(int $id): void
     {
-		$this->template->publicationsRelatedToAttribute =
-			$this->attribStorageModel->findAllBy(["attributes_id" => $id]);
+        $publicationIds = $this->attribStorageModel->getPublicationsByAttribute($id);
+        $publications = $this->publicationModel->getMultiplePubInfoByIds($publicationIds);
+        $authorsByPubId = [];
+
+        foreach ($publications as $publication) {
+            $authorsByPubId[$publication->id] = $this->authorModel->getAuthorsNamesByPubIdPure($publication->id);
+        }
+
+		$this->template->publicationsRelatedToAttribute = $publications;
+        $this->template->authorsByPubId = $authorsByPubId;
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');

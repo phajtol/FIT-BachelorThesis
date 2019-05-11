@@ -2,6 +2,7 @@
 
 namespace App\CrudComponents\Publisher;
 
+use App\Components\Publication\PublicationControl;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
 
@@ -20,12 +21,16 @@ class PublisherCrud extends BaseCrudComponent {
 	/** @var  \App\Model\Publication */
 	protected $publicationModel;
 
+	/** @var \App\Model\Author */
+	protected $authorModel;
+
 
     /**
      * PublisherCrud constructor.
      * @param \Nette\Security\User $loggedUser
      * @param \App\Model\Publisher $publisherModel
      * @param \App\Model\Publication $publicationModel
+     * @param \App\Model\Author $authorModel
      * @param \App\Model\ConferenceYear $conferenceYearModel
      * @param \Nette\ComponentModel\IContainer|NULL $parent
      * @param string|NULL $name
@@ -33,6 +38,7 @@ class PublisherCrud extends BaseCrudComponent {
 	public function __construct(\Nette\Security\User $loggedUser,
                                 \App\Model\Publisher $publisherModel,
 								\App\Model\Publication $publicationModel,
+                                \App\Model\Author $authorModel,
                                 \App\Model\ConferenceYear $conferenceYearModel,
 								\Nette\ComponentModel\IContainer $parent = NULL,
                                 string $name = NULL)
@@ -54,6 +60,7 @@ class PublisherCrud extends BaseCrudComponent {
 		$this->loggedUser = $loggedUser;
 		$this->publisherModel = $publisherModel;
 		$this->publicationModel = $publicationModel;
+		$this->authorModel = $authorModel;
 		$this->conferenceYearModel = $conferenceYearModel;
 
 		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
@@ -128,6 +135,14 @@ class PublisherCrud extends BaseCrudComponent {
     }
 
     /**
+     * @return PublicationControl
+     */
+    public function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
+
+    /**
      * @param int $publisherId
      * @throws \Nette\Application\AbortException
      */
@@ -170,9 +185,16 @@ class PublisherCrud extends BaseCrudComponent {
      */
 	public function handleShowPublisherRelated(int $publisherId): void
     {
-		$publication = $this->publicationModel->findAllBy(['publisher_id' => $publisherId]);
+		$publications = $this->publicationModel->getMultiplePubInfoByParams(['publication.publisher_id' => $publisherId]);
 		$conferenceYear = $this->conferenceYearModel->findAllBy(['publisher_id' => $publisherId]);
-		$this->template->publisherRelated_publication = $publication;
+		$authorsByPubId = [];
+
+		foreach ($publications as $pub) {
+		    $authorsByPubId[$pub->id] = $this->authorModel->getAuthorsNamesByPubIdPure($pub->id);
+        }
+
+		$this->template->publisherRelated_publication = $publications;
+		$this->template->authorsByPubId = $authorsByPubId;
 		$this->template->publisherRelated_conference_year = $conferenceYear;
 
 		if (!$this->presenter->isAjax()) {

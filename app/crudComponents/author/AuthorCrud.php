@@ -2,6 +2,7 @@
 
 namespace App\CrudComponents\Author;
 
+use App\Components\Publication\PublicationControl;
 use App\CrudComponents\BaseCrudComponent;
 use App\CrudComponents\BaseCrudControlsComponent;
 
@@ -17,6 +18,9 @@ class AuthorCrud extends BaseCrudComponent {
 	/** @var \App\Model\AuthorHasPublication */
 	protected $authorHasPublicationModel;
 
+	/** @var \App\Model\Publication */
+	protected $publicationModel;
+
 	/** @var \App\Model\Submitter */
 	protected $submitterModel;
 
@@ -26,6 +30,7 @@ class AuthorCrud extends BaseCrudComponent {
      * @param \Nette\Security\User $loggedUser
      * @param \App\Model\Submitter $submitterModel
      * @param \App\Model\Author $authorModel
+     * @param \App\Model\Publication $publicationModel
      * @param \App\Model\AuthorHasPublication $authorHasPublicationModel
      * @param \Nette\ComponentModel\IContainer|NULL $parent
      * @param string|NULL $name
@@ -34,6 +39,7 @@ class AuthorCrud extends BaseCrudComponent {
 		\Nette\Security\User $loggedUser,
         \App\Model\Submitter $submitterModel,
         \App\Model\Author $authorModel,
+        \App\Model\Publication $publicationModel,
         \App\Model\AuthorHasPublication $authorHasPublicationModel,
 		\Nette\ComponentModel\IContainer $parent = NULL,
         string $name = NULL)
@@ -54,6 +60,7 @@ class AuthorCrud extends BaseCrudComponent {
 		$this->authorModel = $authorModel;
 		$this->loggedUser = $loggedUser;
 		$this->authorHasPublicationModel = $authorHasPublicationModel;
+		$this->publicationModel = $publicationModel;
 
 		$this->onControlsCreate[] = function (BaseCrudControlsComponent &$controlsComponent) {
 			$controlsComponent->addActionAvailable('showRelatedPublications');
@@ -177,8 +184,18 @@ class AuthorCrud extends BaseCrudComponent {
      * @param int $id
      * @throws \Nette\Application\AbortException
      */
-	public function handleShowRelatedPublications(int $id): void {
-		$this->template->publicationsRelatedToAuthor = $this->authorHasPublicationModel->findAllBy(["author_id" => $id]);
+	public function handleShowRelatedPublications(int $id): void
+    {
+		$authorsPublications = $this->authorHasPublicationModel->getPublicationsByAuthor($id);
+		$publications = $this->publicationModel->getMultiplePubInfoByIds($authorsPublications);
+		$authorsByPubId = [];
+
+		foreach ($publications as $pub) {
+		    $authorsByPubId[$pub->id] = $this->authorModel->getAuthorsNamesByPubIdPure($pub->id);
+        }
+
+        $this->template->publicationsRelatedToAuthor = $publications;
+		$this->template->authorsByPubId = $authorsByPubId;
 
 		if (!$this->presenter->isAjax()) {
 			$this->redirect('this');
@@ -186,5 +203,13 @@ class AuthorCrud extends BaseCrudComponent {
 			$this->redrawControl('publicationsRelatedToAuthor');
 		}
 	}
+
+    /**
+     * @return PublicationControl
+     */
+    public function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
 
 }

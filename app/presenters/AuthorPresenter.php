@@ -3,6 +3,7 @@
 namespace App\Presenters;
 
 use App\Components\AlphabetFilter\AlphabetFilterComponent;
+use App\Components\Publication\PublicationControl;
 use App\CrudComponents\Author\AuthorCrud;
 use App\Model;
 use NasExt\Controls\SortingControl;
@@ -14,6 +15,9 @@ class AuthorPresenter extends SecuredPresenter {
 
     /** @var Model\AuthorHasPublication @inject */
     public $authorHasPublicationModel;
+
+    /** @var Model\Publication @inject */
+    public $publicationModel;
 
 
     /**
@@ -40,7 +44,7 @@ class AuthorPresenter extends SecuredPresenter {
      */
     public function createComponentCrud(): AuthorCrud{
         $c = new AuthorCrud(
-            $this->user,$this->submitterModel, $this->authorModel, $this->authorHasPublicationModel,
+            $this->user,$this->submitterModel, $this->authorModel, $this->publicationModel, $this->authorHasPublicationModel,
             $this, 'crud'
         );
 
@@ -89,6 +93,11 @@ class AuthorPresenter extends SecuredPresenter {
         }
     }
 
+    public function renderDetail(int $id): void
+    {
+        $this->template->authorDetails = $this->authorModel->getAuthorWithHisTagsAndPublicationsAndStarred($id, $this->user->isInRole('admin'));
+    }
+
 
     /**
      * @return \NasExt\Controls\SortingControl
@@ -103,6 +112,14 @@ class AuthorPresenter extends SecuredPresenter {
         ],  'surname', SortingControl::ASC);
 
         return $control;
+    }
+
+    /**
+     * @return PublicationControl
+     */
+    protected function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
     }
 
 }

@@ -41,7 +41,8 @@ services:
 
 
 
-	- HomepageSearchForm
+	- App\Forms\PublicationSearchForm
+	- App\Forms\SimpleSearchForm
 
 	ShibbolethParams: App\Model\ShibbolethParams(%shibboleth%)
 	Annotation: App\Model\Annotation
@@ -76,7 +77,9 @@ services:
 	Journal: App\Model\Journal
 	Publication: App\Model\Publication
 	Publisher: App\Model\Publisher
+	ReferenceCount: App\Model\ReferenceCount
 	Retrieve: App\Model\Retrieve
+	RightsRequest: App\Model\RightsRequest
 	Springer: App\Model\Springer
 	Submitter: App\Model\Submitter
 	SubmitterHasGroup: App\Model\SubmitterHasGroup

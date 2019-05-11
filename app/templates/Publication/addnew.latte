@@ -141,6 +141,9 @@
 
     $(document).ready(function () {
 
+        //enable tooltips on this page
+        $('[data-toggle="tooltip"]').tooltip();
+
         var data1 = [
     {foreach $authors as $key => $value}
         { label: {$value}, value: {$key} },
@@ -200,6 +203,12 @@
                   if(item[0]){
                    $("#listBoxA").jqxListBox('unselectIndex', item[0].index );
                     }
+                 $.nette.ajax({
+                     url: {link selectAuthor!},
+                     data: {
+                         authorId: event.args.item.value || 0
+                     }
+                 });
                 });
 
                  $('#listBoxA').on('select', function (event) {
@@ -411,8 +420,8 @@
 <div class="row">
     <ol class="breadcrumb">
         <li><a n:href="Homepage:">Home</a></li>
-        <li><a n:href="Publication:showall">Publications</a></li>
-        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">{$title}</a></li>
+        <li><a n:href="Publication:">Publications</a></li>
+        <li class="active">{$title}</li>
     </ol>
 </div>
                             {snippet groupAdded}
@@ -510,14 +519,14 @@
 
                                         <div class="form-group required">
                                           {label definition, class => "col-sm-2 control-label" /}
-                                          <div class="col-sm-8">
+                                          <div class="col-sm-9">
                                             {input definition, class => "form-control"} <span class=error n:ifcontent>{$form['definition']->error}</span>
                                           </div>
                                         </div>
 
                                         <div class="form-group required">
                                           {label type, class => "col-sm-2 control-label" /}
-                                          <div class="col-sm-8">
+                                          <div class="col-sm-9">
                                             {input type, class => "form-control"} <span class=error n:ifcontent>{$form['type']->error}</span>
                                           </div>
                                         </div>
@@ -552,7 +561,7 @@
 
                                         <div class="form-group required">
                                           {label id_springer, class => "col-sm-2 control-label" /}
-                                          <div class="col-sm-8">
+                                          <div class="col-sm-9">
                                             {input id_springer, class => "form-control"} <span class=error n:ifcontent>{$form['id_springer']->error}</span>
                                           </div>
                                            <div class="col-sm-2">
@@ -563,7 +572,7 @@
 
                                         <div class="form-group required">
                                           {label type_springer, class => "col-sm-2 control-label" /}
-                                          <div class="col-sm-8">
+                                          <div class="col-sm-9">
                                             {input type_springer, class => "form-control"} <span class=error n:ifcontent>{$form['type_springer']->error}</span>
                                           </div>
                                         </div>
@@ -574,14 +583,14 @@
 
                                     <div class="form-group required">
                                     {label data_springer, class => "col-sm-2 control-label" /}
-                                    <div class="col-sm-8">
+                                    <div class="col-sm-9">
                                         {input data_springer, class => form-control} <span class=error n:ifcontent>{$form['data_springer']->error}</span>
                                     </div>
                                     </div>
                                     {ifset $springerMessage}
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">Status</label>
-                                        <div class="col-sm-8">
+                                        <div class="col-sm-9">
                                             <p class="bg-{$springerMessage['status']}">{$springerMessage['message']}</p>
                                         </div>
                                     </div>
@@ -635,7 +644,7 @@
                 {if isset($definition)}
                     <div class="form-group">
                     <label class="col-sm-2 control-label">Imported definition</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         <p class="bg-success">{$definition|noescape}</p>
                     </div>
                     </div>
@@ -644,7 +653,7 @@
                   {if isset($springer)}
                     <div class="form-group">
                     <label class="col-sm-2 control-label">Imported data from springer</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         <p class="bg-success">
                             {foreach $springer as $i => $value}
                                 {$i} => {dump $value}
@@ -656,15 +665,25 @@
 
                 <div class="form-group required">
                     {label pub_type, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input pub_type, class => "form-control"} <span class=error n:ifcontent>{$form['pub_type']->error}</span>
                     </div>
-                     <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['pub_type']}"><strong> ? </strong></a>
+
+                    <a tabindex="0"
+                       class="btn btn-xs btn-default"
+                       data-toggle="popover"
+                       data-trigger="focus"
+                       title="{$help['pub_type']['title']}"
+                       data-content="{$help['pub_type']['content']}"
+                       style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                    >
+                        ?
+                    </a>
                 </div>
 
                 <div class="form-group required">
                     {label title, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input title, class => "form-control"} <span class=error n:ifcontent>{$form['title']->error}</span>
                     </div>
                 </div>
@@ -719,7 +738,18 @@
                             </button>
                             <br />
                             <br />
-                            <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['authors']}"><strong> ? </strong></a>
+
+                            <a tabindex="0"
+                               class="btn btn-xs btn-default"
+                               data-toggle="popover"
+                               data-trigger="focus"
+                               title="{$help['authors']['title']}"
+                               data-content="{$help['authors']['content']}"
+                               style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                            >
+                                ?
+                            </a>
+
                         </div>
                     </div>
                 </div>
@@ -911,7 +941,7 @@
 
                 <div class="form-group">
                     {label abstract, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input abstract, class => "form-control"} <span class=error n:ifcontent>{$form['abstract']->error}</span>
                     </div>
                 </div>
@@ -939,7 +969,16 @@
                         </script>
                     </div>
                     <div class="col-sm-4" id="categoryControls">
-                        <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['categories']}"><strong> ? </strong></a>
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['categories']['title']}"
+                           data-content="{$help['categories']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
                     </div>
                 </div>
 
@@ -950,9 +989,9 @@
                     <label for="jqxGroup" class="col-sm-2 control-label">Groups</label>
                     <div class="col-sm-4"><div  id="jqxGroup" class="form-control"></div></div>
                     <div class="col-sm-3" n:snippet="groupControls">
-                        {control groupCrud-addButton}
+                        {control groupCrud-addButton, 'description' => true}
                         {if $selectedGroupId}
-                            {control groupCrud-controls-$selectedGroupId}
+                            {control groupCrud-controls-$selectedGroupId, 'description' => true}
                         {/if}
                     </div>
                 </div>
@@ -1085,14 +1124,14 @@
 
                 <div id="addnew-doi" class="form-group">
                     {label doi, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input doi, class => "form-control"} <span class=error n:ifcontent>{$form['doi']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-howpublished" class="form-group hidden">
                     {label howpublished, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input howpublished, class => "form-control"} <span class=error n:ifcontent>{$form['howpublished']->error}</span>
                     </div>
                 </div>
@@ -1101,14 +1140,14 @@
                     {var $form = $presenter['publicationAddNewForm']}
                     <div id="addnew-issue_year" class="form-group">
                         {label issue_year, class => "col-sm-2 control-label" /}
-                        <div class="col-sm-8">
+                        <div class="col-sm-9">
                             {input issue_year, class => "form-control"} <span class=error n:ifcontent>{$form['issue_year']->error}</span>
                         </div>
                     </div>
 
                     <div id="addnew-issue_month" class="form-group">
                         {label issue_month, class => "col-sm-2 control-label" /}
-                        <div class="col-sm-8">
+                        <div class="col-sm-9">
                             {input issue_month, class => "form-control"} <span class=error n:ifcontent>{$form['issue_month']->error}</span>
                         </div>
                     </div>
@@ -1116,84 +1155,84 @@
 
                 <div id="addnew-organization" class="form-group hidden">
                     {label organization, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input organization, class => "form-control"} <span class=error n:ifcontent>{$form['organization']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-volume" class="form-group hidden">
                     {label volume, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input volume, class => "form-control"} <span class=error n:ifcontent>{$form['volume']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-number" class="form-group hidden">
                     {label number, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input number, class => "form-control"} <span class=error n:ifcontent>{$form['number']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-chapter" class="form-group hidden">
                     {label chapter, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input chapter, class => "form-control"} <span class=error n:ifcontent>{$form['chapter']->error}</span>
                     </div>
                 </div>
 
                  <div id="addnew-pages" class="form-group hidden">
                     {label pages, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input pages, class => "form-control"} <span class=error n:ifcontent>{$form['pages']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-editor" class="form-group hidden">
                     {label editor, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input editor, class => "form-control"} <span class=error n:ifcontent>{$form['editor']->error}</span>
                     </div>
                 </div>
 
                   <div id="addnew-edition" class="form-group hidden">
                     {label edition, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input edition, class => "form-control"} <span class=error n:ifcontent>{$form['edition']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-booktitle" class="form-group hidden">
                     {label booktitle, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input booktitle, class => "form-control"} <span class=error n:ifcontent>{$form['booktitle']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-school" class="form-group hidden">
                     {label school, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input school, class => "form-control"} <span class=error n:ifcontent>{$form['school']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-institution" class="form-group hidden">
                     {label institution, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input institution, class => "form-control"} <span class=error n:ifcontent>{$form['institution']->error}</span>
                     </div>
                 </div>
 
                  <div id="addnew-type_of_report" class="form-group hidden">
                     {label type_of_report, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input type_of_report, class => "form-control"} <span class=error n:ifcontent>{$form['type_of_report']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-url" class="form-group hidden">
                     {label url, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input url, class => "form-control"} <span class=error n:ifcontent>{$form['url']->error}</span>
                     </div>
                 </div>
@@ -1201,14 +1240,14 @@
 
                  <div id="addnew-address" class="form-group hidden">
                     {label address, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input address, class => "form-control"} <span class=error n:ifcontent>{$form['address']->error}</span>
                     </div>
                 </div>
 
                 <div id="addnew-note" class="form-group hidden">
                     {label note, class => "col-sm-2 control-label" /}
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         {input note, class => "form-control"} <span class=error n:ifcontent>{$form['note']->error}</span>
                     </div>
                 </div>
@@ -1218,8 +1257,17 @@
                             <label class="col-sm-2 control-label">Further attributes</label>
                             <div class="col-sm-10">
                                 <p class="form-control-static">
-                                    {control attributeCrud-addButton}
-                                    <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['attributes']}"><strong> ? </strong></a>
+                                    {control attributeCrud-addButton, 'description' => true}
+                                    <a tabindex="0"
+                                       class="btn btn-xs btn-default"
+                                       data-toggle="popover"
+                                       data-trigger="focus"
+                                       title="{$help['attributes']['title']}"
+                                       data-content="{$help['attributes']['content']}"
+                                       style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                                    >
+                                        ?
+                                    </a>
                                 </p>
                             </div>
                 </div>
@@ -1228,12 +1276,19 @@
                     {var $form = $presenter['publicationAddNewForm']}
                     {foreach $attributes as $attrib}
                         <div id="addnew-attributes_{$attrib->id}" class="form-group attributes">
-                            {label $form['attributes'][$attrib->id], class=>"col-sm-2 control-label"}{/label}
-                            <div class="col-sm-7">
+                            <div class="col-sm-2 control-label">
+                                {label $form['attributes'][$attrib->id]}{/label}
+                                {if $attrib->confirmed === 1}
+                                    <span class="glyphicon glyphicon-globe" data-toggle="tooltip" title="Global"></span>
+                                {elseif $attrib->confirmed === 0}
+                                    <span class="glyphicon glyphicon-lock" data-toggle="tooltip" title="Private"></span>
+                                {/if}
+                            </div>
+                            <div class="col-sm-8">
                                 {input $form['attributes'][$attrib->id], class=>"form-control"}
                                 <span class=error n:ifcontent>{$form['attributes'][$attrib->id]->error}</span>
                             </div>
-                             <div class="col-sm-3">
+                             <div class="col-sm-2">
                                 {control attributeCrud-controls-$attrib->id}
                              </div>
                         </div>
@@ -1244,7 +1299,7 @@
                     {foreach $files as $key => $file}
                         <div class="form-group">
                             <label id="deleteFileLabel-{$key}" class="col-sm-2 control-label">{$file['name']}</label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-9">
                                 <p class="form-control-static">
                                     <a class="btn btn-default" target="_blank" href="{$basePath}{$dirPathTemplate}{$publication['id']}/{$file['name']}" role="button"><span class="glyphicon glyphicon-download"></span></a>
                                     <button type="button" id="deleteFileButton-{$key}" class="btn btn-danger deleteFileButton" data-toggle="modal" data-target="#DeleteFileModal" title="Delete file">
@@ -1320,7 +1375,16 @@
              </p>
                             </div>
                     <div class="col-sm-3">
-                        <a tabindex="0" class="btn btn-default" role="button" data-toggle="popover" data-trigger="focus" title="Help" data-content="{$help['upload']}"><strong> ? </strong></a>
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['upload']['title']}"
+                           data-content="{$help['upload']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
                     </div>
                 </div>
 	{/snippet}

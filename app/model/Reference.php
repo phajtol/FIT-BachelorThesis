@@ -98,6 +98,27 @@ class Reference extends Base {
     }
 
     /**
+     * @return int
+     */
+    public function findUnconfirmedWithPublicationCount(): int
+    {
+        $unconfirmed = $this->findAllUnconfirmed();
+        $cnt = 0;
+
+        foreach ($unconfirmed as $reference) {
+            $publication2 = $this->publicationModel->findOneBy(["title" => $reference->title]);
+
+            if (empty($publication2) || $reference->max_refused_id > $publication2->id) {
+                continue;
+            } else {
+                $cnt++;
+            }
+        }
+
+        return $cnt;
+    }
+
+    /**
      * @return array
      */
     public function findUnconfirmedWithPublication(): array
@@ -150,5 +171,31 @@ class Reference extends Base {
         }
 
         return $counter;
+    }
+
+
+    /**
+     * @param int $publicationId
+     * @return Selection
+     */
+    public function getReferencesByPublication(int $publicationId): Selection
+    {
+        return $this->getTable()
+            ->select('id, reference_id, text')
+            ->where(['publication_id' => $publicationId])
+            ->order('id ASC');
+    }
+
+    /**
+     * @param int $publicationId
+     * @return array
+     */
+    public function getCitationsByPublication(int $publicationId): array
+    {
+        return $this->getTable()
+            ->select('id, publication_id')
+            ->where(['reference_id' => $publicationId])
+            ->order('id ASC')
+            ->fetchPairs('id', 'publication_id');
     }
 }

@@ -23,9 +23,6 @@ class FavouriteConferenceToggleComponent extends \Nette\Application\UI\Control {
 	/** @var null */
 	protected $isFavourite = null;
 
-	/** @var bool */
-	protected $isSmall = true;
-
 	/** @var Callback[]  */
 	public $onMarkedAsFavourite = [];
 
@@ -77,19 +74,23 @@ class FavouriteConferenceToggleComponent extends \Nette\Application\UI\Control {
 	}
 
     /**
+     * @param array|null $params
      * @throws \Nette\Application\UI\InvalidLinkException
      */
-	public function render(): void
+	public function render(?array $params = []): void
     {
 		$isFavourite = $this->isFavourite();
 
+        foreach ($params as $key => $value) {
+            $this->template->$key = $value;
+        }
+
 		$this->template->isFavourite = $isFavourite;
 		$this->template->setFavouriteLink = $this->link('setFavourite!', [$isFavourite ? false : true]);
-		$this->template->isSmall = $this->isSmall;
-		$this->template->isFavourite = $this->isFavourite();
-		$this->template->ajaxRequest = $this->ajaxRequest;
+        $this->template->isFavourite = $this->isFavourite();
+        $this->template->ajaxRequest = $this->ajaxRequest;
 
-		$this->template->setFile($this->templateFile);
+        $this->template->setFile($this->templateFile);
 		$this->template->render();
 	}
 
@@ -108,14 +109,7 @@ class FavouriteConferenceToggleComponent extends \Nette\Application\UI\Control {
 
 		$this->onMarkedAsFavourite($markAsFavourite);
 		$this->setIsFavourite($markAsFavourite);
-		$this->redrawControl('button');
-	}
-
-	/**
-	 * @param bool $isSmall
-	 */
-	public function setIsSmall(bool $isSmall) {
-		$this->isSmall = $isSmall;
+		//$this->redrawControl('button');
 	}
 
 	/**

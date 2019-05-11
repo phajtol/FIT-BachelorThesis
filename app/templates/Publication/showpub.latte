@@ -4,8 +4,8 @@
 <div class="row">
     <ol class="breadcrumb">
         <li><a n:href="Homepage:">Home</a></li>
-        <li><a n:href="Publication:showall">All Publications</a></li>
-        <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Publication detail</a></li>
+        <li><a n:href="Publication:">Publications</a></li>
+        <li class="active">Publication detail</li>
     </ol>
 </div>
 {control referenceCrud}
@@ -15,575 +15,770 @@
 
     <ul id="pub-detail-tab" class="nav nav-tabs">
         <li class="active"><a href="#detail" data-toggle="tab">Publication Detail</a></li>
-        <li class=""><a href="#annotations" data-toggle="tab">Annotations</a></li>
-        <li class=""><a href="#tags" data-toggle="tab">Tags</a></li>
         <li class=""><a href="#exports" data-toggle="tab">Exports</a></li>
         <li class=""><a href="#references" data-toggle="tab">References</a></li>
         <li class=""><a href="#citations" data-toggle="tab">Citations</a></li>
     </ul>
 
-    <div class="col-md-12" style="background-color:#f8f8f8; padding-top: 30px;">
+    <div class="col-md-12" style="background-color:#f8f8f8;padding:30px 0px;">
         <div id="pub-detail-tab-content" class="tab-content">
             <div class="tab-pane fade active in" id="detail">
 
-                <form class="form-horizontal" role="form">
+                <div class="col-sm-8">
 
-                    <div class="form-group">
-                        <h1 class="col-sm-3 control-label">Publication Detail</h1>
-                        <div class="col-sm-8"></div>
-                        <div class="col-sm-1">
-                             {if $user->isInRole('admin') || $user->isInRole('submitter')}
-                                <p class="form-control-static">
-                                    <a class="btn btn-success" n:href="Publication:addnew" role="button" title="Add new Publication"><span class="glyphicon glyphicon-plus"></span></a>
-                                </p>
-                            {/if}
-                        </div>
-                    </div>
+                    <h1>{$publication->pub_type|capitalize} <small>publication detail</small></h1>
+
                     <hr>
-                    <div class="form-group">
-                        <h2 class="col-sm-3 control-label"><small>Publication</small></h2>
-                    </div>
 
                     {if $publication->title}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Title</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->title}</p>
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Title</label>
+                            </div>
+                            <div class="col-sm-10 lead" style="margin-bottom:0;">
+                                {$publication->title}
                             </div>
                         </div>
                     {/if}
 
-                    {if $publication->pub_type}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Type of publication</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$types[$publication->pub_type]}</p>
+                    {if $authors}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Authors</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {foreach $pubCit['author_array'] as $author}
+                                    <a n:href=":Author:detail $author['id']">
+                                        {$author['name']}
+                                        {if $author['middlename']}
+                                            {$author['middlename']}
+                                        {/if}
+                                    {$author['surname']}</a>{if !$iterator->last}, {/if}
+                                {/foreach}
                             </div>
                         </div>
                     {/if}
 
-                    {if $publication->abstract}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Abstract</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->abstract}</p>
+                    {if $publication->pub_type == 'article' && $journal}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 text-right">
+                                <label>Journal</label>
                             </div>
-                        </div>
-                    {/if}
-
-                    {if $categories}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Categories</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">
-                                    {foreach $categories as $category}
-                                        {$category->categories->name}{if !$iterator->last}, {/if}
-                                    {/foreach}
-                                </p>
+                            <div class="col-sm-2 text-center">
+                                <label>Name</label>
                             </div>
-                        </div>
-                    {/if}
-
-                     {if $group}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Groups</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">
-                                    {foreach $group as $gr}
-                                        {$gr->group->name}{if !$iterator->last}, {/if}
-                                    {/foreach}
-                                </p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->volume}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Volume</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->volume}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->number}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Number</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->number}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->chapter}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Chapter</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->chapter}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->pages}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Pages</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->pages}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->editor}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Editor</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->editor}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->edition}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Edition</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->edition}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->address}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Address</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->address}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->booktitle}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Booktitle</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->booktitle}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->school}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">School</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->school}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->institution}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Institution</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->institution}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->type_of_report}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Type of report</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->type_of_report}</p>
-                            </div>
-                        </div>
-                    {/if}
-                    {if $publication->related('publication_isbn')}
-                        {foreach $publication->related('publication_isbn') as $isbn}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">{$isbn->type}</label>
-                                <div class="col-sm-3">
-                                    <p class="form-control-static">{$isbn->isbn}</p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="form-control-static">{$isbn->note}</p>
-                                </div>
-                            </div>
-                        {/foreach}
-                    {/if}
-
-                    {if $publication->doi}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">DOI</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->doi}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->howpublished}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Howpublished</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->howpublished}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->issue_year}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Year of publication</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->issue_year}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->issue_month}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Month of publication</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->issue_month}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-
-                    {if $publication->organization}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Organization</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->organization}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->url}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">URL</label>
-                            <div class="col-sm-9">
-                                <a href="{$publication->url}" target="_blank">{$publication->url}</a>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->note}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Note</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->note}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $publication->howpublished}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Howpublished</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publication->howpublished}</p>
-                            </div>
-                        </div>
-                    {/if}
-
-                    {if $journal}
-                        <div class="form-group">
-                            <h2 class="col-sm-3 control-label"><small>Journal</small></h2>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Name</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$journal->name}</p>
+                            <div class="col-sm-8">
+                                {$journal->name}
                             </div>
                         </div>
 
                         {if $journal->abbreviation}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Abbreviation</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$journal->abbreviation}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>Abbreviation</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$journal->abbreviation}
                                 </div>
                             </div>
                         {/if}
 
                         {if $journal->related("journal_isbn")}
                             {foreach $journal->related("journal_isbn") as $isbn}
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">{$isbn->type}</label>
-                                    <div class="col-sm-3">
-                                        <p class="form-control-static">{$isbn->isbn}</p>
+                                <div class="row row-equal-cols pub-detail-item">
+                                    <div class="col-sm-2"></div>
+                                    <div class="col-sm-2 text-center">
+                                        <label>{$isbn->type}</label>
                                     </div>
-                                    <div class="col-sm-3">
-                                        <p class="form-control-static">{$isbn->note}</p>
+                                    <div class="col-sm-8">
+                                        {$isbn->isbn} {if $isbn->note}({$isbn->note}){/if}
                                     </div>
                                 </div>
                             {/foreach}
                         {/if}
 
                         {if $journal->doi}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">DOI</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$journal->doi}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>DOI</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$journal->doi}
                                 </div>
                             </div>
                         {/if}
                     {/if}
 
-                    {if $publisher}
-
-                        <div class="form-group">
-                            <h2 class="col-sm-3 control-label"><small>Publisher</small></h2>
+                    {if $publication->issue_year}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Published</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {if $publication->issue_month}
+                                    {$publication->issue_month}/{$publication->issue_year}
+                                {else}
+                                    {$publication->issue_year}
+                                {/if}
+                            </div>
                         </div>
+                    {/if}
 
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Name</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$publisher->name}</p>
+                    {if $publication->volume}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Volume</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->volume}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->number}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Number</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->number}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->chapter}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Chapter</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->chapter}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->pages}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Pages</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->pages}
+                            </div>
+                        </div>
+                    {/if}
+
+
+                    {if $publication->abstract}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Abstract</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->abstract}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->editor}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Editor</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->editor}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->edition}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Edition</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->edition}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->address}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Address</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->address}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->booktitle}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Booktitle</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->booktitle}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->school}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>School</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->school}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->institution}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Institution</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->institution}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->type_of_report}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Type of report</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->type_of_report}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->pub_type != 'inproceedings' && $publication->related('publication_isbn')}
+                        {foreach $publication->related('publication_isbn') as $isbn}
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2 text-right">
+                                    <label>{$isbn->type}</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$isbn->isbn} {if $isbn->note}({$isbn->note}){/if}
+                                </div>
+                            </div>
+                        {/foreach}
+                    {/if}
+
+                    {if $publication->doi}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>DOI</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->doi}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->howpublished}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Howpublished</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->howpublished}
+                            </div>
+                        </div>
+                    {/if}
+
+
+                    {if $publication->organization}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Organization</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->organization}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->url}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>URL</label>
+                            </div>
+                            <div class="col-sm-10">
+                                <a href="{$publication->url}" target="_blank">{$publication->url}</a>
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publication->note}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Note</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {$publication->note}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $publisher}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 text-right">
+                                <label>Publisher</label>
+                            </div>
+                            <div class="col-sm-2 text-center">
+                                <label>Name</label>
+                            </div>
+                            <div class="col-sm-8">
+                                {$publisher->name}
                             </div>
                         </div>
 
-
                         {if $publisher->address}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Address</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$publisher->address}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>Address</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$publisher->address}
                                 </div>
                             </div>
                         {/if}
                     {/if}
 
                     {if $conferenceYear}
+                        <hr>
 
-                        <div class="form-group">
-                            <h2 class="col-sm-3 control-label"><small>Conference</small></h2>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Name</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">{$conferenceYear->conference->name}</p>
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 text-right">
+                                <label>Conference</label>
+                            </div>
+                            <div class="col-sm-2 text-center">
+                                <label>Name</label>
+                            </div>
+                            <div class="col-sm-8">
+                                {$conferenceYear->conference->name}
                             </div>
                         </div>
 
                         {if $conferenceYear->conference->abbreviation}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Abbreviation</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->conference->abbreviation}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>Abbreviation</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$conferenceYear->conference->abbreviation}
                                 </div>
                             </div>
                         {/if}
 
                         {if $conferenceYear->conference->description}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Description</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->conference->description}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>Description</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$conferenceYear->conference->description}
                                 </div>
                             </div>
                         {/if}
 
                         {if $conferenceYear->conference->first_year}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">First year</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->conference->first_year}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>First year</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$conferenceYear->conference->first_year}
                                 </div>
                             </div>
                         {/if}
 
-                        <div class="form-group">
-                            <h2 class="col-sm-3 control-label"><small>Year of Conference</small></h2>
-                        </div>
+                        <hr>
 
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Name</label>
-                            <div class="col-sm-9">
-                                {if $user->isAllowed('Conference:show')}
-                                    <p class="form-control-static"><a n:href="Conference:show $conferenceYear->id">{$conferenceYear->name}</a></p>
-                                {else}
-                                    <p class="form-control-static">{$conferenceYear->name}</p>
-                                {/if}
+                        <div class="row pub-detail-item">
+                            <div class="col-sm-2 text-right">
+                                <label>Year of conference</label>
+                            </div>
+                            <div class="col-sm-2 text-center">
+                                <label>Name</label>
+                            </div>
+                            <div class="col-sm-8">
+                                <a n:href="Conference:show $conferenceYear->id">{$conferenceYear->name}</a>
                             </div>
                         </div>
 
                         {if $conferenceYear->w_year}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Year</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->w_year}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>Year</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$conferenceYear->w_year}
                                 </div>
                             </div>
                         {/if}
 
                         {if $conferenceYear->w_from}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">From</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->w_from|ldate}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>From</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$conferenceYear->w_from|ldate}
                                 </div>
                             </div>
                         {/if}
 
                         {if $conferenceYear->w_to}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">To</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->w_to|ldate}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>To</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$conferenceYear->w_to|ldate}
                                 </div>
                             </div>
                         {/if}
 
                         {if $conferenceYear->location}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Location</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->location}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>Location</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$conferenceYear->location}
                                 </div>
                             </div>
                         {/if}
 
                         {if $conferenceYear->web}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Web</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static"><a href="{$conferenceYear->web}" target="_blank">{$conferenceYear->web}</a></p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>Web</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    <a href="{$conferenceYear->web}" target="_blank">{$conferenceYear->web}</a>
                                 </div>
                             </div>
                         {/if}
 
                         {if $conferenceYear->related("conference_year_isbn")}
                             {foreach $conferenceYear->related("conference_year_isbn") as $isbn}
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">{$isbn->type}</label>
-                                    <div class="col-sm-3">
-                                        <p class="form-control-static">{$isbn->isbn}</p>
+                                <div class="row row-equal-cols pub-detail-item">
+                                    <div class="col-sm-2"></div>
+                                    <div class="col-sm-2 text-center">
+                                        <label>{$isbn->type}</label>
                                     </div>
-                                    <div class="col-sm-3">
-                                        <p class="form-control-static">{$isbn->note}</p>
+                                    <div class="col-sm-8">
+                                        {$isbn->isbn}  {if $isbn->note}({$isbn->note}){/if}
                                     </div>
                                 </div>
                             {/foreach}
                         {/if}
 
                         {if $conferenceYear->doi}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">DOI</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->doi}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>DOI</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$conferenceYear->doi}
                                 </div>
                             </div>
                         {/if}
 
                         {if $conferenceYear->description}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Description</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">{$conferenceYear->description}</p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2 text-center">
+                                    <label>Description</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$conferenceYear->description}
                                 </div>
                             </div>
                         {/if}
 
                         {if $conferenceYearPublisher}
                             {if $conferenceYearPublisher->name}
-                                <div class="form-group">
-                                    <h2 class="col-sm-4 control-label"><small>Publisher (Year of Conference)</small></h2>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">Name</label>
-                                    <div class="col-sm-9">
-                                        <p class="form-control-static">{$conferenceYearPublisher->name}</p>
+                                <div class="row row-equal-cols pub-detail-item">
+                                    <div class="col-sm-2"></div>
+                                    <div class="col-sm-2 text-center">
+                                        <label>Publisher</label>
+                                    </div>
+                                    <div class="col-sm-8 vertical-align">
+                                        {$conferenceYearPublisher->name}
                                     </div>
                                 </div>
                             {/if}
 
                             {if $conferenceYearPublisher->address}
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">Address</label>
-                                    <div class="col-sm-9">
-                                        <p class="form-control-static">{$conferenceYearPublisher->address}</p>
+                                <div class="row row-equal-cols pub-detail-item">
+                                    <div class="col-sm-2"></div>
+                                    <div class="col-sm-2 text-center">
+                                        <label>Publisher address</label>
+                                    </div>
+                                    <div class="col-sm-8 vertical-align">
+                                        {$conferenceYearPublisher->address}
                                     </div>
                                 </div>
                             {/if}
                         {/if}
-
                     {/if}
 
-                    {if $authors}
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Authors</label>
-                            <div class="col-sm-9">
-                                <p class="form-control-static">
-                                    {foreach $authors as $author}
-                                        {$author}{if !$iterator->last}, {/if}
-                                    {/foreach}
-                                </p>
-                            </div>
-                        </div>
-                    {/if}
+                    <hr>
 
                     {if count($attributes)}
-                        <div class="form-group">
-                            <h2 class="col-sm-3 control-label"><small>Advanced attributes</small></h2>
-                        </div>
+                        <h2 class="text-center"><small>Custom attributes</small></h2>
 
                         {foreach $attributes as $attribute}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">{$attribute->attributes->name} ({$attribute->attributes->description})</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">
-                                        {$attribute->value}
-                                    </p>
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-4 vertical-align text-center">
+                                    <label>{$attribute->attributes->name}</label>
+                                    <span class="text-muted">({$attribute->attributes->description})</span>
+                                </div>
+                                <div class="col-sm-8">
+                                    {$attribute->value}
                                 </div>
                             </div>
                         {/foreach}
+
                         <hr>
                     {/if}
 
                     {if count($files)}
-                        <div class="form-group">
-                            <h2 class="col-sm-3 control-label"><small>Files to download</small></h2>
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Files</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {foreach $files as $file}
+                                    <p>
+                                        <a href="{$basePath}{$dirPathTemplate}{$publication->id}/{$file['name']}" target="_blank" title="Download this file">
+                                            {$file['name']}
+                                        </a>
+                                    </p>
+                                {/foreach}
+                            </div>
                         </div>
 
-                        {foreach $files as $file}
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">{$file['name']}</label>
-                                <div class="col-sm-9">
-                                    <p class="form-control-static">
-                                        <a class="btn btn-default" target="_blank" href="{$basePath}{$dirPathTemplate}{$publication->id}/{$file['name']}" role="button" title="Download File"><span class="glyphicon glyphicon-download"></span></a>
-                                    </p>
+                        <hr>
+                    {/if}
+
+                    {if $categories}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Categories</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {foreach $categories as $category}
+                                    <a n:href=":Publication:search 'categories' => $category->categories_id, 'catop' => 'or', 'scope' => 'all', 'stype' => 'title'">
+                                        <span class="label label-default" style="display:inline-block;">{$category->categories->name}</span>
+                                    </a>
+                                {/foreach}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $group}
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Groups</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {if count($group)}
+                                    {foreach $group as $gr}
+                                        {$gr->group->name}{if !$iterator->last}, {/if}
+                                    {/foreach}
+                                {else}
+                                    -
+                                {/if}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {if $user->isInRole('admin')}
+                        <hr>
+
+                        <div class="row row-equal-cols pub-detail-item">
+                            <div class="col-sm-2 vertical-align text-right">
+                                <label>Added by</label>
+                            </div>
+                            <div class="col-sm-10">
+                                {if $publication->submitter}
+                                    {$publication->submitter->name} {$publication->submitter->surname}
+                                {else}
+                                    -
+                                {/if}
+                            </div>
+                        </div>
+
+                        {if $publication->lastedit_submitter}
+                            <div class="row row-equal-cols pub-detail-item">
+                                <div class="col-sm-2 vertical-align text-right">
+                                    <label>Last edit</label>
+                                </div>
+                                <div class="col-sm-10">
+                                    {$publication->lastedit_submitter->name} {$publication->lastedit_submitter->surname}
+                                    {if $publication->lastedit_timestamp}
+                                        ({$publication->lastedit_timestamp|date:'j. n. Y H:i:s'})
+                                    {/if}
                                 </div>
                             </div>
-                        {/foreach}
+                        {/if}
                     {/if}
 
                 {if $user->isInRole('admin') || $user->isInRole('submitter')}
                     <hr>
-                    <div class="form-group">
-                        <h2 class="col-sm-3 control-label"><small>Actions</small></h2>
-                        <div class="col-sm-9">
-                            <p class="form-control-static">
-                                <button type="button" id="deletePublicationButton" class="btn btn-danger" data-toggle="modal" data-target="#DeletePublicationModal" title="Delete Publication">
-                                    <span class="glyphicon glyphicon-remove"></span>
-                                </button>
 
-                                <a class="btn btn-primary" n:href="Publication:addnew, $publication->id" role="button" title="Edit Publication"><span class="glyphicon glyphicon-pencil"></span></a>
-                                {if $favourite}
-                                    <a class="btn btn-warning" n:href="unsetFavouritePub!, $publication->id" role="button" title="Remove from starred Publications"><span class="glyphicon glyphicon-star"></span></a>
-                                {else}
-                                    <a class="btn btn-default" n:href="setFavouritePub!, $publication->id" role="button" title="Add to starred Publications"><span class="glyphicon glyphicon-star"></span></a>
-                                {/if}
+                    {snippet publicationAdminButtons}
+                        <button type="button" id="deletePublicationButton" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#DeletePublicationModal" title="Delete this publication">
+                            <span class="glyphicon glyphicon-remove"></span> Delete publication
+                        </button>
 
-                                {if $user->isInRole('admin') && $publication->confirmed == 1}
-                                    <a class="btn btn-success" n:href="setUnConfirmed!, $publication->id" role="button" title="Mark as Unchecked Publication"><span class="glyphicon glyphicon-check"></span></a>
-                                    {else}
-                                    <a class="btn btn-default" n:href="setConfirmed!, $publication->id" role="button" title="Mark as Checked Publication"><span class="glyphicon glyphicon-unchecked"></span></a>
-                                {/if}
-                            </p>
-                        </div>
-                    </div>
+                        <a class="btn btn-primary btn-sm" n:href="Publication:addnew, $publication->id" role="button" title="Edit this publication">
+                            <span class="glyphicon glyphicon-pencil"></span> Edit publication
+                        </a>
+
+                        {if $favourite}
+                            <a class="btn btn-warning btn-sm ajax" n:href="unsetFavouritePub!, $publication->id" role="button" title="Remove from my starred publications">
+                                <span class="glyphicon glyphicon-star"></span> Remove from starred
+                            </a>
+                        {else}
+                            <a class="btn btn-default btn-sm ajax" n:href="setFavouritePub!, $publication->id" role="button" title="Add to my starred publications">
+                                <span class="glyphicon glyphicon-star"></span> Mark as starred
+                            </a>
+                        {/if}
+
+                        {if $user->isInRole('admin')}
+                            {if $publication->confirmed == 1}
+                                <a class="btn btn-success btn-sm" n:href="setUnConfirmed!, $publication->id" role="button" title="Set this publication as unconfirmed">
+                                    <span class="glyphicon glyphicon-check"></span> Set as unchecked
+                                </a>
+                            {else}
+                                <a class="btn btn-default btn-sm" n:href="setConfirmed!, $publication->id" role="button" title="Set this publication as confirmed">
+                                    <span class="glyphicon glyphicon-unchecked"></span> Set as confirmed
+                                </a>
+                            {/if}
+                        {/if}
+                    {/snippet}
                  {/if}
-                </form>
+                </div>
+
+                <div class="col-sm-4">
+                    <div style="display:block;margin-top:40px;">
+                        <h3 style="display:inline-block;">Annotations</h3>
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['annotations']['title']}"
+                           data-content="{$help['annotations']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
+                    </div>
+
+                    {*}<h3>Annotations</h3>*}
+                    <hr>
+
+                    {control annotationCrud}
+
+                    {snippet publicationAnnotationData}
+                        {foreach $annotations as $annotation}
+                            <div>
+                                <label>{$annotation->submitter->name} {$annotation->submitter->surname}</label>,
+                                {$annotation->date|ldate}
+
+                                {if $annotation->global_scope == 1}
+                                    <span class="label label-info">Global</span>
+                                {else}
+                                    <span class="label label-warning">Private</span>
+                                {/if}
+
+                                {if $user->isInRole('admin') || $user->id == $annotation->submitter_id}
+                                    <div style="float:right;">
+                                        {control annotationCrud-controls-$annotation->id}
+                                    </div>
+                                {/if}
+                            </div>
+                            <p>{$annotation->text}</p>
+                            <hr>
+                        {/foreach}
+                    {/snippet}
+
+                    <div class="text-center">
+                        {control annotationCrud-addButton, ['description' => true]}
+                    </div>
+
+                    <div style="display:block;margin-top:40px;">
+                        <h3 style="display:inline-block;">Tags</h3>
+                        <a tabindex="0"
+                           class="btn btn-xs btn-default"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           title="{$help['tags']['title']}"
+                           data-content="{$help['tags']['content']}"
+                           style="display:inline-block;margin-left:10px;margin-top:-7px;font-weight:bold;"
+                        >
+                            ?
+                        </a>
+                    </div>
+                    {*}<h3>Tags</h3>*}
+                    <hr>
+
+                    {snippet tags}
+                        {control publicationTagCrud}
+                    {/snippet}
+
+                    {control tagCrud}
+
+                    {snippet publicationTagData}
+                        {foreach $tags as $tag}
+                            <div>
+                                <label>{$tag->submitter->name} {$tag->submitter->surname}</label>
+
+                                {if $tag->global_scope == 1}
+                                    <span class="label label-info">Global</span>
+                                {else}
+                                    <span class="label label-warning">Private</span>
+                                {/if}
+
+                                {if $user->isInRole('admin') || $user->id == $tag->submitter_id}
+                                    <div style="float:right;">
+                                        {control publicationTagCrud-controls-$tag->id}
+                                    </div>
+                                {/if}
+                            </div>
+                            <p>{$tag->name}</p>
+                            <hr>
+                        {/foreach}
+                    {/snippet}
+
+                    <div class="text-center">
+                        {control publicationTagCrud-addButton, ['description' => true, 'button' => 'xs']}
+                        {control tagCrud-addButton, ['description' => true, 'button' => 'xs']}
+                    </div>
+                </div>
 
                 <div class="modal fade" id="DeletePublicationModal" tabindex="-1" role="dialog" aria-labelledby="DeletePublicationModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -605,277 +800,170 @@
 
             </div>
 
-            <div class="tab-pane fade" id="annotations">
-                {control annotationCrud}
-                <form class="form-horizontal" role="form">
-                    <div class="form-group">
-                        <h1 class="col-sm-3 control-label">Annotations</h1>
-                        <div class="col-sm-8"></div>
-                        <div class="col-sm-1">
-                            <p class="form-control-static">
-                                {control annotationCrud-addButton}
-                            </p>
-                        </div>
-                    </div>
-
-                    {snippet publicationAnnotationData}
-                        {foreach $annotations as $annotation}
-                            <hr>
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">{$annotation->submitter->name} {$annotation->submitter->surname}
-                                    <br>
-                                    {if $annotation->global_scope == 1}
-                                        <span class="glyphicon glyphicon-globe"></span> Global
-                                    {else}
-                                        <span class="glyphicon glyphicon-lock"></span> Private
-                                    {/if}
-                                    <br>
-                                    {if $annotation->date}
-                                        {$annotation->date|ldate}
-                                    {/if}
-                                </label>
-                                <div class="col-sm-9">
-                                    <p id="annotation-{$annotation->id}" class="form-control-static">{$annotation->text}</p>
-                                    <p class="form-control-static">
-                                        {if $user->isInRole('admin') || $user->id == $annotation->submitter_id}
-                                            {control annotationCrud-controls-$annotation->id}
-                                        {/if}
-                                    </p>
-                                </div>
-                                <hr>
-                            </div>
-                        {/foreach}
-                    {/snippet}
-                </form>
-
-            </div>
-            <div class="tab-pane fade" id="tags">
-                {control publicationTagCrud}
-                <form class="form-horizontal" role="form">
-                    <div class="form-group">
-                        <h1 class="col-sm-3 control-label">Tags</h1>
-                        <div class="col-sm-8"></div>
-                        <div class="col-sm-1">
-                            <p class="form-control-static">
-                                {control publicationTagCrud-addButton}
-                            </p>
-                        </div>
-                    </div>
-
-                    {snippet publicationTagData}
-                        {foreach $tags as $tag}
-                            <hr>
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">{$tag->submitter->name} {$tag->submitter->surname}
-                                    <br>
-                                    {if $tag->global_scope == 1}
-                                        <span class="glyphicon glyphicon-globe"></span> Global
-                                    {else}
-                                        <span class="glyphicon glyphicon-lock"></span> Private
-                                    {/if}
-                                    <br>
-                                </label>
-                                <div class="col-sm-9">
-                                    <p id="annotation-{$tag->id}" class="form-control-static">{$tag->name}</p>
-                                    <p class="form-control-static">
-                                        {if $user->isInRole('admin') || $user->id == $tag->submitter_id}
-                                            {control publicationTagCrud-controls-$tag->id}
-                                        {/if}
-                                    </p>
-                                </div>
-                                <hr>
-                            </div>
-                        {/foreach}
-                    {/snippet}
-                </form>
-
-            </div>
-
-
 
             <div class="tab-pane fade" id="exports">
+                <div class="col-sm-12">
 
-                <form class="form-horizontal" role="form">
+                    <h1>Exports</h1>
 
-                    <div class="form-group">
-                        <h1 class="col-sm-3 control-label">Exports</h1>
-                    </div>
                     <hr>
-                    <div class="form-group">
-                      <h2 class="col-sm-3 control-label"><small>ČSN ISO 690</small></h2>
-                      <div class="col-sm-9">
-                        <p class="form-control-static">
-                          {include '@csn_iso_690.latte'}
-                        </p>
-                      </div>
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>ČSN ISO 690</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {include '@csn_iso_690.latte'}
+                        </div>
                     </div>
+
                     <hr>
-                    <div class="form-group">
-                      <h2 class="col-sm-3 control-label"><small>APA</small></h2>
-                      <div class="col-sm-9">
-                        <p class="form-control-static">
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>APA</small></h2>
+                        </div>
+                        <div class="col-sm-10">
                             {include '@apa.latte'}
-                        </p>
-                      </div>
-                    </div>
-                    <hr>
-                    <div class="form-group">
-                      <h2 class="col-sm-3 control-label"><small>IEEE</small></h2>
-                      <div class="col-sm-9">
-                        <p class="form-control-static">
-                          {include '@ieee.latte'}
-                        </p>
-                      </div>
-                    </div>
-                    <hr>
-                    <div class="form-group">
-                        <h2 class="col-sm-3 control-label"><small>Bibtex</small></h2>
-                        <div class="col-sm-9">
-                            <p class="form-control-static">  {$bibtexDefinition|noescape}</p>
-                        </div>
-                    </div>
-                    <hr>
-
-                    <div class="form-group">
-                        <h2 class="col-sm-3 control-label"><small>EndNote</small></h2>
-                        <div class="col-sm-9">
-                            <p class="form-control-static">  {$endnoteDefinition|noescape}</p>
-                        </div>
-                    </div>
-                    <hr>
-
-                    <div class="form-group">
-                        <h2 class="col-sm-3 control-label"><small>RefWorks</small></h2>
-                        <div class="col-sm-9">
-                            <p class="form-control-static">  {$refworksDefinition|noescape}</p>
                         </div>
                     </div>
 
-                </form>
+                    <hr>
 
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>IEEE</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {include '@ieee.latte'}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>Bibtex</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {$bibtexDefinition|noescape}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>EndNote</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {$endnoteDefinition|noescape}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row row-equal-cols">
+                        <div class="col-sm-2 text-right">
+                            <h2><small>RefWorks</small></h2>
+                        </div>
+                        <div class="col-sm-10">
+                            {$refworksDefinition|noescape}
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
             <div class="tab-pane fade" id="references">
 
-                <form class="form-horizontal" role="form">
+                <h1 class="col-sm-3">References</h1>
 
-                    <div class="form-group">
-                        <h1 class="col-sm-3 control-label">References</h1>
-                        <div class="col-sm-8"></div>
-                        <div class="col-sm-1">
-                            <p class="form-control-static">
-                                {control referenceCrud-addButton}
-                            </p>
-                            <p class="form-control-static">
-                                <a n:href="Reference:addlist $publication->id" class="btn btn-success" title="Add list of references">
-                                    <span class="glyphicon glyphicon-list"></span>
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                    {snippet publicationReferencesData}
-                    {if count($references)}
+                <div class="col-sm-3 col-sm-offset-6 text-right">
+                    <p style="margin-right:15px;">
+                        {control referenceCrud-addButton, ['description' => true]}
+                    </p>
+                    <p style="margin-right:15px;">
+                        <a n:href="Reference:addlist $publication->id" class="btn btn-success" title="Add list of references">
+                            <span class="glyphicon glyphicon-list"></span> Add list of references
+                        </a>
+                    </p>
+                </div>
+
+                {snippet publicationReferencesData}
+                    {if count($pubReferences) || count($textReferences)}
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Title</th>
-                                        <th>Action</th>
+                                        <th>Publication</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody n:snippet="referencesShowAllRecords">
-                                    {foreach $references as $record}
-                                        <tr n:snippet="record-$record->id">
-                                            {if (empty($record->reference_id))}
-                                                <td>{$record->text}</td>
-                                                <td>{control referenceCrud-controls-$record->id}</td>
-                                            {else}
-                                            <td>
-                                                <a n:href="Publication:showpub, $record->reference->id">{$record->reference->title}</a>
-                                                <span class="text-muted">
-                                                {if $record->reference->issue_year}
-                                                    {if $record->reference->issue_month}{$record->reference->issue_month}/{/if}{$record->reference->issue_year}
-                                                {/if}
-                                                </span>
-                                                {ifset $authorsByPubId[$record->reference->id]}
-                                                    <br>
-                                                    <span class="authors">{$authorsByPubId[$record->reference->id]|authors}</span>
-                                                {/ifset}
+                                    {foreach $pubReferences as $id => $pubId}
+                                        <tr n:snippet="record-$id">
+                                            <td class="col-sm-10" style="vertical-align: middle;">
+                                                {control publication, $referencedPubs[$pubId], $authorsByPubId[$pubId] ?? []}
                                             </td>
-                                            <td>
-                                                {control referenceCrud-controls-$record->id}
-                                                {if in_array($record->reference->id, $recordsStarred)}
-                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $record->reference->id" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                            <td class="col-sm-2">
+                                                {control referenceCrud-controls-$id}
+                                                {if in_array($pubId, $recordsStarred)}
+                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $pubId" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {else}
-                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $record->reference->id" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $pubId" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {/if}
                                             </td>
-                                            {/if}
+                                        </tr>
+                                    {/foreach}
+
+                                    {foreach $textReferences as $ref}
+                                        <tr n:snippet="record-$ref->id">
+                                            <td class="col-sm-10">{$ref->text}</td>
+                                            <td class="col-sm-2">{control referenceCrud-controls-$ref->id}</td>
                                         </tr>
                                     {/foreach}
                                 </tbody>
                             </table>
                         </div>
                     {else}
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <p>Nothing found.</p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="col-sm-10 col-sm-offset-1">
+                            <div class="alert alert-warning">
+                                No references found.
+                            </div>
                         </div>
                     {/if}
-                    {/snippet}
-                </form>
-
+                {/snippet}
             </div>
 
             <div class="tab-pane fade" id="citations">
 
-                <form class="form-horizontal" role="form">
+                <div style="margin-bottom:0px;">
+                    <h1 class="col-sm-3">Citations</h1>
+                </div>
 
-                    <div class="form-group">
-                        <h1 class="col-sm-3 control-label">Citations</h1>
-                    </div>
+                <div style="margin-top:0px;">
                     {if count($citations)}
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Title</th>
-                                        <th>Action</th>
+                                        <th>Publication</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody n:snippet="citationsShowAllRecords">
-                                    {foreach $citations as $record}
-                                        <tr n:snippet="record-$record->id">
-                                            <td>
-                                                <a n:href="Publication:showpub, $record->publication->id">{$record->publication->title}</a>
-                                                <span class="text-muted">
-                                                {if $record->publication->issue_year}
-                                                    {if $record->publication->issue_month}{$record->publication->issue_month}/{/if}{$record->publication->issue_year}
-                                                {/if}
-                                                </span>
-                                            {ifset $authorsByPubId[$record->publication->id]}
-                                                <br>
-                                                <span class="authors">{$authorsByPubId[$record->publication->id]|authors}</span>
-                                            {/ifset}
+                                    {foreach $citations as $id => $pubId}
+                                        <tr n:snippet="record-$pubId">
+                                            <td class="col-sm-10" style="vertical-align: middle;">
+                                                {control publication, $citedPubs[$pubId], $authorsByPubId[$pubId] ?? []}
                                             </td>
-                                            <td>
-                                                {control citationCrud-controls-$record->id}
-                                                {if in_array($record->publication->id, $recordsStarred)}
-                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $record->publication->id" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                            <td class="col-sm-2">
+                                                {control citationCrud-controls-$id}
+                                                {if in_array($pubId, $recordsStarred)}
+                                                    <a class="btn btn-warning btn-xs ajax" n:href="unsetFavouritePub!, $pubId" role="button" title="Remove from starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {else}
-                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $record->publication->id" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
+                                                    <a class="btn btn-default btn-xs ajax" n:href="setFavouritePub!, $pubId" role="button" title="Add to starred publications"><span class="glyphicon glyphicon-star"></span></a>
                                                 {/if}
                                             </td>
                                         </tr>
@@ -884,30 +972,14 @@
                             </table>
                         </div>
                     {else}
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <p>Nothing found.</p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="col-sm-10 col-sm-offset-1">
+                            <div class="alert alert-warning">
+                                No citations found.
+                            </div>
                         </div>
                     {/if}
-
-                </form>
-
+                </div>
             </div>
-
-
-        </div>
     </div>
 </div>
 
@@ -921,11 +993,7 @@ $(function() {
 
     var hash = window.location.hash.replace('#', '');
 
-    if (hash == 'annotations') {
-        $('#pub-detail-tab a[href="#annotations"]').tab('show') // Select tab by name
-    } else if (hash == 'tags') {
-        $('#pub-detail-tab a[href="#tags"]').tab('show') // Select tab by name
-    } else if (hash == 'detail') {
+    if (hash == 'detail') {
         $('#pub-detail-tab a[href="#detail"]').tab('show') // Select tab by name
     } else if (hash == 'exports') {
         $('#pub-detail-tab a[href="#exports"]').tab('show') // Select tab by name

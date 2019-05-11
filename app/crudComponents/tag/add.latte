@@ -1,5 +1,6 @@
 {ifset $addAllowed}
-	<button type="button" data-signal-url="{$addLink}" class="btn btn-success addPublicationTagButton addTagButton{$uniqid}" data-toggle="modal" data-target="#TagModal{$uniqid}" title="Add new tag">
+	<button type="button" data-signal-url="{$addLink}" class="btn btn-success {ifset $button}btn-{$button}{/ifset} addPublicationTagButton addTagButton{$uniqid}" data-toggle="modal" data-target="#TagModal{$uniqid}" title="Create new tag">
 		<span class="glyphicon glyphicon-plus"></span>
+		{if isset($description) && $description == true} Create new tag{/if}
 	</button>
 {/ifset}

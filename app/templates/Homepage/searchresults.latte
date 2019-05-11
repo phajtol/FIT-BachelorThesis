@@ -4,91 +4,76 @@
 	<div class="row">
 		<ol class="breadcrumb">
 			<li><a n:href="Homepage:">Home</a></li>
-			<li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Fulltext Search Results</a></li>
+			<li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Search results</a></li>
 		</ol>
 	</div>
 {/block}
 
 {block #searchResults}
 {if count($results)}
-   <div class="row">
-       <div class="col-md-12">
-        &nbsp;Order by: {if $sort == 'relevancy' || $sort == ""}
-        <a n:href="this (expand) $params, sort => relevancy" style="font-weight: bold;">Relevancy</a>
-    {else}
-        <a n:href="this (expand) $params, sort => relevancy">Relevancy</a>
-    {/if} |
+   <div class="row" style="margin-bottom:15px;padding-bottom:10px;border-bottom:1px #666 solid;">
+       <div class="col-md-4">
+           Order by:
 
-     {if $sort == 'title'}
-        <a n:href="this (expand) $params, sort => title" style="font-weight: bold;">Title</a>
-    {else}
-        <a n:href="this (expand) $params, sort => title">Title</a>
-    {/if} |
+           {if $stype === 'fulltext'}
+               {if $sort == 'relevancy' || $sort == ''}
+                   <a n:href="this (expand) $params, sort => relevancy" style="font-weight: bold;">Relevancy</a>
+               {else}
+                   <a n:href="this (expand) $params, sort => relevancy">Relevancy</a>
+               {/if}
 
-    {if $sort == 'date'}
-        <a n:href="this (expand) $params, sort => date" style="font-weight: bold;">Year</a>
-    {else}
-        <a n:href="this (expand) $params, sort => date">Year</a>
-    {/if}
-    </div>
-</div>
+               |
 
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr n:foreach="$results as $result">
-                    <td>
-            <h4><a n:href="Publication:showpub, $result['id']">{$result['title']|noescape}</a>
-                <span class="text-muted"> ({$result['pub_type']}{if $result['issue_year']}, {if $result['issue_month']}{$result['issue_month']}/{/if}{$result['issue_year']}{/if}) </span>
-            </h4>
-            <p><strong>Authors:</strong>
-         {foreach $result['authors'] as $author}
-                            {$author->author->surname} {$author->author->middlename ? $author->author->middlename . ' ' : ''} {$author->author->name}{sep}, {/sep}
-                        {/foreach}
-            </p>
-            <p>
-                {$result['passages']|noescape}
-            </p>
-            <p class="text-success"><strong>Categories:</strong>
-                        {foreach $result['categories'] as $category}
-                            {$category->categories->name}{sep}, {/sep}
-                        {/foreach}
-            </p>
-            </td>
-                    {*<td><a n:href="Publication:showpub, $result->id">{$result->title}</a><br />
-                        authors
-                        <br /> category
-                    </td>*}
-            </tr>
-            </tbody>
-        </table>
+               {if $sort == 'title'}
+                   <a n:href="this (expand) $params, sort => title" style="font-weight: bold;">Title</a>
+               {else}
+                   <a n:href="this (expand) $params, sort => title">Title</a>
+               {/if}
+
+               |
+
+               {if $sort == 'date'}
+                   <a n:href="this (expand) $params, sort => date" style="font-weight: bold;">Year</a>
+               {else}
+                   <a n:href="this (expand) $params, sort => date">Year</a>
+               {/if}
+           {else}
+               {if $sort == 'title' || $sort == ''}
+                   <a n:href="this (expand) $params, sort => title" style="font-weight: bold;">Title</a>
+               {else}
+                   <a n:href="this (expand) $params, sort => title">Title</a>
+               {/if}
+
+               |
+
+               {if $sort == 'date'}
+                   <a n:href="this (expand) $params, sort => date" style="font-weight: bold;">Year</a>
+               {else}
+                   <a n:href="this (expand) $params, sort => date">Year</a>
+               {/if}
+           {/if}
+       </div>
+
+       <div class="col-md-3 col-md-offset-5 text-right">
+           Showing <b>{$showingFrom} - {$showingTo}</b> from <b>{$resultsCount}</b>
+       </div>
     </div>
 
-{control vp}
+    <div>
+        <ul class="pub_list">
+            <li n:foreach="$results as $res" style="margin-bottom:15px;">
+                {control publication, $res, $authorsByPubId[$res->id] ?? []}
+            </li>
+        </ul>
+    </div>
 
+
+    <div class="text-center">
+        {control vp}
+    </div>
 {else}
-
-      <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <p>Nothing found.</p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="alert alert-warning" style="margin-top:25px;">
+        No results matching your criteria were found.
     </div>
-
 {/if}
 {/block}

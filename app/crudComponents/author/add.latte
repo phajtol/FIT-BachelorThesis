@@ -1,3 +1,4 @@
-<button type="button" class="btn btn-success" data-toggle="modal" data-target="#AddNewAuthorModal{$uniqid}" title="Add new author">
+<button type="button" class="btn {ifset $button}btn-{$button}{/ifset} btn-success" data-toggle="modal" data-target="#AddNewAuthorModal{$uniqid}" title="Add new author">
 	<span class="glyphicon glyphicon-plus"></span>
+	{if isset($description) && $description == true} Add new author{/if}
 </button>

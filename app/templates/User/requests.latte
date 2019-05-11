@@ -1,0 +1,83 @@
+{block content}
+
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a n:href="Homepage:">Home</a></li>
+            <li><a href="#" class="breadcrumb-admin">Administration</a></li>
+            <li class="active"><a class="active" n:href="{$presenterName}:{$actionName}">Users' requests</a></li>
+        </ol>
+    </div>
+
+    <div class="row">
+
+        {snippet userShowAll}
+            {if count($records)}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Request date</th>
+                            <th>Verdict by</th>
+                            <th>Verdict date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody n:snippet="allRequests">
+                        {foreach $records as $record}
+                            <tr n:snippet="request-$record->rights_request_id">
+                                <td class="col-lg-2">
+                                    {$record->name} {$record->surname}
+                                </td>
+                                <td class="col-lg-2">
+                                    {$record->request_datetime|date:'j. n. Y H:i:s'}
+                                </td>
+                                <td class="col-lg-2">
+                                    {if $record->verdict_surname}
+                                        {$record->verdict_name} {$record->verdict_surname}
+                                    {else}
+                                        -
+                                    {/if}
+                                </td>
+                                <td class="col-lg-2">
+                                    {if $record->verdict_datetime}
+                                        {$record->verdict_datetime|date:'j. n. Y H:i:s'}
+                                    {else}
+                                        -
+                                    {/if}
+                                </td>
+                                <td class="col-lg-2">
+                                    {if $record->verdict === 'waiting'}
+                                        <span class="label label-primary">waiting</span>
+                                    {elseif $record->verdict === 'approved'}
+                                        <span class="label label-success">approved</span>
+                                    {elseif $record->verdict === 'rejected'}
+                                        <span class="label label-danger">rejected</span>
+                                    {/if}
+                                </td>
+                                <td class="col-lg-2">
+                                    {if $record->verdict !== 'approved'}
+                                        <a n:href="approveRequest! $record->rights_request_id" class="btn btn-xs btn-success ajax">
+                                            <span class="glyphicon glyphicon-ok"></span> Approve
+                                        </a>
+                                    {/if}
+                                    {if $record->verdict !== 'rejected'}
+                                        <a n:href="rejectRequest! $record->rights_request_id" class="btn btn-xs btn-danger ajax">
+                                            <span class="glyphicon glyphicon-remove"></span> Reject
+                                        </a>
+                                    {/if}
+                                </td>
+                            </tr>
+                        {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+            {else}
+                <div class="alert alert-warning">
+                    There are no users' requests.
+                </div>
+            {/if}
+        {/snippet}
+    </div>
+{/block}

@@ -2,6 +2,7 @@
 
 namespace App\Presenters;
 
+use App\Components\Publication\PublicationControl;
 use Nette,
     App\Model,
     \VisualPaginator,
@@ -25,6 +26,9 @@ class UserPresenter extends SecuredPresenter {
 
     /** @var Model\Publication @inject */
     public $publicationModel;
+
+    /** @var Model\Author @inject */
+    public $authorModel;
 
     /** @var Model\Tag @inject */
     public $tagModel;
@@ -90,8 +94,6 @@ class UserPresenter extends SecuredPresenter {
         $this->userPasswordChangeFormEnabled =
             ($this->baseAuthenticator->getUserAuthenticationMethod($this->user->id) == \App\Services\Authenticators\BaseAuthenticator::AUTH_LOGIN_PASS);
 
-        bdump($this->baseAuthenticator->getUserAuthenticationMethod($this->user->id));
-
         $submitter = $this->submitterModel->find($this->user->id);
 
         if (!$submitter) {
@@ -105,6 +107,12 @@ class UserPresenter extends SecuredPresenter {
         $userSettings = $this->userSettingsModel->findOneBy(array('submitter_id' => $this->user->id));
 
         $myPublications = $this->publicationModel->findAllByUserId($this->user->id);
+        $myPublicationIds = [];
+
+        foreach ($myPublications as $myPublication) {
+            $myPublicationIds[] = $myPublication->id;
+        }
+        $authorsByPubId = $this->authorModel->getAuthorsByMultiplePubIds($myPublicationIds);
 
         $myTags = $this->tagModel->findAllByUserId($this->user->id);
 
@@ -112,6 +120,7 @@ class UserPresenter extends SecuredPresenter {
         $this->template->annotations = $annotations;
         $this->template->userSettings = $userSettings;
         $this->template->myPublications = $myPublications;
+        $this->template->authorsByPubId = $authorsByPubId;
         $this->template->tags = $myTags;
 
         $this->template->annotationAdded = false;
@@ -160,6 +169,12 @@ class UserPresenter extends SecuredPresenter {
     public function renderShow() {
         $this->template->userPasswordChangeFormEnabled = $this->userPasswordChangeFormEnabled;
 
+        $this->template->requestRightsButtonShow =
+            $this->user->isInRole('reader') && $this->user->isInRole('conference-user');
+
+        $this->template->requestRightsButtonDisabled =
+            $this->rightsRequestModel->hasUserWaitingRequests($this->user->id);
+
         if ($this->drawAllowed) {
             //$this->drawPublications(true);
         }
@@ -173,6 +188,11 @@ class UserPresenter extends SecuredPresenter {
         $this->template->userEdited = false;
         $this->template->userDeleted = false;
         $this->template->userRelated = array();
+    }
+
+    public function renderRequests(): void
+    {
+        $this->template->records = $this->rightsRequestModel->getAll();
     }
 
     public function publicationAddNewUserSettingsFormError($form) {
@@ -349,4 +369,67 @@ class UserPresenter extends SecuredPresenter {
         return $c;
     }
 
+    /**
+     * @return PublicationControl
+     */
+    protected function createComponentPublication(): PublicationControl
+    {
+        return new PublicationControl();
+    }
+
+
+    /**
+     * This handles request for rights from user's profile page.
+     */
+    public function handleRequestRights(): void
+    {
+        if ($this->user->isInRole('reader') && $this->user->isInRole('conference-user')) {
+            $this->rightsRequestModel->request($this->user->id);
+            $this->flashMessage('Your request has been submitted.', 'alert-success');
+        } else {
+            $this->flashMessage('You cannot request rights!', 'alert-danger');
+        }
+
+        $this->redrawControl('flashMessages');
+        $this->redrawControl('requestRightsButton');
+    }
+
+
+    /**
+     * This approves user's request
+     * @param int $requestId
+     */
+    public function handleApproveRequest(int $requestId): void
+    {
+        if ($this->user->isInRole('admin')) {
+            $userId = $this->rightsRequestModel->approve($requestId, $this->user->id);
+
+            $this->userRoleModel->setUserRoles($userId, ['conference-moderator', 'submitter']);
+
+            $this->redrawControl('request-' . $requestId);
+            $this->redrawControl('allRequests');
+        } else {
+            $this->flashMessage('You don\'t have permission to do this!', 'alert-danger');
+            $this->redrawControl('flashMessages');
+        }
+    }
+
+    /**
+     * This rejects user's request
+     * @param int $requestId
+     */
+    public function handleRejectRequest(int $requestId): void
+    {
+        if ($this->user->isInRole('admin')) {
+            $userId = $this->rightsRequestModel->reject($requestId, $this->user->id);
+
+            $this->userRoleModel->setUserRoles($userId, ['conference-user', 'reader']);
+
+            $this->redrawControl('request-' . $requestId);
+            $this->redrawControl('allRequests');
+        } else {
+            $this->flashMessage('You don\'t have permission to do this!', 'alert-danger');
+            $this->redrawControl('flashMessages');
+        }
+    }
 }

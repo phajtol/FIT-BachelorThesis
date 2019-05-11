@@ -144,4 +144,15 @@ class ConferenceYear extends Base {
         return $conferenceYears;
     }
 
+    /**
+     * @param int $conferenceYearId
+     * @return Selection
+     */
+    public function getIsbnForConferenceYear(int $conferenceYearId): Selection
+    {
+        return $this->database->table('conference_year_isbn')
+            ->select('*')
+            ->where('conference_year_id = ?', $conferenceYearId);
+    }
+
 }
