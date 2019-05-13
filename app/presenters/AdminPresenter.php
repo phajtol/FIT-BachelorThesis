@@ -73,21 +73,27 @@ class AdminPresenter extends SecuredPresenter {
      */
     public function renderReference(): void
     {
-      $this->template->references = $this->referenceModel->findUnconfirmedWithPublication();
-      $authorsByPubId = [];
+        $references = $this->referenceModel->findUnconfirmedWithPublication();
+        $referenceCount = count($references);
+        $authorsByPubId = [];
 
-      foreach ($this->template->references as $rec) {
-          /** @var $rec Nette\Database\Table\ActiveRow */
-          foreach ($rec['publication2']->related('author_has_publication')->order('priority ASC') as $authHasPub) {
-              $author = $authHasPub->ref('author');
-              if (!isset($authorsByPubId[$rec['publication2']->id])) {
-                  $authorsByPubId[$rec['publication2']->id] = [];
-              }
-              $authorsByPubId[$rec['publication2']->id][] = $author;
-          }
-      }
+        $this->referenceCountModel->updateCount($referenceCount);
 
-      $this->template->authorsByPubId = $authorsByPubId;
+        foreach ($references as $rec) {
+            /** @var $rec Nette\Database\Table\ActiveRow */
+            foreach ($rec['publication2']->related('author_has_publication')->order('priority ASC') as $authHasPub) {
+                $author = $authHasPub->ref('author');
+
+                if (!isset($authorsByPubId[$rec['publication2']->id])) {
+                    $authorsByPubId[$rec['publication2']->id] = [];
+                }
+
+                $authorsByPubId[$rec['publication2']->id][] = $author;
+            }
+        }
+
+        $this->template->references = $references;
+        $this->template->authorsByPubId = $authorsByPubId;
     }
 
     /**
