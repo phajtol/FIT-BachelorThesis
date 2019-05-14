@@ -78,6 +78,7 @@ class AdminPresenter extends SecuredPresenter {
         $authorsByPubId = [];
 
         $this->referenceCountModel->updateCount($referenceCount);
+        $this->template->unconfirmedReferencesCount = $referenceCount;
 
         foreach ($references as $rec) {
             /** @var $rec Nette\Database\Table\ActiveRow */
@@ -266,7 +267,7 @@ class AdminPresenter extends SecuredPresenter {
         if ($this->isAjax()) {
             $this->redrawControl('references');
         } else {
-            $this->flashMessage('Reference confirmed.');
+            $this->flashMessage('Reference confirmed.', 'alert-success');
             $this->redirect("this");
         }
     }
@@ -282,7 +283,7 @@ class AdminPresenter extends SecuredPresenter {
         if ($this->isAjax()) {
             $this->redrawControl('references');
         } else {
-            $this->flashMessage('Reference refused.');
+            $this->flashMessage('Reference refused.', 'alert-danger');
             $this->redirect('this');
         }
     }
@@ -293,7 +294,7 @@ class AdminPresenter extends SecuredPresenter {
     public function handleProcess(): void
     {
         $count = $this->referenceModel->process();
-        $this->flashMessage($count . ' reference processed.');
+        $this->flashMessage($count . ' reference processed.', 'alert-success');
         $this->redirect('this');
     }
 
