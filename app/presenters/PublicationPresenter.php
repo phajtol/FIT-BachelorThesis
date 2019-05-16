@@ -727,9 +727,14 @@ class PublicationPresenter extends SecuredPresenter {
         $this->publicationId = $id;
 
         $this->publication = [];
+        $publication = null;
 
         if ($id) {
-            $this->publication = $this->publicationModel->find($id)->toArray();
+            $publication = $this->publicationModel->find($id);
+        }
+
+        if ($id && $publication) {
+            $this->publication = $publication->toArray();
             $title = "Edit Publication";
 
             if (!$this->publication) {
