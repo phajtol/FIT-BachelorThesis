@@ -18,3 +18,5 @@ This application was built and maintained during the span of several bachelor an
 - bug fixing (crashes, slow loading)
 - code maintenance
 - and other smaller improvements
+
+Detailed assignment can be found in the thesis pdf on the first page. Thesis pdf is in repository root or [use this link](BP_Hajtol_Peter_2019.pdf). Assignment is in czech language, while thesis itself is in slovak. Thesis also contains images and code examples for better illustrations.
