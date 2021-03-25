@@ -1,49 +1,20 @@
-Nette Framework Sandbox
-=======================
+# FIT-BachelorThesis
 
-The basic skeleton of application.
+This is my bachelor thesis - Publications and conferences database - it is a web database of publications and conferences, used at FIT CTU in Prague, built with PHP (Nette), HTML, CSS, Javascript (jQuery, Bootstrap).
 
-
-What is [Nette Framework](http://nette.org)?
---------------------------------------------
-
-Nette Framework is a popular tool for PHP web development. It is designed to be
-the most usable and friendliest as possible. It focuses on security and
-performance and is definitely one of the safest PHP frameworks.
-
-Nette Framework speaks your language and helps you to easily build better websites.
+This repo contains my bachelor thesis' code and final pdf.
 
 
-Installing
-----------
+## Publications and conferences database - PubConf
 
-The best way to install Nette Framework is to download latest package
-from http://nette.org/download or create new project using Composer:
+PubConf is a web application, that is used to store information about publications and conferences. It is used internally by staff and PhD students at Faculty of Information Technology at Czech Technical University in Prague.
 
-1. Install Composer: (see http://getcomposer.org/download)
+The application is built using PHP (Nette framework), with HTML, CSS and Javascript (Bootstrap and jQuery frameworks) on the front end.
 
-		curl -s http://getcomposer.org/installer | php
-
-2. Create new project via Composer:
-
-		php composer.phar create-project nette/sandbox myApplication
-		cd myApplication
-
-Make directories `temp` and `log` writable. Navigate your browser
-to the `www` directory and you will see a welcome page. PHP 5.4 allows
-you run `php -S localhost:8888 -t www` to start the web server and
-then visit `http://localhost:8888` in your browser.
-
-
-It is CRITICAL that file `app/config/config.neon` & whole `app`, `log`
-and `temp` directory are NOT accessible directly via a web browser! If you
-don't protect this directory from direct web access, anybody will be able to see
-your sensitive data. See [security warning](http://nette.org/security-warning).
-
-
-Testing
--------
-
-To run tests, use:
-
-$ vendor/bin/tester -c tests/php.ini tests
+This application was built and maintained during the span of several bachelor and master theses and several authors. My contributions include:
+- user interface updates, in order to make the app easier to use for users
+- publication search update, with multiple new options for filtering results
+- Nette upgrade
+- bug fixing (crashes, slow loading)
+- code maintenance
+- and other smaller improvements
